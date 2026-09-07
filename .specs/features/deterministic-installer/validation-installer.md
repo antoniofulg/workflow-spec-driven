@@ -1,141 +1,120 @@
 # Deterministic Installer Validation: installer slice
 
-**Verdict**: FAIL
+**Verdict**: PASS
 **Date**: 2026-09-07
 **Spec**: `.specs/features/deterministic-installer/spec.md`
 **Test contract**: `.specs/features/deterministic-installer/tests.md`
-**Diff range**: `0ae2b98..72d42bef2aa33406b7b21edb3b6256838b94228f`
+**Diff range**: `0ae2b989..007c3d460886d419fdf1ff67371181cb880bcedb`
 **Branch**: `feat/deterministic-installer`
 **Verifier**: fresh Technical Verifier, author != verifier
-**Scope**: sole integrated `installer` slice at code HEAD `72d42be`
+**Scope**: sole integrated `installer` slice at HEAD `007c3d46`; private local `my-workflow@0.10.0`
 
 ## Result
 
-The implementation gate is green, but the slice is not verified. The IT-002 test is hollow for the
-required prior-manifest migration: it never creates prior managed `knowledge/wiki/**` records. A
-behavior-level mutation deleting that migration exception survived the complete 105-case adopter
-suite.
+All 22 story criteria match the spec-defined outcomes. The full gate passes. The exact prior
+knowledge/wiki mutation is killed. IT-002, IT-003, and IT-013 now directly cover their prior gaps.
 
 ## Task completion
 
-| Task | Recorded state | Independent disposition |
-| --- | --- | --- |
-| T1 neutral consumer knowledge | complete | FAIL: prior managed wiki relinquishment is not discriminated |
-| T2 ownership and retirement | complete | FAIL: the affected migration branch has a surviving mutant |
-| T3 Node adapter | complete | Covered by current behavioral assertions |
-| T4 package archive | complete | Covered by real local tarball/npm-exec assertions |
-| T5 public contract and QA promises | complete | Documentation check green; live QA deferred to fresh QA phases |
+| Task | Independent disposition |
+| --- | --- |
+| T1 neutral knowledge | PASS: IT-001 and remediated IT-002 cover fresh and prior-manifest states |
+| T2 ownership and retirement | PASS: IT-002 through IT-006, IT-013, and SEC-002 discriminate required outcomes |
+| T3 Node adapter | PASS: IT-007 through IT-009 and SEC-001/003 assert public process behavior |
+| T4 archive | PASS: IT-010 through IT-012 and SEC-004 exercise a real local tarball |
+| T5 public contract | PASS for technical scope; live QA remains assigned to fresh QA phases |
 
 ## Spec-anchored acceptance criteria
 
 | Criterion | Spec-defined outcome | Behavioral evidence | Result |
 | --- | --- | --- | --- |
-| Exact package command defaults install to `full` with foreground stdio | Packaged adopter runs through public bin; default resolves all four layers | `scripts/test_adopt.py:1042` asserts default plan exit `0`; `scripts/test_adopt.py:1043` asserts all four resolved layers; `scripts/test_adopt.py:1158` invokes real tarball with default apply; `scripts/test_adopt.py:1160` asserts success | PASS |
-| Package exposes exactly one `my-workflow` executable using Node stdlib | One bin, no runtime dependency | `scripts/test_adopt.py:1195` asserts private `0.10.0`; `scripts/test_adopt.py:1196` asserts the exact sole bin; `scripts/test_adopt.py:1198` asserts empty runtime dependencies; implementation imports only `node:*` at `bin/my-workflow.js:3` | PASS |
-| Fresh apply installs cumulative layers, runtimes, blocks, schema-1 manifest, manifest last | Full install and ordered publication | `scripts/test_adopt.py:536` invokes full apply; `scripts/test_adopt.py:546` asserts exact manifest inventory; `scripts/test_adopt.py:1498` asserts manifest is last write; `scripts/test_adopt.py:1500` asserts runtimes precede it | PASS |
-| Manifest version equals executing package semver | `0.10.0` in package and installed schema | `scripts/test_adopt.py:1195` asserts package version; `scripts/test_adopt.py:1208` reads installed manifest; `scripts/test_adopt.py:1209` asserts equality | PASS |
-| Public verbs preserve adopter stdout/stderr/JSON/options/exits | Wrapper parity for explicit/default layers, `--`, status, resolve | `scripts/test_adopt.py:1041` asserts plan tuple parity; `scripts/test_adopt.py:1043` asserts default layers; `scripts/test_adopt.py:1045` asserts `--` placement works; `scripts/test_adopt.py:1051` asserts drift status tuple parity; `scripts/test_adopt.py:1054` asserts resolve exit parity | PASS |
-| Pristine managed files update to executing source bytes | Managed source change is copied exactly | `scripts/test_adopt.py:1438` changes a source fixture; `scripts/test_adopt.py:1442` asserts installed bytes equal source | PASS |
-| Pristine consumer-owned provider templates promote and update | Provenance-gated managed ownership plus package bytes | `scripts/test_adopt.py:900` asserts promotion and `scripts/test_adopt.py:903` asserts 18 runtimes, but the case never changes provider source bytes or asserts installed template bytes/hashes | GAP |
-| Edited provider template conflicts with exit `1` and zero writes | Path listed; target snapshot unchanged | `scripts/test_adopt.py:922` asserts exit `1`; `scripts/test_adopt.py:923` asserts path; `scripts/test_adopt.py:924` asserts complete snapshot equality | PASS |
-| Managed provider update regenerates 18 runtimes from preserved config | All packets regenerated, local config byte-identical | `scripts/test_adopt.py:901` rejects stale runtime; `scripts/test_adopt.py:902` preserves config; `scripts/test_adopt.py:903` asserts 18 packets | PASS |
-| Consumer context/config/package/prose/wiki/raw state is preserved | Named consumer bytes remain unchanged | `scripts/test_adopt.py:941` and `scripts/test_adopt.py:942` preserve prose prefixes; `scripts/test_adopt.py:944` preserves context/config/package; `scripts/test_adopt.py:871` preserves existing wiki/raw bytes | PASS for ordinary consumer state; prior managed wiki migration is GAP below |
-| Fresh target gets generic managed knowledge plus nine neutral consumer wiki files | No populated source knowledge crosses boundary | `scripts/test_adopt.py:844` asserts exact wiki inventory; `scripts/test_adopt.py:845` and `scripts/test_adopt.py:846` assert managed generic files; `scripts/test_adopt.py:847` asserts no raw observation; `scripts/test_adopt.py:849` asserts consumer ownership | PASS |
-| Managed knowledge instructions update; source concepts/raw/specs/QA evidence stay excluded | Generic bytes only in target/archive | `scripts/test_adopt.py:845` and `scripts/test_adopt.py:846` assert generic exact bytes; `scripts/test_adopt.py:1142` asserts exact archive inventory; `scripts/test_adopt.py:1143` asserts exclusions | PASS |
-| Reapplying exact package/layers is byte and mtime idempotent | Exit `0`, identical snapshot, unchanged manifest mtime | `scripts/test_adopt.py:432` asserts repeat success; `scripts/test_adopt.py:433` asserts identical snapshot; `scripts/test_adopt.py:434` asserts unchanged mtime | PASS |
-| All ownership/safety conflicts are collected before writes | Managed plus unowned conflict list; zero writes | `scripts/test_adopt.py:466` asserts exit `1`; `scripts/test_adopt.py:468` and `scripts/test_adopt.py:469` assert both paths; `scripts/test_adopt.py:470` asserts snapshot equality; symlink isolation at `scripts/test_adopt.py:514` | PASS |
-| Pristine retired managed file is previewed and removed without uninstalling layer | Remove action, file gone, record dropped, layer retained | `scripts/test_adopt.py:977` asserts file removal and `scripts/test_adopt.py:979` asserts record removal; no assertion checks preview action or retained installed layer | GAP |
-| Edited retired file conflicts with exit `1` and zero writes | Path listed; target unchanged | `scripts/test_adopt.py:973` asserts conflict/path; `scripts/test_adopt.py:974` asserts snapshot equality | PASS |
-| Consumer, prior wiki, and absent retired records preserve/accept state then drop tracking | Prior `knowledge/wiki/**` managed records must relinquish before retirement | `scripts/test_adopt.py:871` covers consumer bytes without a prior manifest; no test creates pristine and edited wiki records owned as managed. Mutation SENSOR-001 survived | FAIL |
-| Missing/old Python fails exactly before adopter/target mutation | Exact stderr, exit `2`, no second call, zero writes | `scripts/test_adopt.py:1093`-`scripts/test_adopt.py:1095` cover missing/old; `scripts/test_adopt.py:1129`-`scripts/test_adopt.py:1132` cover failing probe and one call only | PASS |
-| Spaces, Unicode, and shell metacharacters remain literal argv | Exact target receives install; no shell side effects | `scripts/test_adopt.py:1070` invokes literal target; `scripts/test_adopt.py:1072` asserts exact target manifest; `scripts/test_adopt.py:1073` asserts no sentinel; security repeat at `scripts/test_adopt.py:1110` | PASS |
-| Archive equals explicit allowlist and has no tests/specs/config/runtimes/source knowledge/hooks | Exact inventory and lifecycle absence | `scripts/test_adopt.py:1142` asserts exact entries; `scripts/test_adopt.py:1143`-`scripts/test_adopt.py:1146` assert exclusions/required assets; `scripts/test_adopt.py:1219`-`scripts/test_adopt.py:1223` assert forbidden paths, hooks, dependencies | PASS |
-| No background/download/security-skill install after package acquisition | Foreground child and separate external-security instruction | `bin/my-workflow.js:47` uses synchronous foreground stdio; `scripts/test_adopt.py:1219` excludes generated/runtime source state and `scripts/test_adopt.py:1222` asserts no lifecycle hooks; source adapter only prints the separate step at `scripts/adopt.py:987` | PASS |
-| Resolve remains explicit; no replacement-all or implicit overwrite | Exact reviewed `--replace`; eligibility preserved | `scripts/test_adopt.py:1052` supplies one explicit replacement; `scripts/test_adopt.py:1056` asserts clean ready resolve; parser exposes only repeated `--replace` at `scripts/adopt.py:944` | PASS |
+| Exact command defaults to `full` with foreground stdio | Four layers and direct-adopter output parity | `scripts/test_adopt.py:1076`, `scripts/test_adopt.py:1078`, `scripts/test_adopt.py:1193`, `scripts/test_adopt.py:1195` | PASS |
+| Exactly one stdlib Node executable | Sole `my-workflow` bin; no runtime dependencies | `scripts/test_adopt.py:1231`, `scripts/test_adopt.py:1233`; stdlib imports at `bin/my-workflow.js:3` | PASS |
+| Fresh apply installs cumulative layers, runtimes, blocks, schema 1, manifest last | Exact inventory and ordered publication | `scripts/test_adopt.py:536`, `scripts/test_adopt.py:546`, `scripts/test_adopt.py:1533`, `scripts/test_adopt.py:1535` | PASS |
+| Manifest version equals executing package semver | Both equal `0.10.0` | `scripts/test_adopt.py:1230`, `scripts/test_adopt.py:1244` | PASS |
+| Public verbs preserve stdout/stderr/JSON/options/exits | Wrapped plan, status, resolve equal direct behavior | `scripts/test_adopt.py:1076`, `scripts/test_adopt.py:1086`, `scripts/test_adopt.py:1089` | PASS |
+| Pristine managed files update | Installed bytes equal changed package source | `scripts/test_adopt.py:1473`, `scripts/test_adopt.py:1477` | PASS |
+| Pristine consumer provider template promotes and updates | Distinct newer bytes install; managed record has new hashes | `scripts/test_adopt.py:908`, `scripts/test_adopt.py:911`, `scripts/test_adopt.py:927` through `scripts/test_adopt.py:930` | PASS |
+| Edited provider template conflicts with zero writes | Exit `1`, path listed, snapshot unchanged | `scripts/test_adopt.py:953` through `scripts/test_adopt.py:955` | PASS |
+| Provider update regenerates 18 runtimes from preserved config | Runtime includes newer instruction; config exact; 18 packets | `scripts/test_adopt.py:931` through `scripts/test_adopt.py:934` | PASS |
+| Consumer context/config/metadata/prose/knowledge preserved | Named bytes remain exact | `scripts/test_adopt.py:972` through `scripts/test_adopt.py:975`; `scripts/test_adopt.py:887` | PASS |
+| Fresh target gets generic knowledge plus nine neutral wiki files | Exact neutral inventory and ownership | `scripts/test_adopt.py:844` through `scripts/test_adopt.py:850` | PASS |
+| Generic knowledge updates; source concepts/raw/specs/QA excluded | Exact target bytes and archive exclusions | `scripts/test_adopt.py:845`, `scripts/test_adopt.py:846`, `scripts/test_adopt.py:1177` through `scripts/test_adopt.py:1181` | PASS |
+| Same package/layers are idempotent | Snapshot and manifest mtime unchanged | `scripts/test_adopt.py:432` through `scripts/test_adopt.py:434` | PASS |
+| Ownership/safety conflicts collect before writes | All paths listed; snapshot/outside unchanged | `scripts/test_adopt.py:466` through `scripts/test_adopt.py:470`; `scripts/test_adopt.py:513` through `scripts/test_adopt.py:515` | PASS |
+| Pristine retired managed file previews/removes without layer uninstall | Exact remove action; file/record gone; `core` retained | `scripts/test_adopt.py:1008` through `scripts/test_adopt.py:1014` | PASS |
+| Edited retired file conflicts with zero writes | Conflict and snapshot equality | `scripts/test_adopt.py:1004`, `scripts/test_adopt.py:1005` | PASS |
+| Consumer/prior-wiki/absent retired records preserve or accept state then drop tracking | Pristine and edited prior managed wiki records preserve bytes, avoid removal, leave tracking, keep clean status/layer | `scripts/test_adopt.py:863` through `scripts/test_adopt.py:895`; absent/consumer retirement at `scripts/test_adopt.py:1011` through `scripts/test_adopt.py:1016` | PASS |
+| Missing/old/failing Python stops before mutation | Exit `2`, exact stderr, one probe, zero writes | `scripts/test_adopt.py:1128` through `scripts/test_adopt.py:1130`; `scripts/test_adopt.py:1164` through `scripts/test_adopt.py:1167` | PASS |
+| Spaces, Unicode, metacharacters remain literal | Exact target installed; no sentinel | `scripts/test_adopt.py:1105` through `scripts/test_adopt.py:1108`; `scripts/test_adopt.py:1143` through `scripts/test_adopt.py:1145` | PASS |
+| Archive equals allowlist and excludes forbidden content/hooks | Exact membership, no lifecycle hooks/dependencies | `scripts/test_adopt.py:1177` through `scripts/test_adopt.py:1181`; `scripts/test_adopt.py:1253` through `scripts/test_adopt.py:1258` | PASS |
+| No background/download/security install | Synchronous foreground child; no hook; separate command only printed | `bin/my-workflow.js:47`; `scripts/test_adopt.py:1257`; `scripts/adopt.py:987` through `scripts/adopt.py:990` | PASS |
+| Resolve remains explicit | One repeated exact `--replace`; parity retained | `scripts/test_adopt.py:1087` through `scripts/test_adopt.py:1091`; `scripts/adopt.py:944` | PASS |
 
-**Acceptance disposition**: 19 PASS, 2 GAP, 1 FAIL across 22 story criteria. Security requirements
-SEC-001 through SEC-004 map to the cited literal-argv, symlink/preflight, Python-prerequisite, and
-archive assertions; no additional count is claimed for those overlapping criteria.
+**Acceptance disposition**: 22 PASS, 0 GAP, 0 FAIL. SEC-001 through SEC-004 overlap the cited
+literal-argv, symlink/preflight, Python-prerequisite, and archive criteria and are not counted twice.
 
-## Edge cases
+## Prior failure retest disposition
 
-- PASS: spaces, Unicode, metacharacters, and an outside-source working directory (`scripts/test_adopt.py:1063`, `scripts/test_adopt.py:1153`).
-- PASS: missing, Python 3.10, and failing Python (`scripts/test_adopt.py:1082`, `scripts/test_adopt.py:1119`).
-- PARTIAL: pristine and edited provider provenance are exercised, but pristine promotion is not paired with changed package bytes (`scripts/test_adopt.py:881`, `scripts/test_adopt.py:908`).
-- PASS: absent prior block tracking preserves prose and establishes marker ownership (`scripts/test_adopt.py:929`).
-- FAIL: source knowledge versus prior managed consumer wiki migration is not exercised; only fresh/no-manifest preservation exists (`scripts/test_adopt.py:855`).
-- PASS: simultaneous managed and unowned conflicts produce zero writes (`scripts/test_adopt.py:455`).
-- PASS: target/parent/managed/generated symlink branches retain outside state (`scripts/test_adopt.py:504`, `scripts/test_adopt.py:818`, `scripts/test_adopt.py:1272`).
-- PASS: exact repeat is idempotent (`scripts/test_adopt.py:418`).
-- PASS: plan/status read-only behavior is covered (`scripts/test_adopt.py:152`, `scripts/test_adopt.py:1049`).
+| Immutable fingerprint | Fresh disposition |
+| --- | --- |
+| `01446b3384232adece8962e7fb784603d55918666d57eb8f5ff481a3e74568a0` | PASS: prior schema-1 pristine/edited wiki records are created at `scripts/test_adopt.py:863` through `scripts/test_adopt.py:878`; exact mutation fails at `scripts/test_adopt.py:882` |
+| `fba97540a52fd8ce893ab250f5d848cbea0c2fc59f9427752e990c281ab0c340` | PASS: distinct bytes, installed bytes, both hashes, and runtime marker are asserted at `scripts/test_adopt.py:908` through `scripts/test_adopt.py:934` |
+| `388729012893cb16d30d030a8c9f37c6891620cc43a996e87b28b1f95cbc8969` | PASS: remove preview at `scripts/test_adopt.py:1008`; resolved/installed `core` at `scripts/test_adopt.py:1009` and `scripts/test_adopt.py:1014` |
 
-## Gate evidence
-
-**TECH-GATE-001**
-
-- Command: `rtk bun run test:all`
-- Executed: fresh at code HEAD `72d42bef2aa33406b7b21edb3b6256838b94228f`
-- Exit: `0`
-- Bun lane: `126 pass`, `0 fail`, `1239 expect() calls`, 8 files
-- Canonical adopter lane: `ok (105 tests)`
-- Runtime-config lane: `61 passed, 0 failed`
-- Other Python lanes: all completed; final command exit `0`
-- Skips: none reported
-- Baseline: adopter `88` tests at `0ae2b98`; current `105`; delta `+17`. Runtime-config remains `61`.
-- `rtk git diff --check 0ae2b98..72d42be`: exit `0`, no output
-- Limitation: a green gate does not cover the missing prior-managed-wiki setup.
+`review-fingerprints.json` was not edited. Its blob hash remains
+`2e97c00278b00f0e751778b873d4f0aaa63356b7`; the coordinator owns counter closure.
 
 ## Discrimination sensor
 
-**SENSOR-001**
+| Mutation | Owning command | Result |
+| --- | --- | --- |
+| At `scripts/adopt.py:401`, remove `or relative.startswith("knowledge/wiki/")`; prior managed wiki then reaches the positive retirement allowlist and blocks a valid upgrade | `rtk python3 scripts/test_adopt.py` in detached scratch at `007c3d46` | KILLED: exit `1`; IT-002 fails at `scripts/test_adopt.py:882` on `assert plan.returncode == 0` |
 
-- Tier: lightweight, one highest-risk behavior mutation; one survival is sufficient to fail.
-- Isolation: detached temporary worktree `/tmp/my-workflow-verify-installer-sensor-72d42be` at exact HEAD.
-- Baseline real-tree `rtk git status --porcelain`: empty.
-- Mutation: `scripts/adopt.py:401`, remove `or relative.startswith("knowledge/wiki/")` so prior managed wiki records reach the positive retirement guard, fail its allowlist, and become conflicts instead of being relinquished.
-- Spec-owning command: `rtk python3 scripts/test_adopt.py`.
-- Result: exit `0`, `ok (105 tests)`. **SURVIVED**.
-- Cleanup: `rtk git worktree remove --force /tmp/my-workflow-verify-installer-sensor-72d42be`, exit `0`.
-- Post-cleanup real-tree `rtk git status --porcelain`: empty, identical to baseline.
+**Sensor depth**: lightweight, exact prior highest-risk mutation. **Result**: 1/1 killed, PASS.
+Real-tree `rtk git status --porcelain=v1` was empty before scratch creation and empty after scratch
+removal and prune.
 
-**Sensor result**: 0 killed, 1 survived, FAIL.
+## Edge cases
+
+- PASS: spaces, Unicode, metacharacters, outside-source cwd (`scripts/test_adopt.py:1098`, `scripts/test_adopt.py:1188`).
+- PASS: missing, Python 3.10, failing Python (`scripts/test_adopt.py:1117`, `scripts/test_adopt.py:1154`).
+- PASS: pristine/edited provider provenance (`scripts/test_adopt.py:900`, `scripts/test_adopt.py:939`).
+- PASS: missing prior block tracking preserves prose (`scripts/test_adopt.py:287`).
+- PASS: consumer knowledge and prior managed pristine/edited wiki migration (`scripts/test_adopt.py:855`).
+- PASS: simultaneous managed/unowned conflicts (`scripts/test_adopt.py:455`).
+- PASS: target, parent, managed, generated, retired symlinks preserve outside state (`scripts/test_adopt.py:504`, `scripts/test_adopt.py:818`, `scripts/test_adopt.py:1021`, `scripts/test_adopt.py:1408`).
+- PASS: exact repeat is byte/mtime idempotent (`scripts/test_adopt.py:418`).
+- PASS: plan/status stay read-only (`scripts/test_adopt.py:152`, `scripts/test_adopt.py:1442`).
+
+## Gate evidence
+
+- Command: `rtk bun run test:all`
+- Executed: fresh at HEAD `007c3d460886d419fdf1ff67371181cb880bcedb`, before report edits
+- Exit: `0`
+- Bun: `126 pass`, `0 fail`, `1239 expect() calls`, 8 files
+- Adopter: `ok (105 tests)`
+- Runtime config: `61 passed, 0 failed`
+- Other Python lanes: all completed with exit `0`
+- Skips: none reported
+- Baseline/current: adopter `88`/`105` (delta `+17`); runtime config `61`/`61`
+- `rtk git diff --check 0ae2b989..007c3d46`: exit `0`, no output
 
 ## Impacted QA scenarios
 
-`ADP-adopt-workflow-safely`, `ADP-layered-workflow-adoption`,
-`ADP-resolve-legacy-adoption-conflicts`, `ADP-separate-external-security-skills`,
-`ADP-install-phase-skills`, `ADP-install-review-and-qa-entries`, and
-`ADP-install-versioned-workflow-package` remain `untested`. Live walks belong to separate fresh QA
-Plan and QA Execute phases after technical remediation; this technical session did not launch them.
+All seven spec-named scenarios are `qa_status: untested`. This technical phase did not launch the
+product or perform QA. Fresh QA Plan and QA Execute packets own those walks.
 
-## Ranked gaps and fix tasks
+## Code quality
 
-1. **Major: IT-002 does not test prior managed wiki relinquishment.** Fingerprint:
-   `DINST-006/007/012 + no prior managed knowledge/wiki manifest fixture + prior managed wiki blocks upgrade instead of being relinquished/preserved`.
-   Add a canonical `scripts/test_adopt.py` case that creates a prior schema-1 manifest with both
-   pristine and edited `knowledge/wiki/**` records marked managed, applies the current package, and
-   asserts every byte is unchanged, records are no longer managed, status is clean, and no wiki path
-   appears as retired. Verify with `python3 scripts/test_adopt.py`, then `bun run test:all`, and rerun
-   the same mutation. Done when mutation `scripts/adopt.py:401` without the wiki exception fails.
-2. **Major: IT-003 does not discriminate provider-template byte update after promotion.** Fingerprint:
-   `DINST-004 + same-release provider-promotion fixture + changed provider bytes or manifest hashes can remain stale without test failure`.
-   Its fixture
-   flips ownership under the same source bytes and asserts ownership/runtime count, but never changes
-   provider source bytes or asserts installed template and manifest hashes equal the newer package.
-   Extend the canonical case with distinct old/new provider bytes and exact byte/hash assertions.
-3. **Minor: IT-013 does not assert the previewed remove action or retention of installed layers.**
-   Fingerprint: `DINST-012 + missing retirement-plan and layer assertions + removal can omit its preview or alter installed layers without test failure`.
-   Add
-   assertions for the `remove` action/`retired` entry and unchanged manifest layer list in its existing
-   isolated cases.
+Minimum code, surgical scope, existing patterns, exact DX contract, one-owner test mapping, and
+spec-anchored outcomes pass. The adopter count rose from 88 to 105; no skips or weakened tests were
+observed. Authorities checked: `docs/guidelines/TEST-CONTRACT.md`, `docs/guidelines/DX.md`,
+`docs/guidelines/REVIEW-ROUNDS.md`, and `docs/guidelines/VERIFICATION-EVIDENCE.md`.
 
-## Code quality and limitations
+No visual AC exists. No interactive UAT ran. No new validation signal requires a lesson.
 
-Implementation is small and uses the existing Python mutation engine plus one dependency-free Node
-adapter. No visual AC exists. Local package remains deliberately private as `my-workflow@0.10.0`;
-this report proves local tarball `npm exec` only and makes no published `npx` claim. Existing consumer
-QA profiles are preserved, while fresh consumer source QA profiles are omitted as designed.
+## Summary
 
-No lesson artifact was written. The surviving mutant is grounded signal, but this verifier was
-authorized to write only the two validation reports; the coordinator must explicitly route any
-additional artifact mutation.
+**Overall**: PASS. **Spec**: 22/22. **Sensor**: 1/1 killed. **Gate**: exit `0`.
+**Ranked gaps**: none.
