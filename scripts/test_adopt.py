@@ -494,7 +494,11 @@ def test_full_profile_matches_frozen_pre_feature_inventory() -> None:
     target = temporary_target()
     try:
         assert invoke(target, "apply", "--layers", "full").returncode == 0
-        expected: set[str] = {"templates/adoption/agents/core.md", "templates/adoption/agents/parallel.md", "templates/adoption/agents/quality.md", *adopt.CONSUMER_MISSING_SOURCES}
+        expected: set[str] = {
+            "templates/adoption/agents/core.md", "templates/adoption/agents/parallel.md", "templates/adoption/agents/quality.md",
+            adopt.PRODUCT_CONTEXT_PATH, "knowledge/wiki/index.md", "knowledge/wiki/log.md",
+            *(f"knowledge/wiki/{group}/index.md" for group in ("domain", "product", "architecture", "design", "decisions", "research", "open-questions")),
+        }
         for relative in FROZEN_PRE_FEATURE_PATHS:
             source = ROOT / relative
             if source.is_file():
@@ -771,13 +775,12 @@ def test_it001_fresh_apply_seeds_neutral_consumer_knowledge() -> None:
         expected = {
             "knowledge/wiki/index.md",
             "knowledge/wiki/log.md",
-            *(f"knowledge/wiki/{group}/index.md" for group in adopt.KNOWLEDGE_WIKI_GROUPS),
+            *(f"knowledge/wiki/{group}/index.md" for group in ("domain", "product", "architecture", "design", "decisions", "research", "open-questions")),
         }
-        assert expected <= {path.relative_to(target).as_posix() for path in (target / "knowledge/wiki").rglob("*") if path.is_file()}
+        assert {path.relative_to(target).as_posix() for path in (target / "knowledge/wiki").rglob("*") if path.is_file()} == expected
         assert (target / "knowledge/AGENTS.md").read_bytes() == (ROOT / "knowledge/AGENTS.md").read_bytes()
         assert (target / "knowledge/raw/README.md").read_bytes() == (ROOT / "knowledge/raw/README.md").read_bytes()
-        assert not (target / "knowledge/raw/2026-09-03-e2e-gate-remediation-cost.md").exists()
-        assert not (target / "knowledge/wiki/design/design-reference-fidelity.md").exists()
+        assert {path.relative_to(target).as_posix() for path in (target / "knowledge/raw").rglob("*") if path.is_file()} == {"knowledge/raw/README.md"}
         manifest = json.loads((target / ".my-workflow/adoption.json").read_text(encoding="utf-8"))
         assert all(manifest["files"][path]["ownership"] == "consumer" for path in expected)
         assert all(path not in manifest["files"] for path in ("knowledge/wiki/design/design-reference-fidelity.md", "knowledge/raw/2026-09-03-e2e-gate-remediation-cost.md"))
@@ -809,6 +812,137 @@ def test_it002_existing_consumer_knowledge_is_byte_preserved() -> None:
         assert "knowledge/raw/2026-01-01-consumer-record.md" not in manifest["files"]
     finally:
         shutil.rmtree(target)
+
+
+def test_it003_pristine_provider_templates_promote_and_refresh_runtime() -> None:
+    target = temporary_target()
+    try:
+        assert invoke(target, "apply", "--layers", "core").returncode == 0
+        config = target / ".my-workflow.toml"
+        config_before = config.read_bytes()
+        manifest_path = target / ".my-workflow/adoption.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        providers = [path for path in manifest["files"] if path.startswith("templates/agents/")]
+        assert providers
+        for path in providers:
+            manifest["files"][path]["ownership"] = "consumer"
+            manifest["files"][path]["installed_sha256"] = None
+        manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        runtime = target / ".codex/agents/planner.toml"
+        runtime.write_bytes(b"stale runtime\n")
+        result = invoke(target, "apply", "--layers", "core", "--json")
+        assert result.returncode == 0, result.stderr
+        updated = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert all(updated["files"][path]["ownership"] == "managed" for path in providers)
+        assert runtime.read_bytes() != b"stale runtime\n"
+        assert config.read_bytes() == config_before
+        assert len(list((target / ".claude/agents").glob("*.md"))) + len(list((target / ".codex/agents").glob("*.toml"))) + len(list((target / ".cursor/agents").glob("*.md"))) == 18
+    finally:
+        shutil.rmtree(target)
+
+
+def test_it004_edited_provider_template_conflicts_without_writes() -> None:
+    target = temporary_target()
+    try:
+        assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
+        manifest_path = target / ".my-workflow/adoption.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        template = "templates/agents/cursor/verifier.md"
+        manifest["files"][template]["ownership"] = "consumer"
+        manifest["files"][template]["installed_sha256"] = None
+        manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        path = target / template
+        path.write_bytes(path.read_bytes() + b"\nconsumer edit\n")
+        before = snapshot(target)
+        result = invoke(target, "apply", "--layers", "core", "--skip-agents", "--json")
+        assert result.returncode == 1
+        assert template in json.loads(result.stdout)["conflicts"]
+        assert snapshot(target) == before
+    finally:
+        shutil.rmtree(target)
+
+
+def test_it005_managed_blocks_refresh_without_touching_consumer_state() -> None:
+    target = temporary_target()
+    try:
+        (target / "AGENTS.md").write_bytes(b"# Product instructions\n\nConsumer prose.\n")
+        (target / "CLAUDE.md").write_bytes(b"# Consumer Claude\n")
+        (target / "docs/product").mkdir(parents=True)
+        (target / "docs/product/AGENT-CONTEXT.md").write_bytes(b"consumer context\n")
+        (target / ".my-workflow.toml").write_bytes((ROOT / ".my-workflow.toml.example").read_bytes())
+        (target / "package.json").write_bytes(b'{"name":"consumer"}\n')
+        before = {relative: (target / relative).read_bytes() for relative in ("AGENTS.md", "CLAUDE.md", "docs/product/AGENT-CONTEXT.md", ".my-workflow.toml", "package.json")}
+        result = invoke(target, "apply", "--layers", "core")
+        assert result.returncode == 0, result.stderr
+        assert (target / "AGENTS.md").read_bytes().startswith(before["AGENTS.md"])
+        assert (target / "CLAUDE.md").read_bytes().startswith(before["CLAUDE.md"])
+        for relative in ("docs/product/AGENT-CONTEXT.md", ".my-workflow.toml", "package.json"):
+            assert (target / relative).read_bytes() == before[relative]
+        assert len(list((target / ".claude/agents").glob("*.md"))) + len(list((target / ".codex/agents").glob("*.toml"))) + len(list((target / ".cursor/agents").glob("*.md"))) == 18
+    finally:
+        shutil.rmtree(target)
+
+
+def test_it013_retired_managed_paths_reconcile_safely() -> None:
+    retired = "tools/knowledge/src/cli.ts"
+    for edited, absent, ownership in ((False, False, "managed"), (True, False, "managed"), (False, True, "managed"), (False, False, "consumer")):
+        target = temporary_target()
+        try:
+            assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
+            manifest_path = target / ".my-workflow/adoption.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["files"][retired]["ownership"] = ownership
+            if ownership == "consumer":
+                manifest["files"][retired]["installed_sha256"] = None
+            manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            path = target / retired
+            if edited:
+                path.write_bytes(path.read_bytes() + b"\nconsumer edit\n")
+            if absent:
+                path.unlink()
+            before = snapshot(target)
+            catalog = adopt._catalog(ROOT, ["core"])
+            catalog.pop(retired)
+            with patch.object(adopt, "_catalog", return_value=catalog):
+                result, staged = adopt._build_plan(ROOT, target, ["core"], ["core"], True, False)
+                if edited:
+                    assert result["status"] == "conflict" and retired in result["conflicts"]
+                    assert snapshot(target) == before
+                else:
+                    adopt._publish(ROOT, target, result, staged)
+                    assert (target / retired).exists() == (ownership == "consumer")
+                    updated = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    assert retired not in updated["files"]
+                    if ownership == "consumer":
+                        assert snapshot(target)[retired][1] == before[retired][1]
+        finally:
+            shutil.rmtree(target)
+
+
+def test_sec002_retired_symlink_is_rejected_before_external_write() -> None:
+    target, outside = temporary_target(), temporary_target()
+    retired = "tools/knowledge/src/cli.ts"
+    try:
+        assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
+        manifest_path = target / ".my-workflow/adoption.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        path = target / retired
+        path.unlink()
+        sentinel = outside / "cli.ts"
+        sentinel.write_bytes(b"outside\n")
+        path.symlink_to(sentinel)
+        catalog = adopt._catalog(ROOT, ["core"])
+        catalog.pop(retired)
+        before = snapshot(target)
+        outside_before = snapshot(outside)
+        with patch.object(adopt, "_catalog", return_value=catalog):
+            expect_adoption_error(lambda: adopt._build_plan(ROOT, target, ["core"], ["core"], True, False))
+        assert snapshot(target) == before
+        assert snapshot(outside) == outside_before
+    finally:
+        shutil.rmtree(target)
+        shutil.rmtree(outside)
 
 
 def test_legacy_cleanup_uses_production_paths_and_hashes() -> None:
@@ -877,7 +1011,7 @@ def test_adoption_rejects_invalid_template_before_runtime_writes() -> None:
         template.write_text(template.read_text().replace("model:", "model-old:"))
         before = snapshot(target)
         result = invoke(target, "apply", "--layers", "core")
-        assert result.returncode == 2 and "workflow-config" in result.stderr
+        assert result.returncode == 1 and "templates/agents/cursor/verifier.md" in result.stdout
         assert snapshot(target) == before
     finally:
         shutil.rmtree(target)
@@ -1292,10 +1426,11 @@ def test_existing_config_drives_all_native_values_and_preserves_non_model_bytes(
         template_before = template.read_bytes() + b"\n# consumer instruction\n"
         config.write_bytes(config_before)
         template.write_bytes(template_before)
-        assert invoke(target, "apply", "--layers", "core").returncode == 0
+        result = invoke(target, "apply", "--layers", "core", "--json")
+        assert result.returncode == 1
+        assert "templates/agents/claude/planner.md" in json.loads(result.stdout)["conflicts"]
         assert config.read_bytes() == config_before
         assert template.read_bytes() == template_before
-        assert b"consumer instruction" in (target / ".claude/agents/planner.md").read_bytes()
     finally:
         shutil.rmtree(target)
 
@@ -1724,6 +1859,11 @@ TESTS = (
     test_product_context_parent_symlink_is_rejected_before_writes,
     test_it001_fresh_apply_seeds_neutral_consumer_knowledge,
     test_it002_existing_consumer_knowledge_is_byte_preserved,
+    test_it003_pristine_provider_templates_promote_and_refresh_runtime,
+    test_it004_edited_provider_template_conflicts_without_writes,
+    test_it005_managed_blocks_refresh_without_touching_consumer_state,
+    test_it013_retired_managed_paths_reconcile_safely,
+    test_sec002_retired_symlink_is_rejected_before_external_write,
     test_legacy_cleanup_uses_production_paths_and_hashes,
     test_legacy_cleanup_removes_owned_tests_and_preserves_consumer_files,
     test_legacy_cleanup_preserves_external_symlinked_test_directories,

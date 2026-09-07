@@ -41,9 +41,9 @@ CORE_PATHS = (
     ".agents/skills/wspecify", ".agents/skills/wdesign", ".agents/skills/wtasks",
     ".agents/skills/wimplement", ".agents/skills/wverify",
     ".agents/skills/wreview", ".agents/skills/wqa",
-    "templates/adoption/agents",
+    "templates/adoption/agents", "templates/agents",
 )
-CORE_MISSING_PATHS = ("tools/ad-index.py", ".my-workflow.toml.example", "templates/agents")
+CORE_MISSING_PATHS = ("tools/ad-index.py", ".my-workflow.toml.example")
 PRODUCT_CONTEXT_PATH = "docs/product/AGENT-CONTEXT.md"
 PRODUCT_CONTEXT_TEMPLATE = "templates/adoption/product/AGENT-CONTEXT.md"
 KNOWLEDGE_WIKI_GROUPS = ("domain", "product", "architecture", "design", "decisions", "research", "open-questions")
@@ -321,7 +321,11 @@ def _record(layer: str, ownership: str, source: bytes, installed: bytes | None) 
     return {"layer": layer, "ownership": ownership, "source_sha256": _sha(source), "installed_sha256": None if installed is None else _sha(installed)}
 
 
-def _classify(root: Path, source_root: Path, selected: list[str], manifest: dict[str, Any]) -> tuple[list[dict[str, str]], dict[str, Any], list[str]]:
+def _is_provider_template(relative: str) -> bool:
+    return relative.startswith("templates/agents/")
+
+
+def _classify(root: Path, source_root: Path, selected: list[str], manifest: dict[str, Any]) -> tuple[list[dict[str, str]], dict[str, Any], list[str], list[str]]:
     catalog = _catalog(source_root, selected)
     missing_paths = {path for layer in selected for item in LAYER_MISSING_PATHS[layer] for path in _source_files(source_root, item)}
     if "core" in selected:
@@ -341,6 +345,17 @@ def _classify(root: Path, source_root: Path, selected: list[str], manifest: dict
             records[relative] = _record(layer, "consumer", source, None)
             continue
         if previous and previous["ownership"] == "consumer":
+            if _is_provider_template(relative):
+                current_hash = _sha(destination.read_bytes()) if exists else None
+                if current_hash != previous["source_sha256"]:
+                    conflicts.append(relative)
+                    actions.append({"path": relative, "action": "conflict", "layer": layer})
+                    records[relative] = previous
+                    continue
+                action = "retain" if exists and destination.read_bytes() == installed_source else "update"
+                actions.append({"path": relative, "action": action, "layer": layer})
+                records[relative] = _record(layer, "managed", source, installed_source)
+                continue
             actions.append({"path": relative, "action": "preserve", "layer": layer})
             records[relative] = previous
             continue
@@ -361,7 +376,24 @@ def _classify(root: Path, source_root: Path, selected: list[str], manifest: dict
             action = "conflict"
         actions.append({"path": relative, "action": action, "layer": layer})
         records[relative] = _record(layer, "managed", source, installed_source)
-    return actions, records, conflicts
+    retired_actions: list[dict[str, str]] = []
+    retired: list[str] = []
+    for relative, previous in sorted(manifest["files"].items()):
+        if relative in records:
+            continue
+        path = _safe_path(root, relative, "retired destination")
+        if previous["ownership"] == "consumer" or relative.startswith("knowledge/wiki/"):
+            continue
+        if not path.exists():
+            continue
+        current_hash = _sha(path.read_bytes())
+        if current_hash != previous["installed_sha256"]:
+            conflicts.append(relative)
+            retired_actions.append({"path": relative, "action": "conflict", "layer": previous["layer"]})
+            continue
+        retired.append(relative)
+        retired_actions.append({"path": relative, "action": "remove", "layer": previous["layer"]})
+    return actions + retired_actions, records, conflicts, retired
 
 
 def _adopted_bytes(relative: str, source: bytes) -> bytes:
@@ -699,7 +731,7 @@ def _build_plan(
     installed = resolve_layers(manifest["layers"]) if manifest["layers"] else []
     effective = resolve_layers(list(LAYERS if requested == ["full"] else requested) + installed)
     _preflight_special(root, skip_agents, _managed_skill_names(effective))
-    actions, records, conflicts = _classify(root, source_root, effective, manifest)
+    actions, records, conflicts, retired = _classify(root, source_root, effective, manifest)
     block_outputs, block_records, block_conflicts = _compose_blocks(source_root, root, effective, skip_agents, manifest)
     conflicts.extend(block_conflicts)
     special = {
@@ -734,6 +766,7 @@ def _build_plan(
         "status": "conflict" if conflicts else "ready",
         "actions": sorted(effect_actions, key=lambda item: (item["path"], item["action"])),
         "conflicts": sorted(set(conflicts)),
+        "retired": retired,
     }
     return result, special
 
@@ -791,6 +824,11 @@ def _publish(source_root: Path, root: Path, result: dict[str, Any], staged: dict
             if relative == ".my-workflow/adoption.json":
                 continue
             _atomic_write(root / relative, content)
+        for relative in result.get("retired", []):
+            path = _safe_path(root, relative, "retired destination")
+            if not path.is_file():
+                raise _error(f"retired destination is no longer a file: {relative}")
+            path.unlink()
         remove_legacy_managed_tests(root)
         _link_claude_skills(root, _managed_skill_names(result["resolved_layers"]))
         manifest_path = root / ".my-workflow/adoption.json"

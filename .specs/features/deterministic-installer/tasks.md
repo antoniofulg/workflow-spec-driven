@@ -141,26 +141,28 @@ publication, `_publish`, and existing `resolve`
 
 **Done when**:
 
-- [ ] `templates/agents/**` is source-owned for new installs; old consumer records promote only when
+- [x] `templates/agents/**` is source-owned for new installs; old consumer records promote only when
       current bytes equal recorded original source hashes.
-- [ ] Edited or unproven provider templates conflict with exit `1`, list their paths, and produce zero
+- [x] Edited or unproven provider templates conflict with exit `1`, list their paths, and produce zero
       writes; existing manual/resolve guidance remains the only deliberate recovery path.
-- [ ] Retired pristine managed files are previewed then removed during staged publication; edited
+- [x] Retired pristine managed files are previewed then removed during staged publication; edited
       retired managed files conflict with zero writes; absent managed and consumer-owned retired paths
       reach their specified desired state without uninstalling a layer; prior `knowledge/wiki/**`
       records transfer to consumer ownership before generic retirement and are never removed,
       whether pristine or edited.
-- [ ] Normal apply refreshes pristine managed AGENTS/CLAUDE blocks and regenerates 18 runtime packets
+- [x] Normal apply refreshes pristine managed AGENTS/CLAUDE blocks and regenerates 18 runtime packets
       from updated source templates plus byte-preserved `.my-workflow.toml`.
-- [ ] `plan` and every conflict/prerequisite branch remain read-only; ordinary injected publication
+- [x] `plan` and every conflict/prerequisite branch remain read-only; ordinary injected publication
       exceptions retain the existing tested snapshot-rollback behavior and manifest-last ordering.
-- [ ] `scripts/test_adopt.py` owns IT-003, IT-004, IT-005, IT-006, IT-013, and SEC-002.
-- [ ] Gate check passes: `python3 scripts/test_adopt.py`.
-- [ ] Test count: all 88 baseline adoption tests and every T1/T2 assigned case pass; the observed total
+- [x] `scripts/test_adopt.py` owns IT-003, IT-004, IT-005, IT-006, IT-013, and SEC-002.
+- [x] Gate check passes: `python3 scripts/test_adopt.py`.
+- [x] Test count: all 88 baseline adoption tests and every T1/T2 assigned case pass; the observed total
       is recorded and no existing test is deleted or skipped.
 
 **Tests**: integration — IT-003, IT-004, IT-005, IT-006, IT-013, SEC-002
 **Gate**: declared — `python3 scripts/test_adopt.py`
+
+**Status**: complete — `python3 scripts/test_adopt.py` (95 passed, 0 failed)
 
 **Commit**: `feat(installer): reconcile managed workflow ownership`
 
