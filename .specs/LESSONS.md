@@ -470,6 +470,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation-s1-r6.md SID-01 AC4 (skill-text-tests)
 - last seen: 2026-09-03T23:50:49Z
 
+### L-077 - Exercise ownership relinquishment with prior managed manifest records as well as fresh consumer files.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `adoption` · harmful: 0
+- features: deterministic-installer
+- evidence: SENSOR-001 (adoption)
+- last seen: 2026-09-07T22:39:24Z
+
+### L-078 - Use different old and new package bytes to verify provider-template upgrades and installed hashes.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `adoption` · harmful: 0
+- features: deterministic-installer
+- evidence: IT-003 (adoption)
+- last seen: 2026-09-07T22:39:24Z
+
+### L-079 - Assert planned removals and retained layers before verifying that retired workflow files disappear.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `adoption` · harmful: 0
+- features: deterministic-installer
+- evidence: IT-013 (adoption)
+- last seen: 2026-09-07T22:39:24Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
