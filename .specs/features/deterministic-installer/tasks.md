@@ -304,6 +304,26 @@ scenario schema
 
 **Commit**: `docs(installer): document deterministic package adoption`
 
+## Verification Remediation Batch: verify upgrade provenance and retirement
+
+**Deliverable:** Extend the existing IT-002, IT-003, and IT-013 cases in
+`scripts/test_adopt.py` with spec-owned prior-manifest, changed-provider, and retirement-plan
+assertions. Test IDs retain their original task owners; no test assignment is duplicated.
+
+**Gate:** `python3 scripts/test_adopt.py`; `bun run test:all`; reproduce the same IT-002 wiki-exception
+mutation in isolated scratch state and confirm it fails.
+
+**Atomic commit:** `test(installer): verify upgrade provenance and retirement`
+
+- [x] IT-002 prior schema-1 managed wiki migration is discriminating.
+- [x] IT-003 changed provider bytes and source/installed hashes are discriminating.
+- [x] IT-013 preview remove action and installed-layer retention are discriminating.
+- [x] Adopter and full gates pass with all existing cases retained.
+
+**Status**: complete — `python3 scripts/test_adopt.py` (105 passed, 0 failed); `bun run test:all`
+(Bun 126 passed, 0 failed; Python lanes 0 failed); the mutated IT-002 wiki-exception run failed as
+expected in isolated scratch state.
+
 ---
 
 ## Dependency Execution Map

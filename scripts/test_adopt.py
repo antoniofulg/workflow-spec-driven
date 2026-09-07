@@ -860,20 +860,39 @@ def test_it002_existing_consumer_knowledge_is_byte_preserved() -> None:
         "knowledge/wiki/log.md": b"2026-01-01 consumer entry\n",
         "knowledge/raw/2026-01-01-consumer-record.md": b"consumer raw record\n",
     }
+    prior_wiki = {
+        "knowledge/wiki/domain/pristine-legacy.md": b"pristine legacy concept\n",
+        "knowledge/wiki/design/edited-legacy.md": b"edited legacy concept\n",
+    }
     try:
-        for relative, content in files.items():
+        for relative, content in {**files, **prior_wiki}.items():
             path = target / relative
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(content)
-        before = {relative: (target / relative).read_bytes() for relative in files}
+        assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
+        manifest_path = target / ".my-workflow/adoption.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        for relative, content in prior_wiki.items():
+            original = b"original legacy concept\n" if relative.endswith("edited-legacy.md") else content
+            digest = hashlib.sha256(original).hexdigest()
+            manifest["files"][relative] = {"layer": "core", "ownership": "managed", "source_sha256": digest, "installed_sha256": digest}
+        manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        before = {relative: (target / relative).read_bytes() for relative in {**files, **prior_wiki}}
+        plan = invoke(target, "plan", "--layers", "core", "--skip-agents", "--json")
+        assert plan.returncode == 0, plan.stderr
+        actions = json.loads(plan.stdout)["actions"]
+        assert all(not (item["path"] in prior_wiki and item["action"] == "remove") for item in actions)
         result = invoke(target, "apply", "--layers", "core", "--skip-agents")
         assert result.returncode == 0, result.stderr
-        assert {relative: (target / relative).read_bytes() for relative in files} == before
-        manifest = json.loads((target / ".my-workflow/adoption.json").read_text(encoding="utf-8"))
-        assert manifest["files"]["knowledge/wiki/index.md"]["ownership"] == "consumer"
-        assert manifest["files"]["knowledge/wiki/log.md"]["ownership"] == "consumer"
-        assert "knowledge/wiki/design/customer-choice.md" not in manifest["files"]
-        assert "knowledge/raw/2026-01-01-consumer-record.md" not in manifest["files"]
+        assert {relative: (target / relative).read_bytes() for relative in {**files, **prior_wiki}} == before
+        updated = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert all(relative not in updated["files"] for relative in prior_wiki)
+        assert updated["layers"] == ["core"]
+        assert invoke(target, "status", "--json").returncode == 0
+        assert updated["files"]["knowledge/wiki/index.md"]["ownership"] == "consumer"
+        assert updated["files"]["knowledge/wiki/log.md"]["ownership"] == "consumer"
+        assert "knowledge/wiki/design/customer-choice.md" not in updated["files"]
+        assert "knowledge/raw/2026-01-01-consumer-record.md" not in updated["files"]
     finally:
         shutil.rmtree(target)
 
@@ -886,19 +905,31 @@ def test_it003_pristine_provider_templates_promote_and_refresh_runtime() -> None
         config_before = config.read_bytes()
         manifest_path = target / ".my-workflow/adoption.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        providers = [path for path in manifest["files"] if path.startswith("templates/agents/")]
-        assert providers
-        for path in providers:
-            manifest["files"][path]["ownership"] = "consumer"
-            manifest["files"][path]["installed_sha256"] = None
+        template = "templates/agents/cursor/verifier.md"
+        old_source = (ROOT / template).read_bytes()
+        marker = b"- package provenance marker: verify the newer instruction body\n"
+        new_source = old_source.replace(b"## Packet (this only)\n", b"## Packet (this only)\n\n" + marker, 1)
+        assert new_source != old_source
+        manifest["files"][template]["ownership"] = "consumer"
+        manifest["files"][template]["installed_sha256"] = None
         manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        runtime = target / ".codex/agents/planner.toml"
+        runtime = target / ".cursor/agents/verifier.md"
         runtime.write_bytes(b"stale runtime\n")
-        result = invoke(target, "apply", "--layers", "core", "--json")
-        assert result.returncode == 0, result.stderr
+        source_path = ROOT / template
+        source_path.write_bytes(new_source)
+        try:
+            result = invoke(target, "apply", "--layers", "core", "--json")
+            assert result.returncode == 0, result.stderr
+        finally:
+            source_path.write_bytes(old_source)
         updated = json.loads(manifest_path.read_text(encoding="utf-8"))
-        assert all(updated["files"][path]["ownership"] == "managed" for path in providers)
+        record = updated["files"][template]
+        assert record["ownership"] == "managed"
+        assert (target / template).read_bytes() == new_source
+        assert record["source_sha256"] == hashlib.sha256(new_source).hexdigest()
+        assert record["installed_sha256"] == hashlib.sha256(new_source).hexdigest()
         assert runtime.read_bytes() != b"stale runtime\n"
+        assert marker in runtime.read_bytes()
         assert config.read_bytes() == config_before
         assert len(list((target / ".claude/agents").glob("*.md"))) + len(list((target / ".codex/agents").glob("*.toml"))) + len(list((target / ".cursor/agents").glob("*.md"))) == 18
     finally:
@@ -973,10 +1004,14 @@ def test_it013_retired_managed_paths_reconcile_safely() -> None:
                     assert result["status"] == "conflict" and retired in result["conflicts"]
                     assert snapshot(target) == before
                 else:
+                    if ownership == "managed" and not absent:
+                        assert {"path": retired, "action": "remove", "layer": "core"} in result["actions"]
+                    assert result["resolved_layers"] == ["core"]
                     adopt._publish(ROOT, target, result, staged)
                     assert (target / retired).exists() == (ownership == "consumer")
                     updated = json.loads(manifest_path.read_text(encoding="utf-8"))
                     assert retired not in updated["files"]
+                    assert updated["layers"] == ["core"]
                     if ownership == "consumer":
                         assert snapshot(target)[retired][1] == before[retired][1]
         finally:
