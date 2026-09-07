@@ -228,23 +228,25 @@ through the canonical adoption suite.
 
 **Done when**:
 
-- [ ] Package metadata remains `private: true` at local version `0.10.0`, has exactly one
+- [x] Package metadata remains `private: true` at local version `0.10.0`, has exactly one
       `my-workflow` bin matching `scripts/adopt.py`, a Node engine compatible with the bin, and no
       runtime dependency or lifecycle install hook.
-- [ ] The explicit `files` allowlist matches `design.md`, includes nested bundled skill license/NOTICE
+- [x] The explicit `files` allowlist matches `design.md`, includes nested bundled skill license/NOTICE
       files, and excludes tests, `.specs`, local config, generated runtimes, source-only knowledge, QA
       evidence/history, and development artifacts.
-- [ ] A real local tarball invokes `my-workflow` through `npm exec --package`, performs fresh `full`
+- [x] A real local tarball invokes `my-workflow` through `npm exec --package`, performs fresh `full`
       install by default and a managed update, reads no asset from the source checkout, and finishes
       with clean `status`.
-- [ ] `scripts/test_adopt.py` owns IT-010, IT-011, IT-012, and SEC-004.
-- [ ] Gate check passes: `bun run test:all`.
-- [ ] Test count: all 88 baseline adoption tests, all 61 baseline workflow-config tests, and every
+- [x] `scripts/test_adopt.py` owns IT-010, IT-011, IT-012, and SEC-004.
+- [x] Gate check passes: `bun run test:all`.
+- [x] Test count: all 88 baseline adoption tests, all 61 baseline workflow-config tests, and every
       assigned T1-T4 case pass; observed totals are recorded and no existing Bun/Python test is deleted
       or skipped.
 
 **Tests**: integration — IT-010, IT-011, IT-012, SEC-004
 **Gate**: full — `bun run test:all`
+
+**Status**: complete — `bun run test:all` (Bun 126 passed, 0 failed; Python lanes including adoption 105 passed, 0 failed)
 
 **Commit**: `feat(installer): package deterministic workflow releases`
 

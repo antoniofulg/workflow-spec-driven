@@ -11,6 +11,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import tarfile
 from unittest.mock import patch
 from pathlib import Path
 
@@ -18,6 +19,21 @@ ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "scripts/adopt.py"
 BIN = ROOT / "bin/my-workflow.js"
 NODE = shutil.which("node") or "node"
+PACKAGE_RUNTIME_ROOTS = (
+    "bin/my-workflow.js", "scripts/adopt.py", "scripts/install_security_skills.py", "skills-lock.json",
+    "AGENTS.md", ".my-workflow.toml.example", "knowledge/AGENTS.md", "knowledge/raw/README.md",
+    "templates/adoption", "templates/agents", "docs/guidelines", "docs/workflow/README.md",
+    "docs/workflow/decisions.md", "docs/workflow/guidelines.md", "docs/workflow/loop.md",
+    "docs/workflow/purpose.md", "docs/workflow/reviews.md", "tools/ad-index.py",
+    "tools/knowledge/src", "tools/shared/src/frontmatter.ts", "tools/qa_parallel_pilot.py",
+    "tools/orca_assisted_probe.py", "tools/resource_lock.py", ".agents/skills/workflow-spec-driven",
+    ".agents/skills/workflow-config", ".agents/skills/wspecify", ".agents/skills/wdesign",
+    ".agents/skills/wtasks", ".agents/skills/wimplement", ".agents/skills/wverify", ".agents/skills/wreview",
+    ".agents/skills/wqa", ".agents/skills/ponytail", ".agents/skills/autonomous", ".agents/skills/deep-review",
+    ".agents/skills/qa-plan", ".agents/skills/qa-execute", ".agents/skills/ponytail-audit",
+    ".agents/skills/ponytail-debt", ".agents/skills/ponytail-gain", ".agents/skills/ponytail-help",
+    ".agents/skills/ponytail-review",
+)
 sys.path.insert(0, str(ROOT / "scripts"))
 import adopt
 from adopt import LEGACY_MANAGED_TEST_DIRECTORIES, LEGACY_MANAGED_TEST_FILES, remove_legacy_managed_tests
@@ -35,7 +51,7 @@ FROZEN_PRE_FEATURE_PATHS = (
     ".agents/skills/wspecify", ".agents/skills/wdesign", ".agents/skills/wtasks",
     ".agents/skills/wimplement", ".agents/skills/wverify",
     ".agents/skills/wreview", ".agents/skills/wqa",
-    "docs/qa/README.md", "tools/ad-index.py", ".my-workflow.toml.example", "templates/agents",
+    "tools/ad-index.py", ".my-workflow.toml.example", "templates/agents",
 )
 
 
@@ -58,6 +74,37 @@ def invoke_bin(target: Path, *args: str, env: dict[str, str] | None = None) -> s
         capture_output=True,
         check=False,
     )
+
+
+def pack_package() -> tuple[Path, Path, dict[str, object]]:
+    destination = Path(tempfile.mkdtemp(prefix="my-workflow-pack-"))
+    result = subprocess.run(
+        ["npm", "pack", "--pack-destination", str(destination), "--json"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    metadata = json.loads(result.stdout)[0]
+    tarball = destination / str(metadata["filename"])
+    assert tarball.is_file()
+    return destination, tarball, metadata
+
+
+def expected_package_entries() -> set[str]:
+    expected = {"package.json", "README.md"}
+    for relative in PACKAGE_RUNTIME_ROOTS:
+        source = ROOT / relative
+        if source.is_file():
+            expected.add(relative)
+        else:
+            expected.update(
+                path.relative_to(ROOT).as_posix()
+                for path in source.rglob("*")
+                if path.is_file() and "__pycache__" not in path.parts and path.suffix not in {".pyc", ".pyo", ".pyd"}
+            )
+    return expected
 
 
 def snapshot(root: Path) -> dict[str, tuple[object, ...]]:
@@ -531,10 +578,14 @@ def test_bun_consumer_boundary_and_probe_import_are_preserved() -> None:
         lock = target / "bun.lock"
         package.write_text('{"name":"consumer","scripts":{"test":"bun test"}}\n', encoding="utf-8")
         lock.write_text("consumer lock\n", encoding="utf-8")
-        package_before, lock_before = package.read_bytes(), lock.read_bytes()
+        qa_profile = target / "docs/qa/README.md"
+        qa_profile.parent.mkdir(parents=True, exist_ok=True)
+        qa_profile.write_bytes(b"consumer QA profile\n")
+        package_before, lock_before, qa_before = package.read_bytes(), lock.read_bytes(), qa_profile.read_bytes()
         assert invoke(target, "apply", "--layers", "full").returncode == 0
         assert package.read_bytes() == package_before
         assert lock.read_bytes() == lock_before
+        assert qa_profile.read_bytes() == qa_before
         knowledge = subprocess.run(["bun", str(target / "tools/knowledge/src/cli.ts"), str(target)], cwd=target, text=True, capture_output=True, check=False)
         assert knowledge.returncode == 0, knowledge.stderr
         calls = target / "orca.calls"
@@ -959,26 +1010,26 @@ def test_sec002_retired_symlink_is_rejected_before_external_write() -> None:
 
 
 def test_sec002_unproven_retired_path_conflicts_without_writes() -> None:
-    target = temporary_target()
-    retired = "docs/product/consumer-notes.md"
-    try:
-        assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
-        path = target / retired
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(b"consumer notes\n")
-        manifest_path = target / ".my-workflow/adoption.json"
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        digest = hashlib.sha256(path.read_bytes()).hexdigest()
-        manifest["files"][retired] = {"layer": "core", "ownership": "managed", "source_sha256": digest, "installed_sha256": digest}
-        manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        before = snapshot(target)
-        catalog = adopt._catalog(ROOT, ["core"])
-        with patch.object(adopt, "_catalog", return_value=catalog):
-            result, _ = adopt._build_plan(ROOT, target, ["core"], ["core"], True, False)
-        assert result["status"] == "conflict" and retired in result["conflicts"]
-        assert snapshot(target) == before
-    finally:
-        shutil.rmtree(target)
+    for retired in ("docs/product/consumer-notes.md", "tools/ad-index.py-notes"):
+        target = temporary_target()
+        try:
+            assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
+            path = target / retired
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"consumer notes\n")
+            manifest_path = target / ".my-workflow/adoption.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            manifest["files"][retired] = {"layer": "core", "ownership": "managed", "source_sha256": digest, "installed_sha256": digest}
+            manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            before = snapshot(target)
+            catalog = adopt._catalog(ROOT, ["core"])
+            with patch.object(adopt, "_catalog", return_value=catalog):
+                result, _ = adopt._build_plan(ROOT, target, ["core"], ["core"], True, False)
+            assert result["status"] == "conflict" and retired in result["conflicts"]
+            assert snapshot(target) == before
+        finally:
+            shutil.rmtree(target)
 
 
 def test_it007_package_bin_preserves_adopter_cli_contract() -> None:
@@ -990,6 +1041,8 @@ def test_it007_package_bin_preserves_adopter_cli_contract() -> None:
         assert (wrapped_plan.returncode, wrapped_plan.stdout, wrapped_plan.stderr) == (direct_plan.returncode, direct_plan.stdout, direct_plan.stderr)
         default_plan = invoke_bin(target, "plan", "--json")
         assert default_plan.returncode == 0 and json.loads(default_plan.stdout)["resolved_layers"] == ["core", "parallel", "quality", "extras"]
+        end_of_options = invoke_bin(target, "plan", "--")
+        assert end_of_options.returncode == 0, end_of_options.stderr
         assert invoke_bin(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
         managed = target / "tools/knowledge/src/cli.ts"
         managed.write_bytes(managed.read_bytes() + b"\nconsumer drift\n")
@@ -1080,6 +1133,97 @@ def test_sec003_failing_python_probe_stops_before_adopter() -> None:
     finally:
         shutil.rmtree(target)
         shutil.rmtree(fake_path)
+
+
+def test_it010_tarball_contains_exact_runtime_allowlist() -> None:
+    package_root, tarball, metadata = pack_package()
+    try:
+        entries = {item["path"] for item in metadata["files"]}
+        assert entries == expected_package_entries()
+        assert not any(path.startswith(("scripts/test_", "tools/test_", ".specs/", "knowledge/wiki/", "knowledge/raw/2026-")) for path in entries)
+        assert not any("__pycache__" in path or path.endswith((".pyc", ".pyo", ".pyd")) for path in entries)
+        assert "bin/my-workflow.js" in entries and "templates/adoption/knowledge/wiki/index.md" in entries
+        assert "README.md" in entries and "package.json" in entries
+    finally:
+        shutil.rmtree(package_root)
+
+
+def test_it011_tarball_bin_installs_updates_and_reports_clean_status() -> None:
+    package_root, tarball, _ = pack_package()
+    runner = Path(tempfile.mkdtemp(prefix="my-workflow-npm-runner-"))
+    target = temporary_target()
+    cache = Path(tempfile.mkdtemp(prefix="my-workflow-npm-cache-"))
+    try:
+        env = {**os.environ, "npm_config_cache": str(cache)}
+        command = ["npm", "exec", "--yes", "--package", str(tarball), "--", "my-workflow", "apply", str(target)]
+        first = subprocess.run(command, cwd=runner, env=env, text=True, capture_output=True, check=False)
+        assert first.returncode == 0, first.stderr
+        manifest_path = target / ".my-workflow/adoption.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        providers = [path for path in manifest["files"] if path.startswith("templates/agents/")]
+        for path in providers:
+            manifest["files"][path]["ownership"] = "consumer"
+            manifest["files"][path]["installed_sha256"] = None
+        manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        (target / ".codex/agents/planner.toml").write_bytes(b"stale runtime\n")
+        second = subprocess.run(command, cwd=runner, env=env, text=True, capture_output=True, check=False)
+        assert second.returncode == 0, second.stderr
+        status = subprocess.run(
+            ["npm", "exec", "--yes", "--package", str(tarball), "--", "my-workflow", "status", str(target), "--json"],
+            cwd=runner,
+            env=env,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        assert status.returncode == 0, status.stderr
+        assert json.loads(status.stdout)["status"] == "clean"
+        assert (target / ".codex/agents/planner.toml").read_bytes() != b"stale runtime\n"
+    finally:
+        shutil.rmtree(package_root)
+        shutil.rmtree(runner)
+        shutil.rmtree(target)
+        shutil.rmtree(cache)
+
+
+def test_it012_tarball_version_bin_and_manifest_are_consistent() -> None:
+    package_root, tarball, _ = pack_package()
+    target = temporary_target()
+    try:
+        with tarfile.open(tarball) as archive:
+            package = json.loads(archive.extractfile("package/package.json").read().decode("utf-8"))
+        assert package["private"] is True and package["version"] == "0.10.0"
+        assert package["bin"] == {"my-workflow": "bin/my-workflow.js"}
+        assert not {"preinstall", "install", "postinstall"} & set(package.get("scripts", {}))
+        assert package.get("dependencies", {}) == {}
+        result = subprocess.run(
+            ["npm", "exec", "--yes", "--package", str(tarball), "--", "my-workflow", "apply", str(target), "--layers", "core", "--skip-agents"],
+            cwd=package_root,
+            env={**os.environ, "npm_config_cache": str(package_root / "cache")},
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        assert result.returncode == 0, result.stderr
+        manifest = json.loads((target / ".my-workflow/adoption.json").read_text(encoding="utf-8"))
+        assert manifest["workflow_version"] == package["version"]
+    finally:
+        shutil.rmtree(package_root)
+        shutil.rmtree(target)
+
+
+def test_sec004_tarball_excludes_source_state_tests_and_lifecycle_hooks() -> None:
+    package_root, tarball, metadata = pack_package()
+    try:
+        entries = {item["path"] for item in metadata["files"]}
+        assert not any(path.startswith((".specs/", "scripts/test_", "tools/test_", "knowledge/wiki/", "knowledge/raw/2026-", ".claude/agents/", ".codex/agents/", ".cursor/agents/", "node_modules/")) or path == ".my-workflow.toml" for path in entries)
+        with tarfile.open(tarball) as archive:
+            package = json.loads(archive.extractfile("package/package.json").read().decode("utf-8"))
+        assert not {"preinstall", "install", "postinstall"} & set(package.get("scripts", {}))
+        assert package.get("dependencies", {}) == {}
+    finally:
+        shutil.rmtree(package_root)
+        shutil.rmtree(tarball.parent / "cache", ignore_errors=True)
 
 
 def test_legacy_cleanup_uses_production_paths_and_hashes() -> None:
@@ -1310,8 +1454,7 @@ def test_missing_only_consumer_ownership_is_recorded_without_hashing_content() -
         profile.write_text("consumer QA profile\n")
         assert invoke(target, "apply", "--layers", "quality").returncode == 0
         manifest = json.loads((target / ".my-workflow/adoption.json").read_text())
-        record = manifest["files"]["docs/qa/README.md"]
-        assert record["ownership"] == "consumer" and record["installed_sha256"] is None
+        assert "docs/qa/README.md" not in manifest["files"]
         assert profile.read_text() == "consumer QA profile\n"
     finally:
         shutil.rmtree(target)
@@ -2007,6 +2150,10 @@ TESTS = (
     test_it009_package_bin_rejects_missing_or_old_python_without_writes,
     test_sec001_package_bin_never_evaluates_shell_metacharacters,
     test_sec003_failing_python_probe_stops_before_adopter,
+    test_it010_tarball_contains_exact_runtime_allowlist,
+    test_it011_tarball_bin_installs_updates_and_reports_clean_status,
+    test_it012_tarball_version_bin_and_manifest_are_consistent,
+    test_sec004_tarball_excludes_source_state_tests_and_lifecycle_hooks,
     test_legacy_cleanup_uses_production_paths_and_hashes,
     test_legacy_cleanup_removes_owned_tests_and_preserves_consumer_files,
     test_legacy_cleanup_preserves_external_symlinked_test_directories,

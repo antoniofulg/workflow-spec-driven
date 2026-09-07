@@ -11,6 +11,12 @@ function hasLayerSelector(args) {
   return args.some((arg) => arg === "--layers" || arg.startsWith("--layers="));
 }
 
+function withDefaultLayers(args) {
+  const endOfOptions = args.indexOf("--");
+  const boundary = endOfOptions === -1 ? args.length : endOfOptions;
+  return [...args.slice(0, boundary), "--layers", "full", ...args.slice(boundary)];
+}
+
 function hasSupportedPython() {
   const probe = spawnSync(
     "python3",
@@ -32,8 +38,10 @@ function main() {
   }
   const args = process.argv.slice(2);
   const command = args[0];
-  const forwarded = COMMANDS_WITH_DEFAULT_LAYERS.has(command) && !hasLayerSelector(args.slice(1))
-    ? [...args, "--layers", "full"]
+  const endOfOptions = args.indexOf("--");
+  const optionArgs = args.slice(1, endOfOptions === -1 ? args.length : endOfOptions);
+  const forwarded = COMMANDS_WITH_DEFAULT_LAYERS.has(command) && !hasLayerSelector(optionArgs)
+    ? withDefaultLayers(args)
     : args;
   const adopter = join(dirname(fileURLToPath(import.meta.url)), "..", "scripts", "adopt.py");
   const child = spawnSync("python3", [adopter, ...forwarded], { stdio: "inherit", shell: false });

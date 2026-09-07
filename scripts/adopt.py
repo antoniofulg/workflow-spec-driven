@@ -30,11 +30,18 @@ WORKFLOW_GITIGNORE_ENTRIES = (
 )
 LEGACY_WORKFLOW_GITIGNORE_ENTRIES = (".specs/features/",)
 WORKFLOW_SEARCHIGNORE_ENTRIES = ("!graft/", "graft/.cache/", "graft/.graph/")
-RETIRABLE_WORKFLOW_ROOTS = (
-    ".agents/skills/", "docs/guidelines/", "docs/workflow/", "templates/agents/", "templates/adoption/agents/",
-    "tools/knowledge/src/", "tools/shared/src/", "tools/ad-index.py", "tools/orca_assisted_probe.py",
-    "tools/qa_parallel_pilot.py", "tools/resource_lock.py",
+RETIRABLE_WORKFLOW_DIRS = (
+    ".agents/skills/workflow-spec-driven/", ".agents/skills/workflow-config/", ".agents/skills/wspecify/",
+    ".agents/skills/wdesign/", ".agents/skills/wtasks/", ".agents/skills/wimplement/", ".agents/skills/wverify/",
+    ".agents/skills/wreview/", ".agents/skills/wqa/", ".agents/skills/ponytail/", ".agents/skills/autonomous/",
+    ".agents/skills/deep-review/", ".agents/skills/qa-plan/", ".agents/skills/qa-execute/",
+    ".agents/skills/ponytail-audit/", ".agents/skills/ponytail-debt/", ".agents/skills/ponytail-gain/",
+    ".agents/skills/ponytail-help/", ".agents/skills/ponytail-review/", "docs/guidelines/", "docs/workflow/",
+    "templates/agents/", "templates/adoption/agents/", "tools/knowledge/src/", "tools/shared/src/",
 )
+RETIRABLE_WORKFLOW_FILES = {
+    "tools/ad-index.py", "tools/orca_assisted_probe.py", "tools/qa_parallel_pilot.py", "tools/resource_lock.py",
+}
 WORKFLOW_DOCS = (
     "docs/workflow/README.md", "docs/workflow/decisions.md", "docs/workflow/guidelines.md",
     "docs/workflow/loop.md", "docs/workflow/purpose.md", "docs/workflow/reviews.md",
@@ -66,7 +73,7 @@ PARALLEL_PATHS = (
     ".agents/skills/autonomous",
 )
 QUALITY_PATHS = (".agents/skills/deep-review", ".agents/skills/qa-plan", ".agents/skills/qa-execute")
-QUALITY_MISSING_PATHS = ("docs/qa/README.md",)
+QUALITY_MISSING_PATHS = ()
 EXTRAS_PATHS = (
     ".agents/skills/ponytail-audit", ".agents/skills/ponytail-debt", ".agents/skills/ponytail-gain",
     ".agents/skills/ponytail-help", ".agents/skills/ponytail-review",
@@ -331,7 +338,7 @@ def _is_provider_template(relative: str) -> bool:
 
 
 def _is_retirable_workflow_path(relative: str) -> bool:
-    return any(relative.startswith(root) for root in RETIRABLE_WORKFLOW_ROOTS)
+    return relative in RETIRABLE_WORKFLOW_FILES or any(relative.startswith(root) for root in RETIRABLE_WORKFLOW_DIRS)
 
 
 def _classify(root: Path, source_root: Path, selected: list[str], manifest: dict[str, Any]) -> tuple[list[dict[str, str]], dict[str, Any], list[str], list[str]]:

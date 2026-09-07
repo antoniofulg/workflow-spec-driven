@@ -102,6 +102,9 @@ flowchart LR
 - **Dependencies**: Existing consumer-missing source mapping in `scripts/adopt.py`.
 - **Reuses**: Product-context missing-only ownership behavior.
 
+The source repository's populated `docs/qa/README.md` is not adopted or packaged. A consumer without
+that profile remains eligible for the existing quality-layer discovery path.
+
 ### Package Manifest
 
 - **Purpose**: Define release identity, executable, Node compatibility, and exact archive membership.
@@ -128,7 +131,6 @@ directories; this slice invents no project license:
 - `templates/adoption/**`, `templates/agents/**`
 - `docs/guidelines/**`
 - `docs/workflow/README.md`, `decisions.md`, `guidelines.md`, `loop.md`, `purpose.md`, `reviews.md`
-- `docs/qa/README.md`
 - `tools/ad-index.py`, `tools/knowledge/src/**`, `tools/shared/src/frontmatter.ts`
 - `tools/qa_parallel_pilot.py`, `tools/orca_assisted_probe.py`, `tools/resource_lock.py`
 - `.agents/skills/workflow-spec-driven/**`, `workflow-config/**`, `wspecify/**`, `wdesign/**`,
