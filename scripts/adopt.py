@@ -36,7 +36,7 @@ WORKFLOW_DOCS = (
 )
 CORE_PATHS = (
     "docs/guidelines", *WORKFLOW_DOCS, "knowledge/AGENTS.md", "knowledge/raw/README.md",
-    "knowledge/wiki", "tools/knowledge/src", "tools/shared/src/frontmatter.ts",
+    "tools/knowledge/src", "tools/shared/src/frontmatter.ts",
     ".agents/skills/workflow-spec-driven", ".agents/skills/ponytail", ".agents/skills/workflow-config",
     ".agents/skills/wspecify", ".agents/skills/wdesign", ".agents/skills/wtasks",
     ".agents/skills/wimplement", ".agents/skills/wverify",
@@ -46,7 +46,16 @@ CORE_PATHS = (
 CORE_MISSING_PATHS = ("tools/ad-index.py", ".my-workflow.toml.example", "templates/agents")
 PRODUCT_CONTEXT_PATH = "docs/product/AGENT-CONTEXT.md"
 PRODUCT_CONTEXT_TEMPLATE = "templates/adoption/product/AGENT-CONTEXT.md"
-CONSUMER_MISSING_SOURCES = {PRODUCT_CONTEXT_PATH: PRODUCT_CONTEXT_TEMPLATE}
+KNOWLEDGE_WIKI_GROUPS = ("domain", "product", "architecture", "design", "decisions", "research", "open-questions")
+CONSUMER_MISSING_SOURCES = {
+    PRODUCT_CONTEXT_PATH: PRODUCT_CONTEXT_TEMPLATE,
+    "knowledge/wiki/index.md": "templates/adoption/knowledge/wiki/index.md",
+    "knowledge/wiki/log.md": "templates/adoption/knowledge/wiki/log.md",
+    **{
+        f"knowledge/wiki/{group}/index.md": f"templates/adoption/knowledge/wiki/{group}/index.md"
+        for group in KNOWLEDGE_WIKI_GROUPS
+    },
+}
 PARALLEL_PATHS = (
     "tools/qa_parallel_pilot.py", "tools/orca_assisted_probe.py", "tools/resource_lock.py",
     ".agents/skills/autonomous",

@@ -185,8 +185,8 @@ metacharacter target, then verify exit/error text, zero writes, and no side effe
 | DINST-003 | P1: public CLI parity | Tasks | In Tasks |
 | DINST-004 | P1: source-owned update and template promotion | Tasks | In Tasks |
 | DINST-005 | P1: runtime regeneration | Tasks | In Tasks |
-| DINST-006 | P1: consumer-owned preservation | Tasks | In Tasks |
-| DINST-007 | P1: neutral knowledge scaffold and source-knowledge exclusion | Tasks | In Tasks |
+| DINST-006 | P1: consumer-owned preservation | Execute | Implemented in T1 |
+| DINST-007 | P1: neutral knowledge scaffold and source-knowledge exclusion | Execute | Implemented in T1 |
 | DINST-008 | P1: idempotency and zero-write conflicts | Tasks | In Tasks |
 | DINST-009 | P2: prerequisite failure | Tasks | In Tasks |
 | DINST-010 | P2: package allowlist and no hooks/downloads | Tasks | In Tasks |

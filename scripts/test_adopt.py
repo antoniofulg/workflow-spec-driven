@@ -24,7 +24,7 @@ FROZEN_PRE_FEATURE_PATHS = (
     "docs/guidelines", "docs/workflow/README.md", "docs/workflow/decisions.md",
     "docs/workflow/guidelines.md", "docs/workflow/loop.md", "docs/workflow/purpose.md",
     "docs/workflow/reviews.md", "knowledge/AGENTS.md", "knowledge/raw/README.md",
-    "knowledge/wiki", "tools/knowledge/src", "tools/qa_parallel_pilot.py",
+    "tools/knowledge/src", "tools/qa_parallel_pilot.py",
     "tools/orca_assisted_probe.py", "tools/resource_lock.py", "tools/shared/src/frontmatter.ts",
     ".agents/skills/workflow-spec-driven", ".agents/skills/deep-review", ".agents/skills/ponytail",
     ".agents/skills/ponytail-audit", ".agents/skills/ponytail-debt", ".agents/skills/ponytail-gain",
@@ -482,7 +482,7 @@ def test_full_profile_preserves_complete_capability_inventory_and_links_skills()
         for layer in ("core", "parallel", "quality", "extras"):
             for relative in (*LAYER_PATHS[layer], *LAYER_MISSING_PATHS[layer]):
                 expected.update(_source_files(ROOT, relative))
-        expected.add(adopt.PRODUCT_CONTEXT_PATH)
+        expected.update(adopt.CONSUMER_MISSING_SOURCES)
         assert set(manifest["files"]) == expected
         assert (target / ".claude/skills/autonomous").is_symlink()
         assert os.readlink(target / ".claude/skills/autonomous") == "../../.agents/skills/autonomous"
@@ -494,7 +494,7 @@ def test_full_profile_matches_frozen_pre_feature_inventory() -> None:
     target = temporary_target()
     try:
         assert invoke(target, "apply", "--layers", "full").returncode == 0
-        expected: set[str] = {"templates/adoption/agents/core.md", "templates/adoption/agents/parallel.md", "templates/adoption/agents/quality.md", adopt.PRODUCT_CONTEXT_PATH}
+        expected: set[str] = {"templates/adoption/agents/core.md", "templates/adoption/agents/parallel.md", "templates/adoption/agents/quality.md", *adopt.CONSUMER_MISSING_SOURCES}
         for relative in FROZEN_PRE_FEATURE_PATHS:
             source = ROOT / relative
             if source.is_file():
@@ -761,6 +761,54 @@ def test_product_context_parent_symlink_is_rejected_before_writes() -> None:
     finally:
         shutil.rmtree(target)
         shutil.rmtree(outside)
+
+
+def test_it001_fresh_apply_seeds_neutral_consumer_knowledge() -> None:
+    target = temporary_target()
+    try:
+        result = invoke(target, "apply", "--layers", "core", "--skip-agents")
+        assert result.returncode == 0, result.stderr
+        expected = {
+            "knowledge/wiki/index.md",
+            "knowledge/wiki/log.md",
+            *(f"knowledge/wiki/{group}/index.md" for group in adopt.KNOWLEDGE_WIKI_GROUPS),
+        }
+        assert expected <= {path.relative_to(target).as_posix() for path in (target / "knowledge/wiki").rglob("*") if path.is_file()}
+        assert (target / "knowledge/AGENTS.md").read_bytes() == (ROOT / "knowledge/AGENTS.md").read_bytes()
+        assert (target / "knowledge/raw/README.md").read_bytes() == (ROOT / "knowledge/raw/README.md").read_bytes()
+        assert not (target / "knowledge/raw/2026-09-03-e2e-gate-remediation-cost.md").exists()
+        assert not (target / "knowledge/wiki/design/design-reference-fidelity.md").exists()
+        manifest = json.loads((target / ".my-workflow/adoption.json").read_text(encoding="utf-8"))
+        assert all(manifest["files"][path]["ownership"] == "consumer" for path in expected)
+        assert all(path not in manifest["files"] for path in ("knowledge/wiki/design/design-reference-fidelity.md", "knowledge/raw/2026-09-03-e2e-gate-remediation-cost.md"))
+    finally:
+        shutil.rmtree(target)
+
+
+def test_it002_existing_consumer_knowledge_is_byte_preserved() -> None:
+    target = temporary_target()
+    files = {
+        "knowledge/wiki/index.md": b"# Consumer concepts\n",
+        "knowledge/wiki/design/customer-choice.md": b"consumer design\n",
+        "knowledge/wiki/log.md": b"2026-01-01 consumer entry\n",
+        "knowledge/raw/2026-01-01-consumer-record.md": b"consumer raw record\n",
+    }
+    try:
+        for relative, content in files.items():
+            path = target / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(content)
+        before = {relative: (target / relative).read_bytes() for relative in files}
+        result = invoke(target, "apply", "--layers", "core", "--skip-agents")
+        assert result.returncode == 0, result.stderr
+        assert {relative: (target / relative).read_bytes() for relative in files} == before
+        manifest = json.loads((target / ".my-workflow/adoption.json").read_text(encoding="utf-8"))
+        assert manifest["files"]["knowledge/wiki/index.md"]["ownership"] == "consumer"
+        assert manifest["files"]["knowledge/wiki/log.md"]["ownership"] == "consumer"
+        assert "knowledge/wiki/design/customer-choice.md" not in manifest["files"]
+        assert "knowledge/raw/2026-01-01-consumer-record.md" not in manifest["files"]
+    finally:
+        shutil.rmtree(target)
 
 
 def test_legacy_cleanup_uses_production_paths_and_hashes() -> None:
@@ -1674,6 +1722,8 @@ TESTS = (
     test_adoption_installs_only_new_authority_byte_identically,
     test_product_context_is_neutral_missing_only_and_consumer_owned,
     test_product_context_parent_symlink_is_rejected_before_writes,
+    test_it001_fresh_apply_seeds_neutral_consumer_knowledge,
+    test_it002_existing_consumer_knowledge_is_byte_preserved,
     test_legacy_cleanup_uses_production_paths_and_hashes,
     test_legacy_cleanup_removes_owned_tests_and_preserves_consumer_files,
     test_legacy_cleanup_preserves_external_symlinked_test_directories,

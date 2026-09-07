@@ -101,20 +101,22 @@ knowledge instruction files managed and free of source-project observations.
 
 **Done when**:
 
-- [ ] The scaffold contains `wiki/index.md`, `wiki/log.md`, and seven group `index.md` files with no
+- [x] The scaffold contains `wiki/index.md`, `wiki/log.md`, and seven group `index.md` files with no
       source-project concept, dated observation, or dangling source link.
-- [ ] `knowledge/AGENTS.md` and `knowledge/raw/README.md` remain one-home generic operating
+- [x] `knowledge/AGENTS.md` and `knowledge/raw/README.md` remain one-home generic operating
       instructions; the raw README contains no source-project inventory.
-- [ ] The core catalog keeps those two generic files managed, maps scaffold indexes/log as missing-only
+- [x] The core catalog keeps those two generic files managed, maps scaffold indexes/log as missing-only
       consumer files, and stops sourcing populated `knowledge/wiki/**` or dated raw observations.
-- [ ] `scripts/test_adopt.py` owns IT-001 and IT-002 and asserts fresh neutral seeding plus byte-exact
+- [x] `scripts/test_adopt.py` owns IT-001 and IT-002 and asserts fresh neutral seeding plus byte-exact
       preservation of non-empty consumer knowledge.
-- [ ] Gate check passes: `python3 scripts/test_adopt.py`.
-- [ ] Test count: all 88 baseline adoption tests plus IT-001 and IT-002 pass; the observed total is
+- [x] Gate check passes: `python3 scripts/test_adopt.py`.
+- [x] Test count: all 88 baseline adoption tests plus IT-001 and IT-002 pass; the observed total is
       recorded and no existing test is deleted or skipped.
 
 **Tests**: integration — IT-001, IT-002
 **Gate**: declared — `python3 scripts/test_adopt.py`
+
+**Status**: complete — `python3 scripts/test_adopt.py` (90 passed, 0 failed)
 
 **Commit**: `feat(installer): add neutral knowledge scaffolds`
 
