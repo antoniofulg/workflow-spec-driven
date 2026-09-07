@@ -1,6 +1,6 @@
 ---
 name: wverify
-description: "Verify phase - independent spec-anchored validation: AC evidence, edge cases, build gate, discrimination sensor, code quality, UAT, fix plans, and the lessons hook. Argument: the feature or slice. Preloaded by the verifier agent; enter with /wverify."
+description: "Verify phase - independently check spec acceptance, evidence, edge cases, gates, UAT, and fix plans. Argument: feature or slice. Preloaded by verifier; enter with /wverify."
 argument-hint: "<feature-or-slice>"
 context: fork
 agent: verifier

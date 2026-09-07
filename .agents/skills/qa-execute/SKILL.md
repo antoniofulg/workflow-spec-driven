@@ -1,6 +1,6 @@
 ---
 name: qa-execute
-description: Execute planned real-user QA through a project's existing public interfaces and record evidence, statuses, and defects. Use when a Verifier walks a current QA plan for a user-visible change. Don't use for planning scenarios, writing product fixes, or installing a test framework.
+description: Execute planned QA through existing public interfaces; record evidence and defects. Use when a Verifier walks a QA plan; Don't use for planning, product fixes, or framework setup.
 metadata:
   author: Antonio Fulgêncio
 ---

@@ -1,6 +1,6 @@
 ---
 name: wimplement
-description: "Execute phase - implement one task at a time with spec-derived tests, a deterministic gate, an atomic Conventional Commit, and slice-level verification. Argument: the feature or slice. Preloaded by the implementer agent; enter with /wimplement."
+description: "Execute phase - implement tasks with spec-derived checks, gates, atomic commits, and slice verification. Argument: feature or slice. Preloaded by implementer; enter with /wimplement."
 argument-hint: "<feature-or-slice>"
 context: fork
 agent: implementer

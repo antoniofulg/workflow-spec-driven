@@ -1,6 +1,6 @@
 ---
 name: wspecify
-description: "Specify phase - capture WHAT to build with testable, traceable EARS requirements, run the closure gate, and trigger discuss for gray areas. Argument: the feature slug. Preloaded by the planner agent; enter with /wspecify."
+description: "Specify phase - capture testable EARS requirements, resolve gray areas, and run the closure gate. Argument: feature slug. Preloaded by planner; enter with /wspecify."
 argument-hint: "<feature-or-slice>"
 context: fork
 agent: planner

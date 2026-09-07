@@ -1,6 +1,6 @@
 ---
 name: workflow-config
-description: Workflow configuration synchronizes central agent models and efforts, then resolves deep-review cadence and delegated-role providers before feature dispatch. Use when editing model settings, syncing packets, planning or resuming a feature, selecting native or mixed providers, or freezing a feature workflow. Don't use for project gates, QA policy, or planning depth.
+description: Configure workflow models, efforts, review cadence, and role providers. Use when editing settings, syncing packets, planning or resuming features, or freezing provider routes; not for gates, QA policy, or planning depth.
 ---
 
 # Workflow Configuration

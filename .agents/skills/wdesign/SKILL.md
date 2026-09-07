@@ -1,6 +1,6 @@
 ---
 name: wdesign
-description: "Design phase - define HOW to build a specified feature: architecture, components, interfaces, data models, reuse, and risks. Argument: the feature slug. Pulled on demand by the planner agent; enter with /wdesign."
+description: "Design phase - define architecture, interfaces, data models, reuse, and risks for a specified feature. Argument: feature slug. Loaded on demand by planner; enter with /wdesign."
 argument-hint: "<feature-or-slice>"
 context: fork
 agent: planner

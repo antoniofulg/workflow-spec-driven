@@ -1,6 +1,6 @@
 ---
 name: qa-plan
-description: Plan user-visible QA coverage by mapping feature intent to durable journeys, scenarios, and session charters. Use when a Verifier prepares QA for a changed user-facing surface or adoption. Don't use for live product walks, defect fixes, or selecting a test framework.
+description: Plan user-visible QA through journeys, scenarios, and charters. Use when a Verifier prepares QA; Don't use for live walks, product fixes, or framework selection.
 metadata:
   author: Antonio Fulgêncio
 ---

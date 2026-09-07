@@ -1,6 +1,6 @@
 ---
 name: wtasks
-description: "Tasks phase - break an approved design into granular atomic tasks with dependencies, a test coverage matrix, gate commands, and an execution plan. Argument: the feature slug. Preloaded by the planner agent; enter with /wtasks."
+description: "Tasks phase - turn an approved design into atomic tasks, dependencies, coverage, and gates. Argument: feature slug. Preloaded by planner; enter with /wtasks."
 argument-hint: "<feature-or-slice>"
 context: fork
 agent: planner
