@@ -162,7 +162,7 @@ publication, `_publish`, and existing `resolve`
 **Tests**: integration — IT-003, IT-004, IT-005, IT-006, IT-013, SEC-002
 **Gate**: declared — `python3 scripts/test_adopt.py`
 
-**Status**: complete — `python3 scripts/test_adopt.py` (95 passed, 0 failed)
+**Status**: complete — `python3 scripts/test_adopt.py` (96 passed, 0 failed; retirement boundary correction)
 
 **Commit**: `feat(installer): reconcile managed workflow ownership`
 

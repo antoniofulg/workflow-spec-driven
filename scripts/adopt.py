@@ -30,6 +30,11 @@ WORKFLOW_GITIGNORE_ENTRIES = (
 )
 LEGACY_WORKFLOW_GITIGNORE_ENTRIES = (".specs/features/",)
 WORKFLOW_SEARCHIGNORE_ENTRIES = ("!graft/", "graft/.cache/", "graft/.graph/")
+RETIRABLE_WORKFLOW_ROOTS = (
+    ".agents/skills/", "docs/guidelines/", "docs/workflow/", "templates/agents/", "templates/adoption/agents/",
+    "tools/knowledge/src/", "tools/shared/src/", "tools/ad-index.py", "tools/orca_assisted_probe.py",
+    "tools/qa_parallel_pilot.py", "tools/resource_lock.py",
+)
 WORKFLOW_DOCS = (
     "docs/workflow/README.md", "docs/workflow/decisions.md", "docs/workflow/guidelines.md",
     "docs/workflow/loop.md", "docs/workflow/purpose.md", "docs/workflow/reviews.md",
@@ -325,6 +330,10 @@ def _is_provider_template(relative: str) -> bool:
     return relative.startswith("templates/agents/")
 
 
+def _is_retirable_workflow_path(relative: str) -> bool:
+    return any(relative.startswith(root) for root in RETIRABLE_WORKFLOW_ROOTS)
+
+
 def _classify(root: Path, source_root: Path, selected: list[str], manifest: dict[str, Any]) -> tuple[list[dict[str, str]], dict[str, Any], list[str], list[str]]:
     catalog = _catalog(source_root, selected)
     missing_paths = {path for layer in selected for item in LAYER_MISSING_PATHS[layer] for path in _source_files(source_root, item)}
@@ -383,6 +392,10 @@ def _classify(root: Path, source_root: Path, selected: list[str], manifest: dict
             continue
         path = _safe_path(root, relative, "retired destination")
         if previous["ownership"] == "consumer" or relative.startswith("knowledge/wiki/"):
+            continue
+        if not _is_retirable_workflow_path(relative):
+            conflicts.append(relative)
+            retired_actions.append({"path": relative, "action": "conflict", "layer": previous["layer"]})
             continue
         if not path.exists():
             continue

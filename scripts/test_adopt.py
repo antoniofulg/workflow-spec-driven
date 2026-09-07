@@ -945,6 +945,29 @@ def test_sec002_retired_symlink_is_rejected_before_external_write() -> None:
         shutil.rmtree(outside)
 
 
+def test_sec002_unproven_retired_path_conflicts_without_writes() -> None:
+    target = temporary_target()
+    retired = "docs/product/consumer-notes.md"
+    try:
+        assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
+        path = target / retired
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"consumer notes\n")
+        manifest_path = target / ".my-workflow/adoption.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        manifest["files"][retired] = {"layer": "core", "ownership": "managed", "source_sha256": digest, "installed_sha256": digest}
+        manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        before = snapshot(target)
+        catalog = adopt._catalog(ROOT, ["core"])
+        with patch.object(adopt, "_catalog", return_value=catalog):
+            result, _ = adopt._build_plan(ROOT, target, ["core"], ["core"], True, False)
+        assert result["status"] == "conflict" and retired in result["conflicts"]
+        assert snapshot(target) == before
+    finally:
+        shutil.rmtree(target)
+
+
 def test_legacy_cleanup_uses_production_paths_and_hashes() -> None:
     assert tuple(LEGACY_MANAGED_TEST_FILES) == (
         "tools/knowledge/tests/check.test.ts", "tools/knowledge/tests/cli.test.ts",
@@ -1864,6 +1887,7 @@ TESTS = (
     test_it005_managed_blocks_refresh_without_touching_consumer_state,
     test_it013_retired_managed_paths_reconcile_safely,
     test_sec002_retired_symlink_is_rejected_before_external_write,
+    test_sec002_unproven_retired_path_conflicts_without_writes,
     test_legacy_cleanup_uses_production_paths_and_hashes,
     test_legacy_cleanup_removes_owned_tests_and_preserves_consumer_files,
     test_legacy_cleanup_preserves_external_symlinked_test_directories,
