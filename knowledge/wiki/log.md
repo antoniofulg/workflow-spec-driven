@@ -1,3 +1,5 @@
 # Update log
 
-The bundle starts empty. Add dated groups here, newest first, when a concept is written.
+## 2026-09-07
+
+* **Ingestion**: Added [Design reference fidelity](/design/design-reference-fidelity.md) from the maintainer's approved HTML-export observation, connecting visual authority, component reuse, and scoped validation.

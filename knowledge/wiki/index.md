@@ -12,7 +12,7 @@ Nothing here restates its sources. `docs/` and `.specs/STATE.md` stay canonical;
 carry the graph between them and the places where they disagree. When the two conflict, the source
 wins.
 
-This bundle starts empty. Add a concept when a source earns one.
+Add a concept when a source earns one.
 
 # Groups
 
@@ -23,3 +23,7 @@ This bundle starts empty. Add a concept when a source earns one.
 * [Decisions](decisions/) - Why a past choice was made.
 * [Research](research/) - External material, market, competitors, interviews.
 * [Open questions](open-questions/) - Contradictions between sources that no document resolves and no concept owns.
+
+# Concepts
+
+* [Design reference fidelity](design/design-reference-fidelity.md) - How HTML exports connect visual authority, component reuse, and proportional verification.
