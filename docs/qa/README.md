@@ -9,7 +9,7 @@ For consuming projects, those authorities are their executable manifests or CI j
 
 | Area | Interface | Entry point | Authority |
 | --- | --- | --- | --- |
-| `ADP` | Adoption and external-skill CLI plus generated filesystem | `scripts/adopt.py`; `scripts/install_security_skills.py` with a disposable target | [README adoption contract](../../README.md#adopt-the-workflow), [`scripts/adopt.py`](../../scripts/adopt.py), [`scripts/install_security_skills.py`](../../scripts/install_security_skills.py) |
+| `ADP` | Version-pinned adoption package, external-skill CLI, and generated filesystem | `my-workflow` through a local tarball or approved exact package; `scripts/install_security_skills.py` with a disposable target | [README adoption contract](../../README.md#adopt-the-workflow), [`package.json`](../../package.json), [`scripts/adopt.py`](../../scripts/adopt.py), [`scripts/install_security_skills.py`](../../scripts/install_security_skills.py) |
 | `QAS` | Manual agent-file inspection, checkout-local CLI recipes, and Orca-backed workflow execution | `.agents/skills/qa-plan/`, `.agents/skills/qa-execute/`, `.agents/skills/autonomous/scripts/parallel_execute.py`, `tools/gate_cache.py`, `.agents/skills/deep-review/references/publish-github.md`, provider Verifier packets | [Skills contract](../../README.md#skills), [parallel executor contract](../../.agents/skills/autonomous/references/parallelization.md), [Deep Review publication recipe](../../.agents/skills/deep-review/references/publish-github.md) |
 | `DOC` | Documentation | `README.md` | [`README.md`](../../README.md) |
 | `CFG` | Workflow configuration, derived slice contract, generated state, and Git visibility | `.my-workflow.toml.example`; `.my-workflow.toml`; `templates/agents/`; `.agents/skills/workflow-config/scripts/workflow_config.py`; `.agents/skills/workflow-config/scripts/parallel_plan.py`; `.agents/skills/workflow-spec-driven/scripts/validate_tasks.py --slice-contract-json`; `.agents/skills/wtasks/references/tasks-template.md`; `.gitignore`; `.specs/` | [README configuration contract](../../README.md#adopt-the-workflow), [`workflow-config` skill](../../.agents/skills/workflow-config/SKILL.md), [`wtasks` task template](../../.agents/skills/wtasks/references/tasks-template.md), [artifact lifecycle](../guidelines/ARTIFACT-LIFECYCLE.md) |
@@ -19,7 +19,7 @@ No browser, API, or mobile surface exists in this repository.
 
 ## Runner and adapter
 
-- Existing runner or adapter: CLI/manual, using the public workflow resolver, adoption script,
+- Existing runner or adapter: CLI/manual, using the version-pinned package bin, public workflow resolver, adoption script,
   parallel executor, assisted pointer probe, and filesystem inspection. The parallel-slice journey
   uses the installed Orca CLI only after its `orchestration.contract.v1` capability is proven; the
   disposable fixture and lifecycle oracle are owned by
@@ -31,10 +31,11 @@ No browser, API, or mobile surface exists in this repository.
   no-network adapter.
 - Manifest or CI authority: [`package.json`](../../package.json) owns the structural gate;
   [`scripts/test_adopt.py`](../../scripts/test_adopt.py) owns the disposable adoption smoke path.
-- Exact path used by `qa-execute`: invoke the command documented by the
-  [`workflow-config` skill](../../.agents/skills/workflow-config/SKILL.md) inside a checkout-local
-  disposable Git repository; invoke [`scripts/adopt.py`](../../scripts/adopt.py) against a separate
-  checkout-local disposable target; inspect package membership with `bun pm pack --dry-run`
+- Exact path used by `qa-execute`: invoke the exact package command documented by the
+[`workflow-config` skill](../../.agents/skills/workflow-config/SKILL.md) inside a checkout-local
+disposable Git repository; invoke `npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow`
+against a separate
+checkout-local disposable target; inspect package membership with `bun pm pack --dry-run`
   from the active checkout, and create any clean-clone canary from the active local repository into
   a checkout-owned disposable path without fetching a remote; inspect the adoption script's printed
   external-skill command before invoking
@@ -53,7 +54,9 @@ No browser, API, or mobile surface exists in this repository.
   for structural checks; it is not a real-user runner. Python standard-library checks live in
   [`scripts/test_adopt.py`](../../scripts/test_adopt.py).
 
-The workflow does not install a framework or invent commands when a runner is absent.
+The workflow does not install a framework or invent commands when a runner is absent. A consumer's
+existing `docs/qa/README.md` remains consumer-owned; a fresh consumer's quality skills discover and
+record its own profile instead of receiving this source repository's profile.
 
 ## Build, start, and health
 

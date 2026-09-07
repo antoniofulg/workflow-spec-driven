@@ -5,8 +5,8 @@ title: Adopt workflow capabilities incrementally
 persona: Workflow adopter
 journey: J-adopt-workflow
 expected: A project can plan and apply fixed core, parallel, quality, and extras layers incrementally; conflicts fail before writes, consumer prose and Bun package metadata survive, and status reports clean state.
-entry_points: README.md#adopt-the-workflow; docs/adoption-prompt.md; scripts/adopt.py
-qa_status: pass
+entry_points: README.md#adopt-the-workflow; docs/adoption-prompt.md; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply|status
+qa_status: untested
 bug_ids:
 fix_status:
 retest_status:

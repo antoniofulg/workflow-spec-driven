@@ -281,24 +281,26 @@ scenario schema
 
 **Done when**:
 
-- [ ] README documents version pinning, default `full`, explicit layer override, read-only `plan`,
+- [x] README documents version pinning, default `full`, explicit layer override, read-only `plan`,
       write-bearing `apply`, status/exit meanings, Python 3.11, no prompt, and no public-registry claim
       before name/license/publication approval.
-- [ ] Adoption guidance no longer recommends `--skip-agents` for the deterministic update path and
+- [x] Adoption guidance no longer recommends `--skip-agents` for the deterministic update path and
       explains pristine provider-template promotion, edited conflicts, consumer knowledge preservation,
       neutral scaffolding, and safe retired-file reconciliation.
-- [ ] `J-adopt-workflow` and all impacted scenario files map the changed public promise; the new
+- [x] `J-adopt-workflow` and all impacted scenario files map the changed public promise; the new
       `ADP-install-versioned-workflow-package` scenario starts `untested`, and stale affected verdicts
       reset to `untested` per `QA-SCENARIOS.md`.
-- [ ] External security installation remains explicitly separate and uninvoked.
-- [ ] Documentation accuracy/link/heading review and `git diff --check` pass; no prose-regex or snapshot
+- [x] External security installation remains explicitly separate and uninvoked.
+- [x] Documentation accuracy/link/heading review and `git diff --check` pass; no prose-regex or snapshot
       test is added.
-- [ ] Test count: all 88 baseline adoption tests and every assigned contract case remain present; final
+- [x] Test count: all 88 baseline adoption tests and every assigned contract case remain present; final
       feature close records observed totals from `bun run test:all` after documentation/package
       membership settles.
 
 **Tests**: none — documentation and QA tracker layer per matrix
 **Gate**: declared — `git diff --check`
+
+**Status**: complete — `git diff --check` (0 errors); canonical QA contract check `bun test tools/shared/tests/qa-skills.test.ts` (32 passed, 0 failed). Final full-gate recheck remains owned by root.
 
 **Commit**: `docs(installer): document deterministic package adoption`
 

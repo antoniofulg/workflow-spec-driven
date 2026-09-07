@@ -151,7 +151,7 @@ function forbiddenAuthorityViolations(
 ): string[] {
   const scannedPaths = activeAuthorityPaths(paths);
   const forbiddenCommands = [
-    /(?:^|[`$>#;&|]\s*)(?:npm|npx)\s+\S+/i,
+    /(?:^|[`$>#;&|]\s*)(?:npm|npx)\s+(?!(?:exec|pack)\b|--yes\b)\S+/i,
     /\bvitest\s+(?:run|--|[A-Za-z])/i,
     /\btsx\s+(?:--|[A-Za-z])/i,
     /(?:from|require)\s*[(]?['"]yaml['"]/i,
@@ -991,8 +991,8 @@ describe("adoption and public setup", () => {
     expect(prompt).toContain("managed paths");
     expect(prompt).toContain("complete diff");
     expect(prompt).toContain("declared full gate");
-    expect(prompt).toContain("If `docs/qa/README.md` is absent, create it when `quality` is selected");
-    expect(prompt).toContain("If it exists, merge only newly discovered facts");
+    expect(prompt).toContain("If `docs/qa/README.md` exists, preserve it byte-for-byte during adoption");
+    expect(prompt).toContain("If it is absent, let the adopted quality skills discover");
     expect(prompt).toContain("never overwrite existing content");
     expect(prompt).toContain("qa-plan");
     expect(prompt).toContain("qa-execute");
@@ -1018,7 +1018,7 @@ describe("adoption and public setup", () => {
     const readme = readRepositoryFile("README.md");
 
     expect(readme).toContain("the target directory must already exist");
-    expect(readme).toContain("`adopt.py` requires Python 3");
+    expect(readme).toContain("the package requires Python 3.11 or newer");
     expect(readme).toMatch(/Adoption\s+does not require a Git `HEAD`/);
     expect(readme).toMatch(/the target must be a Git\s+repository with at least one commit/);
     expect(readme).toMatch(/Bun 1\.4\.x is the JavaScript\/TypeScript runtime for this pack;\s+it is needed only to validate the source pack's gates/);
@@ -1062,7 +1062,7 @@ describe("adoption and public setup", () => {
     const pack = readRepositoryFile("docs/workflow/pack.md");
 
     expect(tour).toContain("[Skills, knowledge, adopt](pack.md)");
-    expect(pack).toContain("`python3 scripts/adopt.py plan <target> --layers core`");
+    expect(pack).toContain("npm exec --yes --package ./my-workflow-0.10.0.tgz");
   });
 
   it("IT-011 keeps stack-specific QA capabilities in the operational profile", () => {

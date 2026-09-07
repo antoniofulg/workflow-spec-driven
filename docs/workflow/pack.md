@@ -56,22 +56,39 @@ Empty on purpose. Machinery only: operating schema, `raw/` README, stub indexes,
 
 ## Adopt
 
-`python3 scripts/adopt.py plan <target> --layers core` previews a fixed layer before application.
-Use `apply <target> --layers core|parallel|quality|extras|full` to install additive capabilities,
-then `status <target>` to inspect drift. The catalog includes the operating loop, Bun-native
+The private local package exposes `my-workflow`. Use an exact tarball to preview, apply additive
+capabilities, and inspect drift:
+
+```bash
+npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
+  my-workflow plan /path/to/target --layers core --json
+npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
+  my-workflow apply /path/to/target --layers core
+npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
+  my-workflow status /path/to/target
+```
+
+`plan` is read-only; `apply` writes only after complete preflight; `status` exits 0 for clean, 1
+for drift, and 2 for invalid state. Omitting `--layers` from `plan`, `apply`, or `resolve` selects
+`full`. The package requires Python 3.11 or newer as `python3` and never prompts. An approved
+published identity, when one exists, uses `npx --yes <approved-package>@<exact-version>`.
+
+The adopter catalog includes the operating loop, Bun-native
 knowledge tooling, assisted slice probe, review/QA skills, and optional Ponytail utilities. `full`
 resolves all four layers; subsequent applies union requested and installed layers and never remove
-files. Existing consumer prose remains outside managed `AGENTS.md`/`CLAUDE.md` blocks, and
-`--skip-agents` leaves both instruction files byte-identical. Adoption preserves package metadata,
-`.my-workflow.toml`, and unknown files. It copies missing
-`.my-workflow.toml.example` and `templates/agents/`, preserves an existing local
-`.my-workflow.toml`, and generates ignored runtime packets from those sources. Adoption rejects
+files. Existing consumer prose remains outside managed `AGENTS.md`/`CLAUDE.md` blocks. Adoption
+preserves package metadata, `.my-workflow.toml`, existing `docs/qa/README.md`, consumer knowledge,
+and unknown files. It copies missing `.my-workflow.toml.example` and `templates/agents/`, preserves
+an existing local `.my-workflow.toml`, and generates ignored runtime packets from those sources. Adoption rejects
 Makefile references to machine-global `$(HOME)/.claude/...`,
 `${HOME}/.claude/...`, `$HOME/.claude/...`, or `~/.claude/...`; point
 `workflow-spec-driven` gates at the adopted
 `.agents/skills/workflow-spec-driven/scripts/...` path instead.
 
-Adoption does not install the external security dependencies. After the bundled workflow is
+Fresh consumers receive generic managed knowledge instructions and neutral consumer-owned wiki
+indexes/log files. Source concepts and dated raw observations are never copied. Normal apply updates
+pristine provider templates from recorded hashes and removes only pristine retired workflow files;
+edited or unproven retired paths conflict before any write. Adoption does not install the external security dependencies. After the bundled workflow is
 adopted, it prints the exact project-local command to run with `--yes`. Review and authorize that
 second step before allowing network access or writes to the consumer.
 

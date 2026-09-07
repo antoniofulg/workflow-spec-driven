@@ -12,24 +12,35 @@ human-owned merge.
 
 ## Quick start
 
-Keep the immutable release checkout separate from the project receiving it. The target directory must
+Keep the exact package release separate from the project receiving it. The target directory must
 already exist. A Git repository is recommended so plans, conflicts, and workflow state remain
 reviewable.
 
 ```bash
-git clone --branch v0.10.0 --depth 1 https://github.com/antoniofulg/my-workflow.git /path/to/my-workflow-0.10.0
+cd /path/to/my-workflow-source
+mkdir -p /path/to/release
+npm pack --pack-destination /path/to/release
+# writes /path/to/release/my-workflow-0.10.0.tgz
+
 mkdir -p /path/to/target-project
-python3 /path/to/my-workflow-0.10.0/scripts/adopt.py plan /path/to/target-project --layers core --json
-python3 /path/to/my-workflow-0.10.0/scripts/adopt.py apply /path/to/target-project --layers core
-python3 /path/to/my-workflow-0.10.0/scripts/adopt.py status /path/to/target-project
+cd /path/to/target-project
+npm exec --yes --package /path/to/release/my-workflow-0.10.0.tgz -- \
+  my-workflow plan /path/to/target-project --layers core --json
+npm exec --yes --package /path/to/release/my-workflow-0.10.0.tgz -- \
+  my-workflow apply /path/to/target-project --layers core
+npm exec --yes --package /path/to/release/my-workflow-0.10.0.tgz -- \
+  my-workflow status /path/to/target-project
 ```
 
 Use `core` for the operating loop and Bun tooling. Use `full` for parallel execution, quality and QA
 skills, and optional Ponytail utilities; selected layers are cumulative, and every non-core layer
 includes `core`. `full` installs capabilities but does not mandate every stage; the task classifier
-selects the work. Adoption requires Python 3. Bun 1.4.x is needed only for source-pack tooling, not
-adoption itself. Use the same target and `--layers` value with `plan` and `apply`; `status` reads
-installed layers from the manifest and takes no layer selector.
+selects the work. The package requires Python 3.11 or newer as `python3`, never prompts, and leaves
+the target unchanged when preflight finds a conflict. Use the same target and `--layers` value with
+`plan` and `apply`; omitting it selects `full`. `status` reads installed layers from the manifest
+and takes no layer selector. The local package is private at `0.10.0`; use `npx --yes
+<approved-package>@<exact-version>` only after a separate publication decision approves the package
+identity and license.
 
 After the first apply, immediately fill the consumer-owned `docs/product/AGENT-CONTEXT.md` with the
 product identity, critical constraints, and routes to existing files or headings. Do not create empty
@@ -141,17 +152,25 @@ Choose a fixed capability layer. `core` contains the operating loop and Bun tool
 adds assisted slice execution, `quality` adds review and QA skills, and `extras` adds optional
 Ponytail utilities. Selecting `parallel`, `quality`, or `extras` automatically includes `core`;
 `full` resolves all four layers. Planning is read-only and should precede
-every apply:
+every apply. The public command is version-pinned and uses `full` when no layer is supplied:
 
 ```bash
-python3 scripts/adopt.py plan /path/to/target-project --layers core --json
-python3 scripts/adopt.py apply /path/to/target-project --layers core
-python3 scripts/adopt.py status /path/to/target-project
+npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
+  my-workflow plan /path/to/target-project --json
+npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
+  my-workflow apply /path/to/target-project
+npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
+  my-workflow status /path/to/target-project
 ```
 
-This release changes only this source pack's shared `AGENTS.md` and managed workflow files. Updating
-an existing consumer remains a separate adoption step. Start that update from a clean dedicated
-branch; adoption preserves unknown consumer files and aborts before writing when it finds conflicts.
+For an approved published identity, use the same executable with an exact version:
+`npx --yes <approved-package>@<exact-version> apply /path/to/target-project`. The registry name,
+license, and publication are not approved by this local release. The target directory must already
+exist, and `python3` 3.11 or newer must be available as `python3`; the command never prompts.
+
+`plan` is read-only. `apply` writes only after complete preflight. `status` exits 0 for clean state,
+1 for drift, and 2 for invalid invocation or state. A conflict returns 1 and leaves the target
+byte-identical.
 
 Add capabilities later with another apply; installed layers are cumulative and omitted layers are
 never removed. `--skip-agents` preserves both instruction files byte-for-byte and skips local-config
@@ -167,12 +186,14 @@ customization into the target's product-owned documentation or code. Commit that
 then authorize every reviewed file conflict explicitly:
 
 ```bash
-python3 /path/to/my-workflow/scripts/adopt.py resolve /path/to/target-project \
+npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
+  my-workflow resolve /path/to/target-project \
   --layers parallel \
   --replace tools/resource_lock.py \
   --replace tools/qa_parallel_pilot.py \
   --skip-agents
-python3 /path/to/my-workflow/scripts/adopt.py status /path/to/target-project
+npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
+  my-workflow status /path/to/target-project
 ```
 
 Use one `--replace` for each reviewed file conflict, and usually pass `--skip-agents` when the
@@ -212,8 +233,8 @@ The old positional `adopt.py TARGET` command is intentionally removed. `plan` an
 `--layers`; `status` reports clean state with exit 0, drift with exit 1, and invalid state or
 invocation with exit 2.
 
-Prerequisites: the target directory must already exist, and `adopt.py` requires Python 3. Adoption
-does not require a Git `HEAD`. Before running the workflow-config resolver, the target must be a Git
+Prerequisites: the target directory must already exist, and the package requires Python 3.11 or newer
+as `python3`. Adoption does not require a Git `HEAD`. Before running the workflow-config resolver, the target must be a Git
 repository with at least one commit. Bun 1.4.x is the JavaScript/TypeScript runtime for this pack;
 it is needed only to validate the source pack's gates, not to adopt it.
 
@@ -317,36 +338,41 @@ project adopted, plan the smallest layer update, then inspect the complete diff 
 ```bash
 cd /path/to/target-project
 git status --short
-git switch -c chore/update-my-workflow
-python3 /path/to/my-workflow/scripts/adopt.py plan . --layers full
-python3 /path/to/my-workflow/scripts/adopt.py apply . --layers full --skip-agents
+git switch -c build/update-my-workflow
+npm exec --yes --package /path/to/my-workflow-0.10.0.tgz -- \
+  my-workflow plan . --layers full --json
+npm exec --yes --package /path/to/my-workflow-0.10.0.tgz -- \
+  my-workflow apply . --layers full
 git diff
 ```
 
-Use `--skip-agents` when the target has product-specific instructions. It preserves `AGENTS.md` and
-`CLAUDE.md`, skips local-config initialization and packet sync, and leaves managed instruction blocks
-for manual merge. Read
-[`CHANGELOG.md`](CHANGELOG.md) between the adopted version and the current package version before
-accepting the update. Apply is additive: it does not remove an installed layer or consumer file.
+Normal `apply` is the deterministic update path. It updates pristine workflow-owned files, promotes
+pristine provider templates using recorded source hashes, refreshes managed instruction blocks and
+runtime packets, and stops with all conflicts before writing when an edit is found. Use
+`--skip-agents` only as an explicit opt-out when instruction files and packet synchronization are
+being merged separately.
+
+Adoption preserves product context, local config, package metadata, existing knowledge, and unknown
+consumer files. A fresh target receives managed generic knowledge instructions plus neutral,
+consumer-owned wiki indexes and log. Source concepts and dated raw observations never cross the
+repository boundary. Retired workflow files are removed only when their managed hashes prove they
+are pristine; edited or unproven paths conflict with zero writes.
 
 Each release lists its upgrade steps under `### Migration` in the changelog; follow them in order
-after `apply`. Templates install only when the directory is missing, so merge template changes by
-hand while retaining customizations, then run the explicit sync command. Without `--skip-agents`,
-apply performs normal sync; with it, local config and packets stay untouched until you sync later.
-The roadmap's deterministic installer (`docs/workflow/roadmap.md`) is the planned replacement for
-manual template merging.
+after `apply`. The package remains private and local at `0.10.0` until a separate publication
+decision approves its registry name and license.
 
 ## Managed paths
 
-Review the managed paths and the plan's per-file actions. Adoption updates only workflow-owned files, preserves unknown
-consumer files, creates missing `docs/qa/README.md`, `tools/ad-index.py`, `.my-workflow.toml.example`,
+Review the managed paths and the plan's per-file actions. Adoption updates only workflow-owned files,
+preserves unknown consumer files, creates missing `tools/ad-index.py`, `.my-workflow.toml.example`,
 and `templates/agents/`, and records ownership in `.my-workflow/adoption.json`. It never removes an
-installed layer or consumer file. Product documentation, `.specs/`, `package.json`, `bun.lock`, and
-an existing local `.my-workflow.toml` remain consumer-owned.
+installed layer or consumer file. Product documentation, `.specs/`, `package.json`, `bun.lock`, an
+existing local `.my-workflow.toml`, and an existing `docs/qa/README.md` remain consumer-owned.
 
 The local config is the source for generated provider packets. Adoption preserves an existing
-`.my-workflow.toml` and installs tracked templates when missing. Without `--skip-agents`, apply runs
-`--sync-agents`; sync creates the local config when absent and regenerates or overwrites the ignored `.claude/agents/`,
+`.my-workflow.toml` and installs tracked templates when missing. Normal apply runs synchronization;
+sync creates the local config when absent and regenerates or overwrites the ignored `.claude/agents/`,
 `.codex/agents/`, and `.cursor/agents/` packets from the templates and config. Edit the config or
 tracked templates, not generated runtime packets.
 

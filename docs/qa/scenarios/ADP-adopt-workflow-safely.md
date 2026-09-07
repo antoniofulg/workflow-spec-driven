@@ -4,9 +4,8 @@ area: ADP
 title: Adopt the workflow without replacing consumer-owned state
 persona: Workflow adopter
 journey: J-adopt-workflow
-expected: A fresh target receives the v3 assisted workflow, pointer-only probe, tracked example/templates including designer packets, initialized local config, generated runtime packets for all six roles, and valid guidance; re-adoption preserves consumer-owned local state and feature workflow state remains visible to Git.
-entry_points: README.md#adopt-the-workflow; docs/guidelines/ARTIFACT-LIFECYCLE.md; scripts/adopt.py; tools/orca_assisted_probe.py; .my-workflow.toml.example; .my-workflow.toml; templates/agents/
-qa_status: pass
+expected: An exact package applies the v3 assisted workflow, pointer-only probe, neutral knowledge scaffolding, tracked example/templates including designer packets, initialized local config, and generated runtime packets while preserving consumer-owned context, QA profile, knowledge, and retired workflow state.
+qa_status: untested
 bug_ids: BUG-20260822-deep-review-learnings-untrackable; BUG-20260822-feature-specs-ignored; BUG-20260822-feature-state-gate-conflicts; BUG-20260825-adoption-omits-parallel-pilot; BUG-20260829-final-qa-pass-conflicts-with-adoption-gate
 fix_status: fixed
 retest_status: pass
@@ -39,7 +38,8 @@ QA on 2026-08-22 confirmed fresh installation and identical SHA-256 before and a
 a consumer-modified `tools/ad-index.py`. The bundled-skill and release-contract canaries also passed.
 
 QA for issue #39 confirmed initial adoption and re-adoption install byte-identical workflow validator
-CLIs while preserving consumer-owned `.my-workflow.toml` and `docs/qa/README.md` byte-for-byte.
+CLIs while preserving consumer-owned `.my-workflow.toml` and `docs/qa/README.md` byte-for-byte. The
+deterministic package path extends that preservation to consumer knowledge and neutral fresh scaffolds.
 
 For issue #41, adoption documents Ponytail activation at workflow start and points to `AGENTS.md`
 for the full-cycle persistence rule. QA on 2026-08-22 confirmed the installed `AGENTS.md`, Ponytail
