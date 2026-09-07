@@ -186,23 +186,25 @@ and forwards the existing adopter contract without shell evaluation.
 
 **Done when**:
 
-- [ ] The executable locates packaged `scripts/adopt.py`, probes `python3 >=3.11.0`, and spawns it
+- [x] The executable locates packaged `scripts/adopt.py`, probes `python3 >=3.11.0`, and spawns it
       synchronously with an argv array and shell execution disabled.
-- [ ] `plan`, `apply`, and `resolve` add `--layers full` only when the caller supplies no layer option;
+- [x] `plan`, `apply`, and `resolve` add `--layers full` only when the caller supplies no layer option;
       explicit selectors and `status` pass through unchanged.
-- [ ] All adopter stdout/stderr/JSON/exit behavior passes through after the prerequisite probe.
-- [ ] Missing, old, or failing Python emits exactly
+- [x] All adopter stdout/stderr/JSON/exit behavior passes through after the prerequisite probe.
+- [x] Missing, old, or failing Python emits exactly
       `my-workflow requires Python 3.11 or newer available as python3.`, exits `2`, and never calls the
       adopter.
-- [ ] Literal paths containing spaces, Unicode, `$(...)`, backticks, and semicolons produce no shell
+- [x] Literal paths containing spaces, Unicode, `$(...)`, backticks, and semicolons produce no shell
       side effect.
-- [ ] `scripts/test_adopt.py` owns IT-007, IT-008, IT-009, SEC-001, and SEC-003.
-- [ ] Gate check passes: `python3 scripts/test_adopt.py`.
-- [ ] Test count: all 88 baseline adoption tests and every T1-T3 assigned case pass; the observed total
+- [x] `scripts/test_adopt.py` owns IT-007, IT-008, IT-009, SEC-001, and SEC-003.
+- [x] Gate check passes: `python3 scripts/test_adopt.py`.
+- [x] Test count: all 88 baseline adoption tests and every T1-T3 assigned case pass; the observed total
       is recorded and no existing test is deleted or skipped.
 
 **Tests**: integration — IT-007, IT-008, IT-009, SEC-001, SEC-003
 **Gate**: declared — `python3 scripts/test_adopt.py`
+
+**Status**: complete — `python3 scripts/test_adopt.py` (101 passed, 0 failed)
 
 **Commit**: `feat(installer): add versioned package command`
 

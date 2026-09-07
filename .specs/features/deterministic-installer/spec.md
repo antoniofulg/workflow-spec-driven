@@ -180,21 +180,21 @@ metacharacter target, then verify exit/error text, zero writes, and no side effe
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| DINST-001 | P1: exact package command and bin | Tasks | In Tasks |
+| DINST-001 | P1: exact package command and bin | Execute | Implemented in T3 |
 | DINST-002 | P1: fresh exact-release apply | Tasks | In Tasks |
-| DINST-003 | P1: public CLI parity | Tasks | In Tasks |
+| DINST-003 | P1: public CLI parity | Execute | Implemented in T3 |
 | DINST-004 | P1: source-owned update and template promotion | Execute | Implemented in T2 |
 | DINST-005 | P1: runtime regeneration | Execute | Implemented in T2 |
 | DINST-006 | P1: consumer-owned preservation | Execute | Implemented in T1 |
 | DINST-007 | P1: neutral knowledge scaffold and source-knowledge exclusion | Execute | Implemented in T1 |
 | DINST-008 | P1: idempotency and zero-write conflicts | Execute | Implemented in T2 |
-| DINST-009 | P2: prerequisite failure | Tasks | In Tasks |
+| DINST-009 | P2: prerequisite failure | Execute | Implemented in T3 |
 | DINST-010 | P2: package allowlist and no hooks/downloads | Tasks | In Tasks |
-| DINST-011 | P2: existing resolve contract unchanged | Tasks | In Tasks |
+| DINST-011 | P2: existing resolve contract unchanged | Execute | Implemented in T3 |
 | DINST-012 | P1: retired managed-file reconciliation | Execute | Implemented in T2 |
-| SEC-001 | Security: literal argv | Tasks | In Tasks |
+| SEC-001 | Security: literal argv | Execute | Implemented in T3 |
 | SEC-002 | Security: filesystem containment | Execute | Implemented in T2 |
-| SEC-003 | Security: process prerequisite | Tasks | In Tasks |
+| SEC-003 | Security: process prerequisite | Execute | Implemented in T3 |
 | SEC-004 | Security: package contents | Tasks | In Tasks |
 
 **Coverage:** 16 total, 16 mapped to tasks, 0 unmapped.

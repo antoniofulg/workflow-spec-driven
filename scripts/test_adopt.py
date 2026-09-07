@@ -16,6 +16,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "scripts/adopt.py"
+BIN = ROOT / "bin/my-workflow.js"
+NODE = shutil.which("node") or "node"
 sys.path.insert(0, str(ROOT / "scripts"))
 import adopt
 from adopt import LEGACY_MANAGED_TEST_DIRECTORIES, LEGACY_MANAGED_TEST_FILES, remove_legacy_managed_tests
@@ -41,6 +43,17 @@ def invoke(target: Path, *args: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [sys.executable, str(SCRIPT), *args, str(target)],
         cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+
+def invoke_bin(target: Path, *args: str, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [NODE, str(BIN), *args, str(target)],
+        cwd=ROOT,
+        env=env,
         text=True,
         capture_output=True,
         check=False,
@@ -968,6 +981,107 @@ def test_sec002_unproven_retired_path_conflicts_without_writes() -> None:
         shutil.rmtree(target)
 
 
+def test_it007_package_bin_preserves_adopter_cli_contract() -> None:
+    target = temporary_target()
+    legacy_a, legacy_b = legacy_target(), legacy_target()
+    try:
+        direct_plan = invoke(target, "plan", "--layers", "core", "--json")
+        wrapped_plan = invoke_bin(target, "plan", "--layers", "core", "--json")
+        assert (wrapped_plan.returncode, wrapped_plan.stdout, wrapped_plan.stderr) == (direct_plan.returncode, direct_plan.stdout, direct_plan.stderr)
+        default_plan = invoke_bin(target, "plan", "--json")
+        assert default_plan.returncode == 0 and json.loads(default_plan.stdout)["resolved_layers"] == ["core", "parallel", "quality", "extras"]
+        assert invoke_bin(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
+        managed = target / "tools/knowledge/src/cli.ts"
+        managed.write_bytes(managed.read_bytes() + b"\nconsumer drift\n")
+        direct_status = invoke(target, "status", "--json")
+        wrapped_status = invoke_bin(target, "status", "--json")
+        assert (wrapped_status.returncode, wrapped_status.stdout, wrapped_status.stderr) == (direct_status.returncode, direct_status.stdout, direct_status.stderr)
+        direct_resolve = invoke(legacy_a, "resolve", "--layers", "parallel", "--replace", "tools/resource_lock.py", "--skip-agents", "--json")
+        wrapped_resolve = invoke_bin(legacy_b, "resolve", "--layers", "parallel", "--replace", "tools/resource_lock.py", "--skip-agents", "--json")
+        assert direct_resolve.returncode == wrapped_resolve.returncode == 0
+        direct_doc, wrapped_doc = json.loads(direct_resolve.stdout), json.loads(wrapped_resolve.stdout)
+        assert (direct_doc["command"], direct_doc["status"], direct_doc["conflicts"]) == (wrapped_doc["command"], wrapped_doc["status"], wrapped_doc["conflicts"]) == ("resolve", "ready", [])
+    finally:
+        shutil.rmtree(target)
+        shutil.rmtree(legacy_a)
+        shutil.rmtree(legacy_b)
+
+
+def test_it008_package_bin_forwards_literal_spaces_unicode_and_metacharacters() -> None:
+    target = temporary_target()
+    renamed = target.with_name("workflow target é $(touch package-bin-sentinel);`touch package-bin-sentinel-2`")
+    sentinel = target.parent / "package-bin-sentinel"
+    sentinel_two = target.parent / "package-bin-sentinel-2"
+    target.rename(renamed)
+    try:
+        result = invoke_bin(renamed, "apply", "--layers", "core", "--skip-agents")
+        assert result.returncode == 0, result.stderr
+        assert (renamed / ".my-workflow/adoption.json").is_file()
+        assert not sentinel.exists() and not sentinel_two.exists()
+    finally:
+        shutil.rmtree(renamed)
+        if sentinel.exists():
+            sentinel.unlink()
+        if sentinel_two.exists():
+            sentinel_two.unlink()
+
+
+def test_it009_package_bin_rejects_missing_or_old_python_without_writes() -> None:
+    for version in (None, "3.10.0"):
+        target = temporary_target()
+        fake_path = temporary_target()
+        try:
+            if version is not None:
+                fake = fake_path / "python3"
+                fake.write_text(f"#!/bin/sh\nprintf '%s\\n' '{version}'\n", encoding="utf-8")
+                fake.chmod(0o755)
+            before = snapshot(target)
+            result = invoke_bin(target, "apply", "--layers", "core", env={**os.environ, "PATH": str(fake_path)})
+            assert result.returncode == 2
+            assert result.stdout == "" and result.stderr == "my-workflow requires Python 3.11 or newer available as python3.\n"
+            assert snapshot(target) == before
+        finally:
+            shutil.rmtree(target)
+            shutil.rmtree(fake_path)
+
+
+def test_sec001_package_bin_never_evaluates_shell_metacharacters() -> None:
+    target = temporary_target()
+    renamed = target.with_name("literal $(touch sec001-sentinel);`touch sec001-sentinel-2`;semi")
+    sentinel = target.parent / "sec001-sentinel"
+    sentinel_two = target.parent / "sec001-sentinel-2"
+    target.rename(renamed)
+    try:
+        result = invoke_bin(renamed, "plan", "--layers", "core")
+        assert result.returncode == 0, result.stderr
+        assert not sentinel.exists() and not sentinel_two.exists()
+    finally:
+        shutil.rmtree(renamed)
+        if sentinel.exists():
+            sentinel.unlink()
+        if sentinel_two.exists():
+            sentinel_two.unlink()
+
+
+def test_sec003_failing_python_probe_stops_before_adopter() -> None:
+    target = temporary_target()
+    fake_path = temporary_target()
+    calls = fake_path / "calls"
+    try:
+        fake = fake_path / "python3"
+        fake.write_text(f"#!/bin/sh\nprintf '%s\\n' called >> {calls}\nexit 7\n", encoding="utf-8")
+        fake.chmod(0o755)
+        before = snapshot(target)
+        result = invoke_bin(target, "apply", "--layers", "core", env={**os.environ, "PATH": str(fake_path)})
+        assert result.returncode == 2
+        assert result.stdout == "" and result.stderr == "my-workflow requires Python 3.11 or newer available as python3.\n"
+        assert calls.read_text(encoding="utf-8") == "called\n"
+        assert snapshot(target) == before
+    finally:
+        shutil.rmtree(target)
+        shutil.rmtree(fake_path)
+
+
 def test_legacy_cleanup_uses_production_paths_and_hashes() -> None:
     assert tuple(LEGACY_MANAGED_TEST_FILES) == (
         "tools/knowledge/tests/check.test.ts", "tools/knowledge/tests/cli.test.ts",
@@ -1888,6 +2002,11 @@ TESTS = (
     test_it013_retired_managed_paths_reconcile_safely,
     test_sec002_retired_symlink_is_rejected_before_external_write,
     test_sec002_unproven_retired_path_conflicts_without_writes,
+    test_it007_package_bin_preserves_adopter_cli_contract,
+    test_it008_package_bin_forwards_literal_spaces_unicode_and_metacharacters,
+    test_it009_package_bin_rejects_missing_or_old_python_without_writes,
+    test_sec001_package_bin_never_evaluates_shell_metacharacters,
+    test_sec003_failing_python_probe_stops_before_adopter,
     test_legacy_cleanup_uses_production_paths_and_hashes,
     test_legacy_cleanup_removes_owned_tests_and_preserves_consumer_files,
     test_legacy_cleanup_preserves_external_symlinked_test_directories,
