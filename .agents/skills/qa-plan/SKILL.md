@@ -44,6 +44,10 @@ to a QA journey/scenario; for an internal criterion, enumerate it in the handoff
 does not change a user-visible promise. If no criterion is user-visible, record `no user-visible
 change` in the task handoff and stop.
 
+For a visual criterion, point the disposition at the owning feature `uiux.md` reference row and follow
+`UI-UX.md#verifying-the-built-screen`. The visual comparison remains evidence for that criterion; it
+does not replace behavioral coverage.
+
 **Done when:** every changed acceptance criterion has one explicit disposition, and the no-surface
 case has a written handoff.
 

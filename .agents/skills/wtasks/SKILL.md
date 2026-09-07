@@ -175,4 +175,4 @@ Co-location Validation tables the checks above require.
 
 ## Task Verification Standards
 
-Every task carries the `Done when` + `Tests` + `Gate` fields defined in the **Task Breakdown** template above. Each `Done when` entry must be specific, testable (binary pass/fail), and reference the gate check command from the `Gate Check Commands` section. Include the expected test count to prevent silent deletions.
+Every task carries the `Done when` + `Tests` + `Gate` fields defined in the **Task Breakdown** template above. Each `Done when` entry must be specific, testable (binary pass/fail), and reference the gate check command from the `Gate Check Commands` section. Include the expected test count to prevent silent deletions. Tasks with a named visual reference also carry a pointer to its feature `uiux.md` row and paired comparison done criterion; follow `docs/guidelines/UI-UX.md#verifying-the-built-screen` and record its output fields. This is evidence for the task, not an extra packet schema or a substitute for behavioral tests.

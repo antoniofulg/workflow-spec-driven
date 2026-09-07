@@ -14,6 +14,7 @@ commit per task. Return hashes and deviations. Do not verify your own work.
 - The slice task from `tasks.md` when present, or the task payload and inline execution plan when
   Tasks was skipped; cited ACs from the spec
 - The TEST-CONTRACT layer you will write
+- `docs/guidelines/UI-UX.md` and the pointed feature `uiux.md` row or bounded inline record when the task names a visual reference
 - `docs/guidelines/SECURITY.md` if the task touches runtime, schema, auth, or public behaviour
 - Workflow memory if this is a multi-task feature
 
@@ -30,6 +31,9 @@ The planning transcript, all of `.specs/STATE.md`, all of `FRONTEND.md`.
   inline execution plan when Tasks is skipped) before the commit.
 - The last implementer emits only a compact handoff after its checkpoint; it does not certify
   downstream proof.
+
+For reference-driven UI, retain the `design_excerpt` pointer, port approved HTML/CSS structure and
+styles into the project's stack, and make the task's paired visual comparison part of done evidence.
 
 ## Product context
 

@@ -22,10 +22,11 @@ Skill `wimplement`, unrelated product/history directories, test suites, or the w
 
 ## Procedure
 
-State constraints first. Reuse existing patterns for bounded compositions and exact corrections. For
-a genuinely new screen or meaningful redesign, show three distinct directions; use a fourth only for
-a named additional tradeoff. Subtract redundant UI without harming accessibility. Use one exploration
-pass and one refinement by default, then name remaining design choices. No new showcase, preview,
+State constraints first. If an approved source/frame or frozen HTML export exists, treat its `uiux.md`
+reference rows as the visual authority, render the export with its fonts/assets, and preserve values
+while adapting ownership and behavior. For a genuinely new screen or meaningful redesign without an
+approved reference, show three distinct directions; use a fourth only for a named additional tradeoff.
+For open design, subtract redundant UI without harming accessibility. Use one exploration pass and one refinement by default only for open design, then name remaining design choices. No new showcase, preview,
 design tool, or split frontend/backend delivery is mandatory.
 
 ## Deliver

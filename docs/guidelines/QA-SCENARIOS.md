@@ -129,6 +129,10 @@ invariant, walk the existing owning scenario only.
 - **Changed behaviour** — reset the affected files to `untested`. **A stale `pass` is worse than no
   verdict.**
 
+Named visual-reference work follows `GATES.md`: use `UI-UX.md#verifying-the-built-screen` in scoped
+validation, and create or reset a QA scenario only when the product promise changes or QA is selected.
+When QA runs, point the report at the feature `uiux.md` reference rows and retain behavioral evidence.
+
 Then walk them before the feature's pull request, per `docs/guidelines/QA-EXECUTION.md`. A flag
 without a walk is `untested` debt that no cycle is guaranteed to clear.
 

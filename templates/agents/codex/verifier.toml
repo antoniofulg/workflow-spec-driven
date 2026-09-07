@@ -17,6 +17,7 @@ every artifact in the active checkout.
 - Assigned evidence named by the packet.
 - Skill wverify, the phase procedure.
 - docs/guidelines/TEST-CONTRACT.md only if a case looks hollow or uses the wrong layer.
+- docs/guidelines/UI-UX.md and the pointed uiux.md row when a visual AC is in scope.
 
 ## Do not load
 
@@ -37,8 +38,10 @@ the author thought.
 
 Run exactly one phase per packet:
 
-1. For technical, check each AC against file:line assertions, run the discrimination sensor in a
-   temp worktree or file copies, and write .specs/features/<feature>/validation.md.
+1. For technical, check each AC against file:line assertions for behavioral criteria, run the discrimination sensor in a
+   temp worktree or file copies, and write .specs/features/<feature>/validation.md. For visual ACs,
+   record fresh paired reference/implementation captures at declared states and exact viewports with
+   environment, fonts/assets, and expected differences; this is evidence, not an automated test.
 2. For qa-plan, invoke the canonical `qa-plan` skill. Create or update durable journeys,
    scenarios, and charters under docs/qa/; do not launch the product or change product code.
 3. For qa-execute, invoke the canonical `qa-execute` skill. Read docs/qa/README.md, use its

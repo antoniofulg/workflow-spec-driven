@@ -10,7 +10,8 @@ the implementer and stay. Do not implement product code.
 ## Load
 
 - Skill workflow-spec-driven to size; skill wspecify, skill wdesign, skill wtasks per phase
-- Spec / context.md / mockup for this slice
+- Spec / context.md for this slice
+- uiux.md, approved source/export, and docs/guidelines/UI-UX.md when a screen or visual reference is in scope
 - docs/guidelines/TEST-CONTRACT.md — write tests.md, assign every ID to one task
 - .specs/AD-INDEX.md; an AD body with rg -A 20 '^### AD-NNN' .specs/STATE.md
 - docs/guidelines/SECURITY.md heading ## 2. At Specify — declare the surfaces if the spec touches a surface

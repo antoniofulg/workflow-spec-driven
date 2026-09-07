@@ -41,9 +41,9 @@ The Verifier returns this block to the orchestrator after completing all checks:
 
 ## Spec-Anchored Acceptance Criteria
 
-| Criterion (WHEN X THEN Y) | Spec-defined outcome | `file:line` + assertion | Result |
-| ------------------------- | -------------------- | ----------------------- | ------ |
-| WHEN X THEN Y             | [precise value/state from spec] | `path/to/test.ts:42` - `expect(result.field).toBe(expected)` | ✅ PASS |
+| Criterion (WHEN X THEN Y) | Spec-defined outcome | Behavioral `file:line` assertion, or visual `uiux.md` row + capture verdict | Result |
+| ------------------------- | -------------------- | ------------------------------------------------------------------------- | ------ |
+| WHEN X THEN Y             | [precise value/state from spec] | `path/to/test.ts:42` - `expect(result.field).toBe(expected)` or `uiux.md#reference` + visual report row | ✅ PASS |
 | WHEN A THEN B             | [expected value]     | `path/to/test.ts:88` - `expect(res.status).toBe(400)` | ✅ PASS |
 | WHEN C THEN D             | not precisely defined in spec | - | ⚠️ Spec-precision gap |
 
@@ -61,6 +61,13 @@ The Verifier returns this block to the orchestrator after completing all checks:
 
 **Sensor depth**: [lightweight / P0-full]
 **Result**: [N/N killed] - [PASS ✅ | FAIL ❌]
+## Visual Reference Evidence (when applicable)
+
+| Reference row/source revision | State + exact viewport | Environment/fonts/assets | Paired captures | Expected differences/tolerances | Verdict |
+| ----------------------------- | ---------------------- | ------------------------ | --------------- | ------------------------------- | ------- |
+| [uiux.md row and revision] | [state, viewport] | [browser/DPR, fixtures, loaded assets] | [reference + implementation paths] | [recorded before judgment] | PASS / FAIL / UNVERIFIED |
+
+Manual paired comparison is evidence, not an automated test. Missing captures, source, fonts, assets, or responsive proof is UNVERIFIED and cannot support a PASS.
 
 ---
 

@@ -1,98 +1,105 @@
 # UI/UX Surface Map
 
-**Read when:** the feature adds or changes a screen.
+**Read when:** a feature adds or changes a screen, or a task names an approved visual reference.
 
-**Why this exists:** Internals designed first get redesigned when the screen moves. `uiux.md` freezes
-states so a design agent can execute in one pass, and so QA knows the feature is UI-bearing. Features
-with no new or changed screen skip this.
+**Why this exists:** `uiux.md` freezes states and the approved visual source so design and implementation
+can execute in one pass and QA can judge the user-visible result. The repository stores only the approved
+handoff. Features with no new or changed screen skip the surface map.
 
 ## The artifact
 
-`.specs/features/<feature>/uiux.md`, written in Specify, **before** internal design begins.
+`.specs/features/<feature>/uiux.md`, written in Specify before internal design begins. Keep reference facts
+here; tasks and packets point to its rows instead of copying a second manifest. When phases are skipped
+and a task names a reference, keep the same fields in a bounded inline task record.
 
-## Optional design tooling
-
-OpenDesign or another design tool may support visual iteration when available. It is optional: the
-repository stores only the approved handoff, and tool absence or failure falls back to the normal
-repository artifacts. Resolve disagreements in this order: `spec.md` → `uiux.md` → approved design
-artifact → tool or plugin output, then legacy mockup.
+An approved source, frame, or frozen export selects reference fidelity, including for a new screen. Open
+design keeps its exploration procedure. Resolve disagreements in this order: `spec.md` → `uiux.md` →
+approved design artifact → tool or plugin output, then legacy mockup. The source owns visual appearance;
+runtime truth, accessibility, and explicit product constraints still apply. Identify and resolve a
+conflict with its owner; do not silently reinterpret, round, or rewrite the reference. External/global
+aesthetic skills advise within this contract.
 
 ```markdown
 # <Feature> UI Change Map
-
+## Reference (when an approved source is supplied)
+- **Approved source/frame:** tool and frame, or checked-in export path
+- **Revision/frozen export:** revision, or frozen export path plus commit/hash
+- **Route and mapping:** route; state ↔ exact viewport width×height pairs
+- **Captures:** original/reference and implementation capture paths
+- **Environment:** browser, OS, DPR, fixtures/content, and loaded fonts/assets
+- **Tokens:** source provenance; mapped tokens; aliases/themes; inferred or missing values
+- **Layout/responsive constraints:** geometry, breakpoints, and supported differences
+- **Expected differences/tolerances:** approved differences recorded before judgment
 ## Screens
-
 ### <Screen name> — `<route>`
 - **New or changed:** changed
 - **Story:** links the user story it serves
 - **Entry points:** how a user reaches it
 - **States:** empty · loading · populated · error · submitting · success
-- **Breakpoints:** mobile, desktop — and what differs
-
+- **Viewports:** exact width×height values and the responsive rule at each
 ## Components
-
 | Component | New or existing | States and variants | Source |
 | --- | --- | --- | --- |
-| `PublicForm` | new | idle, validating, submitting, error, success | composed from existing primitives |
-| `RegionPicker` | existing | unchanged | the project's design docs |
-
+| `PublicForm` | new | idle, validating, submitting, error, success | existing primitives |
 ## Copy
-
 Every user-visible string this feature introduces, in the product's language, with its context.
-
 ## Out of scope
-
 Screens and components this feature deliberately does not touch.
 ```
 
 ## Rules
 
-1. **Enumerate states. Never write "all states".** A component with an unlisted error state ships
-   without one. `empty · loading · populated · error` is a list a design agent can execute; "all
-   states" is not.
-2. **Reuse before create.** Check the project's design docs and the existing component inventory
-   before proposing anything new. A new generic primitive needs a reason; a domain variant takes a
-   domain-prefixed name.
-3. **Every value comes from the design system.** Colour, type, radius, spacing and motion come from
-   the token source. Never invent a value in a feature.
-4. **Truthful UI over plausible UI.** Never render a control or a metric the backend does not support.
-   On conflict, runtime truth wins.
-5. **The surface freezes before internals.** Once this document is settled, internals are designed to
-   serve it — never the reverse. Changing the surface afterwards means reopening this document
-   explicitly, not quietly adapting it to what got built.
-6. **Its existence marks the feature UI-bearing** for the QA pass. A feature with a `uiux.md` gets
-   browser scenarios in `docs/qa/scenarios/`.
+1. **Enumerate states.** Never write "all states"; list each state a design agent can execute.
+2. **Reuse before create.** Check design docs and the component inventory; a new generic primitive needs
+   a reason and a domain variant takes a domain-prefixed name.
+3. **Extract tokens before coding.** Extract actual source values into the canonical token source,
+   preferably from a structured export: typography metrics, font weights, line-height, tracking, spacing,
+   colours, radii, borders, and shadows. Keep layout constraints separate. Reuse matching tokens, map
+   aliases/themes, and record deliberate shared-token changes. Mark raster/fragment inferences explicitly.
+4. **Truthful UI wins.** Never render an unsupported control or metric. Runtime truth wins on conflict,
+   and the conflict is recorded.
+5. **Freeze the surface before internals.** Reopen this document explicitly when the surface changes.
+6. Its existence marks the feature UI-bearing for QA when the proportional classifier selects QA.
+
+## Optional design tooling
+
+When an approved HTML/CSS export is the declared visual source, render it with supplied fonts/assets and
+verify that render is ready before implementation; compare it with an original frame only when that
+frame is the declared authority. Port structure/styles into the project stack, adapting syntax,
+component ownership, and behavior while preserving visual values. The export is source material, not a
+blind generated-code dump or compulsory DOM-identity contract; React and Tailwind are examples, not
+source-pack dependencies. Keep supported exports/assets usable when the design tool is unavailable; tool
+absence or failure falls back to the normal repository artifacts and does not block unrelated work.
+Missing source, fonts, assets, or responsive evidence is an
+explicit gap; fidelity cannot PASS on assumptions, stale captures, or unavailable proof.
 
 ## Working with a design agent
 
-Use this bounded procedure for UI-bearing work:
+1. State constraints first: user goal, required states/actions, hierarchy, accessibility, responsive behavior, runtime/data
+   limits, brand principles, and existing components.
+2. Read selected references and inspect affected components read-only. With an approved reference, load
+   its `uiux.md` rows and source/export before proposing changes.
+3. For an open genuinely new screen or meaningful redesign, provide three distinct directions and a fourth only
+   for a named tradeoff. An approved reference selects the direction and skips alternatives; corrections
+   never require variants.
+4. For open design, prototype in the available tool, isolated HTML, or component playground when useful;
+   keep variants out of production. With an approved source, render and inspect it before porting.
+5. Subtract purposeless UI only during open design, retaining discoverability, accessibility, actions,
+   and feedback. Review against `uiux.md` and the source; one exploration pass and one refinement cap applies
+   to open design only.
+6. Record source/frame, reused components, states, viewports, copy, token mappings, expected differences,
+   and tradeoffs in the UI contract. A reference task points to these rows through `design_excerpt` and
+   records paired evidence. Human local QA is recorded only after human confirmation.
 
-1. State constraints first: user goal, required states and actions, hierarchy, accessibility,
-   responsive behavior, runtime/data limits, brand principles, and existing components.
-2. Read only the selected product/design references and inspect affected existing components read-only.
-   Use the existing pattern for a bounded composition or exact correction.
-3. For a genuinely new screen or meaningful redesign, provide three distinct directions. A fourth
-   is allowed only for a named additional tradeoff. Do not make variants a requirement for button,
-   visual-polish, copy, token, or existing-component corrections.
-4. Prototype in an available design tool, isolated HTML, or component playground when useful. Tool
-   absence is not a blocker, and exploratory variants stay out of production routes.
-5. Subtract labels, icons, borders, controls, and decoration that have no purpose, while retaining
-   discoverability, accessibility, required actions, and useful feedback.
-6. Review the selected direction against `uiux.md` for contract conformance and against coherent
-   visual quality. Perform one exploration pass and one refinement by default, then name any
-   remaining design choice instead of repeating indefinitely.
-7. Record the chosen direction, reused components, states, breakpoints, copy, and tradeoffs in the
-   existing feature UI contract. Human local QA is recorded only after human confirmation.
-
-No new showcase, preview deployment, design integration, or split frontend/backend delivery is
-mandatory. Keep the vertical slice and reuse existing catalogues when available.
+No new showcase, preview deployment, design integration, or split frontend/backend delivery is mandatory.
 
 ## Verifying the built screen
 
-When the spec names a visual reference, the completion claim needs a comparison, not a screenshot.
-Required for each state and breakpoint: the rendered reference, the implementation, and a stated
-verdict on the differences.
-
-An implementation-only capture is not parity evidence. Differences in content, data, copy, brand marks
-and host chrome are judged against their real owners — runtime truth and the design system — not
-against the mockup. The mockup owns visual language only.
+When a visual reference is named, completion requires fresh paired reference and implementation captures
+for every declared exact viewport and state, with fixtures/content, browser/DPR, and loaded fonts/assets.
+Use the existing adapter and paired inspection, overlay, or diff to compare geometry, typography, tokens,
+imagery, interaction states, and responsive behavior. Record expected differences/tolerances before
+judging; source or implementation changes invalidate affected evidence. Missing evidence is unverified;
+an unacceptable mismatch fails. Functional assertions alone do not prove fidelity, and no universal
+arbitrary pixel threshold applies. Manual comparison is evidence, not an automated test. Keep raw captures
+disposable and put the durable verdict and source pointers in the existing task, verifier, or QA report.
