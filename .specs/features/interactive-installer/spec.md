@@ -177,7 +177,7 @@ Installing or upgrading the workflow currently requires a version-pinned scoped 
 | CLI-001 | P1: Guided installation | Tasks | Implemented T5 |
 | CLI-002 | P1: Guided installation | Tasks | Implemented T6 |
 | CLI-003 | P1: Guided installation | Tasks | Implemented T6 |
-| PORT-001 | P1: Guided installation | Tasks | In Tasks |
+| PORT-001 | P1: Guided installation | Tasks | Implemented T7 |
 | PORT-002 | P1: Guided installation | Tasks | In Tasks |
 | MOD-001 | P1: Module selection | Tasks | Implemented T5 |
 | MOD-002 | P1: Module selection | Tasks | Implemented T5 |
@@ -199,8 +199,8 @@ Installing or upgrading the workflow currently requires a version-pinned scoped 
 | KNOW-005 | P1: Knowledge transfer | Tasks | Implemented T1 |
 | PAR-001 | P2: Port parity | Tasks | Implemented T1 |
 | PAR-002 | P2: Port parity | Tasks | Implemented T2 |
-| PAR-003 | P2: Port parity | Tasks | In Tasks |
-| PAR-004 | P2: Port parity | Tasks | In Tasks |
+| PAR-003 | P2: Port parity | Tasks | Implemented T7 |
+| PAR-004 | P2: Port parity | Tasks | Implemented T7 |
 | SEC-001 | Edge cases | Tasks | Implemented T1 |
 | SEC-002 | Edge cases | Tasks | Implemented T3 |
 | SEC-003 | Edge cases | Tasks | Implemented T3 |

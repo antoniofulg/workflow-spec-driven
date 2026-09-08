@@ -61,7 +61,10 @@ export function renderAgentPacket(provider, content, setting) {
 }
 
 export function stageAgentPackets(stageRoot, targetRoot = stageRoot) {
-  const root = path.resolve(stageRoot); const target = path.resolve(targetRoot); const config = readWorkflowConfig(target); const generated = {};
+  const root = path.resolve(stageRoot); const target = path.resolve(targetRoot); let config;
+  if (fs.existsSync(path.join(target, '.my-workflow.toml')) || fs.existsSync(path.join(target, '.my-workflow.toml.example'))) config = readWorkflowConfig(target);
+  else config = validateWorkflowConfig(parse(fs.readFileSync(path.join(root, '.my-workflow.toml.example'), 'utf8')));
+  const generated = {};
   for (const provider of PROVIDERS) for (const role of ROLES) {
     const template = templatePath(root, provider, role); if (!fs.existsSync(template) || !fs.lstatSync(template).isFile()) error(`missing agent template ${path.relative(root, template)}`);
     const content = fs.readFileSync(template); packetSetting(provider, content); generated[runtimePath(provider, role)] = renderAgentPacket(provider, content, config.models[provider][role]);

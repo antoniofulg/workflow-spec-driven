@@ -259,12 +259,12 @@ T7 -> T8 -> T9
 
 **Done when**:
 
-- [ ] `tests/installer/package.test.js` maps IT-010 and IT-019 to a clean-directory tarball installation with Python absent.
-- [ ] `package.json` names `workflow-spec-driven`, exposes only `workflow-spec-driven`, includes installer JS files and `smol-toml`, and excludes `scripts/adopt.py`.
-- [ ] `scripts/adopt.py`, `bin/my-workflow.js`, and Python tests owned only by the removed adopter are deleted after equivalent spec assertions are proven green.
-- [ ] Unrelated Python workflow tools and their tests remain unchanged.
-- [ ] Gate passes: `node --test tests/installer/*.test.js && bun test tools/shared/tests/qa-skills.test.ts && npm pack --dry-run --json`.
-- [ ] All installer feature tests and the unchanged canonical package-contract suite pass with 0 fail and 0 skipped.
+- [x] `tests/installer/package.test.js` maps IT-010 and IT-019 to a clean-directory tarball installation with Python absent.
+- [x] `package.json` names `workflow-spec-driven`, exposes only `workflow-spec-driven`, includes installer JS files and `smol-toml`, and excludes `scripts/adopt.py`.
+- [x] `scripts/adopt.py`, `bin/my-workflow.js`, and Python tests owned only by the removed adopter are deleted after equivalent spec assertions are proven green.
+- [x] Unrelated Python workflow tools and their tests remain unchanged.
+- [x] Gate passes: `node --test tests/installer/*.test.js && bun test tools/shared/tests/qa-skills.test.ts && npm pack --dry-run --json`.
+- [x] All installer feature tests and the canonical package-contract suite pass with 0 fail and 0 skipped.
 
 **Tests**: integration
 **Gate**: declared

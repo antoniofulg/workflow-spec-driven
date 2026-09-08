@@ -1,19 +1,19 @@
 {
-  "name": "@antoniofulg/workflow-spec-driven",
+  "name": "workflow-spec-driven",
   "version": "0.10.0",
   "private": false,
   "type": "module",
   "packageManager": "bun@1.4.0",
   "bin": {
-    "my-workflow": "bin/my-workflow.js"
+    "workflow-spec-driven": "bin/workflow-spec-driven.js"
   },
   "engines": {
     "node": ">=18.0.0",
     "bun": ">=1.4.0 <1.5.0"
   },
   "files": [
-    "bin/my-workflow.js",
-    "scripts/adopt.py",
+    "bin/workflow-spec-driven.js",
+    "scripts/installer",
     "scripts/install_security_skills.py",
     "skills-lock.json",
     "AGENTS.md",

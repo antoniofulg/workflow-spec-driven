@@ -980,7 +980,7 @@ describe("adoption and public setup", () => {
   it("IT-010 makes adoption reviewable and routes QA by observability", () => {
     const readme = readRepositoryFile("README.md");
     const prompt = readRepositoryFile("docs/adoption-prompt.md");
-    const adopt = readRepositoryFile("scripts/adopt.py");
+    const adopt = readRepositoryFile("scripts/installer/engine.js");
 
     expect(readme).toContain("docs/adoption-prompt.md");
     expect(readme).toContain("managed paths");
@@ -999,10 +999,10 @@ describe("adoption and public setup", () => {
     expect(prompt).toContain("qa-execute");
     expect(prompt).toContain("purely internal refactor");
     expect(prompt).toContain("no user-visible change");
-    expect(adopt).toContain('".agents/skills/qa-plan"');
-    expect(adopt).toContain('".agents/skills/qa-execute"');
-    expect(adopt).toContain('".my-workflow.toml.example"');
-    expect(adopt).toContain('".agents/skills/workflow-config"');
+    expect(adopt).toContain("'.agents/skills/qa-plan'");
+    expect(adopt).toContain("'.agents/skills/qa-execute'");
+    expect(adopt).toContain("'.my-workflow.toml.example'");
+    expect(adopt).toContain("'.agents/skills/workflow-config'");
   });
 
   it("IT-009 exposes the fixed layered adoption boundary", () => {
@@ -1121,11 +1121,11 @@ describe("adoption and public setup", () => {
     );
 
     expect(manifest.version).toBe("0.10.0");
-    expect(manifest.name).toBe("@antoniofulg/workflow-spec-driven");
+    expect(manifest.name).toBe("workflow-spec-driven");
     expect(manifest.private).toBe(false);
     expect(manifest.packageManager).toBe("bun@1.4.0");
     expect(manifest.scripts?.test).toBe("bun test");
-    expect(readRepositoryFile("bun.lock")).toContain('"name": "@antoniofulg/workflow-spec-driven"');
+    expect(readRepositoryFile("bun.lock")).toContain('"name": "workflow-spec-driven"');
     expect(existsSync(join(repositoryRoot, "package-lock.json"))).toBe(false);
     expect(latestHeading).toBe("0.10.0");
     expect(latestHeading).toBe(manifest.version);
@@ -1153,7 +1153,7 @@ describe("adoption and public setup", () => {
       ".agents/skills/autonomous/scripts/qa_parallel_pilot.py",
       ".agents/skills/autonomous/scripts/orca_assisted_probe.py",
       ".agents/skills/autonomous/remediation.py",
-      "scripts/adopt.py",
+      "scripts/installer/engine.js",
     ]) {
       expect(packOutput).toContain(requiredPath);
     }
@@ -1172,7 +1172,6 @@ describe("Bun tooling runtime contract", () => {
       .filter((relativePath) => /^(?:scripts|tools)\/test_[^/]+\.py$/.test(relativePath))
       .sort();
     const expectedPythonSuites = [
-      "scripts/test_adopt.py",
       "tools/test_ad_index.py",
       "tools/test_deep_review_contract.py",
       "tools/test_deep_review_symlink_manifest.py",
