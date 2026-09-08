@@ -867,6 +867,10 @@ def test_it001_fresh_apply_seeds_neutral_consumer_knowledge() -> None:
         assert {path.relative_to(target).as_posix() for path in (target / "knowledge/wiki").rglob("*") if path.is_file()} == expected
         assert (target / "knowledge/AGENTS.md").read_bytes() == (ROOT / "knowledge/AGENTS.md").read_bytes()
         assert (target / "knowledge/raw/README.md").read_bytes() == (ROOT / "knowledge/raw/README.md").read_bytes()
+        assert not (target / "templates").exists() and not (target / "tools").exists()
+        assert (target / ".agents/skills/workflow-config/assets/agents/claude/planner.md").is_file()
+        assert (target / ".agents/skills/workflow-spec-driven/scripts/ad-index.py").is_file()
+        assert (target / ".agents/skills/knowledge-check/scripts/cli.ts").is_file()
         assert {path.relative_to(target).as_posix() for path in (target / "knowledge/raw").rglob("*") if path.is_file()} == {"knowledge/raw/README.md"}
         manifest = json.loads((target / ".my-workflow/adoption.json").read_text(encoding="utf-8"))
         assert all(manifest["files"][path]["ownership"] == "consumer" for path in expected)
@@ -1171,14 +1175,26 @@ def test_sec003_cleanup_failure_restores_retired_files_directories_and_manifest(
         source = source_for(relative).read_bytes()
         path = target / relative
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(source)
         _add_legacy_consumer_record(target, relative, source)
+        path.write_bytes(source)
+        before_present = snapshot(target)
+        present_result, present_staged = adopt._build_plan(ROOT, target, ["core"], ["core"], True, True)
+        with patch.object(adopt, "_prune_empty_legacy_parents", side_effect=RuntimeError("injected cleanup failure")):
+            expect_adoption_error(lambda: adopt._publish(ROOT, target, present_result, present_staged))
+        assert snapshot(target) == before_present
+        path.unlink()
         before = snapshot(target)
         result, staged = adopt._build_plan(ROOT, target, ["core"], ["core"], True, True)
-        with patch.object(adopt, "_prune_empty_legacy_parents", side_effect=RuntimeError("injected cleanup failure")):
+        assert not path.exists() and (target / "tools").is_dir()
+        pruned_before_failure: list[bool] = []
+        def fail_after_prune(*_args: object, **_kwargs: object) -> None:
+            pruned_before_failure.append(not (target / "tools").exists())
+            raise RuntimeError("injected later publication failure")
+        with patch.object(adopt, "_link_claude_skills", side_effect=fail_after_prune):
             expect_adoption_error(lambda: adopt._publish(ROOT, target, result, staged))
+        assert pruned_before_failure == [True]
         assert snapshot(target) == before
-        assert (target / relative).is_file()
+        assert not path.exists() and (target / "tools").is_dir()
         assert (target / ".my-workflow/adoption.json").read_bytes() == before[".my-workflow/adoption.json"][1]
     finally:
         shutil.rmtree(target)
@@ -1389,6 +1405,26 @@ def test_it011_tarball_bin_installs_updates_and_reports_clean_status() -> None:
         assert status.returncode == 0, status.stderr
         assert json.loads(status.stdout)["status"] == "clean"
         assert (target / ".codex/agents/planner.toml").read_bytes() != b"stale runtime\n"
+
+        state = target / ".specs/STATE.md"
+        state.parent.mkdir(parents=True, exist_ok=True)
+        state.write_text("# State\n\n### AD-001\n\n- **Decision**: Packed command proof.\n- **Status**: active\n", encoding="utf-8")
+        ad_index = target / ".agents/skills/workflow-spec-driven/scripts/ad-index.py"
+        knowledge = target / ".agents/skills/knowledge-check/scripts/cli.ts"
+        ad_index_run = subprocess.run([sys.executable, str(ad_index)], cwd=runner, text=True, capture_output=True, check=False)
+        assert ad_index_run.returncode == 0, ad_index_run.stderr
+        ad_index_check = subprocess.run([sys.executable, str(ad_index), "--check"], cwd=runner, text=True, capture_output=True, check=False)
+        assert ad_index_check.returncode == 0 and "AD-INDEX.md up to date" in ad_index_check.stdout
+        knowledge_run = subprocess.run(["bun", str(knowledge), str(target)], cwd=runner, text=True, capture_output=True, check=False)
+        assert knowledge_run.returncode == 0, knowledge_run.stderr
+        for helper in ("resource_lock.py", "orca_assisted_probe.py", "qa_parallel_pilot.py"):
+            helper_args = ["--help"]
+            if helper == "resource_lock.py":
+                helper_args = ["run", "--resource", "packed-runtime", "--scope", "machine", "--timeout-seconds", "1", "--", sys.executable, "-c", "print('packed-runtime')"]
+            helper_run = subprocess.run([sys.executable, str(target / ".agents/skills/autonomous/scripts" / helper), *helper_args], cwd=runner, text=True, capture_output=True, check=False)
+            assert helper_run.returncode == 0, f"{helper}: {helper_run.stderr}"
+            if helper == "resource_lock.py":
+                assert "packed-runtime" in helper_run.stdout
     finally:
         shutil.rmtree(package_root)
         shutil.rmtree(runner)
@@ -1786,6 +1822,9 @@ def test_fresh_and_refuse() -> None:
     try:
         assert invoke(target, "apply", "--layers", "full").returncode == 0
         assert (target / ".agents/skills/knowledge-check/scripts/cli.ts").is_file()
+        assert not (target / "templates").exists() and not (target / "tools").exists()
+        assert (target / ".agents/skills/workflow-config/assets/agents/claude/planner.md").is_file()
+        assert (target / ".agents/skills/workflow-spec-driven/scripts/ad-index.py").is_file()
         assert not list((target / "tools").rglob("*.test.ts"))
         agents = target / "AGENTS.md"
         agents.write_text("# Product instructions\n\nA product.\n")

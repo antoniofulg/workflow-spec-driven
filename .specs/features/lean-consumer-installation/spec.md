@@ -148,7 +148,7 @@ contract moved it, never to conceal a failure. No new test framework or duplicat
 - Scoped feedback: adopter, workflow-config, AD-index, knowledge/frontmatter, affected parallel and
   phase/QA contract suites. Final gate: `bun run test:all`.
 - Commit: `fix(installer): encapsulate consumer workflow runtime`.
-- Status: complete. `python3 scripts/test_adopt.py` passed 109 tests; `bun run test:all` exited 0 with Bun 126 tests and all Python suites passing. Final output: `/tmp/my-workflow-lean-installation-implementation-gate.log`.
+- Status: complete. Remediation evidence: `python3 scripts/test_adopt.py` passed 109 tests (`/tmp/my-workflow-lean-installation/remediation-adopter.log`); final full gate `bun run test:all` is recorded at `/tmp/my-workflow-lean-installation/remediation-gate.log` after AC1, AC10, and SEC-003 assertions.
 
 One writer, one observable installation slice. File relocation and its catalog/callers must land
 atomically; no independent writer lane is safe. Then run one fresh Technical Verifier, the frozen
