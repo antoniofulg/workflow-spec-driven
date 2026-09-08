@@ -1,4 +1,4 @@
-# my-workflow
+# workflow-spec-driven
 
 The npm package is `@antoniofulg/workflow-spec-driven`; its installed executable remains `my-workflow`.
 
@@ -19,7 +19,7 @@ already exist. A Git repository is recommended so plans, conflicts, and workflow
 reviewable.
 
 ```bash
-cd /path/to/my-workflow-source
+cd /path/to/workflow-spec-driven-source
 mkdir -p /path/to/release
 npm pack --pack-destination /path/to/release
 # writes /path/to/release/antoniofulg-workflow-spec-driven-0.10.0.tgz
@@ -340,7 +340,7 @@ project adopted, plan the smallest layer update, then inspect the complete diff 
 ```bash
 cd /path/to/target-project
 git status --short
-git switch -c build/update-my-workflow
+git switch -c build/update-workflow-spec-driven
 npm exec --yes --package /path/to/antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
   my-workflow plan . --layers full --json
 npm exec --yes --package /path/to/antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
@@ -425,7 +425,7 @@ Review, QA, workflow-config, and autonomous skills. Keep those canonical copies 
 symlinks in `.claude/skills/`. The three external security skills are a separate authorized step:
 
 ```bash
-python3 /path/to/my-workflow/scripts/install_security_skills.py \
+python3 /path/to/workflow-spec-driven/scripts/install_security_skills.py \
   /path/to/target-project --yes
 ```
 
