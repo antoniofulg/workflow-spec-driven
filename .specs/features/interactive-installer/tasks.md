@@ -22,6 +22,18 @@ The second verifier follow-up closes packed `.bin` entrypoint execution, true ze
 plans, catalog symlink rejection, core-dependency exclusion cancellation, 80/120-column rendering,
 and packed clean-directory coverage while retaining the prior transaction and security fixes.
 
+### Remediation batch 2026-09-08 (third)
+
+The third verifier follow-up replaces named-only acceptance checks with owning-suite assertions for
+packed interactive execution, frozen Python planner fixtures, exact filesystem/mode/manifest residue,
+Git and symlink fail-closed paths, interruption/recovery, knowledge handoff, and all-current no-op
+behaviour. It also aligns terminal status brackets, width-specific descriptions and tables, conflict
+guidance, replacement acknowledgement, backup/transfer counts, applying progress, success copy, and
+failure/recovery copy with the approved 80x24 and 120x40 transcripts.
+
+Checkpoint: complete. Scoped installer suites pass 167/167, the package-contract QA suite passes
+32/32, `bun run test:all` exits 0, and `npm pack --dry-run --json` reports the expected 146 entries.
+
 ---
 
 ## Test Coverage Matrix

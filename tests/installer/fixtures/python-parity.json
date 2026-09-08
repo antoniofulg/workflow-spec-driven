@@ -1,0 +1,11 @@
+{
+  "baseline_commit": "9acea915",
+  "cases": {
+    "fresh": { "requested": ["core"], "resolved": ["core"], "status": "ready", "classification": { ".agents/skills/workflow-spec-driven/SKILL.md": "add" } },
+    "pristine": { "requested": ["core"], "resolved": ["core"], "status": "no-change", "classification": {} },
+    "outdated": { "requested": ["core"], "resolved": ["core"], "status": "ready", "classification": { ".agents/skills/workflow-spec-driven/SKILL.md": "update" } },
+    "modified": { "requested": ["core"], "resolved": ["core"], "status": "conflict", "classification": { ".agents/skills/workflow-spec-driven/SKILL.md": "modified" } },
+    "collision": { "requested": ["core"], "resolved": ["core"], "status": "conflict", "classification": { ".agents/skills/workflow-spec-driven/SKILL.md": "conflict" } },
+    "malformed": { "requested": ["core"], "resolved": ["core"], "error": "invalid adoption manifest" }
+  }
+}

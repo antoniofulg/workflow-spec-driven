@@ -117,7 +117,7 @@ export function loadManifest(root) {
   safePath(root, '.my-workflow/adoption.json', 'manifest');
   let data; try { data = JSON.parse(fs.readFileSync(target, 'utf8')); } catch (error) { fail(`invalid adoption manifest: ${error.message}`); }
   if (!data || typeof data !== 'object' || Array.isArray(data) || Object.keys(data).sort().join() !== 'blocks,files,layers,schema,workflow_version') fail('adoption manifest has an unsupported schema');
-  if (data.schema !== 1 || typeof data.workflow_version !== 'string' || !/^\d+\.\d+\.\d+$/.test(data.workflow_version) || data.workflow_version.split('.').some((part) => part.length > 9) || data.workflow_version.split('.').map(Number).some(Number.isNaN)) fail('adoption manifest schema must be version 1');
+  if (data.schema !== 1 || typeof data.workflow_version !== 'string' || !/^(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})$/.test(data.workflow_version)) fail('adoption manifest schema must be version 1');
   if (!Array.isArray(data.layers) || data.layers.some((module) => !LAYERS.includes(module)) || data.layers.join() !== [...new Set(data.layers)].sort((a, b) => LAYERS.indexOf(a) - LAYERS.indexOf(b)).join()) fail('manifest layers must be unique and catalog-ordered');
   if (data.layers.length && JSON.stringify(resolveModules(data.layers)) !== JSON.stringify(data.layers)) fail('manifest layers must include every fixed dependency');
   if (!data.files || typeof data.files !== 'object' || Array.isArray(data.files) || !data.blocks || typeof data.blocks !== 'object' || Array.isArray(data.blocks)) fail('manifest files and blocks must be objects');
