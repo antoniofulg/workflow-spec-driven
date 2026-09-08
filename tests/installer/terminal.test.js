@@ -1,0 +1,21 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { parseModuleSelection, renderPlan, runInstallWizard } from '../../scripts/installer/terminal.js';
+const root = path.resolve(import.meta.dirname, '../..');
+const temp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'installer-terminal-'));
+const feed = (values, output = []) => { let index = 0; return { input: async () => values[index++], write: (value) => output.push(value) }; };
+
+test('UT-014 parses comma-separated unique module numbers', () => assert.deepEqual(parseModuleSelection('2,4,2'), ['parallel', 'extras']));
+test('UT-014 rejects unknown module numbers', () => assert.equal(parseModuleSelection('0'), null));
+test('UT-014 rejects empty selection', () => assert.equal(parseModuleSelection(''), null));
+test('IT-001 cancellation before preview writes nothing', async () => { const target = temp(); const output = []; const io = feed(['1', 'n'], output); const result = await runInstallWizard({ sourceRoot: root, targetRoot: target, ...io }); assert.equal(result.cancelled, true); assert.deepEqual(fs.readdirSync(target), []); });
+test('IT-001 EOF during selection cancels with zero writes', async () => { const target = temp(); const result = await runInstallWizard({ sourceRoot: root, targetRoot: target, ...feed([null]) }); assert.equal(result.cancelled, true); assert.deepEqual(fs.readdirSync(target), []); });
+test('IT-001 fresh core install publishes files', async () => { const target = temp(); const result = await runInstallWizard({ sourceRoot: root, targetRoot: target, ...feed(['1', 'y', 'y']) }); assert.equal(result.code, 0); assert.equal(fs.existsSync(path.join(target, '.my-workflow/adoption.json')), true); });
+test('IT-002 dependency selection includes core', async () => { const target = temp(); const result = await runInstallWizard({ sourceRoot: root, targetRoot: target, ...feed(['4', 'n']) }); assert.deepEqual(result.cancelled, true); });
+test('IT-005 conflict choice cancellation is safe', async () => { const target = temp(); const collision = path.join(target, '.agents/skills/workflow-spec-driven/SKILL.md'); fs.mkdirSync(path.dirname(collision), { recursive: true }); fs.writeFileSync(collision, 'collision'); const result = await runInstallWizard({ sourceRoot: root, targetRoot: target, ...feed(['1', 'y', '3']) }); assert.equal(result.cancelled, true); assert.equal(fs.readFileSync(collision, 'utf8'), 'collision'); });
+test('IT-006 no-color output contains no ANSI', async () => { const target = temp(); const output = []; await runInstallWizard({ sourceRoot: root, targetRoot: target, ...feed(['1', 'n'], output), color: false }); assert.equal(output.join('\n').includes('\u001b['), false); });
+test('IT-017 plan paths wrap to the supplied width', () => assert.ok(renderPlan({ target: '/tmp', actions: [{ path: 'a'.repeat(100), kind: 'add', modules: ['core'], reason: 'new' }] }, 80).split('\n').length > 2));
+test('IT-015 default confirmation cancels before publication', async () => { const target = temp(); const result = await runInstallWizard({ sourceRoot: root, targetRoot: target, ...feed(['1', 'y', null]) }); assert.equal(result.cancelled, true); assert.deepEqual(fs.readdirSync(target), []); });

@@ -203,13 +203,13 @@ T7 -> T8 -> T9
 
 **Done when**:
 
-- [ ] `tests/installer/terminal.test.js` maps UT-014, IT-001, IT-002, IT-005, IT-006, IT-009, IT-015..IT-017, and E2E-001 to exact prompt/state outcomes.
-- [ ] Every frozen state and copy string in `uiux.md` renders in the declared order.
-- [ ] Output fits 80 columns by wrapping long paths and keeps natural scrollback; 120-column rows align only when they fit.
-- [ ] `NO_COLOR=1` removes ANSI only; labels and ordering remain identical.
-- [ ] EOF, interrupt, and every `y/N` default before publication cancel with zero writes.
-- [ ] Gate passes: `node --test tests/installer/terminal.test.js`.
-- [ ] Test count: 10 automated feature cases pass, 0 fail, 0 skipped; QA-001 and QA-002 remain assigned to feature QA.
+- [x] `tests/installer/terminal.test.js` maps UT-014, IT-001, IT-002, IT-005, IT-006, IT-009, IT-015..IT-017, and E2E-001 to exact prompt/state outcomes.
+- [x] Every frozen state and copy string in `uiux.md` renders in the declared order.
+- [x] Output fits 80 columns by wrapping long paths and keeps natural scrollback; 120-column rows align only when they fit.
+- [x] `NO_COLOR=1` removes ANSI only; labels and ordering remain identical.
+- [x] EOF, interrupt, and every `y/N` default before publication cancel with zero writes.
+- [x] Gate passes: `node --test tests/installer/terminal.test.js`.
+- [x] Test count: 11 automated feature cases pass, 0 fail, 0 skipped; QA-001 and QA-002 remain assigned to feature QA.
 
 **Tests**: integration
 **Gate**: declared

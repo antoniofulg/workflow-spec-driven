@@ -174,27 +174,27 @@ Installing or upgrading the workflow currently requires a version-pinned scoped 
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| CLI-001 | P1: Guided installation | Tasks | In Tasks |
+| CLI-001 | P1: Guided installation | Tasks | Implemented T5 |
 | CLI-002 | P1: Guided installation | Tasks | In Tasks |
 | CLI-003 | P1: Guided installation | Tasks | In Tasks |
 | PORT-001 | P1: Guided installation | Tasks | In Tasks |
 | PORT-002 | P1: Guided installation | Tasks | In Tasks |
-| MOD-001 | P1: Module selection | Tasks | Implemented T1 |
-| MOD-002 | P1: Module selection | Tasks | Implemented T1 |
+| MOD-001 | P1: Module selection | Tasks | Implemented T5 |
+| MOD-002 | P1: Module selection | Tasks | Implemented T5 |
 | MOD-003 | P1: Module selection | Tasks | Implemented T1 |
-| MOD-004 | P1: Module selection | Tasks | Implemented T1 |
-| MOD-005 | P1: Module selection | Tasks | Implemented T1 |
+| MOD-004 | P1: Module selection | Tasks | Implemented T5 |
+| MOD-005 | P1: Module selection | Tasks | Implemented T5 |
 | STATE-001 | P1: Module selection | Tasks | Implemented T1 |
-| SAFE-001 | P1: Repository protection | Tasks | In Tasks |
+| SAFE-001 | P1: Repository protection | Tasks | Implemented T5 |
 | SAFE-002 | P1: Repository protection | Tasks | Implemented T3 |
 | SAFE-003 | P1: Repository protection | Tasks | Implemented T3 |
 | SAFE-004 | P1: Repository protection | Tasks | Implemented T3 |
-| SAFE-005 | P1: Repository protection | Tasks | In Tasks |
-| SAFE-006 | P1: Repository protection | Tasks | In Tasks |
+| SAFE-005 | P1: Repository protection | Tasks | Implemented T5 |
+| SAFE-006 | P1: Repository protection | Tasks | Implemented T5 |
 | SAFE-007 | P1: Repository protection | Tasks | Implemented T3 |
 | KNOW-001 | P1: Knowledge transfer | Tasks | Implemented T4 |
 | KNOW-002 | P1: Knowledge transfer | Tasks | Implemented T4 |
-| KNOW-003 | P1: Knowledge transfer | Tasks | Implemented T4 |
+| KNOW-003 | P1: Knowledge transfer | Tasks | Implemented T5 |
 | KNOW-004 | P1: Knowledge transfer | Tasks | Implemented T4 |
 | KNOW-005 | P1: Knowledge transfer | Tasks | Implemented T1 |
 | PAR-001 | P2: Port parity | Tasks | Implemented T1 |
