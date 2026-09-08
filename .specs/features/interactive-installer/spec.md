@@ -175,8 +175,8 @@ Installing or upgrading the workflow currently requires a version-pinned scoped 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
 | CLI-001 | P1: Guided installation | Tasks | Implemented T5 |
-| CLI-002 | P1: Guided installation | Tasks | In Tasks |
-| CLI-003 | P1: Guided installation | Tasks | In Tasks |
+| CLI-002 | P1: Guided installation | Tasks | Implemented T6 |
+| CLI-003 | P1: Guided installation | Tasks | Implemented T6 |
 | PORT-001 | P1: Guided installation | Tasks | In Tasks |
 | PORT-002 | P1: Guided installation | Tasks | In Tasks |
 | MOD-001 | P1: Module selection | Tasks | Implemented T5 |

@@ -232,11 +232,11 @@ T7 -> T8 -> T9
 
 **Done when**:
 
-- [ ] `tests/installer/cli.test.js` maps IT-018 plus TTY rejection and exit-code assertions to `dx.md`.
-- [ ] Entrypoint contains no Python discovery or invocation.
-- [ ] Unknown commands and arguments fail with help and no target inspection.
-- [ ] Gate passes: `node --test tests/installer/cli.test.js`.
-- [ ] Test count: at least 5 CLI cases pass, 0 fail, 0 skipped.
+- [x] `tests/installer/cli.test.js` maps IT-018 plus TTY rejection and exit-code assertions to `dx.md`.
+- [x] Entrypoint contains no Python discovery or invocation.
+- [x] Unknown commands and arguments fail with help and no target inspection.
+- [x] Gate passes: `node --test tests/installer/cli.test.js`.
+- [x] Test count: 5 CLI cases pass, 0 fail, 0 skipped.
 
 **Tests**: integration
 **Gate**: declared
