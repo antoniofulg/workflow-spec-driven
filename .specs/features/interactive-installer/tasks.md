@@ -175,12 +175,12 @@ T7 -> T8 -> T9
 
 **Done when**:
 
-- [ ] `tests/installer/knowledge.test.js` maps UT-010, IT-004, and E2E-002 to exact source, destination, reason, and `Pending human transfer` output.
-- [ ] No code path parses, summarizes, or semantically merges consumer content.
-- [ ] Checklists exist only when an accepted replacement/removal has catalog-defined knowledge impact.
-- [ ] Fresh scaffolding contains no source-pack concept or dated observation.
-- [ ] Gate passes: `node --test tests/installer/knowledge.test.js`.
-- [ ] Test count: 3 automated feature cases pass, 0 fail, 0 skipped; QA-003 remains assigned to feature QA.
+- [x] `tests/installer/knowledge.test.js` maps UT-010, IT-004, and E2E-002 to exact source, destination, reason, and `Pending human transfer` output.
+- [x] No code path parses, summarizes, or semantically merges consumer content.
+- [x] Checklists exist only when an accepted replacement/removal has catalog-defined knowledge impact.
+- [x] Fresh scaffolding contains no source-pack concept or dated observation.
+- [x] Gate passes: `node --test tests/installer/knowledge.test.js`.
+- [x] Test count: 3 automated feature cases pass, 0 fail, 0 skipped; QA-003 remains assigned to feature QA.
 
 **Tests**: integration
 **Gate**: declared

@@ -192,10 +192,10 @@ Installing or upgrading the workflow currently requires a version-pinned scoped 
 | SAFE-005 | P1: Repository protection | Tasks | In Tasks |
 | SAFE-006 | P1: Repository protection | Tasks | In Tasks |
 | SAFE-007 | P1: Repository protection | Tasks | Implemented T3 |
-| KNOW-001 | P1: Knowledge transfer | Tasks | In Tasks |
-| KNOW-002 | P1: Knowledge transfer | Tasks | In Tasks |
-| KNOW-003 | P1: Knowledge transfer | Tasks | In Tasks |
-| KNOW-004 | P1: Knowledge transfer | Tasks | In Tasks |
+| KNOW-001 | P1: Knowledge transfer | Tasks | Implemented T4 |
+| KNOW-002 | P1: Knowledge transfer | Tasks | Implemented T4 |
+| KNOW-003 | P1: Knowledge transfer | Tasks | Implemented T4 |
+| KNOW-004 | P1: Knowledge transfer | Tasks | Implemented T4 |
 | KNOW-005 | P1: Knowledge transfer | Tasks | Implemented T1 |
 | PAR-001 | P2: Port parity | Tasks | Implemented T1 |
 | PAR-002 | P2: Port parity | Tasks | Implemented T2 |
