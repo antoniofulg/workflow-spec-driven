@@ -287,11 +287,11 @@ T7 -> T8 -> T9
 
 **Done when**:
 
-- [ ] Current docs contain one canonical `npx workflow-spec-driven install` journey and no current scoped-package, `my-workflow`, or `adopt.py` installation path.
-- [ ] Docs enumerate modules/states, previews, conflict choices, backups, recovery, knowledge checklist, Node minimum, and Python scope accurately.
-- [ ] Historical release evidence remains unchanged.
-- [ ] Gate passes: `bun test tools/shared/tests/qa-skills.test.ts && git diff --check`.
-- [ ] Existing documentation contract tests pass with 0 fail and 0 skipped.
+- [x] Current docs contain one canonical `npx workflow-spec-driven install` journey and no current scoped-package, `my-workflow`, or `adopt.py` installation path.
+- [x] Docs enumerate modules/states, previews, conflict choices, backups, recovery, knowledge checklist, Node minimum, and Python scope accurately.
+- [x] Historical release evidence remains unchanged.
+- [x] Gate passes: `bun test tools/shared/tests/qa-skills.test.ts && git diff --check`.
+- [x] Existing documentation contract tests pass with 0 fail and 0 skipped.
 
 **Tests**: integration
 **Gate**: declared

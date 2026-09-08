@@ -1,6 +1,6 @@
 # workflow-spec-driven
 
-The npm package is `@antoniofulg/workflow-spec-driven`; its installed executable remains `my-workflow`.
+The npm package and executable are both `workflow-spec-driven`.
 
 An operating system for agents. It ships the workflow-owned [`workflow-spec-driven`](.agents/skills/workflow-spec-driven/SKILL.md)
 router and its five phase skills (`wspecify`, `wdesign`, `wtasks`, `wimplement`, `wverify`)
@@ -14,41 +14,26 @@ human-owned merge.
 
 ## Quick start
 
-Keep the exact package release separate from the project receiving it. The target directory must
-already exist. A Git repository is recommended so plans, conflicts, and workflow state remain
-reviewable.
+From the repository you want to install into, run the guided Node.js installer:
 
 ```bash
-cd /path/to/workflow-spec-driven-source
-mkdir -p /path/to/release
-npm pack --pack-destination /path/to/release
-# writes /path/to/release/antoniofulg-workflow-spec-driven-0.10.0.tgz
-
-mkdir -p /path/to/target-project
-cd /path/to/target-project
-npm exec --yes --package /path/to/release/antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
-  my-workflow plan /path/to/target-project --layers core --json
-npm exec --yes --package /path/to/release/antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
-  my-workflow apply /path/to/target-project --layers core
-npm exec --yes --package /path/to/release/antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
-  my-workflow status /path/to/target-project
+npx workflow-spec-driven install
 ```
 
-Use `core` for the operating loop and Bun tooling. Use `full` for parallel execution, quality and QA
-skills, and optional Ponytail utilities; selected layers are cumulative, and every non-core layer
-includes `core`. `full` installs capabilities but does not mandate every stage; the task classifier
-selects the work. The package requires Python 3.11 or newer as `python3`, never prompts, and leaves
-the target unchanged when preflight finds a conflict. Use the same target and `--layers` value with
-`plan` and `apply`; omitting it selects `full`. `status` reads installed layers from the manifest
-and takes no layer selector. The release package is `@antoniofulg/workflow-spec-driven@0.10.0`; use its exact
-version after publication.
+The command targets the current directory, requires Node.js 18 or newer, and walks through module
+selection, state assessment, a complete preview, conflict decisions, final confirmation, and a
+result summary. It never requires Python. Existing files that are replaced or removed are copied
+byte-for-byte with their modes into `.my-workflow/backups/<UTC timestamp>/`; the adoption manifest
+is published last. Cancelling at any prompt writes nothing.
 
-After the first apply, immediately fill the consumer-owned `docs/product/AGENT-CONTEXT.md` with the
-product identity, critical constraints, and routes to existing files or headings. Do not create empty
-brand, design, or architecture files. Task-specific routes beat role defaults: visual polish reads
-design/accessibility (for example, a button color), customer copy reads voice, a planner reads the
-overview plus affected capabilities, and an implementer reads its approved task plus applicable
-architecture/design. Narrow context never bypasses safety, permission, QA, or review requirements.
+Choose `core`, `parallel`, `quality`, or `extras`; selecting any non-core module also selects `core`.
+Every module is shown as `not installed`, `up to date`, `outdated`, `modified`, or `conflict`. A
+conflict must be explicitly backed up and replaced, excluded, or cancelled. Successful replacements
+that affect consumer guidance include a `knowledge-transfer.md` checklist with a pending human
+transfer; consumer knowledge is never merged automatically.
+
+The terminal wizard supports 80×24 and 120×40 layouts and `NO_COLOR=1`. The package's complete
+current workflow is documented in [docs/workflow/](docs/workflow/).
 
 Start here: **[docs/workflow/](docs/workflow/)** — an index of every stage, guideline, and choice.
 
@@ -140,37 +125,34 @@ separate installer command; run it only after explicit authorization because it 
 and writes the consumer's `.agents/skills/` tree. It does not install `latest` or silently update
 these dependencies.
 
-## Adopt the workflow
+## Guided installation details
 
-Copy the loop, not the product. New projects use the shared `AGENTS.md` pointer and receive a neutral,
-consumer-owned `docs/product/AGENT-CONTEXT.md` index; fill its identity and routes with existing
-project references instead of copying this source pack's profile. Existing projects preserve their
-filled product paragraph and product-owned documentation. For a legacy `AGENTS.md`, extract product
-rules into that index before deliberately replacing older prose; adoption never infers or performs
-that migration.
+Copy the loop, not the product. New projects receive a neutral, consumer-owned
+`docs/product/AGENT-CONTEXT.md` index; fill its identity and routes with existing project references
+instead of copying this source pack's profile. Existing projects preserve their filled product
+paragraph and product-owned documentation. Knowledge transfer is always a human review step.
 
-Choose a fixed capability layer. `core` contains the operating loop and Bun tooling, `parallel`
-adds assisted slice execution, `quality` adds review and QA skills, and `extras` adds optional
-Ponytail utilities. Selecting `parallel`, `quality`, or `extras` automatically includes `core`;
-`full` resolves all four layers. Planning is read-only and should precede
-every apply. The public command is version-pinned and uses `full` when no layer is supplied:
+The four fixed modules are `core` (operating loop and shared tooling), `parallel` (assisted slice
+execution), `quality` (review and QA), and `extras` (optional Ponytail utilities). Selecting
+`parallel`, `quality`, or `extras` automatically includes `core`. The guided command is:
+
+`core` contains the operating loop and Bun tooling; `parallel` adds assisted slice execution;
+`quality` adds review and QA skills; `extras` adds optional Ponytail utilities. `full` resolves all
+four catalog modules when inspecting the package contents.
+The module definitions are: `parallel` (assisted slice execution), `quality` (review and QA), and
+`extras` (optional Ponytail utilities).
 
 ```bash
-npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
-  my-workflow plan /path/to/target-project --json
-npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
-  my-workflow apply /path/to/target-project
-npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
-  my-workflow status /path/to/target-project
+npx workflow-spec-driven install
 ```
 
-For the published package, use the same executable with an exact version:
-`npm exec --yes --package @antoniofulg/workflow-spec-driven@0.10.0 -- my-workflow apply /path/to/target-project`.
-The target directory must already exist, and `python3` 3.11 or newer must be available as `python3`; the command never prompts.
+The target must be the current directory and the command must run in an interactive terminal.
+The command never invokes Python. It previews add, update, adopt, preserve, replace, remove, and
+no-change actions before asking for final confirmation.
 
-`plan` is read-only. `apply` writes only after complete preflight. `status` exits 0 for clean state,
-1 for drift, and 2 for invalid invocation or state. A conflict returns 1 and leaves the target
-byte-identical.
+Cancellation exits 0 with no target, adoption, journal, or backup changes. Invalid state, unsafe
+paths, backup failures, and publication failures exit 1; non-interactive use exits 2 with the exact
+TTY guidance.
 
 Add capabilities later with another apply; installed layers are cumulative and omitted layers are
 never removed. `--skip-agents` preserves both instruction files byte-for-byte and skips local-config
@@ -178,29 +160,14 @@ initialization and packet synchronization. Without it, adoption appends managed 
 and `quality` blocks while preserving consumer prose. A differing
 managed file or unowned destination is reported as a conflict and causes zero writes.
 
-### Resolve a legacy no-manifest conflict
+### Recovery and conflict handling
 
-For an existing project copied from an older workflow release, run `plan` first. If it reports
-conflicts and the target has no `.my-workflow/adoption.json`, review each path and move any product
-customization into the target's product-owned documentation or code. Commit that clean baseline,
-then authorize every reviewed file conflict explicitly:
+For an existing project copied from an older workflow release, the wizard inspects current files and
+the adoption manifest. It reports every conflict before writing. Choose `Back up and replace`,
+`Exclude module`, or `Cancel installation`; excluding `core` also excludes dependent modules.
 
-```bash
-npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
-  my-workflow resolve /path/to/target-project \
-  --layers parallel \
-  --replace .agents/skills/autonomous/scripts/resource_lock.py \
-  --replace .agents/skills/autonomous/scripts/qa_parallel_pilot.py \
-  --skip-agents
-npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
-  my-workflow status /path/to/target-project
-```
-
-Use one `--replace` for each reviewed file conflict, and usually pass `--skip-agents` when the
-target has product-specific `AGENTS.md` or `CLAUDE.md` instructions. There is no `--replace-all`.
-Altered managed instruction blocks remain manual conflicts. Once an adoption manifest exists,
-resolve is no longer available: use `status`, `apply`, and manual resolution for managed-file
-drift.
+If the process stops after publication begins, the next run detects the transaction journal and
+offers restoration from its verified backup before allowing a new installation.
 
 ### Serialize only contested test resources
 
@@ -229,19 +196,10 @@ The wrapper holds the named lock only for the wrapped command and passes its arg
 Run `python3 .agents/skills/autonomous/scripts/resource_lock.py run --help` for the authoritative flags, defaults, and result
 codes.
 
-The old positional `adopt.py TARGET` command is intentionally removed. Package `plan`, `apply`, and
-`resolve` accept an optional `--layers` selector and default to `full`; direct
-`python3 scripts/adopt.py plan`, `apply`, and `resolve` invocations require an explicit selector.
-`status` reports clean state
-with exit 0, drift with exit 1, and invalid state or invocation with exit 2.
+Prerequisites: Node.js 18 or newer and an interactive terminal. Python is not an installer
+prerequisite; unrelated Python workflow tools remain available after installation.
 
-Prerequisites: the target directory must already exist, and the package requires Python 3.11 or newer
-as `python3`. Adoption does not require a Git `HEAD`. Before running the workflow-config resolver, the target must be a Git
-repository with at least one commit. Bun 1.4.x is the JavaScript/TypeScript runtime for this pack;
-it is needed only to validate the source pack's gates, not to adopt it.
-
-Adoption is a review before it is a command. [`docs/adoption-prompt.md`](docs/adoption-prompt.md)
-carries the prompt for the read-only inspection, adoption command, and diff review.
+The preview is the review: inspect the complete action list and backup destination before confirming.
 
 Feature workflow state follows the [artifact lifecycle](docs/guidelines/ARTIFACT-LIFECYCLE.md) and
 remains visible to Git. Adoption removes only the exact legacy `.specs/features/` ignore line,
@@ -335,16 +293,13 @@ The complete contract is in the
 ## Update an adopted project
 
 Start from a clean tree and a dedicated update branch. Read the changelog since the version the
-project adopted, plan the smallest layer update, then inspect the complete diff before committing:
+project adopted, then run the guided installer and inspect the complete diff before committing:
 
 ```bash
 cd /path/to/target-project
 git status --short
 git switch -c build/update-workflow-spec-driven
-npm exec --yes --package /path/to/antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
-  my-workflow plan . --layers full --json
-npm exec --yes --package /path/to/antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
-  my-workflow apply . --layers full
+npx workflow-spec-driven install
 git diff
 ```
 
@@ -361,7 +316,7 @@ repository boundary. Retired workflow files are removed only when their managed 
 are pristine; edited or unproven paths conflict with zero writes.
 
 Each release lists its upgrade steps under `### Migration` in the changelog; follow them in order
-after `apply`. The package identity for this release is `@antoniofulg/workflow-spec-driven@0.10.0`.
+after installation. The package identity for this release is `workflow-spec-driven@0.10.0`.
 
 ## Managed paths
 
