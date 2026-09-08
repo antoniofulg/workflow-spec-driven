@@ -198,7 +198,7 @@ Installing or upgrading the workflow currently requires a version-pinned scoped 
 | KNOW-004 | P1: Knowledge transfer | Tasks | In Tasks |
 | KNOW-005 | P1: Knowledge transfer | Tasks | Implemented T1 |
 | PAR-001 | P2: Port parity | Tasks | Implemented T1 |
-| PAR-002 | P2: Port parity | Tasks | In Tasks |
+| PAR-002 | P2: Port parity | Tasks | Implemented T2 |
 | PAR-003 | P2: Port parity | Tasks | In Tasks |
 | PAR-004 | P2: Port parity | Tasks | In Tasks |
 | SEC-001 | Edge cases | Tasks | Implemented T1 |

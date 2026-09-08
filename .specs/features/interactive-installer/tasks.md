@@ -118,12 +118,12 @@ T7 -> T8 -> T9
 
 **Done when**:
 
-- [ ] `smol-toml@1.8.0` is the only new runtime dependency and the lockfile records it.
-- [ ] `tests/installer/packets.test.js` maps IT-011 to all six roles across Claude, Codex, and Cursor plus malformed config/template cases.
-- [ ] Staged packet bytes and validation errors match frozen canonical fixtures.
-- [ ] The synchronizer writes only inside its supplied staging root.
-- [ ] Gate passes: `node --test tests/installer/packets.test.js`.
-- [ ] Test count: at least 22 packet/config cases pass, 0 fail, 0 skipped.
+- [x] `smol-toml@1.8.0` is the only new runtime dependency and the lockfile records it.
+- [x] `tests/installer/packets.test.js` maps IT-011 to all six roles across Claude, Codex, and Cursor plus malformed config/template cases.
+- [x] Staged packet bytes and validation errors match frozen canonical fixtures.
+- [x] The synchronizer writes only inside its supplied staging root.
+- [x] Gate passes: `node --test tests/installer/packets.test.js`.
+- [x] Test count: 36 packet/config cases pass, 0 fail, 0 skipped.
 
 **Tests**: integration
 **Gate**: declared
