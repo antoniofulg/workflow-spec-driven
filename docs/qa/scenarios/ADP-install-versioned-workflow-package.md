@@ -4,9 +4,9 @@ area: ADP
 title: Install and update the workflow from an exact package release
 persona: Workflow adopter
 journey: J-adopt-workflow
-expected: An exact local package previews, installs, updates, and reports clean status while preserving consumer context, configuration, QA profile, knowledge, and edited workflow files.
+expected: An exact local package previews, installs, updates, and reports clean status while preserving consumer context, configuration, QA, and knowledge and refusing edited old runtime before publication.
 entry_points: README.md#adopt-the-workflow; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply|status; npx --yes <approved-package>@<exact-version>
-qa_status: pass
+qa_status: untested
 bug_ids:
 fix_status:
 retest_status:
@@ -28,3 +28,8 @@ zero writes, and pristine retired workflow files are removed only when their own
 
 The package does not install external security skills or run lifecycle hooks. Those skills remain a
 separate explicitly authorized step.
+
+The `lean-consumer-installation` cycle changes archive membership, installed paths, previous-layout
+retirement, and repeat-apply output. Reset to `untested`; prior evidence remains historical. QA must
+upgrade the real prior tarball identified by SHA `c85e68c...` to a fresh final-reviewed tarball
+identified by a distinct SHA, even when both declare `0.10.0`.

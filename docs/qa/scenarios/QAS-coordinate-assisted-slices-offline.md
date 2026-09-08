@@ -6,7 +6,7 @@ persona: Workflow operator
 journey: J-execute-parallel-slices
 expected: Default assisted execution uses only ready compatible writer lanes, sends packet pointers without packet bodies, issues each fake-provider mutation once, falls back serially when proof is missing, and cleans owned state to zero residue.
 entry_points: .agents/skills/workflow-config/scripts/workflow_config.py; .agents/skills/workflow-config/scripts/parallel_plan.py; .agents/skills/autonomous/scripts/parallel_execute.py start; .agents/skills/autonomous/scripts/orca_assisted_probe.py dispatch; .agents/skills/autonomous/scripts/orca_assisted_probe.py inspect; .agents/skills/autonomous/scripts/orca_assisted_probe.py cleanup
-qa_status: pass
+qa_status: untested
 bug_ids:
 fix_status:
 retest_status:
@@ -23,3 +23,7 @@ can complete a worker lifecycle.
 The cycle must independently reload persisted packet, ledger, receipt, and residue evidence. Pointer
 transport may contain the repository-relative packet pointer but never packet content. Every logical
 mutation must have exactly one physical fake-provider call, including transient-response paths.
+
+The `lean-consumer-installation` cycle moves the assisted probe and pilot into the autonomous skill.
+Reset this offline promise to `untested`; prior evidence remains historical. Walk only the existing
+fake-provider fixture at the final reviewed installed paths. Do not reopen the live Orca scenarios.

@@ -42,3 +42,10 @@ manually by the operator; that is not automatic cleanup evidence. A fresh v0.6.0
 reproduced `agent_prompt_stalled` with its exact A/T1 terminal still live/writable and B/T2 absent.
 The new fixture remains preserved, so no cleanup or zero-residue claim is made. See the
 [v0.6.0 safe retest](../reports/2026-08-25-parallel-slice-executor-v060-safe-retest.md).
+
+The 2026-09-08 `lean-consumer-installation` cycle moves the assisted probe, pilot, and resource lock
+into the autonomous skill. `QAS-coordinate-assisted-slices-offline` and
+`QAS-serialize-heavy-test-resources` reset to `untested`. The two live Orca scenarios retain
+`blocked-verify`, their bug links, fixed state, and pending retest; path refresh does not reopen or
+satisfy them. See
+[`CH-run-relocated-parallel-helpers-offline-2026-09-08`](../charters/CH-run-relocated-parallel-helpers-offline-2026-09-08.md).

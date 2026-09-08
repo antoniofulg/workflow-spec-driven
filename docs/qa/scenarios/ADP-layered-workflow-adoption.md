@@ -4,9 +4,9 @@ area: ADP
 title: Adopt workflow capabilities incrementally
 persona: Workflow adopter
 journey: J-adopt-workflow
-expected: A project can plan and apply fixed core, parallel, quality, and extras layers incrementally; conflicts fail before writes, consumer prose and Bun package metadata survive, and status reports clean state.
+expected: A project can apply fixed layers incrementally with canonical skill-owned runtime and no workflow-created root templates or tools while conflicts fail before writes, consumer content survives, and status reports clean state.
 entry_points: README.md#adopt-the-workflow; docs/adoption-prompt.md; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply <target> --layers core; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply <target> --layers parallel; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply <target> --layers quality; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply <target> --layers extras; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow status <target>
-qa_status: pass
+qa_status: untested
 bug_ids:
 fix_status:
 retest_status:
@@ -49,3 +49,7 @@ returned status exit 1 without writes, restoration returned exit 0, and all disp
 removed.
 
 The `phase-skills` feature changes the fixed core layer's managed path list, so what `plan`, `apply`, and `status` report for `--layers core` has changed; reset to `untested` pending the 2026-09-03 cycle. Prior evidence remains historical.
+
+The `lean-consumer-installation` cycle changes the `core`, `parallel`, and default `full` installed
+footprints. Reset to `untested`; prior evidence remains historical. Fresh QA must confirm canonical
+skill paths and absence of workflow-created root `templates/` and `tools/`.

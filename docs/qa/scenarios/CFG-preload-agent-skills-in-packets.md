@@ -6,7 +6,7 @@ persona: Workflow adopter
 journey: J-configure-feature-workflow
 expected: Sync renders each Claude packet's `skills:` and `disallowedTools:` lines byte-identical to its template with only model and effort replaced, including the designer packet's `skills: [wdesign, ponytail]` and absent `disallowedTools`, and refuses a template that preloads a skill with no `SKILL.md`, naming the template and the skill and writing nothing.
 entry_points: .agents/skills/workflow-config/assets/agents/claude/; .agents/skills/workflow-config/assets/agents/cursor/; .agents/skills/workflow-config/assets/agents/codex/; python3 .agents/skills/workflow-config/scripts/workflow_config.py --root . --sync-agents; .claude/agents/
-qa_status: pass
+qa_status: untested
 bug_ids:
 fix_status:
 retest_status:
@@ -37,3 +37,7 @@ promise; this scenario owns only preload declaration and tool scope.
 The `specify-impact-designer` feature adds a Claude designer packet with `skills: [wdesign, ponytail]`
 and no `disallowedTools`. The set of Claude packets this promise walks has changed. Reset to
 `untested`. Prior evidence remains historical.
+
+The `lean-consumer-installation` cycle moves all provider template sources under their owning skill.
+Reset to `untested`; prior evidence remains historical. Fresh sync must prove packet body and preload
+scope from the canonical installed assets without an old root-template reader.
