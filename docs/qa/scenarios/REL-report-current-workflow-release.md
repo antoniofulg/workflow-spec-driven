@@ -24,17 +24,17 @@ passing 0.9.1 real 0.8.0 adoption/migration evidence was reused without rerunnin
 external skill install, registry, publication, remote action, consumer write, or live Orca
 operation occurred.
 
-Release `0.10.0` preparation intentionally skips a QA Plan/Execute cycle under explicit user
+Release `0.10.1` preparation intentionally skips a QA Plan/Execute cycle under explicit user
 direction. Scoped package and contract evidence is recorded separately by the release owner; this
-scenario makes no `0.10.0` QA PASS claim. The historical `0.9.2` report and evidence remain intact.
+scenario makes no `0.10.1` QA PASS claim. The historical `0.9.2` report and evidence remain intact.
 
-Version-neutral owner for public release consistency. For release `0.10.0`, the reader compares the
+Version-neutral owner for public release consistency. For release `0.10.1`, the reader compares the
 newest changelog heading with the package manifest, checks Bun's root package and dependency graph
 metadata, and checks release claims against
 the shipped public contracts. The release walk reuses the current adoption verdict as a
 canaries instead of repeating their feature-level runtime probes.
 
-Release `0.10.0` changes this promise and is skipped for QA under explicit user direction. The release
+Release `0.10.1` changes this promise and is skipped for QA under explicit user direction. The release
 owner records scoped identity, package membership, and residue evidence; no closing full gate or
 deep-review claim is inferred. The historical 0.9.2 adoption and migration verdict remains the
 adjacent canary.

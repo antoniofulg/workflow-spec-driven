@@ -316,7 +316,7 @@ repository boundary. Retired workflow files are removed only when their managed 
 are pristine; edited or unproven paths conflict with zero writes.
 
 Each release lists its upgrade steps under `### Migration` in the changelog; follow them in order
-after installation. The package identity for this release is `workflow-spec-driven@0.10.0`.
+after installation. The package identity for this release is `workflow-spec-driven@0.10.1`.
 
 ## Managed paths
 

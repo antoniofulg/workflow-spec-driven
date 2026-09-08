@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
-export const WORKFLOW_VERSION = '0.10.0';
+export const WORKFLOW_VERSION = '0.10.1';
 export const LAYERS = ['core', 'parallel', 'quality', 'extras'];
 export const DEPENDENCIES = { core: [], parallel: ['core'], quality: ['core'], extras: ['core'] };
 export const BLOCK_LAYERS = ['core', 'parallel', 'quality'];
