@@ -360,6 +360,23 @@
 - **Date**: 2026-08-27
 - **Status**: active
 
+### AD-030
+
+- **Decision**: The canonical consumer installer is the unscoped `workflow-spec-driven` npm package
+  and homonymous Node.js 18 executable. Its guided installer ports the adoption and install-time
+  packet-generation path from Python, while workflow tools unrelated to installation remain with
+  their current owners and runtimes.
+- **Reason**: Repository maintainers need one discoverable `npx workflow-spec-driven install`
+  journey with module selection, recoverable upgrades, and no Python prerequisite during
+  installation.
+- **Trade-off**: The JavaScript port must prove parity with a mature Python adopter and temporarily
+  duplicates install-time packet rendering from the Python workflow resolver. The already-published
+  scoped package remains immutable registry history rather than a compatibility channel.
+- **Scope**: npm package identity, installer CLI, adoption planner and transaction, install-time
+  provider packet generation, installation tests, adoption documentation, and QA scenarios.
+- **Date**: 2026-09-08
+- **Status**: active
+
 ### AD-023
 
 - **Decision**: `assisted` is the default inter-slice execution mode whenever the frozen task DAG
