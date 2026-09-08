@@ -56,22 +56,22 @@ Empty on purpose. Machinery only: operating schema, `raw/` README, stub indexes,
 
 ## Adopt
 
-The private local package exposes `my-workflow`. Use an exact tarball to preview, apply additive
+The package `@antoniofulg/workflow-spec-driven@0.10.0` exposes `my-workflow`. Use an exact tarball to preview, apply additive
 capabilities, and inspect drift:
 
 ```bash
-npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
+npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
   my-workflow plan /path/to/target --layers core --json
-npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
+npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
   my-workflow apply /path/to/target --layers core
-npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
+npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
   my-workflow status /path/to/target
 ```
 
 `plan` is read-only; `apply` writes only after complete preflight; `status` exits 0 for clean, 1
 for drift, and 2 for invalid state. Omitting `--layers` from `plan`, `apply`, or `resolve` selects
-`full`. The package requires Python 3.11 or newer as `python3` and never prompts. An approved
-published identity, when one exists, uses `npx --yes <approved-package>@<exact-version>`.
+`full`. The package requires Python 3.11 or newer as `python3` and never prompts. The published
+identity uses `npm exec --yes --package @antoniofulg/workflow-spec-driven@0.10.0 -- my-workflow apply /path/to/target`.
 
 The adopter catalog includes the operating loop, Bun-native
 knowledge tooling, assisted slice probe, review/QA skills, and optional Ponytail utilities. `full`

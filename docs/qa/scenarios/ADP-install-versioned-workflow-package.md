@@ -5,7 +5,7 @@ title: Install and update the workflow from an exact package release
 persona: Workflow adopter
 journey: J-adopt-workflow
 expected: An exact local package previews, installs, updates, and reports clean status while preserving consumer context, configuration, QA, and knowledge and refusing edited old runtime before publication.
-entry_points: README.md#adopt-the-workflow; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply|status; npx --yes <approved-package>@<exact-version>
+entry_points: README.md#adopt-the-workflow; npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- my-workflow plan|apply|status; npm exec --yes --package @antoniofulg/workflow-spec-driven@0.10.0 -- my-workflow plan|apply|status
 qa_status: pass
 bug_ids:
 fix_status:

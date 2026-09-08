@@ -5,7 +5,7 @@ title: Install the five phase skills with the core layer
 persona: Workflow adopter
 journey: J-adopt-workflow
 expected: A core-layer adoption reports the five phase skill directories as managed and leaves the target holding each `.agents/skills/w<phase>/SKILL.md` plus a `.claude/skills/w<phase>` link that resolves to it, while re-adoption preserves consumer-owned skill trees.
-entry_points: README.md#adopt-the-workflow; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply <target> --layers core; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow status <target>; .agents/skills/wspecify; .agents/skills/wdesign; .agents/skills/wtasks; .agents/skills/wimplement; .agents/skills/wverify; .claude/skills/
+entry_points: README.md#adopt-the-workflow; npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- my-workflow plan|apply <target> --layers core; npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- my-workflow status <target>; .agents/skills/wspecify; .agents/skills/wdesign; .agents/skills/wtasks; .agents/skills/wimplement; .agents/skills/wverify; .claude/skills/
 qa_status: pass
 bug_ids:
 fix_status:

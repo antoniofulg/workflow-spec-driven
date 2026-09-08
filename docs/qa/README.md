@@ -33,7 +33,7 @@ No browser, API, or mobile surface exists in this repository.
   [`scripts/test_adopt.py`](../../scripts/test_adopt.py) owns the disposable adoption smoke path.
 - Exact path used by `qa-execute`: invoke the exact package command documented by the
 [README adoption contract](../../README.md#adopt-the-workflow) inside a checkout-local
-disposable Git repository; invoke `npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan <target>`
+disposable Git repository; invoke `npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- my-workflow plan <target>`
 against a separate
 checkout-local disposable target; inspect package membership with `bun pm pack --dry-run`
   from the active checkout, and create any clean-clone canary from the active local repository into

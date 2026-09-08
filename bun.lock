@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "my-workflow",
+      "name": "@antoniofulg/workflow-spec-driven",
       "devDependencies": {
         "@nanonets/graft": "0.10.1",
         "@types/bun": "1.4.0",

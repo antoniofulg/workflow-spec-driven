@@ -16,6 +16,8 @@ All notable changes to this project are documented here.
 
 ### Changed
 
+- The npm package identity is now `@antoniofulg/workflow-spec-driven`; the installed executable remains
+  `my-workflow`.
 - Provider packets and slice packets expose the selected product-context entry point without
   changing packet schema or budgets.
 - Documentation, instruction, and mixed executable changes now use proportional validation and

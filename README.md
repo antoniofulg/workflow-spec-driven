@@ -1,5 +1,7 @@
 # my-workflow
 
+The npm package is `@antoniofulg/workflow-spec-driven`; its installed executable remains `my-workflow`.
+
 An operating system for agents. It ships the workflow-owned [`workflow-spec-driven`](.agents/skills/workflow-spec-driven/SKILL.md)
 router and its five phase skills (`wspecify`, `wdesign`, `wtasks`, `wimplement`, `wverify`)
 with a capped delivery loop, countable tests and security surfaces, and a knowledge bundle. It is
@@ -20,15 +22,15 @@ reviewable.
 cd /path/to/my-workflow-source
 mkdir -p /path/to/release
 npm pack --pack-destination /path/to/release
-# writes /path/to/release/my-workflow-0.10.0.tgz
+# writes /path/to/release/antoniofulg-workflow-spec-driven-0.10.0.tgz
 
 mkdir -p /path/to/target-project
 cd /path/to/target-project
-npm exec --yes --package /path/to/release/my-workflow-0.10.0.tgz -- \
+npm exec --yes --package /path/to/release/antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
   my-workflow plan /path/to/target-project --layers core --json
-npm exec --yes --package /path/to/release/my-workflow-0.10.0.tgz -- \
+npm exec --yes --package /path/to/release/antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
   my-workflow apply /path/to/target-project --layers core
-npm exec --yes --package /path/to/release/my-workflow-0.10.0.tgz -- \
+npm exec --yes --package /path/to/release/antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
   my-workflow status /path/to/target-project
 ```
 
@@ -38,8 +40,8 @@ includes `core`. `full` installs capabilities but does not mandate every stage; 
 selects the work. The package requires Python 3.11 or newer as `python3`, never prompts, and leaves
 the target unchanged when preflight finds a conflict. Use the same target and `--layers` value with
 `plan` and `apply`; omitting it selects `full`. `status` reads installed layers from the manifest
-and takes no layer selector. The local package is private at `0.10.0`; use `npx --yes <approved-package>@<exact-version>`
-only after a separate publication decision approves the package identity and license.
+and takes no layer selector. The release package is `@antoniofulg/workflow-spec-driven@0.10.0`; use its exact
+version after publication.
 
 After the first apply, immediately fill the consumer-owned `docs/product/AGENT-CONTEXT.md` with the
 product identity, critical constraints, and routes to existing files or headings. Do not create empty
@@ -154,18 +156,17 @@ Ponytail utilities. Selecting `parallel`, `quality`, or `extras` automatically i
 every apply. The public command is version-pinned and uses `full` when no layer is supplied:
 
 ```bash
-npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
+npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
   my-workflow plan /path/to/target-project --json
-npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
+npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
   my-workflow apply /path/to/target-project
-npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
+npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
   my-workflow status /path/to/target-project
 ```
 
-For an approved published identity, use the same executable with an exact version:
-`npx --yes <approved-package>@<exact-version> apply /path/to/target-project`. The registry name,
-license, and publication are not approved by this local release. The target directory must already
-exist, and `python3` 3.11 or newer must be available as `python3`; the command never prompts.
+For the published package, use the same executable with an exact version:
+`npm exec --yes --package @antoniofulg/workflow-spec-driven@0.10.0 -- my-workflow apply /path/to/target-project`.
+The target directory must already exist, and `python3` 3.11 or newer must be available as `python3`; the command never prompts.
 
 `plan` is read-only. `apply` writes only after complete preflight. `status` exits 0 for clean state,
 1 for drift, and 2 for invalid invocation or state. A conflict returns 1 and leaves the target
@@ -185,13 +186,13 @@ customization into the target's product-owned documentation or code. Commit that
 then authorize every reviewed file conflict explicitly:
 
 ```bash
-npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
+npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
   my-workflow resolve /path/to/target-project \
   --layers parallel \
   --replace .agents/skills/autonomous/scripts/resource_lock.py \
   --replace .agents/skills/autonomous/scripts/qa_parallel_pilot.py \
   --skip-agents
-npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
+npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
   my-workflow status /path/to/target-project
 ```
 
@@ -340,9 +341,9 @@ project adopted, plan the smallest layer update, then inspect the complete diff 
 cd /path/to/target-project
 git status --short
 git switch -c build/update-my-workflow
-npm exec --yes --package /path/to/my-workflow-0.10.0.tgz -- \
+npm exec --yes --package /path/to/antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
   my-workflow plan . --layers full --json
-npm exec --yes --package /path/to/my-workflow-0.10.0.tgz -- \
+npm exec --yes --package /path/to/antoniofulg-workflow-spec-driven-0.10.0.tgz -- \
   my-workflow apply . --layers full
 git diff
 ```
@@ -360,8 +361,7 @@ repository boundary. Retired workflow files are removed only when their managed 
 are pristine; edited or unproven paths conflict with zero writes.
 
 Each release lists its upgrade steps under `### Migration` in the changelog; follow them in order
-after `apply`. The package remains private and local at `0.10.0` until a separate publication
-decision approves its registry name and license.
+after `apply`. The package identity for this release is `@antoniofulg/workflow-spec-driven@0.10.0`.
 
 ## Managed paths
 

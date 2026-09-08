@@ -1458,7 +1458,8 @@ def test_it012_tarball_version_bin_and_manifest_are_consistent() -> None:
     try:
         with tarfile.open(tarball) as archive:
             package = json.loads(archive.extractfile("package/package.json").read().decode("utf-8"))
-        assert package["private"] is True and package["version"] == "0.10.0"
+        assert package["name"] == "@antoniofulg/workflow-spec-driven"
+        assert package["private"] is False and package["version"] == "0.10.0"
         assert package["bin"] == {"my-workflow": "bin/my-workflow.js"}
         assert not {"preinstall", "install", "postinstall"} & set(package.get("scripts", {}))
         assert package.get("dependencies", {}) == {}

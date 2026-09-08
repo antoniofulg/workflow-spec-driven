@@ -1063,7 +1063,7 @@ describe("adoption and public setup", () => {
     const pack = readRepositoryFile("docs/workflow/pack.md");
 
     expect(tour).toContain("[Skills, knowledge, adopt](pack.md)");
-    expect(pack).toContain("npm exec --yes --package ./my-workflow-0.10.0.tgz");
+    expect(pack).toContain("npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz");
   });
 
   it("IT-011 keeps stack-specific QA capabilities in the operational profile", () => {
@@ -1100,6 +1100,7 @@ describe("adoption and public setup", () => {
 
   it("IT-005 / AIM-11 reports release version and Bun lock identity consistently", () => {
     const manifest = JSON.parse(readRepositoryFile("package.json")) as {
+      name?: string;
       version?: string;
       private?: boolean;
       packageManager?: string;
@@ -1120,10 +1121,11 @@ describe("adoption and public setup", () => {
     );
 
     expect(manifest.version).toBe("0.10.0");
-    expect(manifest.private).toBe(true);
+    expect(manifest.name).toBe("@antoniofulg/workflow-spec-driven");
+    expect(manifest.private).toBe(false);
     expect(manifest.packageManager).toBe("bun@1.4.0");
     expect(manifest.scripts?.test).toBe("bun test");
-    expect(readRepositoryFile("bun.lock")).toContain('"name": "my-workflow"');
+    expect(readRepositoryFile("bun.lock")).toContain('"name": "@antoniofulg/workflow-spec-driven"');
     expect(existsSync(join(repositoryRoot, "package-lock.json"))).toBe(false);
     expect(latestHeading).toBe("0.10.0");
     expect(latestHeading).toBe(manifest.version);
@@ -1255,7 +1257,7 @@ describe("Bun tooling runtime contract", () => {
         "npm exec eslint",
         "npm pack foo",
         "npm pack --pack-destination /tmp/release unrelated-package",
-        "npm exec --yes --package ./my-workflow-0.10.0.tgz -- \\\neslint",
+        "npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \\\neslint",
       ]) {
         const mutated = new Map([[relativePath, `${readRepositoryFile(relativePath)}\n${command}\n`]]);
         const mutationViolations = forbiddenAuthorityViolations(
@@ -1279,7 +1281,7 @@ describe("Bun tooling runtime contract", () => {
       const allowed = new Map([
         [
           relativePath,
-          `${readRepositoryFile(relativePath)}\nnpm pack --pack-destination /tmp/release\nnpm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow apply /tmp/target\nnpm exec --yes --package ./my-workflow-0.10.0.tgz -- \\\n  my-workflow status /tmp/target\nnpx --yes <approved-package>@<exact-version> apply /tmp/target\n`,
+          `${readRepositoryFile(relativePath)}\nnpm pack --pack-destination /tmp/release\nnpm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- my-workflow apply /tmp/target\nnpm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \\\n  my-workflow status /tmp/target\nnpx --yes <approved-package>@<exact-version> apply /tmp/target\n`,
         ],
       ]);
       expect(
