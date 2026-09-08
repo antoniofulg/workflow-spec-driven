@@ -179,12 +179,12 @@ Installing or upgrading the workflow currently requires a version-pinned scoped 
 | CLI-003 | P1: Guided installation | Tasks | In Tasks |
 | PORT-001 | P1: Guided installation | Tasks | In Tasks |
 | PORT-002 | P1: Guided installation | Tasks | In Tasks |
-| MOD-001 | P1: Module selection | Tasks | In Tasks |
-| MOD-002 | P1: Module selection | Tasks | In Tasks |
-| MOD-003 | P1: Module selection | Tasks | In Tasks |
-| MOD-004 | P1: Module selection | Tasks | In Tasks |
-| MOD-005 | P1: Module selection | Tasks | In Tasks |
-| STATE-001 | P1: Module selection | Tasks | In Tasks |
+| MOD-001 | P1: Module selection | Tasks | Implemented T1 |
+| MOD-002 | P1: Module selection | Tasks | Implemented T1 |
+| MOD-003 | P1: Module selection | Tasks | Implemented T1 |
+| MOD-004 | P1: Module selection | Tasks | Implemented T1 |
+| MOD-005 | P1: Module selection | Tasks | Implemented T1 |
+| STATE-001 | P1: Module selection | Tasks | Implemented T1 |
 | SAFE-001 | P1: Repository protection | Tasks | In Tasks |
 | SAFE-002 | P1: Repository protection | Tasks | In Tasks |
 | SAFE-003 | P1: Repository protection | Tasks | In Tasks |
@@ -196,17 +196,17 @@ Installing or upgrading the workflow currently requires a version-pinned scoped 
 | KNOW-002 | P1: Knowledge transfer | Tasks | In Tasks |
 | KNOW-003 | P1: Knowledge transfer | Tasks | In Tasks |
 | KNOW-004 | P1: Knowledge transfer | Tasks | In Tasks |
-| KNOW-005 | P1: Knowledge transfer | Tasks | In Tasks |
-| PAR-001 | P2: Port parity | Tasks | In Tasks |
+| KNOW-005 | P1: Knowledge transfer | Tasks | Implemented T1 |
+| PAR-001 | P2: Port parity | Tasks | Implemented T1 |
 | PAR-002 | P2: Port parity | Tasks | In Tasks |
 | PAR-003 | P2: Port parity | Tasks | In Tasks |
 | PAR-004 | P2: Port parity | Tasks | In Tasks |
-| SEC-001 | Edge cases | Tasks | In Tasks |
+| SEC-001 | Edge cases | Tasks | Implemented T1 |
 | SEC-002 | Edge cases | Tasks | In Tasks |
 | SEC-003 | Edge cases | Tasks | In Tasks |
-| EDGE-001 | Edge cases | Tasks | In Tasks |
-| EDGE-002 | Edge cases | Tasks | In Tasks |
-| EDGE-003 | Edge cases | Tasks | In Tasks |
+| EDGE-001 | Edge cases | Tasks | Implemented T1 |
+| EDGE-002 | Edge cases | Tasks | Implemented T1 |
+| EDGE-003 | Edge cases | Tasks | Implemented T1 |
 | EDGE-004 | Edge cases | Tasks | In Tasks |
 | EDGE-005 | Edge cases | Tasks | In Tasks |
 

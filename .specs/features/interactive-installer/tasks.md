@@ -7,7 +7,7 @@ Implement these tasks with the `wimplement` skill and verify them with `wverify`
 ---
 
 **Design**: `.specs/features/interactive-installer/design.md`
-**Status**: Approved
+**Status**: In execution
 
 ---
 
@@ -90,12 +90,12 @@ T7 -> T8 -> T9
 
 **Done when**:
 
-- [ ] `tests/installer/engine.test.js` maps UT-001..UT-008, UT-011..UT-013, IT-012, SEC-001, SEC-004, and SEC-006 to exact spec outcomes.
-- [ ] Frozen fixtures cover fresh, pristine, outdated, modified, collision, retired, malformed-manifest, traversal, and argument-injection cases before Python removal.
-- [ ] Planner performs no writes and emits deterministic selected modules, assessments, actions, unresolved paths, and manifest proposal.
-- [ ] Module state precedence and dependency closure match `design.md`.
-- [ ] Gate passes: `node --test tests/installer/engine.test.js`.
-- [ ] Test count: 15 feature cases pass, 0 fail, 0 skipped.
+- [x] `tests/installer/engine.test.js` maps UT-001..UT-008, UT-011..UT-013, IT-012, SEC-001, SEC-004, and SEC-006 to exact spec outcomes.
+- [x] Frozen fixtures cover fresh, pristine, outdated, modified, collision, retired, malformed-manifest, traversal, and argument-injection cases before Python removal.
+- [x] Planner performs no writes and emits deterministic selected modules, assessments, actions, unresolved paths, and manifest proposal.
+- [x] Module state precedence and dependency closure match `design.md`.
+- [x] Gate passes: `node --test tests/installer/engine.test.js`.
+- [x] Test count: 17 feature cases pass, 0 fail, 0 skipped.
 
 **Tests**: unit + integration + security
 **Gate**: quick
