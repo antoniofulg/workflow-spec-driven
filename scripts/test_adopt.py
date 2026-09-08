@@ -980,12 +980,26 @@ def test_it005_managed_blocks_refresh_without_touching_consumer_state() -> None:
 
 def test_it013_retired_managed_paths_reconcile_safely() -> None:
     retired = "tools/knowledge/src/cli.ts"
-    for edited, absent, ownership in ((False, False, "managed"), (True, False, "managed"), (False, True, "managed"), (False, False, "consumer")):
+    cases = (
+        (retired, False, False, "managed"),
+        (retired, True, False, "managed"),
+        (retired, False, True, "managed"),
+        (retired, False, False, "consumer"),
+        ("docs/product/consumer-notes.md", False, True, "managed"),
+    )
+    for retired, edited, absent, ownership in cases:
         target = temporary_target()
         try:
             assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
             manifest_path = target / ".my-workflow/adoption.json"
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if retired not in manifest["files"]:
+                manifest["files"][retired] = {
+                    "layer": "core",
+                    "ownership": ownership,
+                    "source_sha256": "0" * 64,
+                    "installed_sha256": "0" * 64,
+                }
             manifest["files"][retired]["ownership"] = ownership
             if ownership == "consumer":
                 manifest["files"][retired]["installed_sha256"] = None
@@ -993,17 +1007,18 @@ def test_it013_retired_managed_paths_reconcile_safely() -> None:
             path = target / retired
             if edited:
                 path.write_bytes(path.read_bytes() + b"\nconsumer edit\n")
-            if absent:
+            if absent and path.exists():
                 path.unlink()
             before = snapshot(target)
             catalog = adopt._catalog(ROOT, ["core"])
-            catalog.pop(retired)
+            catalog.pop(retired, None)
             with patch.object(adopt, "_catalog", return_value=catalog):
                 result, staged = adopt._build_plan(ROOT, target, ["core"], ["core"], True, False)
                 if edited:
                     assert result["status"] == "conflict" and retired in result["conflicts"]
                     assert snapshot(target) == before
                 else:
+                    assert result["status"] == "ready"
                     if ownership == "managed" and not absent:
                         assert {"path": retired, "action": "remove", "layer": "core"} in result["actions"]
                     assert result["resolved_layers"] == ["core"]
@@ -1012,6 +1027,7 @@ def test_it013_retired_managed_paths_reconcile_safely() -> None:
                     updated = json.loads(manifest_path.read_text(encoding="utf-8"))
                     assert retired not in updated["files"]
                     assert updated["layers"] == ["core"]
+                    assert invoke(target, "status", "--json").returncode == 0
                     if ownership == "consumer":
                         assert snapshot(target)[retired][1] == before[retired][1]
         finally:
@@ -1069,7 +1085,7 @@ def test_sec002_unproven_retired_path_conflicts_without_writes() -> None:
 
 def test_it007_package_bin_preserves_adopter_cli_contract() -> None:
     target = temporary_target()
-    legacy_a, legacy_b = legacy_target(), legacy_target()
+    legacy_a, legacy_b, legacy_c = legacy_target(), legacy_target(), legacy_target()
     try:
         direct_plan = invoke(target, "plan", "--layers", "core", "--json")
         wrapped_plan = invoke_bin(target, "plan", "--layers", "core", "--json")
@@ -1089,10 +1105,14 @@ def test_it007_package_bin_preserves_adopter_cli_contract() -> None:
         assert direct_resolve.returncode == wrapped_resolve.returncode == 0
         direct_doc, wrapped_doc = json.loads(direct_resolve.stdout), json.loads(wrapped_resolve.stdout)
         assert (direct_doc["command"], direct_doc["status"], direct_doc["conflicts"]) == (wrapped_doc["command"], wrapped_doc["status"], wrapped_doc["conflicts"]) == ("resolve", "ready", [])
+        default_resolve = invoke_bin(legacy_c, "resolve", "--replace", "tools/resource_lock.py", "--skip-agents", "--json")
+        assert default_resolve.returncode == 0
+        assert json.loads(default_resolve.stdout)["resolved_layers"] == ["core", "parallel", "quality", "extras"]
     finally:
         shutil.rmtree(target)
         shutil.rmtree(legacy_a)
         shutil.rmtree(legacy_b)
+        shutil.rmtree(legacy_c)
 
 
 def test_it008_package_bin_forwards_literal_spaces_unicode_and_metacharacters() -> None:

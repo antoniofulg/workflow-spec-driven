@@ -5,6 +5,7 @@ title: Adopt the workflow without replacing consumer-owned state
 persona: Workflow adopter
 journey: J-adopt-workflow
 expected: An exact package applies the v3 assisted workflow, pointer-only probe, neutral knowledge scaffolding, tracked example/templates including designer packets, initialized local config, and generated runtime packets while preserving consumer-owned context, QA profile, knowledge, and retired workflow state.
+entry_points: README.md#adopt-the-workflow; docs/workflow/pack.md; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply <target>; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow status <target>
 qa_status: untested
 bug_ids: BUG-20260822-deep-review-learnings-untrackable; BUG-20260822-feature-specs-ignored; BUG-20260822-feature-state-gate-conflicts; BUG-20260825-adoption-omits-parallel-pilot; BUG-20260829-final-qa-pass-conflicts-with-adoption-gate
 fix_status: fixed

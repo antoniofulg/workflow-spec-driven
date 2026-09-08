@@ -151,13 +151,14 @@ function forbiddenAuthorityViolations(
 ): string[] {
   const scannedPaths = activeAuthorityPaths(paths);
   const forbiddenCommands = [
-    /(?:^|[`$>#;&|]\s*)(?:npm|npx)\s+(?!(?:exec|pack)\b|--yes\b)\S+/i,
+    /(?:^|[`$>#;&|]\s*)npm\s+(?!(?:pack\s+--pack-destination\s+\S+(?:\s*#.*)?$|exec\s+--yes\s+--package\s+\S+\s+--\s+my-workflow\s+(?:plan|apply|resolve|status)\b))\S+/i,
+    /(?:^|[`$>#;&|]\s*)npx\s+(?!--yes\s+<approved-package>@<exact-version>(?:\s+(?:plan|apply|resolve|status)\b|(?=\s*`|$)))\S+/i,
     /\bvitest\s+(?:run|--|[A-Za-z])/i,
     /\btsx\s+(?:--|[A-Za-z])/i,
     /(?:from|require)\s*[(]?['"]yaml['"]/i,
   ];
   return scannedPaths.flatMap((relativePath) => {
-    const lines = read(relativePath).split(/\r?\n/);
+    const lines = read(relativePath).replace(/\\\r?\n\s*/g, " ").split(/\r?\n/);
     return lines.flatMap((line, index) =>
       forbiddenCommands.some((pattern) => pattern.test(line))
         ? [`${relativePath}:${index + 1}: ${line.trim()}`]
@@ -1246,7 +1247,16 @@ describe("Bun tooling runtime contract", () => {
       ".agents/skills/ponytail/SKILL.md",
       "templates/agents/codex/planner.toml",
     ]) {
-      for (const command of ["npm run forbidden", "npm start", "npx foo"]) {
+      for (const command of [
+        "npm run forbidden",
+        "npm start",
+        "npx foo",
+        "npx --yes eslint",
+        "npm exec eslint",
+        "npm pack foo",
+        "npm pack --pack-destination /tmp/release unrelated-package",
+        "npm exec --yes --package ./my-workflow-0.10.0.tgz -- \\\neslint",
+      ]) {
         const mutated = new Map([[relativePath, `${readRepositoryFile(relativePath)}\n${command}\n`]]);
         const mutationViolations = forbiddenAuthorityViolations(
           [relativePath],
@@ -1263,6 +1273,19 @@ describe("Bun tooling runtime contract", () => {
         forbiddenAuthorityViolations(
           [relativePath],
           (path) => descriptive.get(path) ?? readRepositoryFile(path),
+        ),
+      ).toEqual([]);
+
+      const allowed = new Map([
+        [
+          relativePath,
+          `${readRepositoryFile(relativePath)}\nnpm pack --pack-destination /tmp/release\nnpm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow apply /tmp/target\nnpm exec --yes --package ./my-workflow-0.10.0.tgz -- \\\n  my-workflow status /tmp/target\nnpx --yes <approved-package>@<exact-version> apply /tmp/target\n`,
+        ],
+      ]);
+      expect(
+        forbiddenAuthorityViolations(
+          [relativePath],
+          (path) => allowed.get(path) ?? readRepositoryFile(path),
         ),
       ).toEqual([]);
     }

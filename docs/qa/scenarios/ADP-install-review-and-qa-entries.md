@@ -5,7 +5,7 @@ title: Install the review and QA entry skills with the core layer
 persona: Workflow adopter
 journey: J-adopt-workflow
 expected: A core-layer adoption reports the review and QA entry skills as managed and leaves each SKILL.md plus a .claude/skills link that opens the same file.
-entry_points: README.md#adopt-the-workflow; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply|status; .agents/skills/wreview; .agents/skills/wqa; .claude/skills/
+entry_points: README.md#adopt-the-workflow; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply <target> --layers core; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow status <target>; .agents/skills/wreview; .agents/skills/wqa; .claude/skills/
 qa_status: untested
 bug_ids:
 fix_status:

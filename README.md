@@ -38,9 +38,8 @@ includes `core`. `full` installs capabilities but does not mandate every stage; 
 selects the work. The package requires Python 3.11 or newer as `python3`, never prompts, and leaves
 the target unchanged when preflight finds a conflict. Use the same target and `--layers` value with
 `plan` and `apply`; omitting it selects `full`. `status` reads installed layers from the manifest
-and takes no layer selector. The local package is private at `0.10.0`; use `npx --yes
-<approved-package>@<exact-version>` only after a separate publication decision approves the package
-identity and license.
+and takes no layer selector. The local package is private at `0.10.0`; use `npx --yes <approved-package>@<exact-version>`
+only after a separate publication decision approves the package identity and license.
 
 After the first apply, immediately fill the consumer-owned `docs/product/AGENT-CONTEXT.md` with the
 product identity, critical constraints, and routes to existing files or headings. Do not create empty
@@ -229,9 +228,11 @@ The wrapper holds the named lock only for the wrapped command and passes its arg
 Run `python3 tools/resource_lock.py run --help` for the authoritative flags, defaults, and result
 codes.
 
-The old positional `adopt.py TARGET` command is intentionally removed. `plan` and `apply` require
-`--layers`; `status` reports clean state with exit 0, drift with exit 1, and invalid state or
-invocation with exit 2.
+The old positional `adopt.py TARGET` command is intentionally removed. Package `plan`, `apply`, and
+`resolve` accept an optional `--layers` selector and default to `full`; direct
+`python3 scripts/adopt.py plan`, `apply`, and `resolve` invocations require an explicit selector.
+`status` reports clean state
+with exit 0, drift with exit 1, and invalid state or invocation with exit 2.
 
 Prerequisites: the target directory must already exist, and the package requires Python 3.11 or newer
 as `python3`. Adoption does not require a Git `HEAD`. Before running the workflow-config resolver, the target must be a Git

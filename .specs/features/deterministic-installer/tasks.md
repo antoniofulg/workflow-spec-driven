@@ -324,6 +324,30 @@ mutation in isolated scratch state and confirm it fails.
 (Bun 126 passed, 0 failed; Python lanes 0 failed); the mutated IT-002 wiki-exception run failed as
 expected in isolated scratch state.
 
+## Deep-review Minor closeout batch (2026-09-07)
+
+**Findings closed:** `5c0049243a4b56e7`, `8913d76806eec04f`, `59673c812543a2a8`,
+`2ee0f08df183240e`, `cb1b9e6ff2012250`, `4bfb3e25945eb43c`, `5345d3fb6db912a9`, plus the
+required `entry_points` schema restoration for `ADP-adopt-workflow-safely`.
+
+**Exact observations before commit:**
+
+- IT-007 now asserts packaged `resolve` without `--layers` resolves `core, parallel, quality, extras`.
+- README and pack guidance distinguish optional package defaults from explicit direct-Python selectors
+  and permit only pristine retired-file removal.
+- QA profile and all affected scenarios point to the package authority and explicit layer selectors.
+- `_classify` accepts absent retired records before the existing workflow-root allowlist; IT-013 covers
+  absent unlisted records and retains the forged-hash present-path conflict plus safety coverage.
+- The command-authority test rejects `npx --yes eslint`, `npm exec eslint`, and `npm pack foo`, while
+  accepting the documented package and packing forms.
+- `ADP-adopt-workflow-safely` has the required public `entry_points` field before `qa_status`.
+- `python3 scripts/test_adopt.py`: 105 passed, 0 failed.
+- `bun test tools/shared/tests/qa-skills.test.ts`: 32 passed, 0 failed.
+- `git diff --check`: 0 errors.
+
+**Gate:** `bun run test:all` exited 0: Bun 126 passed, 0 failed; Python lanes all passed,
+including adoption 105 passed, 0 failed and workflow-config 61 passed, 0 failed.
+
 ---
 
 ## Dependency Execution Map

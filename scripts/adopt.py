@@ -400,11 +400,11 @@ def _classify(root: Path, source_root: Path, selected: list[str], manifest: dict
         path = _safe_path(root, relative, "retired destination")
         if previous["ownership"] == "consumer" or relative.startswith("knowledge/wiki/"):
             continue
+        if not path.exists():
+            continue
         if not _is_retirable_workflow_path(relative):
             conflicts.append(relative)
             retired_actions.append({"path": relative, "action": "conflict", "layer": previous["layer"]})
-            continue
-        if not path.exists():
             continue
         current_hash = _sha(path.read_bytes())
         if current_hash != previous["installed_sha256"]:

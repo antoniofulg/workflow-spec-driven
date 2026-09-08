@@ -75,8 +75,8 @@ published identity, when one exists, uses `npx --yes <approved-package>@<exact-v
 
 The adopter catalog includes the operating loop, Bun-native
 knowledge tooling, assisted slice probe, review/QA skills, and optional Ponytail utilities. `full`
-resolves all four layers; subsequent applies union requested and installed layers and never remove
-files. Existing consumer prose remains outside managed `AGENTS.md`/`CLAUDE.md` blocks. Adoption
+resolves all four layers; subsequent applies union requested and installed layers, and a newer exact
+package may remove only pristine retired workflow files. Existing consumer prose remains outside managed `AGENTS.md`/`CLAUDE.md` blocks. Adoption
 preserves package metadata, `.my-workflow.toml`, existing `docs/qa/README.md`, consumer knowledge,
 and unknown files. It copies missing `.my-workflow.toml.example` and `templates/agents/`, preserves
 an existing local `.my-workflow.toml`, and generates ignored runtime packets from those sources. Adoption rejects
