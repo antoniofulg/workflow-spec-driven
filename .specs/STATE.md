@@ -3,11 +3,11 @@
 ## Handoff
 
 - **Feature**: `lean-consumer-installation` (branch `fix/lean-consumer-installation`)
-- **Phase / Task**: Execute — T1 in the inline plan in `spec.md`, pending implementation
-- **Completed**: approved footprint correction recorded in knowledge; Medium spec and DX contract validated; native workflow route frozen. Previous installer completion remains recorded under `.specs/features/deterministic-installer/`.
-- **In-progress** (file:line): none
-- **Next step**: one atomic runtime relocation with existing-suite checks, then independent verification, review and public QA
-- **Blockers**: none for local implementation. Remote delivery and npm publication remain outside this request.
+- **Phase / Task**: Execute — T1 implemented at `8caa331`; one test-remediation batch pending
+- **Completed**: runtime relocation and safe retirement implemented; independent full gate passed. Technical proof found three missing acceptance assertions, with no reproduced product defect; see the feature's `validation-runtime.md` and `review-fingerprints.json`.
+- **In-progress** (file:line): `scripts/test_adopt.py:1166` — canonical footprint, packed runtime and post-pruning rollback evidence
+- **Next step**: close AC1, AC10 and SEC-003 coverage gaps in the owning adopter suite; independently recheck, then review and public QA
+- **Blockers**: three open verification gaps; local remediation is authorized. Remote delivery and npm publication remain outside this request.
 
 ## Decisions
 

@@ -488,6 +488,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: IT-013 (adoption)
 - last seen: 2026-09-07T22:39:24Z
 
+### L-080 - Run relocated runtime entry points from an external tarball installation, beyond testing installer apply and status.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `installer` · harmful: 0
+- features: lean-consumer-installation
+- evidence: validation.md:P1-AC10 (installer)
+- last seen: 2026-09-08T05:02:34Z
+
+### L-081 - Exercise adopter rollback after legacy-directory pruning, including a tracked file already absent before apply.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `installer` · harmful: 0
+- features: lean-consumer-installation
+- evidence: validation.md:SEC-003 (installer)
+- last seen: 2026-09-08T05:02:34Z
+
+### L-082 - Assert the adopter target's real directory footprint for each supported layer selection, alongside manifest inventory.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `installer` · harmful: 0
+- features: lean-consumer-installation
+- evidence: validation.md:P1-AC1 (installer)
+- last seen: 2026-09-08T05:02:34Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

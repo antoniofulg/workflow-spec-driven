@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 80,
+  "next_id": 83,
   "lessons": [
     {
       "id": "L-001",
@@ -1437,6 +1437,60 @@
       ],
       "created": "2026-09-07T22:39:24Z",
       "last_seen": "2026-09-07T22:39:24Z"
+    },
+    {
+      "id": "L-080",
+      "key": "ac_gap::run relocated runtime entry points from an external tarball installation beyond testing installer apply and status",
+      "text": "Run relocated runtime entry points from an external tarball installation, beyond testing installer apply and status.",
+      "signal": "ac_gap",
+      "scope": "installer",
+      "status": "candidate",
+      "features": [
+        "lean-consumer-installation"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md:P1-AC10 (installer)"
+      ],
+      "created": "2026-09-08T05:02:34Z",
+      "last_seen": "2026-09-08T05:02:34Z"
+    },
+    {
+      "id": "L-081",
+      "key": "ac_gap::exercise adopter rollback after legacy directory pruning including a tracked file already absent before apply",
+      "text": "Exercise adopter rollback after legacy-directory pruning, including a tracked file already absent before apply.",
+      "signal": "ac_gap",
+      "scope": "installer",
+      "status": "candidate",
+      "features": [
+        "lean-consumer-installation"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md:SEC-003 (installer)"
+      ],
+      "created": "2026-09-08T05:02:34Z",
+      "last_seen": "2026-09-08T05:02:34Z"
+    },
+    {
+      "id": "L-082",
+      "key": "ac_gap::assert the adopter target s real directory footprint for each supported layer selection alongside manifest inventory",
+      "text": "Assert the adopter target's real directory footprint for each supported layer selection, alongside manifest inventory.",
+      "signal": "ac_gap",
+      "scope": "installer",
+      "status": "candidate",
+      "features": [
+        "lean-consumer-installation"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md:P1-AC1 (installer)"
+      ],
+      "created": "2026-09-08T05:02:34Z",
+      "last_seen": "2026-09-08T05:02:34Z"
     }
   ]
 }
