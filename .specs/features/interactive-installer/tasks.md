@@ -152,7 +152,7 @@ T7 -> T8 -> T9
 - [x] Added paths are removed and original paths/adoption state are restored after injected failures.
 - [x] Add-only and no-op transactions create no backup directory.
 - [x] Gate passes: `node --test tests/installer/transaction.test.js`.
-- [x] Test count: 10 feature cases pass, 0 fail, 0 skipped.
+- [x] Test count: 11 feature cases pass, 0 fail, 0 skipped.
 
 **Tests**: integration + security
 **Gate**: declared
