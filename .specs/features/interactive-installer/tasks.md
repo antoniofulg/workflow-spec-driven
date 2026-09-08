@@ -314,12 +314,12 @@ T7 -> T8 -> T9
 
 **Done when**:
 
-- [ ] New scenario covers fresh install, mixed-state upgrade, conflict replacement/exclusion/cancel, backup inspection, and knowledge handoff.
-- [ ] `ADP-install-versioned-workflow-package`, `ADP-layered-workflow-adoption`, `ADP-adopt-workflow-safely`, and `ADP-resolve-legacy-adoption-conflicts` are reset to `untested` without rewriting historical reports.
-- [ ] `J-adopt-workflow` owns the new scenario and terminal adapter.
-- [ ] QA charter assigns QA-001..QA-003 at 80×24 and 120×40 with color and `NO_COLOR=1`.
-- [ ] Gate passes: `bun test tools/shared/tests/qa-skills.test.ts && git diff --check`.
-- [ ] Existing QA contract tests pass with 0 fail and 0 skipped.
+- [x] New scenario covers fresh install, mixed-state upgrade, conflict replacement/exclusion/cancel, backup inspection, and knowledge handoff.
+- [x] `ADP-install-versioned-workflow-package`, `ADP-layered-workflow-adoption`, `ADP-adopt-workflow-safely`, and `ADP-resolve-legacy-adoption-conflicts` are reset to `untested` without rewriting historical reports.
+- [x] `J-adopt-workflow` owns the new scenario and terminal adapter.
+- [x] QA charter assigns QA-001..QA-003 at 80×24 and 120×40 with color and `NO_COLOR=1`.
+- [x] Gate passes: `bun test tools/shared/tests/qa-skills.test.ts && git diff --check`.
+- [x] Existing QA contract tests pass with 0 fail and 0 skipped.
 
 **Tests**: integration
 **Gate**: declared

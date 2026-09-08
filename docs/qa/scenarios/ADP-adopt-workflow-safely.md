@@ -5,8 +5,8 @@ title: Adopt the workflow without replacing consumer-owned state
 persona: Workflow adopter
 journey: J-adopt-workflow
 expected: An exact package applies canonical skill-owned runtime and generated packets while preserving consumer context, config, QA, and knowledge, retiring proven old copies, and refusing edited or unproven old runtime before publication.
-entry_points: README.md#adopt-the-workflow; docs/workflow/pack.md; npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- my-workflow plan|apply <target>; npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- my-workflow status <target>
-qa_status: pass
+entry_points: README.md#quick-start; docs/workflow/pack.md; npx workflow-spec-driven install
+qa_status: untested
 bug_ids: BUG-20260822-deep-review-learnings-untrackable; BUG-20260822-feature-specs-ignored; BUG-20260822-feature-state-gate-conflicts; BUG-20260825-adoption-omits-parallel-pilot; BUG-20260829-final-qa-pass-conflicts-with-adoption-gate
 fix_status: fixed
 retest_status: pass

@@ -2,7 +2,7 @@
 
 **Persona:** Workflow adopter
 **Goal:** Adopt the workflow without losing consumer-owned repository state.
-**Entry point:** `README.md` → **Adopt the workflow** → version-pinned `my-workflow plan/resolve/apply/status`
+**Entry point:** `README.md` → **Quick start** → `npx workflow-spec-driven install`
 **Tags:** w-entry-points
 
 ## Flow
@@ -11,11 +11,10 @@
 2. Confirm `.specs/features/` is versioned workflow state that travels through worktrees and CI;
    task status commits with its task, while adoption removes exact legacy ignore entries and keeps
    unrelated consumer rules intact.
-3. Run a read-only package `plan` for the smallest required layer and confirm the target is unchanged. For a
-   legacy Git project without an adoption manifest, review every file conflict, move product-owned
-   customizations, commit a clean baseline, then `resolve` the exact replacement set with
-   `--skip-agents`. Otherwise `apply` the reviewed plan. Use `status` after resolution, each
-   incremental apply, and one reversible managed-file drift.
+3. Run `npx workflow-spec-driven install`, select the smallest required module set, and confirm the
+   target is unchanged until final approval. Review every previewed action and resolve conflicts by
+   backing up and replacing, excluding the module, or cancelling. Repeat the command for upgrades
+   and confirm the no-op summary when selected modules are current.
 4. Confirm bundled workflow assets are discoverable, including the workflow-owned
    `workflow-spec-driven` router, its five phase skills (`wspecify`, `wdesign`, `wtasks`,
    `wimplement`, `wverify`), and the two entry skills (`wreview`, `wqa`) reachable through both
@@ -63,6 +62,7 @@ the complete apply before any write; this workflow has no layer-removal command.
 - [`ADP-resolve-legacy-adoption-conflicts`](../scenarios/ADP-resolve-legacy-adoption-conflicts.md)
 - [`ADP-separate-external-security-skills`](../scenarios/ADP-separate-external-security-skills.md)
 - [`ADP-install-versioned-workflow-package`](../scenarios/ADP-install-versioned-workflow-package.md)
+- [`ADP-interactive-workflow-install`](../scenarios/ADP-interactive-workflow-install.md)
 - [`ADP-install-skill-owned-runtime`](../scenarios/ADP-install-skill-owned-runtime.md)
 - [`ADP-validate-generated-feature-contracts`](../scenarios/ADP-validate-generated-feature-contracts.md)
 - [`ADP-require-impact-on-large-specs`](../scenarios/ADP-require-impact-on-large-specs.md)
