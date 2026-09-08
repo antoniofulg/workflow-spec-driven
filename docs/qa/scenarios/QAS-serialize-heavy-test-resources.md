@@ -6,13 +6,13 @@ persona: Workflow operator
 journey: J-execute-parallel-slices
 expected: Parallel adoption installs an inert wrapper whose same-resource commands queue at the selected scope while unrelated resources remain concurrent
 entry_points: scripts/adopt.py plan; scripts/adopt.py apply; scripts/adopt.py status; python3 .agents/skills/autonomous/scripts/resource_lock.py run
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-08-31-configurable-test-lock/summary.json; docs/qa/evidence/2026-08-31-configurable-test-lock/commands.json
-last_report: docs/qa/reports/2026-08-31-configurable-test-lock.md
+evidence: docs/qa/evidence/2026-09-08-lean-consumer-installation/70-resource_lock-help.stdout; docs/qa/evidence/2026-09-08-lean-consumer-installation/71-resource-lock-summary.json
+last_report: docs/qa/reports/2026-09-08-lean-consumer-installation.md
 overlaps: ADP-layered-workflow-adoption
 ---
 

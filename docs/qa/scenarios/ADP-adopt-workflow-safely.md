@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: An exact package applies canonical skill-owned runtime and generated packets while preserving consumer context, config, QA, and knowledge, retiring proven old copies, and refusing edited or unproven old runtime before publication.
 entry_points: README.md#adopt-the-workflow; docs/workflow/pack.md; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply <target>; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow status <target>
-qa_status: untested
+qa_status: pass
 bug_ids: BUG-20260822-deep-review-learnings-untrackable; BUG-20260822-feature-specs-ignored; BUG-20260822-feature-state-gate-conflicts; BUG-20260825-adoption-omits-parallel-pilot; BUG-20260829-final-qa-pass-conflicts-with-adoption-gate
 fix_status: fixed
 retest_status: pass
 fix_commits: 0413862; a7397d2; 43e9910; a3fc718; 5b5474e; 816afd6; 9653ed1
-evidence: docs/qa/evidence/2026-09-07-deterministic-installer/update-retire-summary.json; docs/qa/evidence/2026-09-07-deterministic-installer/fresh-walk-summary.json; docs/qa/evidence/2026-09-07-deterministic-installer/independent-readback.json
-last_report: docs/qa/reports/2026-09-07-deterministic-installer.md
+evidence: docs/qa/evidence/2026-09-08-lean-consumer-installation/21-upgrade-sentinels-before.sha256; docs/qa/evidence/2026-09-08-lean-consumer-installation/24-upgrade-sentinels-after.sha256; docs/qa/evidence/2026-09-08-lean-consumer-installation/31-refuse-edited-managed-before.sha256; docs/qa/evidence/2026-09-08-lean-consumer-installation/34-refuse-edited-managed-after.sha256
+last_report: docs/qa/reports/2026-09-08-lean-consumer-installation.md
 overlaps:
 ---
 

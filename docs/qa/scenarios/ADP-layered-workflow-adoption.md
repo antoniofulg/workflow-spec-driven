@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: A project can apply fixed layers incrementally with canonical skill-owned runtime and no workflow-created root templates or tools while conflicts fail before writes, consumer content survives, and status reports clean state.
 entry_points: README.md#adopt-the-workflow; docs/adoption-prompt.md; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply <target> --layers core; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply <target> --layers parallel; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply <target> --layers quality; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply <target> --layers extras; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow status <target>
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-07-deterministic-installer/fresh-walk-summary.json; docs/qa/evidence/2026-09-07-deterministic-installer/conflicts-summary.json
-last_report: docs/qa/reports/2026-09-07-deterministic-installer.md
+evidence: docs/qa/evidence/2026-09-08-lean-consumer-installation/11-core-plan.json; docs/qa/evidence/2026-09-08-lean-consumer-installation/13-core-status.json; docs/qa/evidence/2026-09-08-lean-consumer-installation/16-full-status.json
+last_report: docs/qa/reports/2026-09-08-lean-consumer-installation.md
 overlaps: ADP-adopt-workflow-safely
 ---
 

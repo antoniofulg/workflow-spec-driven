@@ -11,8 +11,8 @@ bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-07-deterministic-installer/provenance-canary.json
-last_report: docs/qa/reports/2026-09-07-deterministic-installer.md
+evidence: docs/qa/evidence/2026-09-08-lean-consumer-installation/80-provenance-canary.json; docs/qa/evidence/2026-09-08-lean-consumer-installation/package/archive-inventory.txt
+last_report: docs/qa/reports/2026-09-08-lean-consumer-installation.md
 overlaps:
 ---
 

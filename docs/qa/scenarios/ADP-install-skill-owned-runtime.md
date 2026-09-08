@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: Fresh and proven previous-layout installations use only canonical skill-owned runtime, retire only proven old workflow copies, preserve consumer-owned bytes, and remain clean on repeat apply.
 entry_points: README.md#adopt-the-workflow; npm exec --yes --package <exact-local-tarball> -- my-workflow plan|apply|status <target>; .agents/skills/workflow-config/scripts/workflow_config.py; .agents/skills/workflow-spec-driven/scripts/ad-index.py; .agents/skills/knowledge-check/scripts/cli.ts; .agents/skills/autonomous/scripts/
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence:
-last_report:
+evidence: docs/qa/evidence/2026-09-08-lean-consumer-installation/package/artifact.sha256; docs/qa/evidence/2026-09-08-lean-consumer-installation/22-upgrade-plan.json; docs/qa/evidence/2026-09-08-lean-consumer-installation/24-upgrade-status.json; docs/qa/evidence/2026-09-08-lean-consumer-installation/75-assisted-summary.json
+last_report: docs/qa/reports/2026-09-08-lean-consumer-installation.md
 overlaps: ADP-install-versioned-workflow-package; ADP-adopt-workflow-safely; ADP-layered-workflow-adoption; CFG-centralize-agent-model-routing; QAS-coordinate-assisted-slices-offline; QAS-serialize-heavy-test-resources
 ---
 

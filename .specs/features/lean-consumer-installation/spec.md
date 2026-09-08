@@ -14,9 +14,9 @@ would break agent synchronization, knowledge checks and parallel execution.
 
 ## Goals
 
-- [ ] Install only later-needed workflow runtime, located under its owning skill.
-- [ ] Keep installer-only inputs inside the package and remove proven old workflow copies safely.
-- [ ] Preserve consumer content/configuration and current runtime behavior after relocation.
+- [x] Install only later-needed workflow runtime, located under its owning skill.
+- [x] Keep installer-only inputs inside the package and remove proven old workflow copies safely.
+- [x] Preserve consumer content/configuration and current runtime behavior after relocation.
 
 ## Out of Scope
 
@@ -148,7 +148,7 @@ contract moved it, never to conceal a failure. No new test framework or duplicat
 - Scoped feedback: adopter, workflow-config, AD-index, knowledge/frontmatter, affected parallel and
   phase/QA contract suites. Final gate: `bun run test:all`.
 - Commit: `fix(installer): encapsulate consumer workflow runtime`.
-- Status: complete. Remediation evidence: R1 `python3 scripts/test_adopt.py` passed 109 tests (`/tmp/my-workflow-lean-installation/review-remediation-gate.log`), covering installed knowledge cwd-default execution and the fixed 18 provider-role legacy paths plus AD-index retirement; prior full-gate evidence remains at `/tmp/my-workflow-lean-installation/remediation-gate.log`.
+- Status: complete. Remediation `8f268bae` passed `python3 scripts/test_adopt.py` (109 tests). Final `bun run test:all` exited 0: Bun 126/0, adopter 109/0 and all Python suites green (`docs/qa/evidence/2026-09-08-lean-consumer-installation/91-final-full-gate.log`). Public QA passed 8/9 scenarios; the unchanged executor's unavailable offline-adapter leg remains untested. See `review-closeout.md` and the dated QA report for exact evidence and limits.
 
 One writer, one observable installation slice. File relocation and its catalog/callers must land
 atomically; no independent writer lane is safe. Then run one fresh Technical Verifier, the frozen
@@ -169,6 +169,6 @@ Deep Review group and scoped public QA using existing journeys.
 
 ## Success Criteria
 
-- [ ] Fresh and proven old installations contain only canonical skill-owned runtime.
-- [ ] Product-owned files/config/data and edited or unproven old files remain safe.
-- [ ] Relocated public operations and full gate pass; independent proof and scoped QA are recorded.
+- [x] Fresh and proven old installations contain only canonical skill-owned runtime.
+- [x] Product-owned files/config/data and edited or unproven old files remain safe.
+- [x] Relocated public operations and full gate pass; independent proof and scoped QA are recorded.

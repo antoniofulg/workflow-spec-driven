@@ -3,11 +3,11 @@
 ## Handoff
 
 - **Feature**: `lean-consumer-installation` (branch `fix/lean-consumer-installation`)
-- **Phase / Task**: Execute — T1 and test remediation independently verified at `4b6e41d`
-- **Completed**: runtime relocation, safe retirement and exact acceptance evidence; independent full gate and technical recheck passed. All three verification fingerprints are closed; see the feature's `validation-runtime.md` and `review-fingerprints.json`.
-- **In-progress** (file:line): none; QA Plan is materializing the scoped public walks
-- **Next step**: freeze the clean tree for the final Deep Review group, then execute the scoped public QA plan
-- **Blockers**: none for local work. Remote delivery and npm publication remain outside this request.
+- **Phase / Task**: Complete locally — T1, review remediation and final package QA at `8f268bae`
+- **Completed**: skill-owned runtime, 28 proven old-copy retirements, consumer preservation, independent technical PASS, R1 with both Minor findings fixed, and final `bun run test:all` exit 0. Public QA: 8/9 passed; see `.specs/features/lean-consumer-installation/review-closeout.md` and the dated QA report.
+- **In-progress** (file:line): none for the installation relocation
+- **Next step**: optional separate QA work to supply the unchanged executor's missing offline adapter; its scenario remains `untested`, and the two live-host scenarios retain `blocked-verify`.
+- **Blockers**: none for the installed-runtime scope. Remote delivery, publication and real-consumer updates remain separately scheduled.
 
 ## Decisions
 

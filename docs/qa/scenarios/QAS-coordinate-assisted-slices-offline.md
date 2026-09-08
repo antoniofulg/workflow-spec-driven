@@ -11,8 +11,8 @@ bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-08-29-hybrid-slice-execution/summary.json; docs/qa/evidence/2026-08-29-hybrid-slice-execution/commands.json
-last_report: docs/qa/reports/2026-08-29-hybrid-slice-execution.md
+evidence: docs/qa/evidence/2026-09-08-lean-consumer-installation/73-pilot-dry-run.json; docs/qa/evidence/2026-09-08-lean-consumer-installation/75-assisted-summary.json; docs/qa/evidence/2026-09-08-lean-consumer-installation/77b-executor-start.json; docs/qa/evidence/2026-09-08-lean-consumer-installation/78b-executor-status.json; docs/qa/evidence/2026-09-08-lean-consumer-installation/79b-executor-resume.json
+last_report: docs/qa/reports/2026-09-08-lean-consumer-installation.md
 overlaps: CFG-plan-parallel-slice-dispatch; CFG-fallback-unproven-parallel-execution; QAS-run-resource-free-parallel-orca-slices; QAS-clean-owned-parallel-slice-pilot
 ---
 
