@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 import process from 'node:process';
+import { realpathSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline/promises';
 import { runInstallWizard } from '../scripts/installer/terminal.js';
 
@@ -17,4 +19,4 @@ export async function main(argv = process.argv.slice(2), runtime = {}) {
   } catch (error) { stderr.write(`${error.message}\n`); return 1; } finally { if (!runtime.readline) readline.close(); }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main().then((code) => { process.exitCode = code; });
+if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) main().then((code) => { process.exitCode = code; });

@@ -71,7 +71,7 @@ function sourceFiles(root, relative) {
       if (entry.name === '__pycache__' || entry.name.endsWith('.pyc')) continue;
       const full = path.join(directory, entry.name);
       const rel = posix(path.relative(root, full));
-      if (entry.isSymbolicLink()) continue;
+      if (entry.isSymbolicLink()) fail(`workflow source is a symlink: ${rel}`);
       if (entry.isDirectory()) walk(full); else if (entry.isFile()) result.push(rel);
     }
   };
@@ -191,7 +191,8 @@ export function buildPlan({ sourceRoot = path.resolve(path.dirname(new URL(impor
   const newManifest = { schema: 1, workflow_version: WORKFLOW_VERSION, layers: manifestLayers, files: records, blocks: blocks.blocks }; staged['.my-workflow/adoption.json'] = Buffer.from(`${JSON.stringify(newManifest, null, 2)}\n`);
   const selectedSet = new Set(effective); const assessments = effective.map((id) => { const own = actions.filter((action) => action.modules.includes(id)); const kinds = new Set(own.map((action) => action.kind)); const status = kinds.has('conflict') ? 'conflict' : kinds.has('modified') ? 'modified' : kinds.has('update') ? 'outdated' : kinds.has('add') || kinds.has('claim') ? 'not installed' : 'up to date'; return { id, status, requiredBy: LAYERS.filter((candidate) => candidate !== id && DEPENDENCIES[candidate].includes(id) && selectedSet.has(candidate)), actions: own }; });
   const noChange = actions.length > 0 && actions.every((action) => ['preserve', 'no-change'].includes(action.kind)) && !conflicts.length;
-  return { plan: { target, packageVersion: WORKFLOW_VERSION, selectedModules: effective, assessments, actions: actions.map((action) => ({ ...action, modules: [...new Set(action.modules)] })).sort((a, b) => a.path.localeCompare(b.path)), unresolved: [...new Set(conflicts)].sort(), retired, status: conflicts.length ? 'conflict' : noChange ? 'no-change' : 'ready', message: noChange ? 'Selected modules are up to date. No files will change.' : undefined }, staged, manifest: newManifest };
+  const finalActions = noChange ? [] : actions.map((action) => ({ ...action, modules: [...new Set(action.modules)] })).sort((a, b) => a.path.localeCompare(b.path));
+  return { plan: { target, packageVersion: WORKFLOW_VERSION, selectedModules: effective, assessments, actions: finalActions, unresolved: [...new Set(conflicts)].sort(), retired, status: conflicts.length ? 'conflict' : noChange ? 'no-change' : 'ready', message: noChange ? 'Selected modules are up to date. No files will change.' : undefined }, staged, manifest: newManifest };
 }
 
 export function gitProof(root, runner = execFileSync) {

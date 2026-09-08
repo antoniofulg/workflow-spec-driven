@@ -16,6 +16,12 @@ Technical verification follow-up closes the eight fingerprints recorded in
 security-test migration, planner state/deselection semantics, contained transaction recovery,
 fixed-argv Git proof, terminal contract assertions, and transaction-bound knowledge checklists.
 
+### Remediation batch 2026-09-08 (second)
+
+The second verifier follow-up closes packed `.bin` entrypoint execution, true zero-action no-op
+plans, catalog symlink rejection, core-dependency exclusion cancellation, 80/120-column rendering,
+and packed clean-directory coverage while retaining the prior transaction and security fixes.
+
 ---
 
 ## Test Coverage Matrix
