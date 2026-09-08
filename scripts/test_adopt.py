@@ -1084,26 +1084,41 @@ def _add_legacy_consumer_record(target: Path, relative: str, source: bytes) -> N
 
 def test_it005_mapped_pristine_consumer_runtime_retires_and_prunes_empty_namespaces() -> None:
     target = temporary_target()
-    old_template = "templates/agents/claude/planner.md"
     old_index = "tools/ad-index.py"
+    legacy_templates = tuple(
+        f"templates/agents/{provider}/{role}.{extension}"
+        for provider, extension in (("claude", "md"), ("codex", "toml"), ("cursor", "md"))
+        for role in ("planner", "implementer", "verifier", "explorer", "deep-reviewer", "designer")
+    )
+    legacy_paths = (*legacy_templates, old_index)
     try:
         assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
-        for relative in (old_template, old_index):
-            source = source_for(relative).read_bytes()
+        for relative in legacy_paths:
+            canonical = (
+                ".agents/skills/workflow-config/assets/agents/" + relative.removeprefix("templates/agents/")
+                if relative.startswith("templates/agents/")
+                else ".agents/skills/workflow-spec-driven/scripts/ad-index.py"
+            )
+            source = (ROOT / canonical).read_bytes()
             path = target / relative
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(source)
             _add_legacy_consumer_record(target, relative, source)
         plan = invoke(target, "plan", "--layers", "core", "--skip-agents", "--json")
         document = json.loads(plan.stdout)
-        assert {item["path"] for item in document["actions"] if item["action"] == "remove"} >= {old_template, old_index}
+        assert {item["path"] for item in document["actions"] if item["action"] == "remove"} >= set(legacy_paths)
         assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
-        assert (target / ".agents/skills/workflow-config/assets/agents/claude/planner.md").is_file()
+        canonical_templates = tuple(
+            f".agents/skills/workflow-config/assets/agents/{provider}/{role}.{extension}"
+            for provider, extension in (("claude", "md"), ("codex", "toml"), ("cursor", "md"))
+            for role in ("planner", "implementer", "verifier", "explorer", "deep-reviewer", "designer")
+        )
+        assert all((target / relative).is_file() for relative in canonical_templates)
         assert (target / ".agents/skills/workflow-spec-driven/scripts/ad-index.py").is_file()
-        assert not (target / old_template).exists() and not (target / old_index).exists()
+        assert all(not (target / relative).exists() for relative in legacy_paths)
         assert not (target / "templates").exists() and not (target / "tools").exists()
         manifest = json.loads((target / ".my-workflow/adoption.json").read_text(encoding="utf-8"))
-        assert old_template not in manifest["files"] and old_index not in manifest["files"]
+        assert all(relative not in manifest["files"] for relative in legacy_paths)
     finally:
         shutil.rmtree(target)
 
@@ -1415,8 +1430,13 @@ def test_it011_tarball_bin_installs_updates_and_reports_clean_status() -> None:
         assert ad_index_run.returncode == 0, ad_index_run.stderr
         ad_index_check = subprocess.run([sys.executable, str(ad_index), "--check"], cwd=runner, text=True, capture_output=True, check=False)
         assert ad_index_check.returncode == 0 and "AD-INDEX.md up to date" in ad_index_check.stdout
+        before_knowledge = snapshot(target)
         knowledge_run = subprocess.run(["bun", str(knowledge), str(target)], cwd=runner, text=True, capture_output=True, check=False)
         assert knowledge_run.returncode == 0, knowledge_run.stderr
+        knowledge_cwd_run = subprocess.run(["bun", str(knowledge)], cwd=target, text=True, capture_output=True, check=False)
+        assert knowledge_cwd_run.returncode == 0, knowledge_cwd_run.stderr
+        assert knowledge_cwd_run.stdout == knowledge_run.stdout
+        assert snapshot(target) == before_knowledge
         for helper in ("resource_lock.py", "orca_assisted_probe.py", "qa_parallel_pilot.py"):
             helper_args = ["--help"]
             if helper == "resource_lock.py":
