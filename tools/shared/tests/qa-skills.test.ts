@@ -152,7 +152,7 @@ function forbiddenAuthorityViolations(
   const scannedPaths = activeAuthorityPaths(paths);
   const forbiddenCommands = [
     /(?:^|[`$>#;&|]\s*)npm\s+(?!(?:pack\s+--pack-destination\s+\S+(?:\s*#.*)?$|exec\s+--yes\s+--package\s+\S+\s+--\s+my-workflow\s+(?:plan|apply|resolve|status)\b))\S+/i,
-    /(?:^|[`$>#;&|]\s*)npx\s+(?!--yes\s+<approved-package>@<exact-version>(?:\s+(?:plan|apply|resolve|status)\b|(?=\s*`|$)))\S+/i,
+    /(?:^|[`$>#;&|]\s*)npx\s+(?!(?:workflow-spec-driven\s+install|--yes\s+<approved-package>@<exact-version>(?:\s+(?:plan|apply|resolve|status)\b|(?=\s*`|$))))\S+/i,
     /\bvitest\s+(?:run|--|[A-Za-z])/i,
     /\btsx\s+(?:--|[A-Za-z])/i,
     /(?:from|require)\s*[(]?['"]yaml['"]/i,
@@ -982,7 +982,7 @@ describe("adoption and public setup", () => {
     const prompt = readRepositoryFile("docs/adoption-prompt.md");
     const adopt = readRepositoryFile("scripts/installer/engine.js");
 
-    expect(readme).toContain("docs/adoption-prompt.md");
+    expect(readme).toContain("npx workflow-spec-driven install");
     expect(readme).toContain("managed paths");
     expect(prompt).toContain("git status --short");
     expect(prompt).toContain("read-only");
@@ -1012,23 +1012,20 @@ describe("adoption and public setup", () => {
     expect(readme).toContain("`parallel`");
     expect(readme).toContain("`quality`");
     expect(readme).toContain("`extras`");
-    expect(readme).toContain("`full` resolves all four layers");
+    expect(readme).toContain("The four fixed modules");
   });
 
   it("IT-019 keeps README installation prerequisites and bundled skills authoritative", () => {
     const readme = readRepositoryFile("README.md");
 
-    expect(readme).toContain("the target directory must already exist");
-    expect(readme).toContain("the package requires Python 3.11 or newer");
-    expect(readme).toMatch(/Adoption\s+does not require a Git `HEAD`/);
-    expect(readme).toMatch(/the target must be a Git\s+repository with at least one commit/);
-    expect(readme).toMatch(/Bun 1\.4\.x is the JavaScript\/TypeScript runtime for this pack;\s+it is needed only to validate the source pack's gates/);
-    expect(readme).toContain("records per-file ownership in `.my-workflow/adoption.json`");
-    expect(readme).toContain("`core` contains the operating loop and Bun tooling");
-    expect(readme).toMatch(/`parallel`\s+adds assisted slice execution/);
-    expect(readme).toMatch(/`quality`\s+adds review and QA skills/);
-    expect(readme).toMatch(/`extras`\s+adds optional/);
-    expect(readme).toContain("`full` resolves all four layers");
+    expect(readme).toContain("Node.js 18 or newer");
+    expect(readme).toContain("interactive terminal");
+    expect(readme).toContain("never requires Python");
+    expect(readme).toContain("`.my-workflow/backups/<UTC timestamp>/`");
+    expect(readme).toContain("`core` (operating loop and shared tooling)");
+    expect(readme).toMatch(/`parallel`\s+\(assisted slice execution\)/);
+    expect(readme).toMatch(/`quality`\s+\(review and QA\)/);
+    expect(readme).toMatch(/`extras`\s+\(optional Ponytail utilities\)/);
     expect(readme).toContain("The three external security skills are a separate authorized step");
     expect(readme).toContain("install_security_skills.py");
     expect(readme).not.toContain("@tech-leads-club/agent-skills install");
@@ -1063,7 +1060,7 @@ describe("adoption and public setup", () => {
     const pack = readRepositoryFile("docs/workflow/pack.md");
 
     expect(tour).toContain("[Skills, knowledge, adopt](pack.md)");
-    expect(pack).toContain("npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz");
+    expect(pack).toContain("npx workflow-spec-driven install");
   });
 
   it("IT-011 keeps stack-specific QA capabilities in the operational profile", () => {
