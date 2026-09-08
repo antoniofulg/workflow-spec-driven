@@ -10,13 +10,13 @@ leaving instructions stale and crossing the source-pack/product ownership bounda
 
 ## Goals
 
-- [ ] Install or update an exact workflow release through one version-pinned package command backed by
+- [x] Install or update an exact workflow release through one version-pinned package command backed by
       the existing deterministic adopter.
-- [ ] Update every unchanged source-owned skill, guideline, managed instruction block, and provider
+- [x] Update every unchanged source-owned skill, guideline, managed instruction block, and provider
       template while preserving consumer-owned product context, local model configuration, and knowledge.
-- [ ] Fail before any destination mutation when prerequisites, provenance, paths, or managed ownership
+- [x] Fail before any destination mutation when prerequisites, provenance, paths, or managed ownership
       cannot be proven.
-- [ ] Ship a minimal package whose archive contains every runtime asset the adopter needs and no
+- [x] Ship a minimal package whose archive contains every runtime asset the adopter needs and no
       source-only knowledge, tests, feature state, or development artifacts.
 
 ## Out of Scope
@@ -203,10 +203,12 @@ metacharacter target, then verify exit/error text, zero writes, and no side effe
 
 ## Success Criteria
 
-- [ ] A local exact-version tarball installs and updates a disposable target through the public bin.
-- [ ] Unchanged source-owned provider templates and blocks update; edited ones fail with zero writes.
-- [ ] Consumer product context, local config, and non-empty knowledge remain byte-identical.
-- [ ] A newer release removes only pristine retired managed files; edited retired paths conflict with zero writes.
-- [ ] A fresh consumer receives neutral knowledge scaffolding but no source-project concept or raw record.
-- [ ] Missing/old Python, unsafe paths, and package-membership drift are caught by named contract cases.
-- [ ] `python3 scripts/test_adopt.py`, `python3 tools/test_workflow_config.py`, and `bun run test:all` pass.
+- [x] A local exact-version tarball installs and updates a disposable target through the public bin.
+- [x] Unchanged source-owned provider templates and blocks update; edited ones fail with zero writes.
+- [x] Consumer product context, local config, and non-empty knowledge remain byte-identical.
+- [x] A newer release removes only pristine retired managed files; edited retired paths conflict with zero writes.
+- [x] A fresh consumer receives neutral knowledge scaffolding but no source-project concept or raw record.
+- [x] Missing/old Python, unsafe paths, and package-membership drift are caught by named contract cases.
+- [x] `python3 scripts/test_adopt.py`, `python3 tools/test_workflow_config.py`, and `bun run test:all` pass.
+
+Completion evidence: `review-closeout.md` and `docs/qa/reports/2026-09-07-deterministic-installer.md`.

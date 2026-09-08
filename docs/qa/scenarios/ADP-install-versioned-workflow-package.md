@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: An exact local package previews, installs, updates, and reports clean status while preserving consumer context, configuration, QA profile, knowledge, and edited workflow files.
 entry_points: README.md#adopt-the-workflow; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply|status; npx --yes <approved-package>@<exact-version>
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence:
-last_report:
+evidence: docs/qa/evidence/2026-09-07-deterministic-installer/package/artifact.sha256; docs/qa/evidence/2026-09-07-deterministic-installer/fresh-walk-summary.json; docs/qa/evidence/2026-09-07-deterministic-installer/update-retire-summary.json; docs/qa/evidence/2026-09-07-deterministic-installer/remaining-retire-conflicts-summary.json; docs/qa/evidence/2026-09-07-deterministic-installer/independent-readback.json; docs/qa/evidence/2026-09-07-deterministic-installer/68-npx-readonly-plan.stdout; docs/qa/evidence/2026-09-07-deterministic-installer/boundary-path-summary.json
+last_report: docs/qa/reports/2026-09-07-deterministic-installer.md
 overlaps: ADP-adopt-workflow-safely; ADP-layered-workflow-adoption; ADP-resolve-legacy-adoption-conflicts
 ---
 

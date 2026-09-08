@@ -11,8 +11,8 @@ bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-03-specify-impact-designer/70-doc-provenance.txt; docs/qa/evidence/2026-09-03-specify-impact-designer/70-doc-provenance-table.txt
-last_report: docs/qa/reports/2026-09-03-specify-impact-designer.md
+evidence: docs/qa/evidence/2026-09-07-deterministic-installer/provenance-canary.json
+last_report: docs/qa/reports/2026-09-07-deterministic-installer.md
 overlaps:
 ---
 

@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: A project can plan and apply fixed core, parallel, quality, and extras layers incrementally; conflicts fail before writes, consumer prose and Bun package metadata survive, and status reports clean state.
 entry_points: README.md#adopt-the-workflow; docs/adoption-prompt.md; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply <target> --layers core; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply <target> --layers parallel; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply <target> --layers quality; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply <target> --layers extras; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow status <target>
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-04-release-0-9-1/41-full-plan.json; docs/qa/evidence/2026-09-04-release-0-9-1/45-full-readback.txt; docs/qa/evidence/2026-09-04-release-0-9-1/51-layered-plan-core.json; docs/qa/evidence/2026-09-04-release-0-9-1/58-layered-readback.txt; docs/qa/evidence/2026-09-04-release-0-9-1/72-independent-reload.txt
-last_report: docs/qa/reports/2026-09-04-release-0-9-1.md
+evidence: docs/qa/evidence/2026-09-07-deterministic-installer/fresh-walk-summary.json; docs/qa/evidence/2026-09-07-deterministic-installer/conflicts-summary.json
+last_report: docs/qa/reports/2026-09-07-deterministic-installer.md
 overlaps: ADP-adopt-workflow-safely
 ---
 

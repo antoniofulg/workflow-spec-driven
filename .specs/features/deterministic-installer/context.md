@@ -2,7 +2,7 @@
 
 **Gathered:** 2026-09-07
 **Spec:** `.specs/features/deterministic-installer/spec.md`
-**Status:** Ready for design
+**Status:** Complete locally; see `review-closeout.md` and the final QA report. Publication is out of scope.
 
 ---
 

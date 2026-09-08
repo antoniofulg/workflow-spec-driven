@@ -2,12 +2,12 @@
 
 ## Handoff
 
-- **Feature**: `specify-impact-designer` (branch `feat/specify-impact-designer`, roadmap slice 3)
-- **Phase / Task**: complete; delivery (push, pull request, merge) in progress under `autonomous`
-- **Completed**: S1 and S2 on Cursor; verifications converged after test-strength batches (S1 round 7, S2 round 7); deep review round 1 FIX_BEFORE_SHIP remediated, round 2 SHIP; QA plan and execute pass; feature `validation.md` PASS (sensor 7/7); `validate_state.py` exit 0
+- **Feature**: `deterministic-installer` (branch `feat/deterministic-installer`)
+- **Phase / Task**: local implementation, independent verification, review remediation, and QA complete
+- **Completed**: installer tasks T1-T5; technical validation PASS; all Minor review findings closed in `a4fb3ec5`; QA 8/8 pass and full gate exit 0. Evidence: `.specs/features/deterministic-installer/review-closeout.md` and `docs/qa/reports/2026-09-07-deterministic-installer.md`. Earlier design-fidelity and skill-description improvements are committed on this branch.
 - **In-progress** (file:line): none
-- **Next step**: roadmap slice 4 (mockup fidelity, reuse inventory, lint on raw elements, visual diff gate)
-- **Blockers**: none. Live Orca transport stays `blocked-verify`.
+- **Next step**: human-scheduled delivery; choose an available package identity and license before any npm publication
+- **Blockers**: none for local completion. No remote delivery or npm publication performed.
 
 ## Decisions
 

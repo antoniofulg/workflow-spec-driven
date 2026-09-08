@@ -300,7 +300,7 @@ scenario schema
 **Tests**: none — documentation and QA tracker layer per matrix
 **Gate**: declared — `git diff --check`
 
-**Status**: complete — `git diff --check` (0 errors); canonical QA contract check `bun test tools/shared/tests/qa-skills.test.ts` (32 passed, 0 failed). Final full-gate recheck remains owned by root.
+**Status**: complete — `git diff --check` (0 errors); canonical QA contract check `bun test tools/shared/tests/qa-skills.test.ts` (32 passed, 0 failed). Final full gate and 8/8 public QA results are recorded in `review-closeout.md`.
 
 **Commit**: `docs(installer): document deterministic package adoption`
 

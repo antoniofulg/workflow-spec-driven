@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: A clean legacy Git project replaces exactly its reviewed workflow file conflicts, preserves project instructions, reaches clean managed status, and rejects incomplete or unsafe ownership transfers without writes.
 entry_points: README.md#resolve-a-legacy-no-manifest-conflict; docs/adoption-prompt.md; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow resolve
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-08-31-legacy-adoption-resolution/summary.json; docs/qa/evidence/2026-08-31-legacy-adoption-resolution/commands.jsonl
-last_report: docs/qa/reports/2026-08-31-legacy-adoption-resolution.md
+evidence: docs/qa/evidence/2026-09-07-deterministic-installer/resolve-valid-python-attempt1.json; docs/qa/evidence/2026-09-07-deterministic-installer/git-metadata-attribution.json
+last_report: docs/qa/reports/2026-09-07-deterministic-installer.md
 overlaps: ADP-layered-workflow-adoption; ADP-adopt-workflow-safely
 ---
 

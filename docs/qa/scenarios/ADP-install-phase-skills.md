@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: A core-layer adoption reports the five phase skill directories as managed and leaves the target holding each `.agents/skills/w<phase>/SKILL.md` plus a `.claude/skills/w<phase>` link that resolves to it, while re-adoption preserves consumer-owned skill trees.
 entry_points: README.md#adopt-the-workflow; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow plan|apply <target> --layers core; npm exec --yes --package ./my-workflow-0.10.0.tgz -- my-workflow status <target>; .agents/skills/wspecify; .agents/skills/wdesign; .agents/skills/wtasks; .agents/skills/wimplement; .agents/skills/wverify; .claude/skills/
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-03-w-entry-points/11-plan-core-extract.txt; docs/qa/evidence/2026-09-03-w-entry-points/13-apply-core.log; docs/qa/evidence/2026-09-03-w-entry-points/14-status.log; docs/qa/evidence/2026-09-03-w-entry-points/15-skill-links.txt; docs/qa/evidence/2026-09-03-w-entry-points/18-consumer-after.txt; docs/qa/evidence/2026-09-03-w-entry-points/19-reload-links.txt
-last_report: docs/qa/reports/2026-09-03-w-entry-points.md
+evidence: docs/qa/evidence/2026-09-07-deterministic-installer/fresh-walk-summary.json; docs/qa/evidence/2026-09-07-deterministic-installer/independent-readback.json
+last_report: docs/qa/reports/2026-09-07-deterministic-installer.md
 overlaps: ADP-adopt-workflow-safely; ADP-layered-workflow-adoption; ADP-install-review-and-qa-entries
 ---
 
