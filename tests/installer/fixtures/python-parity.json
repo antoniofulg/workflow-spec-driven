@@ -6,6 +6,7 @@
     "outdated": { "requested": ["core"], "resolved": ["core"], "status": "ready", "classification": { ".agents/skills/workflow-spec-driven/SKILL.md": "update" } },
     "modified": { "requested": ["core"], "resolved": ["core"], "status": "conflict", "classification": { ".agents/skills/workflow-spec-driven/SKILL.md": "modified" } },
     "collision": { "requested": ["core"], "resolved": ["core"], "status": "conflict", "classification": { ".agents/skills/workflow-spec-driven/SKILL.md": "conflict" } },
-    "malformed": { "requested": ["core"], "resolved": ["core"], "error": "invalid adoption manifest" }
+    "malformed": { "requested": ["core"], "resolved": ["core"], "error": "invalid adoption manifest" },
+    "retired": { "requested": ["core"], "resolved": ["core"], "status": "ready", "classification": { ".agents/skills/workflow-spec-driven/scripts/retired-helper.py": "remove" }, "manifest": { "schema": 1, "workflow_version": "0.10.0" }, "tree": { ".agents/skills/workflow-spec-driven/scripts/retired-helper.py": "removed" }}
   }
 }

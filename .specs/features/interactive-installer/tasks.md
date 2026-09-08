@@ -34,6 +34,22 @@ failure/recovery copy with the approved 80x24 and 120x40 transcripts.
 Checkpoint: complete. Scoped installer suites pass 167/167, the package-contract QA suite passes
 32/32, `bun run test:all` exits 0, and `npm pack --dry-run --json` reports the expected 146 entries.
 
+### Human-authorized resume 2026-09-08
+
+After both repeated fingerprints reached the configured stall threshold, the human explicitly
+authorized continued work. The resumed generation is limited to one focused remediation and one
+fresh Technical Verifier using `gpt-5.6-luna` at `xhigh`; another failed verification stops without
+an automatic loop.
+
+### Resumed remediation checkpoint 2026-09-08
+
+The focused batch closes SAFE-007, KNOW-002, PAR-001, PAR-004, EDGE-003, and EDGE-005 with their
+owning canonical assertions, plus UT-008, UT-014, IT-002, IT-003, IT-004, IT-005, IT-007, IT-012,
+IT-014, IT-015, IT-016, IT-017, E2E-001, E2E-002, SEC-002, and SEC-004. Terminal fixtures now match
+the approved 80x24 and 120x40 transcripts, including pending-transfer guidance and width-specific
+progress/copy. Focused suites pass 176/176 and the full gate exits 0; remediation checkpoint committed
+as `80ffa876`.
+
 ---
 
 ## Test Coverage Matrix

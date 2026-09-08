@@ -22,7 +22,7 @@ export const LAYER_PATHS = {
   core: ['docs/guidelines', 'docs/workflow/README.md', 'docs/workflow/decisions.md', 'docs/workflow/guidelines.md', 'docs/workflow/loop.md', 'docs/workflow/purpose.md', 'docs/workflow/reviews.md', 'knowledge/AGENTS.md', 'knowledge/raw/README.md', '.agents/skills/workflow-spec-driven', '.agents/skills/ponytail', '.agents/skills/workflow-config', '.agents/skills/knowledge-check', '.agents/skills/wspecify', '.agents/skills/wdesign', '.agents/skills/wtasks', '.agents/skills/wimplement', '.agents/skills/wverify', '.agents/skills/wreview', '.agents/skills/wqa'],
   parallel: ['.agents/skills/autonomous'],
   quality: ['.agents/skills/deep-review', '.agents/skills/qa-plan', '.agents/skills/qa-execute'],
-  extras: ['.agents/skills/ponytail-audit', '.agents/skills/ponytail-debt', '.agents/skills/ponytail-gain', '.agents/skills/ponytail-help', '.agents/skills/ponytail-review'],
+  extras: ['.agents/skills/ponytail', '.agents/skills/ponytail-audit', '.agents/skills/ponytail-debt', '.agents/skills/ponytail-gain', '.agents/skills/ponytail-help', '.agents/skills/ponytail-review'],
 };
 export const LAYER_MISSING_PATHS = { core: ['.my-workflow.toml.example'], parallel: [], quality: [], extras: [] };
 export const CONSUMER_MISSING_SOURCES = {

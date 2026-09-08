@@ -43,4 +43,5 @@ test('IT-010 tarball executable performs Node-only install with Python absent', 
   assert.deepEqual(manifest.files, expected.files);
   assert.equal(fs.existsSync(pythonMarker), false);
   assert.equal(fs.existsSync(path.join(clean, 'node_modules/workflow-spec-driven/scripts/adopt.py')), false);
+  assert.match(execFileSync(executable, ['--help'], { cwd: clean, env, encoding: 'utf8' }), /workflow-spec-driven install/);
 });
