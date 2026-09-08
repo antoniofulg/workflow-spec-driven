@@ -2,12 +2,12 @@
 
 ## Handoff
 
-- **Feature**: `deterministic-installer` (branch `feat/deterministic-installer`)
-- **Phase / Task**: local implementation, independent verification, review remediation, and QA complete
-- **Completed**: installer tasks T1-T5; technical validation PASS; all Minor review findings closed in `a4fb3ec5`; QA 8/8 pass and full gate exit 0. Evidence: `.specs/features/deterministic-installer/review-closeout.md` and `docs/qa/reports/2026-09-07-deterministic-installer.md`. Earlier design-fidelity and skill-description improvements are committed on this branch.
+- **Feature**: `lean-consumer-installation` (branch `fix/lean-consumer-installation`)
+- **Phase / Task**: Execute — T1 in the inline plan in `spec.md`, pending implementation
+- **Completed**: approved footprint correction recorded in knowledge; Medium spec and DX contract validated; native workflow route frozen. Previous installer completion remains recorded under `.specs/features/deterministic-installer/`.
 - **In-progress** (file:line): none
-- **Next step**: human-scheduled delivery; choose an available package identity and license before any npm publication
-- **Blockers**: none for local completion. No remote delivery or npm publication performed.
+- **Next step**: one atomic runtime relocation with existing-suite checks, then independent verification, review and public QA
+- **Blockers**: none for local implementation. Remote delivery and npm publication remain outside this request.
 
 ## Decisions
 
