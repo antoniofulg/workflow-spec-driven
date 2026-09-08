@@ -3,11 +3,11 @@
 ## Handoff
 
 - **Feature**: `lean-consumer-installation` (branch `fix/lean-consumer-installation`)
-- **Phase / Task**: Execute — T1 implemented at `8caa331`; one test-remediation batch pending
-- **Completed**: runtime relocation and safe retirement implemented; independent full gate passed. Technical proof found three missing acceptance assertions, with no reproduced product defect; see the feature's `validation-runtime.md` and `review-fingerprints.json`.
-- **In-progress** (file:line): `scripts/test_adopt.py:1166` — canonical footprint, packed runtime and post-pruning rollback evidence
-- **Next step**: close AC1, AC10 and SEC-003 coverage gaps in the owning adopter suite; independently recheck, then review and public QA
-- **Blockers**: three open verification gaps; local remediation is authorized. Remote delivery and npm publication remain outside this request.
+- **Phase / Task**: Execute — T1 and test remediation independently verified at `4b6e41d`
+- **Completed**: runtime relocation, safe retirement and exact acceptance evidence; independent full gate and technical recheck passed. All three verification fingerprints are closed; see the feature's `validation-runtime.md` and `review-fingerprints.json`.
+- **In-progress** (file:line): none; QA Plan is materializing the scoped public walks
+- **Next step**: freeze the clean tree for the final Deep Review group, then execute the scoped public QA plan
+- **Blockers**: none for local work. Remote delivery and npm publication remain outside this request.
 
 ## Decisions
 
