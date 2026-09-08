@@ -42,7 +42,7 @@ describe("bun run knowledge", { timeout: 30_000 }, () => {
 
     expect(manifest.scripts?.test).toContain("bun test");
     expect(manifest.scripts?.test).not.toContain("knowledge");
-    expect(manifest.scripts?.knowledge).toBe("bun tools/knowledge/src/cli.ts");
+    expect(manifest.scripts?.knowledge).toBe("bun .agents/skills/knowledge-check/scripts/cli.ts");
   });
 
   it("exits non-zero and names the offending concept when frontmatter is missing", () => {

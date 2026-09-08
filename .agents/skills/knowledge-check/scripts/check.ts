@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import type { Dirent } from "node:fs";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
-import { readFrontmatter } from "../../shared/src/frontmatter.js";
+import { readFrontmatter } from "./frontmatter.js";
 
 /**
  * What a finding is about.

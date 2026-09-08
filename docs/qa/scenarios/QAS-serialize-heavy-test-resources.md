@@ -5,7 +5,7 @@ title: Serialize only the contested heavy test resource
 persona: Workflow operator
 journey: J-execute-parallel-slices
 expected: Parallel adoption installs an inert wrapper whose same-resource commands queue at the selected scope while unrelated resources remain concurrent
-entry_points: scripts/adopt.py plan; scripts/adopt.py apply; scripts/adopt.py status; python3 tools/resource_lock.py run
+entry_points: scripts/adopt.py plan; scripts/adopt.py apply; scripts/adopt.py status; python3 .agents/skills/autonomous/scripts/resource_lock.py run
 qa_status: pass
 bug_ids:
 fix_status:

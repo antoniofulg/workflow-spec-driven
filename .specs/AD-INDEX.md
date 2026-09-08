@@ -3,7 +3,7 @@
 One line per `AD-NNN`. The append-only body lives in `.specs/STATE.md`.
 
 Body: `rg -A 20 '^### AD-NNN' .specs/STATE.md`. Resume: `rg -A 20 '^## Handoff' .specs/STATE.md`.
-When recording an `AD-NNN`, run `python3 tools/ad-index.py` in the same commit.
+When recording an `AD-NNN`, run the bundled workflow-spec-driven ad-index.py in the same commit.
 
 | ID | Status | Decision |
 | --- | --- | --- |

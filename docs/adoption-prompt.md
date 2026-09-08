@@ -20,7 +20,7 @@ identity and routes to existing docs only as the product earns them. For an exis
 preserve its filled product paragraph. Before deliberately replacing a legacy `AGENTS.md`, extract
 its product rules into that index and review the complete diff; adoption does not infer or perform
 that migration. Preserve an existing local `.my-workflow.toml` byte-for-byte. Install missing
-`.my-workflow.toml.example` and `templates/agents/`. Normal `apply` runs synchronization to generate
+`.my-workflow.toml.example` and `.agents/skills/workflow-config/assets/agents/`. Normal `apply` runs synchronization to generate
 ignored provider packets from tracked templates and local config; use `--skip-agents` only as an
 explicit opt-out when instruction files and packet synchronization are being merged separately.
 

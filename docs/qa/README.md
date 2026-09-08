@@ -12,7 +12,7 @@ For consuming projects, those authorities are their executable manifests or CI j
 | `ADP` | Version-pinned adoption package, external-skill CLI, and generated filesystem | `my-workflow` through a local tarball or approved exact package; `scripts/install_security_skills.py` with a disposable target | [README adoption contract](../../README.md#adopt-the-workflow), [`package.json`](../../package.json), [`scripts/adopt.py`](../../scripts/adopt.py), [`scripts/install_security_skills.py`](../../scripts/install_security_skills.py) |
 | `QAS` | Manual agent-file inspection, checkout-local CLI recipes, and Orca-backed workflow execution | `.agents/skills/qa-plan/`, `.agents/skills/qa-execute/`, `.agents/skills/autonomous/scripts/parallel_execute.py`, `tools/gate_cache.py`, `.agents/skills/deep-review/references/publish-github.md`, provider Verifier packets | [Skills contract](../../README.md#skills), [parallel executor contract](../../.agents/skills/autonomous/references/parallelization.md), [Deep Review publication recipe](../../.agents/skills/deep-review/references/publish-github.md) |
 | `DOC` | Documentation | `README.md` | [`README.md`](../../README.md) |
-| `CFG` | Workflow configuration, derived slice contract, generated state, and Git visibility | `.my-workflow.toml.example`; `.my-workflow.toml`; `templates/agents/`; `.agents/skills/workflow-config/scripts/workflow_config.py`; `.agents/skills/workflow-config/scripts/parallel_plan.py`; `.agents/skills/workflow-spec-driven/scripts/validate_tasks.py --slice-contract-json`; `.agents/skills/wtasks/references/tasks-template.md`; `.gitignore`; `.specs/` | [README configuration contract](../../README.md#adopt-the-workflow), [`workflow-config` skill](../../.agents/skills/workflow-config/SKILL.md), [`wtasks` task template](../../.agents/skills/wtasks/references/tasks-template.md), [artifact lifecycle](../guidelines/ARTIFACT-LIFECYCLE.md) |
+| `CFG` | Workflow configuration, derived slice contract, generated state, and Git visibility | `.my-workflow.toml.example`; `.my-workflow.toml`; `.agents/skills/workflow-config/assets/agents/`; `.agents/skills/workflow-config/scripts/workflow_config.py`; `.agents/skills/workflow-config/scripts/parallel_plan.py`; `.agents/skills/workflow-spec-driven/scripts/validate_tasks.py --slice-contract-json`; `.agents/skills/wtasks/references/tasks-template.md`; `.gitignore`; `.specs/` | [README configuration contract](../../README.md#adopt-the-workflow), [`workflow-config` skill](../../.agents/skills/workflow-config/SKILL.md), [`wtasks` task template](../../.agents/skills/wtasks/references/tasks-template.md), [artifact lifecycle](../guidelines/ARTIFACT-LIFECYCLE.md) |
 | `REL` | Package metadata | `package.json`, `bun.lock` | [`package.json`](../../package.json) |
 
 No browser, API, or mobile surface exists in this repository.
@@ -23,8 +23,8 @@ No browser, API, or mobile surface exists in this repository.
   parallel executor, assisted pointer probe, and filesystem inspection. The parallel-slice journey
   uses the installed Orca CLI only after its `orchestration.contract.v1` capability is proven; the
   disposable fixture and lifecycle oracle are owned by
-  [`tools/qa_parallel_pilot.py`](../../tools/qa_parallel_pilot.py), while
-  [`tools/orca_assisted_probe.py`](../../tools/orca_assisted_probe.py) is the shipped pointer-only
+  [`.agents/skills/autonomous/scripts/qa_parallel_pilot.py`](../../.agents/skills/autonomous/scripts/qa_parallel_pilot.py), while
+  [`.agents/skills/autonomous/scripts/orca_assisted_probe.py`](../../.agents/skills/autonomous/scripts/orca_assisted_probe.py) is the shipped pointer-only
   lifecycle boundary. Deep Review publication recipes
   use a checkout-local fake `gh` that logs arguments;
   [`tools/test_deep_review_contract.py`](../../tools/test_deep_review_contract.py) owns that
@@ -80,7 +80,7 @@ record its own profile instead of receiving this source repository's profile.
   copied into a disposable checkout-local feature directory as `tasks.md`; plus disposable empty and
   pre-populated directories created by
   [`scripts/test_adopt.py`](../../scripts/test_adopt.py), plus the two-lane resource-free Git fixture
-  created by [`tools/qa_parallel_pilot.py`](../../tools/qa_parallel_pilot.py).
+  created by [`.agents/skills/autonomous/scripts/qa_parallel_pilot.py`](../../.agents/skills/autonomous/scripts/qa_parallel_pilot.py).
 - Cleanup and teardown authority: remove only the disposable target created for the active QA run;
   adoption owns its temporary-directory teardown, while the parallel pilot's public cleanup
   requires its exact ownership attestation and completed lifecycle check.

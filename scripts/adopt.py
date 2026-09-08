@@ -42,20 +42,28 @@ RETIRABLE_WORKFLOW_DIRS = (
 RETIRABLE_WORKFLOW_FILES = {
     "tools/ad-index.py", "tools/orca_assisted_probe.py", "tools/qa_parallel_pilot.py", "tools/resource_lock.py",
 }
+LEGACY_CONSUMER_RUNTIME = {
+    "tools/ad-index.py": ".agents/skills/workflow-spec-driven/scripts/ad-index.py",
+    **{
+        f"templates/agents/{provider}/{role}.{extension}":
+        f".agents/skills/workflow-config/assets/agents/{provider}/{role}.{extension}"
+        for provider, extension in (("claude", "md"), ("codex", "toml"), ("cursor", "md"))
+        for role in ("planner", "implementer", "verifier", "explorer", "deep-reviewer", "designer")
+    },
+}
 WORKFLOW_DOCS = (
     "docs/workflow/README.md", "docs/workflow/decisions.md", "docs/workflow/guidelines.md",
     "docs/workflow/loop.md", "docs/workflow/purpose.md", "docs/workflow/reviews.md",
 )
 CORE_PATHS = (
     "docs/guidelines", *WORKFLOW_DOCS, "knowledge/AGENTS.md", "knowledge/raw/README.md",
-    "tools/knowledge/src", "tools/shared/src/frontmatter.ts",
     ".agents/skills/workflow-spec-driven", ".agents/skills/ponytail", ".agents/skills/workflow-config",
+    ".agents/skills/knowledge-check",
     ".agents/skills/wspecify", ".agents/skills/wdesign", ".agents/skills/wtasks",
     ".agents/skills/wimplement", ".agents/skills/wverify",
     ".agents/skills/wreview", ".agents/skills/wqa",
-    "templates/adoption/agents", "templates/agents",
 )
-CORE_MISSING_PATHS = ("tools/ad-index.py", ".my-workflow.toml.example")
+CORE_MISSING_PATHS = (".my-workflow.toml.example",)
 PRODUCT_CONTEXT_PATH = "docs/product/AGENT-CONTEXT.md"
 PRODUCT_CONTEXT_TEMPLATE = "templates/adoption/product/AGENT-CONTEXT.md"
 KNOWLEDGE_WIKI_GROUPS = ("domain", "product", "architecture", "design", "decisions", "research", "open-questions")
@@ -69,7 +77,6 @@ CONSUMER_MISSING_SOURCES = {
     },
 }
 PARALLEL_PATHS = (
-    "tools/qa_parallel_pilot.py", "tools/orca_assisted_probe.py", "tools/resource_lock.py",
     ".agents/skills/autonomous",
 )
 QUALITY_PATHS = (".agents/skills/deep-review", ".agents/skills/qa-plan", ".agents/skills/qa-execute")
@@ -334,7 +341,7 @@ def _record(layer: str, ownership: str, source: bytes, installed: bytes | None) 
 
 
 def _is_provider_template(relative: str) -> bool:
-    return relative.startswith("templates/agents/")
+    return relative.startswith(".agents/skills/workflow-config/assets/agents/")
 
 
 def _is_retirable_workflow_path(relative: str) -> bool:
@@ -398,16 +405,22 @@ def _classify(root: Path, source_root: Path, selected: list[str], manifest: dict
         if relative in records:
             continue
         path = _safe_path(root, relative, "retired destination")
-        if previous["ownership"] == "consumer" or relative.startswith("knowledge/wiki/"):
+        if previous["ownership"] == "consumer" and relative not in LEGACY_CONSUMER_RUNTIME:
+            continue
+        if relative.startswith("knowledge/wiki/"):
             continue
         if not path.exists():
+            if _is_retirable_workflow_path(relative):
+                retired.append(relative)
+                retired_actions.append({"path": relative, "action": "remove", "layer": previous["layer"]})
             continue
         if not _is_retirable_workflow_path(relative):
             conflicts.append(relative)
             retired_actions.append({"path": relative, "action": "conflict", "layer": previous["layer"]})
             continue
         current_hash = _sha(path.read_bytes())
-        if current_hash != previous["installed_sha256"]:
+        expected_hash = previous["source_sha256"] if previous["ownership"] == "consumer" else previous["installed_sha256"]
+        if current_hash != expected_hash:
             conflicts.append(relative)
             retired_actions.append({"path": relative, "action": "conflict", "layer": previous["layer"]})
             continue
@@ -523,7 +536,7 @@ def _prepare_sync(source_root: Path, root: Path, staged: dict[str, bytes]) -> di
         return {}
     with tempfile.TemporaryDirectory(prefix="my-workflow-sync-") as name:
         scratch = Path(name)
-        for relative in ("templates/agents", ".agents/skills"):
+        for relative in (".agents/skills",):
             source = root / relative
             if source.exists() or source.is_symlink():
                 _preflight_tree(root, relative, "sync input")
@@ -846,9 +859,12 @@ def _publish(source_root: Path, root: Path, result: dict[str, Any], staged: dict
             _atomic_write(root / relative, content)
         for relative in result.get("retired", []):
             path = _safe_path(root, relative, "retired destination")
+            if not path.exists():
+                continue
             if not path.is_file():
                 raise _error(f"retired destination is no longer a file: {relative}")
             path.unlink()
+        _prune_empty_legacy_parents(root, result.get("retired", []))
         remove_legacy_managed_tests(root)
         _link_claude_skills(root, _managed_skill_names(result["resolved_layers"]))
         manifest_path = root / ".my-workflow/adoption.json"
@@ -860,6 +876,29 @@ def _publish(source_root: Path, root: Path, result: dict[str, Any], staged: dict
         except OSError as rollback_error:
             raise AdoptionError(f"publication failed and rollback failed: {rollback_error}") from exc
         raise AdoptionError(f"publication failed before the adoption manifest was published: {exc}") from exc
+
+
+def _prune_empty_legacy_parents(root: Path, retired: list[str]) -> None:
+    """Remove only empty parents reached through known retired workflow paths."""
+    known = tuple(PurePosixPath(path.rstrip("/")) for path in RETIRABLE_WORKFLOW_DIRS)
+    known_files = tuple(PurePosixPath(path).parent for path in (*RETIRABLE_WORKFLOW_FILES, *LEGACY_CONSUMER_RUNTIME))
+    for relative in retired:
+        parent = PurePosixPath(relative).parent
+        while parent != PurePosixPath("."):
+            if not any(
+                candidate == parent
+                or candidate.is_relative_to(parent)
+                or parent.is_relative_to(candidate)
+                for candidate in (*known, *known_files)
+            ):
+                break
+            path = root / parent
+            if not path.is_dir() or path.is_symlink():
+                break
+            if any(path.iterdir()):
+                break
+            path.rmdir()
+            parent = parent.parent
 
 
 def _text_result(result: dict[str, Any]) -> str:

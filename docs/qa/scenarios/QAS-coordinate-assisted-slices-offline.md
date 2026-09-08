@@ -5,7 +5,7 @@ title: Coordinate assisted slices with offline providers
 persona: Workflow operator
 journey: J-execute-parallel-slices
 expected: Default assisted execution uses only ready compatible writer lanes, sends packet pointers without packet bodies, issues each fake-provider mutation once, falls back serially when proof is missing, and cleans owned state to zero residue.
-entry_points: .agents/skills/workflow-config/scripts/workflow_config.py; .agents/skills/workflow-config/scripts/parallel_plan.py; .agents/skills/autonomous/scripts/parallel_execute.py start; tools/orca_assisted_probe.py dispatch; tools/orca_assisted_probe.py inspect; tools/orca_assisted_probe.py cleanup
+entry_points: .agents/skills/workflow-config/scripts/workflow_config.py; .agents/skills/workflow-config/scripts/parallel_plan.py; .agents/skills/autonomous/scripts/parallel_execute.py start; .agents/skills/autonomous/scripts/orca_assisted_probe.py dispatch; .agents/skills/autonomous/scripts/orca_assisted_probe.py inspect; .agents/skills/autonomous/scripts/orca_assisted_probe.py cleanup
 qa_status: pass
 bug_ids:
 fix_status:

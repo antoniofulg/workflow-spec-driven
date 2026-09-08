@@ -4,19 +4,19 @@ import { describe, expect, it } from "bun:test";
 
 const repositoryRoot = process.cwd();
 const implementerPacketPaths = [
-  "templates/agents/claude/implementer.md",
-  "templates/agents/codex/implementer.toml",
-  "templates/agents/cursor/implementer.md",
+  ".agents/skills/workflow-config/assets/agents/claude/implementer.md",
+  ".agents/skills/workflow-config/assets/agents/codex/implementer.toml",
+  ".agents/skills/workflow-config/assets/agents/cursor/implementer.md",
 ];
 const verifierPacketPaths = [
-  "templates/agents/claude/verifier.md",
-  "templates/agents/codex/verifier.toml",
-  "templates/agents/cursor/verifier.md",
+  ".agents/skills/workflow-config/assets/agents/claude/verifier.md",
+  ".agents/skills/workflow-config/assets/agents/codex/verifier.toml",
+  ".agents/skills/workflow-config/assets/agents/cursor/verifier.md",
 ];
 const deepReviewPacketPaths = [
-  "templates/agents/claude/deep-reviewer.md",
-  "templates/agents/codex/deep-reviewer.toml",
-  "templates/agents/cursor/deep-reviewer.md",
+  ".agents/skills/workflow-config/assets/agents/claude/deep-reviewer.md",
+  ".agents/skills/workflow-config/assets/agents/codex/deep-reviewer.toml",
+  ".agents/skills/workflow-config/assets/agents/cursor/deep-reviewer.md",
 ];
 
 function readRepositoryFile(relativePath: string): string {

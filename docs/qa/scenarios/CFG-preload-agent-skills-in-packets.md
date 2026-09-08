@@ -5,7 +5,7 @@ title: Preload role skills and scope the Skill tool in generated packets
 persona: Workflow adopter
 journey: J-configure-feature-workflow
 expected: Sync renders each Claude packet's `skills:` and `disallowedTools:` lines byte-identical to its template with only model and effort replaced, including the designer packet's `skills: [wdesign, ponytail]` and absent `disallowedTools`, and refuses a template that preloads a skill with no `SKILL.md`, naming the template and the skill and writing nothing.
-entry_points: templates/agents/claude/; templates/agents/cursor/; templates/agents/codex/; python3 .agents/skills/workflow-config/scripts/workflow_config.py --root . --sync-agents; .claude/agents/
+entry_points: .agents/skills/workflow-config/assets/agents/claude/; .agents/skills/workflow-config/assets/agents/cursor/; .agents/skills/workflow-config/assets/agents/codex/; python3 .agents/skills/workflow-config/scripts/workflow_config.py --root . --sync-agents; .claude/agents/
 qa_status: pass
 bug_ids:
 fix_status:

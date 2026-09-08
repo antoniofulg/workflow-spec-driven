@@ -31,7 +31,7 @@
    `orca` on `PATH` and confirm it performs no call; run the installed knowledge CLI with Bun without
    consumer Node packages.
 5. Re-adopt a target with a consumer-owned `.my-workflow.toml`, QA profile, model settings,
-   template bodies, knowledge concepts/raw records, `tools/ad-index.py`, and unrelated ignore entries.
+   template bodies, knowledge concepts/raw records, the skill-owned AD index, and unrelated ignore entries.
 6. Confirm the local config, QA profile, consumer knowledge, and consumer-owned template state survive
    byte-for-byte; pristine provider templates promote and runtime packets regenerate.
 7. Confirm edited provider templates and edited retired workflow files report conflicts with zero

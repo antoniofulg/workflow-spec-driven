@@ -25,7 +25,7 @@ skills and links installed before designer configuration, strict sync failed wit
 eighteen runtime packets appeared on configured full adoption, package bytes survived, probe import
 made zero Orca calls, and independent reload retained clean state.
 
-For issue #36, fresh adoption must install `tools/ad-index.py`; after the consumer changes that file,
+For issue #36, fresh adoption must install the skill-owned AD index; after the consumer changes that file,
 re-adoption must preserve its bytes.
 
 For issue #37, `docs/workflow/pack.md` remains source-only. Fresh adoption receives the other tour
@@ -36,7 +36,7 @@ omits the guide and both links without losing the other five pages, all remainin
 resolve, and re-adoption preserves a consumer-owned sentinel byte-for-byte.
 
 QA on 2026-08-22 confirmed fresh installation and identical SHA-256 before and after re-adoption of
-a consumer-modified `tools/ad-index.py`. The bundled-skill and release-contract canaries also passed.
+a consumer-modified skill-owned AD index. The bundled-skill and release-contract canaries also passed.
 
 QA for issue #39 confirmed initial adoption and re-adoption install byte-identical workflow validator
 CLIs while preserving consumer-owned `.my-workflow.toml` and `docs/qa/README.md` byte-for-byte. The
@@ -76,7 +76,7 @@ preserved consumer-owned bytes, retained tracked lock provenance, and only print
 installer command.
 
 QA on 2026-08-25 found the `0.6.0` adoption regression: executor and adapter files install, but the
-public `tools/qa_parallel_pilot.py` lifecycle entry point does not. See
+public `.agents/skills/autonomous/scripts/qa_parallel_pilot.py` lifecycle entry point does not. See
 `BUG-20260825-adoption-omits-parallel-pilot`.
 
 Fresh QA after `816afd6` passed the affected adoption journey. The pilot installed with exact source
@@ -85,7 +85,7 @@ configuration byte-for-byte, and all 15 generated provider packets remained unch
 release/package canary also passed; see the current report.
 
 The hybrid-slice feature changes this public promise to v3 assisted-by-default adoption and adds
-the pointer-only `tools/orca_assisted_probe.py`. The implementation gate is not a user QA walk, so
+the pointer-only `.agents/skills/autonomous/scripts/orca_assisted_probe.py`. The implementation gate is not a user QA walk, so
 this scenario is reset to `untested` until fresh QA confirms the installed tree.
 
 Fresh QA Execute at `8257d37` retested the adoption-gate fix through a new disposable consumer.

@@ -66,7 +66,7 @@ def write_packets(root: Path, *, runtime: bool = True) -> None:
         for role in workflow_config.ROLES:
             agent_name = workflow_config.AGENT_NAMES.get(role, role)
             content = template.format(role=agent_name).encode("utf-8")
-            template_path = root / "templates" / "agents" / provider / f"{agent_name}.{extension}"
+            template_path = root / ".agents" / "skills" / "workflow-config" / "assets" / "agents" / provider / f"{agent_name}.{extension}"
             template_path.parent.mkdir(parents=True, exist_ok=True)
             template_path.write_bytes(content)
             if runtime:
@@ -898,8 +898,8 @@ def test_sync_rejects_symlinked_local_sources_before_any_write() -> None:
         ("config example", Path(".my-workflow.toml.example"), "config example path .my-workflow.toml.example must not be a symlink"),
         (
             "agent template",
-            Path("templates/agents/claude/planner.md"),
-            "agent template path templates/agents/claude/planner.md must not be a symlink",
+            Path(".agents/skills/workflow-config/assets/agents/claude/planner.md"),
+            "agent template path .agents/skills/workflow-config/assets/agents/claude/planner.md must not be a symlink",
         ),
     )
     resolver = Path(__file__).resolve().parent.parent / ".agents/skills/workflow-config/scripts/workflow_config.py"
@@ -1001,14 +1001,14 @@ def test_sync_rebuilds_runtime_from_immutable_templates() -> None:
     root = make_packet_root()
     try:
         workflow_config.sync_agents(root)
-        template = root / "templates/agents/claude/planner.md"
+        template = root / ".agents/skills/workflow-config/assets/agents/claude/planner.md"
         template_before = template.read_bytes()
         runtime = root / ".claude/agents/planner.md"
         runtime.write_bytes(runtime.read_bytes().replace(b"Instructions for planner.", b"Disposable runtime edit."))
         result = workflow_config.sync_agents(root)
         assert ".claude/agents/planner.md" in result["changed"]
         expected = workflow_config.render_agent_packet(
-            "claude", template_before, MODELS["claude"]["planner"], Path("templates/agents/claude/planner.md")
+            "claude", template_before, MODELS["claude"]["planner"], Path(".agents/skills/workflow-config/assets/agents/claude/planner.md")
         )
         assert runtime.read_bytes() == expected
         assert template.read_bytes() == template_before
@@ -1031,7 +1031,7 @@ def test_sync_preserves_non_model_bytes() -> None:
 def test_sync_rejects_malformed_packet_before_any_write() -> None:
     root = make_packet_root()
     try:
-        target = root / "templates/agents/cursor/verifier.md"
+        target = root / ".agents/skills/workflow-config/assets/agents/cursor/verifier.md"
         target.write_text(target.read_text(encoding="utf-8").replace("model:", "model-old:"), encoding="utf-8")
         before = {
             path: path.read_bytes()
@@ -1097,7 +1097,7 @@ def test_sync_invalid_config_and_duplicate_metadata_write_no_packets() -> None:
         assert {path: path.read_bytes() for path in before} == before
 
         write_config(root)
-        duplicate = root / "templates/agents/claude/verifier.md"
+        duplicate = root / ".agents/skills/workflow-config/assets/agents/claude/verifier.md"
         duplicate.write_text(
             duplicate.read_text(encoding="utf-8").replace(
                 "model: old-model\n", "model: old-model\nmodel: duplicate\n", 1
@@ -1167,7 +1167,7 @@ def test_sync_requires_native_header_metadata_for_every_provider() -> None:
                 role = "planner"
                 agent_name = workflow_config.AGENT_NAMES.get(role, role)
                 extension = "toml" if provider == "codex" else "md"
-                packet = root / "templates" / "agents" / provider / f"{agent_name}.{extension}"
+                packet = root / ".agents" / "skills" / "workflow-config" / "assets" / "agents" / provider / f"{agent_name}.{extension}"
                 text = packet.read_text(encoding="utf-8")
                 if provider == "claude":
                     if duplicate:
@@ -1218,7 +1218,7 @@ def test_sync_preserves_crlf_packet_bytes_for_all_providers() -> None:
 def test_codex_ignores_model_like_lines_inside_multiline_toml_text() -> None:
     root = make_packet_root()
     try:
-        packet = root / "templates/agents/codex/planner.toml"
+        packet = root / ".agents/skills/workflow-config/assets/agents/codex/planner.toml"
         packet.write_bytes(
             (
                 'name = "planner"\n'
@@ -1722,9 +1722,9 @@ def make_preload_root() -> Path:
     write_config(root)
     write_packets(root, runtime=False)
     for provider in ("claude", "codex", "cursor"):
-        src = ROOT / "templates" / "agents" / provider
+        src = ROOT / ".agents" / "skills" / "workflow-config" / "assets" / "agents" / provider
         if src.is_dir():
-            shutil.copytree(src, root / "templates" / "agents" / provider, dirs_exist_ok=True)
+            shutil.copytree(src, root / ".agents" / "skills" / "workflow-config" / "assets" / "agents" / provider, dirs_exist_ok=True)
     for role in workflow_config.ROLES:
         template = root / workflow_config._template_relative("claude", role)
         header, _ = workflow_config._header("claude", template.read_text(encoding="utf-8"), template)
@@ -1739,7 +1739,7 @@ def test_sync_passes_preload_keys_through_untouched() -> None:
     root = make_preload_root()
     try:
         workflow_config.sync_agents(root)
-        template = (root / "templates/agents/claude/implementer.md").read_text(encoding="utf-8")
+        template = (root / ".agents/skills/workflow-config/assets/agents/claude/implementer.md").read_text(encoding="utf-8")
         generated = (root / ".claude/agents/implementer.md").read_text(encoding="utf-8")
         setting = MODELS["claude"]["implementer"]
         assert generated == template.replace(
@@ -1753,7 +1753,7 @@ def test_sync_passes_preload_keys_through_untouched() -> None:
 
 def assert_sync_rejects_preload_skill(root: Path, name: str) -> None:
     """Sync must fail loudly on a preload name that resolves to no SKILL.md, before any write."""
-    template = root / "templates/agents/claude/implementer.md"
+    template = root / ".agents/skills/workflow-config/assets/agents/claude/implementer.md"
     template.write_text(
         template.read_text(encoding="utf-8").replace(
             "skills: [wimplement, ponytail]", f"skills: [wimplement, {name}]"
@@ -1768,7 +1768,7 @@ def assert_sync_rejects_preload_skill(root: Path, name: str) -> None:
     )
     assert completed.returncode != 0, f"sync accepted preload skill {name!r}"
     assert completed.stdout == "", f"sync wrote stdout: {completed.stdout!r}"
-    assert "templates/agents/claude/implementer.md" in completed.stderr, completed.stderr
+    assert ".agents/skills/workflow-config/assets/agents/claude/implementer.md" in completed.stderr, completed.stderr
     assert name in completed.stderr, completed.stderr
     for provider in workflow_config.PROVIDERS:
         directory = root / f".{provider}" / "agents"
@@ -1816,7 +1816,7 @@ def test_it001_sync_renders_designer_packets() -> None:
             capture_output=True, text=True,
         )
         assert completed.returncode == 0, completed.stderr
-        claude_designer = root / "templates/agents/claude/designer.md"
+        claude_designer = root / ".agents/skills/workflow-config/assets/agents/claude/designer.md"
         claude_runtime_path = root / ".claude/agents/designer.md"
         codex_runtime_path = root / ".codex/agents/designer.toml"
         cursor_runtime_path = root / ".cursor/agents/designer.md"
@@ -1872,7 +1872,7 @@ def test_it002_sync_rejects_missing_designer_table_or_template() -> None:
     try:
         write_config(root2)
         write_packets(root2, runtime=False)
-        designer_template = root2 / "templates/agents/claude/designer.md"
+        designer_template = root2 / ".agents/skills/workflow-config/assets/agents/claude/designer.md"
         if designer_template.exists():
             designer_template.unlink()
         before2 = tree_state(root2)
@@ -1882,7 +1882,7 @@ def test_it002_sync_rejects_missing_designer_table_or_template() -> None:
             capture_output=True, text=True,
         )
         assert completed2.returncode != 0
-        assert "templates/agents/claude/designer.md" in completed2.stderr
+        assert ".agents/skills/workflow-config/assets/agents/claude/designer.md" in completed2.stderr
         assert tree_state(root2) == before2
         for runtime_provider in workflow_config.PROVIDERS:
             assert not (root2 / f".{runtime_provider}" / "agents").exists()

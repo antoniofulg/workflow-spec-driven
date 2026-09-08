@@ -32,7 +32,7 @@ commit refs and hashes; it does not install
 uncovered.
 
 Planner / implementer / explorer / verifier / designer are five windows. Canonical packet bodies live in
-`templates/agents/{cursor,claude,codex}/`; sync generates ignored runtime files in
+`.agents/skills/workflow-config/assets/agents/{cursor,claude,codex}/`; sync generates ignored runtime files in
 `.cursor/agents/`, `.claude/agents/`, and `.codex/agents/`. Spawn models live on those generated
 files. `CLAUDE.md` is `@AGENTS.md`. Explorer is read-only and handles product-tree searches and
 flow traces for the parent agent.
@@ -78,7 +78,7 @@ knowledge tooling, assisted slice probe, review/QA skills, and optional Ponytail
 resolves all four layers; subsequent applies union requested and installed layers, and a newer exact
 package may remove only pristine retired workflow files. Existing consumer prose remains outside managed `AGENTS.md`/`CLAUDE.md` blocks. Adoption
 preserves package metadata, `.my-workflow.toml`, existing `docs/qa/README.md`, consumer knowledge,
-and unknown files. It copies missing `.my-workflow.toml.example` and `templates/agents/`, preserves
+and unknown files. It copies missing `.my-workflow.toml.example` and skill-owned runtime assets, preserves
 an existing local `.my-workflow.toml`, and generates ignored runtime packets from those sources. Adoption rejects
 Makefile references to machine-global `$(HOME)/.claude/...`,
 `${HOME}/.claude/...`, `$HOME/.claude/...`, or `~/.claude/...`; point

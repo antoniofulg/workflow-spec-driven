@@ -22,11 +22,10 @@ NODE = shutil.which("node") or "node"
 PACKAGE_RUNTIME_ROOTS = (
     "bin/my-workflow.js", "scripts/adopt.py", "scripts/install_security_skills.py", "skills-lock.json",
     "AGENTS.md", ".my-workflow.toml.example", "knowledge/AGENTS.md", "knowledge/raw/README.md",
-    "templates/adoption", "templates/agents", "docs/guidelines", "docs/workflow/README.md",
+    "templates/adoption", "docs/guidelines", "docs/workflow/README.md",
     "docs/workflow/decisions.md", "docs/workflow/guidelines.md", "docs/workflow/loop.md",
-    "docs/workflow/purpose.md", "docs/workflow/reviews.md", "tools/ad-index.py",
-    "tools/knowledge/src", "tools/shared/src/frontmatter.ts", "tools/qa_parallel_pilot.py",
-    "tools/orca_assisted_probe.py", "tools/resource_lock.py", ".agents/skills/workflow-spec-driven",
+    "docs/workflow/purpose.md", "docs/workflow/reviews.md", ".agents/skills/workflow-spec-driven",
+    ".agents/skills/knowledge-check", ".agents/skills/workflow-config/assets/agents",
     ".agents/skills/workflow-config", ".agents/skills/wspecify", ".agents/skills/wdesign",
     ".agents/skills/wtasks", ".agents/skills/wimplement", ".agents/skills/wverify", ".agents/skills/wreview",
     ".agents/skills/wqa", ".agents/skills/ponytail", ".agents/skills/autonomous", ".agents/skills/deep-review",
@@ -42,8 +41,7 @@ FROZEN_PRE_FEATURE_PATHS = (
     "docs/guidelines", "docs/workflow/README.md", "docs/workflow/decisions.md",
     "docs/workflow/guidelines.md", "docs/workflow/loop.md", "docs/workflow/purpose.md",
     "docs/workflow/reviews.md", "knowledge/AGENTS.md", "knowledge/raw/README.md",
-    "tools/knowledge/src", "tools/qa_parallel_pilot.py",
-    "tools/orca_assisted_probe.py", "tools/resource_lock.py", "tools/shared/src/frontmatter.ts",
+    ".agents/skills/knowledge-check", ".agents/skills/autonomous",
     ".agents/skills/workflow-spec-driven", ".agents/skills/deep-review", ".agents/skills/ponytail",
     ".agents/skills/ponytail-audit", ".agents/skills/ponytail-debt", ".agents/skills/ponytail-gain",
     ".agents/skills/ponytail-help", ".agents/skills/ponytail-review", ".agents/skills/qa-plan",
@@ -51,8 +49,10 @@ FROZEN_PRE_FEATURE_PATHS = (
     ".agents/skills/wspecify", ".agents/skills/wdesign", ".agents/skills/wtasks",
     ".agents/skills/wimplement", ".agents/skills/wverify",
     ".agents/skills/wreview", ".agents/skills/wqa",
-    "tools/ad-index.py", ".my-workflow.toml.example", "templates/agents",
+    ".agents/skills/workflow-spec-driven/scripts/ad-index.py", ".my-workflow.toml.example",
 )
+RESOURCE_RUNTIME = ".agents/skills/autonomous/scripts/resource_lock.py"
+PILOT_RUNTIME = ".agents/skills/autonomous/scripts/qa_parallel_pilot.py"
 
 
 def invoke(target: Path, *args: str) -> subprocess.CompletedProcess[str]:
@@ -123,6 +123,18 @@ def temporary_target() -> Path:
     return Path(tempfile.mkdtemp(prefix="my-workflow-adopt-"))
 
 
+def source_for(relative: str) -> Path:
+    moved = {
+        "tools/knowledge/src/cli.ts": ".agents/skills/knowledge-check/scripts/cli.ts",
+        "tools/knowledge/src/check.ts": ".agents/skills/knowledge-check/scripts/check.ts",
+        "tools/shared/src/frontmatter.ts": ".agents/skills/knowledge-check/scripts/frontmatter.ts",
+        "tools/resource_lock.py": ".agents/skills/autonomous/scripts/resource_lock.py",
+        "tools/orca_assisted_probe.py": ".agents/skills/autonomous/scripts/orca_assisted_probe.py",
+        "tools/qa_parallel_pilot.py": ".agents/skills/autonomous/scripts/qa_parallel_pilot.py",
+    }
+    return ROOT / adopt.LEGACY_CONSUMER_RUNTIME.get(relative, moved.get(relative, relative))
+
+
 def commit_target(target: Path) -> None:
     subprocess.run(["git", "init", "-q"], cwd=target, check=True, capture_output=True, text=True)
     subprocess.run(["git", "config", "user.email", "adopt-tests@example.test"], cwd=target, check=True)
@@ -139,12 +151,12 @@ def expect_adoption_error(callback: object) -> None:
     raise AssertionError("expected AdoptionError")
 
 
-def legacy_target(paths: tuple[str, ...] = ("tools/resource_lock.py",)) -> Path:
+def legacy_target(paths: tuple[str, ...] = (RESOURCE_RUNTIME,)) -> Path:
     target = temporary_target()
     for relative in paths:
         path = target / relative
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes((ROOT / relative).read_bytes() + b"\nlegacy project change\n")
+        path.write_bytes(source_for(relative).read_bytes() + b"\nlegacy project change\n")
     commit_target(target)
     return target
 
@@ -160,15 +172,15 @@ def test_resolves_fixed_layers_and_plan_is_read_only() -> None:
         assert document["requested_layers"] == ["parallel", "quality"]
         assert document["resolved_layers"] == ["core", "parallel", "quality"]
         assert document["status"] == "ready"
-        assert any(item["path"] == "tools/orca_assisted_probe.py" for item in document["actions"])
+        assert any(item["path"] == ".agents/skills/autonomous/scripts/orca_assisted_probe.py" for item in document["actions"])
         expected_effects = {".gitignore", ".ignore", ".my-workflow.toml", ".my-workflow/adoption.json", ".claude/agents/planner.md", "AGENTS.md:core", ".claude/skills/workflow-config"}
         assert expected_effects <= {item["path"] for item in document["actions"]}
         assert len(document["actions"]) == len({item["path"] for item in document["actions"]})
-        assert next(item["layer"] for item in document["actions"] if item["path"] == "tools/orca_assisted_probe.py") == "parallel"
+        assert next(item["layer"] for item in document["actions"] if item["path"] == ".agents/skills/autonomous/scripts/orca_assisted_probe.py") == "parallel"
         assert next(item["layer"] for item in document["actions"] if item["path"] == "docs/guidelines/DX.md") == "core"
         text_result = invoke(target, "plan", "--layers", "parallel")
         assert text_result.returncode == 0
-        assert "add      tools/orca_assisted_probe.py (parallel)" in text_result.stdout
+        assert "add      .agents/skills/autonomous/scripts/orca_assisted_probe.py (parallel)" in text_result.stdout
         assert "add      docs/guidelines/DX.md (core)" in text_result.stdout
         assert snapshot(target) == before
     finally:
@@ -259,7 +271,7 @@ def test_core_apply_records_schema_and_status_detects_drift_without_writes() -> 
         assert all(len(record["source_sha256"]) == 64 for record in manifest["files"].values())
         clean = invoke(target, "status", "--json")
         assert clean.returncode == 0, clean.stdout + clean.stderr
-        owned = target / "tools/knowledge/src/cli.ts"
+        owned = target / ".agents/skills/knowledge-check/scripts/cli.ts"
         owned.write_bytes(owned.read_bytes() + b"\nconsumer drift\n")
         before = snapshot(target)
         drift = invoke(target, "status", "--json")
@@ -432,7 +444,7 @@ def test_apply_is_cumulative_and_idempotent() -> None:
         assert invoke(target, "apply", "--layers", "quality").returncode == 0
         assert snapshot(target) == complete
         assert manifest_path.stat().st_mtime_ns == manifest_mtime
-        assert first["tools/orca_assisted_probe.py"][1] == (ROOT / "tools/orca_assisted_probe.py").read_bytes()
+        assert first[".agents/skills/autonomous/scripts/orca_assisted_probe.py"][1] == (ROOT / ".agents/skills/autonomous/scripts/orca_assisted_probe.py").read_bytes()
     finally:
         shutil.rmtree(target)
 
@@ -456,17 +468,17 @@ def test_conflicts_abort_every_write_and_report_all_paths() -> None:
     target = temporary_target()
     try:
         assert invoke(target, "apply", "--layers", "core").returncode == 0
-        first = target / "tools/knowledge/src/cli.ts"
+        first = target / ".agents/skills/knowledge-check/scripts/cli.ts"
         first.write_bytes(first.read_bytes() + b"\nconsumer edit\n")
-        unowned = target / "tools/orca_assisted_probe.py"
+        unowned = target / ".agents/skills/autonomous/scripts/orca_assisted_probe.py"
         unowned.parent.mkdir(parents=True, exist_ok=True)
         unowned.write_bytes(b"consumer-owned\n")
         before = snapshot(target)
         result = invoke(target, "apply", "--layers", "parallel", "--json")
         assert result.returncode == 1
         document = json.loads(result.stdout)
-        assert "tools/knowledge/src/cli.ts" in document["conflicts"]
-        assert "tools/orca_assisted_probe.py" in document["conflicts"]
+        assert ".agents/skills/knowledge-check/scripts/cli.ts" in document["conflicts"]
+        assert ".agents/skills/autonomous/scripts/orca_assisted_probe.py" in document["conflicts"]
         assert snapshot(target) == before
     finally:
         shutil.rmtree(target)
@@ -505,9 +517,9 @@ def test_symlinked_destination_is_rejected_before_external_write() -> None:
     target = temporary_target()
     outside = temporary_target()
     try:
-        (target / "tools").mkdir()
+        (target / ".agents/skills/autonomous/scripts").mkdir(parents=True)
         (outside / "probe.py").write_text("outside\n", encoding="utf-8")
-        (target / "tools/orca_assisted_probe.py").symlink_to(outside / "probe.py")
+        (target / ".agents/skills/autonomous/scripts/orca_assisted_probe.py").symlink_to(outside / "probe.py")
         before = snapshot(target)
         result = invoke(target, "apply", "--layers", "parallel", "--json")
         assert result.returncode == 2
@@ -521,7 +533,7 @@ def test_symlinked_destination_is_rejected_before_external_write() -> None:
 def test_non_directory_parent_is_rejected_before_writes() -> None:
     target = temporary_target()
     try:
-        (target / "tools").write_bytes(b"consumer file\n")
+        (target / ".agents").write_bytes(b"consumer file\n")
         before = snapshot(target)
         result = invoke(target, "apply", "--layers", "parallel")
         assert result.returncode == 2 and "must be a directory" in result.stderr
@@ -555,7 +567,6 @@ def test_full_profile_matches_frozen_pre_feature_inventory() -> None:
     try:
         assert invoke(target, "apply", "--layers", "full").returncode == 0
         expected: set[str] = {
-            "templates/adoption/agents/core.md", "templates/adoption/agents/parallel.md", "templates/adoption/agents/quality.md",
             adopt.PRODUCT_CONTEXT_PATH, "knowledge/wiki/index.md", "knowledge/wiki/log.md",
             *(f"knowledge/wiki/{group}/index.md" for group in ("domain", "product", "architecture", "design", "decisions", "research", "open-questions")),
         }
@@ -586,14 +597,14 @@ def test_bun_consumer_boundary_and_probe_import_are_preserved() -> None:
         assert package.read_bytes() == package_before
         assert lock.read_bytes() == lock_before
         assert qa_profile.read_bytes() == qa_before
-        knowledge = subprocess.run(["bun", str(target / "tools/knowledge/src/cli.ts"), str(target)], cwd=target, text=True, capture_output=True, check=False)
+        knowledge = subprocess.run(["bun", str(target / ".agents/skills/knowledge-check/scripts/cli.ts"), str(target)], cwd=target, text=True, capture_output=True, check=False)
         assert knowledge.returncode == 0, knowledge.stderr
         calls = target / "orca.calls"
         fake = target / "orca"
         fake.write_text(f"#!/bin/sh\nprintf '%s\\n' called >> {calls}\n", encoding="utf-8")
         fake.chmod(0o755)
         env = {**os.environ, "PATH": f"{target}:{os.environ.get('PATH', '')}"}
-        imported = subprocess.run([sys.executable, "-c", "import tools.orca_assisted_probe"], cwd=target, env=env, text=True, capture_output=True, check=False)
+        imported = subprocess.run([sys.executable, "-c", "import sys; sys.path.insert(0, '.agents/skills/autonomous/scripts'); import orca_assisted_probe"], cwd=target, env=env, text=True, capture_output=True, check=False)
         assert imported.returncode == 0, imported.stderr
         assert not calls.exists()
     finally:
@@ -676,8 +687,19 @@ def test_consumer_ad_index_is_preserved_on_readopt() -> None:
     try:
         assert invoke(target, "apply", "--layers", "core").returncode == 0
         path = target / "tools/ad-index.py"
+        path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(b"consumer-owned\n")
-        assert invoke(target, "apply", "--layers", "core").returncode == 0
+        manifest_path = target / ".my-workflow/adoption.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        source = source_for("tools/ad-index.py").read_bytes()
+        manifest["files"]["tools/ad-index.py"] = {
+            "layer": "core", "ownership": "consumer",
+            "source_sha256": hashlib.sha256(source).hexdigest(), "installed_sha256": None,
+        }
+        manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        result = invoke(target, "apply", "--layers", "core", "--json")
+        assert result.returncode == 1
+        assert "tools/ad-index.py" in json.loads(result.stdout)["conflicts"]
         assert path.read_bytes() == b"consumer-owned\n"
     finally:
         shutil.rmtree(target)
@@ -717,7 +739,7 @@ def test_it003_adopt_runtime_paths_and_managed_templates_include_designer() -> N
         document = json.loads(result.stdout)
         managed = {item["path"] for item in document["actions"]}
         for provider, ext in (("claude", "md"), ("codex", "toml"), ("cursor", "md")):
-            template_path = f"templates/agents/{provider}/designer.{ext}"
+            template_path = f".agents/skills/workflow-config/assets/agents/{provider}/designer.{ext}"
             assert template_path in managed, f"plan omits {template_path}"
     finally:
         shutil.rmtree(target)
@@ -732,8 +754,8 @@ def test_adoption_installs_hybrid_workflow_and_preserves_consumer_config() -> No
         before = config.read_bytes()
         assert invoke(target, "apply", "--layers", "full").returncode == 0
         assert config.read_bytes() == before
-        assert (target / "tools/qa_parallel_pilot.py").is_file()
-        assert (target / "tools/orca_assisted_probe.py").is_file()
+        assert (target / ".agents/skills/autonomous/scripts/qa_parallel_pilot.py").is_file()
+        assert (target / ".agents/skills/autonomous/scripts/orca_assisted_probe.py").is_file()
         assert (target / ".agents/skills/autonomous/remediation.py").is_file()
     finally:
         shutil.rmtree(target)
@@ -744,16 +766,17 @@ def test_parallel_adoption_installs_and_tracks_resource_lock() -> None:
     try:
         assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
         core_manifest = json.loads((target / ".my-workflow/adoption.json").read_text(encoding="utf-8"))
-        assert not (target / "tools/resource_lock.py").exists()
-        assert "tools/resource_lock.py" not in core_manifest["files"]
+        runtime = ".agents/skills/autonomous/scripts/resource_lock.py"
+        assert not (target / runtime).exists()
+        assert runtime not in core_manifest["files"]
 
         applied = invoke(target, "apply", "--layers", "parallel", "--skip-agents", "--json")
         assert applied.returncode == 0, applied.stderr
-        installed = target / "tools/resource_lock.py"
-        assert installed.read_bytes() == (ROOT / "tools/resource_lock.py").read_bytes()
+        installed = target / runtime
+        assert installed.read_bytes() == (ROOT / runtime).read_bytes()
         manifest_path = target / ".my-workflow/adoption.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        record = manifest["files"]["tools/resource_lock.py"]
+        record = manifest["files"][runtime]
         assert record["layer"] == "parallel" and record["ownership"] == "managed"
 
         before = installed.read_bytes(), manifest_path.read_bytes()
@@ -763,7 +786,7 @@ def test_parallel_adoption_installs_and_tracks_resource_lock() -> None:
         installed.write_bytes(installed.read_bytes() + b"\nconsumer change\n")
         conflict = invoke(target, "apply", "--layers", "parallel", "--skip-agents", "--json")
         assert conflict.returncode == 1
-        assert "tools/resource_lock.py" in json.loads(conflict.stdout)["conflicts"]
+        assert runtime in json.loads(conflict.stdout)["conflicts"]
         assert installed.read_bytes().endswith(b"consumer change\n")
     finally:
         shutil.rmtree(target)
@@ -773,7 +796,7 @@ def test_adoption_installs_only_new_authority_byte_identically() -> None:
     target = temporary_target()
     try:
         assert invoke(target, "apply", "--layers", "full").returncode == 0
-        for relative in ("tools/qa_parallel_pilot.py", "tools/orca_assisted_probe.py", ".my-workflow.toml.example"):
+        for relative in (".agents/skills/autonomous/scripts/qa_parallel_pilot.py", ".agents/skills/autonomous/scripts/orca_assisted_probe.py", ".my-workflow.toml.example"):
             assert (target / relative).read_bytes() == (ROOT / relative).read_bytes()
     finally:
         shutil.rmtree(target)
@@ -905,7 +928,7 @@ def test_it003_pristine_provider_templates_promote_and_refresh_runtime() -> None
         config_before = config.read_bytes()
         manifest_path = target / ".my-workflow/adoption.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        template = "templates/agents/cursor/verifier.md"
+        template = ".agents/skills/workflow-config/assets/agents/cursor/verifier.md"
         old_source = (ROOT / template).read_bytes()
         marker = b"- package provenance marker: verify the newer instruction body\n"
         new_source = old_source.replace(b"## Packet (this only)\n", b"## Packet (this only)\n\n" + marker, 1)
@@ -942,7 +965,7 @@ def test_it004_edited_provider_template_conflicts_without_writes() -> None:
         assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
         manifest_path = target / ".my-workflow/adoption.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        template = "templates/agents/cursor/verifier.md"
+        template = ".agents/skills/workflow-config/assets/agents/cursor/verifier.md"
         manifest["files"][template]["ownership"] = "consumer"
         manifest["files"][template]["installed_sha256"] = None
         manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -1005,6 +1028,15 @@ def test_it013_retired_managed_paths_reconcile_safely() -> None:
                 manifest["files"][retired]["installed_sha256"] = None
             manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
             path = target / retired
+            if not path.exists() and not absent and retired in {
+                "tools/knowledge/src/cli.ts", "tools/knowledge/src/check.ts",
+                "tools/shared/src/frontmatter.ts", *adopt.LEGACY_CONSUMER_RUNTIME,
+            }:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(source_for(retired).read_bytes())
+            if path.exists() and ownership == "managed":
+                manifest["files"][retired]["installed_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+                manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
             if edited:
                 path.write_bytes(path.read_bytes() + b"\nconsumer edit\n")
             if absent and path.exists():
@@ -1034,6 +1066,124 @@ def test_it013_retired_managed_paths_reconcile_safely() -> None:
             shutil.rmtree(target)
 
 
+def _add_legacy_consumer_record(target: Path, relative: str, source: bytes) -> None:
+    manifest_path = target / ".my-workflow/adoption.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["files"][relative] = {
+        "layer": "core",
+        "ownership": "consumer",
+        "source_sha256": hashlib.sha256(source).hexdigest(),
+        "installed_sha256": None,
+    }
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def test_it005_mapped_pristine_consumer_runtime_retires_and_prunes_empty_namespaces() -> None:
+    target = temporary_target()
+    old_template = "templates/agents/claude/planner.md"
+    old_index = "tools/ad-index.py"
+    try:
+        assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
+        for relative in (old_template, old_index):
+            source = source_for(relative).read_bytes()
+            path = target / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(source)
+            _add_legacy_consumer_record(target, relative, source)
+        plan = invoke(target, "plan", "--layers", "core", "--skip-agents", "--json")
+        document = json.loads(plan.stdout)
+        assert {item["path"] for item in document["actions"] if item["action"] == "remove"} >= {old_template, old_index}
+        assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
+        assert (target / ".agents/skills/workflow-config/assets/agents/claude/planner.md").is_file()
+        assert (target / ".agents/skills/workflow-spec-driven/scripts/ad-index.py").is_file()
+        assert not (target / old_template).exists() and not (target / old_index).exists()
+        assert not (target / "templates").exists() and not (target / "tools").exists()
+        manifest = json.loads((target / ".my-workflow/adoption.json").read_text(encoding="utf-8"))
+        assert old_template not in manifest["files"] and old_index not in manifest["files"]
+    finally:
+        shutil.rmtree(target)
+
+
+def test_it006_mapped_edited_or_unproven_consumer_runtime_refuses_before_writes() -> None:
+    for relative, content in (
+        ("templates/agents/claude/planner.md", source_for("templates/agents/claude/planner.md").read_bytes() + b"\nconsumer edit\n"),
+        ("tools/ad-index.py", source_for("tools/ad-index.py").read_bytes()),
+    ):
+        target = temporary_target()
+        try:
+            assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
+            path = target / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(content)
+            source = source_for(relative).read_bytes()
+            _add_legacy_consumer_record(target, relative, source)
+            if relative == "tools/ad-index.py":
+                manifest_path = target / ".my-workflow/adoption.json"
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                manifest["files"][relative]["source_sha256"] = "0" * 64
+                manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            before = snapshot(target)
+            result = invoke(target, "apply", "--layers", "core", "--skip-agents", "--json")
+            assert result.returncode == 1
+            assert relative in json.loads(result.stdout)["conflicts"]
+            assert snapshot(target) == before
+        finally:
+            shutil.rmtree(target)
+
+
+def test_it007_retirement_preserves_unrelated_product_parents_and_prunes_absent_files() -> None:
+    target = temporary_target()
+    try:
+        assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
+        product_tools = target / "tools/product.txt"
+        product_templates = target / "templates/product.txt"
+        product_tools.parent.mkdir(parents=True)
+        product_templates.parent.mkdir(parents=True)
+        product_tools.write_bytes(b"product tools\n")
+        product_templates.write_bytes(b"product templates\n")
+        relative = "tools/ad-index.py"
+        source = source_for(relative).read_bytes()
+        _add_legacy_consumer_record(target, relative, source)
+        before = snapshot(target)
+        result = invoke(target, "apply", "--layers", "core", "--skip-agents")
+        assert result.returncode == 0, result.stderr
+        assert (target / "tools").is_dir() and product_tools.read_bytes() == b"product tools\n"
+        assert (target / "templates").is_dir() and product_templates.read_bytes() == b"product templates\n"
+        assert before["tools/product.txt"] == snapshot(target)["tools/product.txt"]
+
+        absent = temporary_target()
+        try:
+            assert invoke(absent, "apply", "--layers", "core", "--skip-agents").returncode == 0
+            _add_legacy_consumer_record(absent, relative, source)
+            assert invoke(absent, "apply", "--layers", "core", "--skip-agents").returncode == 0
+            assert not (absent / "tools").exists()
+        finally:
+            shutil.rmtree(absent)
+    finally:
+        shutil.rmtree(target)
+
+
+def test_sec003_cleanup_failure_restores_retired_files_directories_and_manifest() -> None:
+    target = temporary_target()
+    relative = "tools/ad-index.py"
+    try:
+        assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
+        source = source_for(relative).read_bytes()
+        path = target / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(source)
+        _add_legacy_consumer_record(target, relative, source)
+        before = snapshot(target)
+        result, staged = adopt._build_plan(ROOT, target, ["core"], ["core"], True, True)
+        with patch.object(adopt, "_prune_empty_legacy_parents", side_effect=RuntimeError("injected cleanup failure")):
+            expect_adoption_error(lambda: adopt._publish(ROOT, target, result, staged))
+        assert snapshot(target) == before
+        assert (target / relative).is_file()
+        assert (target / ".my-workflow/adoption.json").read_bytes() == before[".my-workflow/adoption.json"][1]
+    finally:
+        shutil.rmtree(target)
+
+
 def test_sec002_retired_symlink_is_rejected_before_external_write() -> None:
     target, outside = temporary_target(), temporary_target()
     retired = "tools/knowledge/src/cli.ts"
@@ -1041,14 +1191,19 @@ def test_sec002_retired_symlink_is_rejected_before_external_write() -> None:
         assert invoke(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
         manifest_path = target / ".my-workflow/adoption.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        source = source_for(retired).read_bytes()
+        digest = hashlib.sha256(source).hexdigest()
+        manifest["files"][retired] = {"layer": "core", "ownership": "managed", "source_sha256": digest, "installed_sha256": digest}
         manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         path = target / retired
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(source_for(retired).read_bytes())
         path.unlink()
         sentinel = outside / "cli.ts"
         sentinel.write_bytes(b"outside\n")
         path.symlink_to(sentinel)
         catalog = adopt._catalog(ROOT, ["core"])
-        catalog.pop(retired)
+        catalog.pop(retired, None)
         before = snapshot(target)
         outside_before = snapshot(outside)
         with patch.object(adopt, "_catalog", return_value=catalog):
@@ -1095,17 +1250,17 @@ def test_it007_package_bin_preserves_adopter_cli_contract() -> None:
         end_of_options = invoke_bin(target, "plan", "--")
         assert end_of_options.returncode == 0, end_of_options.stderr
         assert invoke_bin(target, "apply", "--layers", "core", "--skip-agents").returncode == 0
-        managed = target / "tools/knowledge/src/cli.ts"
+        managed = target / ".agents/skills/knowledge-check/scripts/cli.ts"
         managed.write_bytes(managed.read_bytes() + b"\nconsumer drift\n")
         direct_status = invoke(target, "status", "--json")
         wrapped_status = invoke_bin(target, "status", "--json")
         assert (wrapped_status.returncode, wrapped_status.stdout, wrapped_status.stderr) == (direct_status.returncode, direct_status.stdout, direct_status.stderr)
-        direct_resolve = invoke(legacy_a, "resolve", "--layers", "parallel", "--replace", "tools/resource_lock.py", "--skip-agents", "--json")
-        wrapped_resolve = invoke_bin(legacy_b, "resolve", "--layers", "parallel", "--replace", "tools/resource_lock.py", "--skip-agents", "--json")
+        direct_resolve = invoke(legacy_a, "resolve", "--layers", "parallel", "--replace", RESOURCE_RUNTIME, "--skip-agents", "--json")
+        wrapped_resolve = invoke_bin(legacy_b, "resolve", "--layers", "parallel", "--replace", RESOURCE_RUNTIME, "--skip-agents", "--json")
         assert direct_resolve.returncode == wrapped_resolve.returncode == 0
         direct_doc, wrapped_doc = json.loads(direct_resolve.stdout), json.loads(wrapped_resolve.stdout)
         assert (direct_doc["command"], direct_doc["status"], direct_doc["conflicts"]) == (wrapped_doc["command"], wrapped_doc["status"], wrapped_doc["conflicts"]) == ("resolve", "ready", [])
-        default_resolve = invoke_bin(legacy_c, "resolve", "--replace", "tools/resource_lock.py", "--skip-agents", "--json")
+        default_resolve = invoke_bin(legacy_c, "resolve", "--replace", RESOURCE_RUNTIME, "--skip-agents", "--json")
         assert default_resolve.returncode == 0
         assert json.loads(default_resolve.stdout)["resolved_layers"] == ["core", "parallel", "quality", "extras"]
     finally:
@@ -1215,7 +1370,7 @@ def test_it011_tarball_bin_installs_updates_and_reports_clean_status() -> None:
         assert first.returncode == 0, first.stderr
         manifest_path = target / ".my-workflow/adoption.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        providers = [path for path in manifest["files"] if path.startswith("templates/agents/")]
+        providers = [path for path in manifest["files"] if path.startswith(".agents/skills/workflow-config/assets/agents/")]
         for path in providers:
             manifest["files"][path]["ownership"] = "consumer"
             manifest["files"][path]["installed_sha256"] = None
@@ -1343,11 +1498,11 @@ def test_adoption_rejects_invalid_template_before_runtime_writes() -> None:
     target = temporary_target()
     try:
         assert invoke(target, "apply", "--layers", "core").returncode == 0
-        template = target / "templates/agents/cursor/verifier.md"
+        template = target / ".agents/skills/workflow-config/assets/agents/cursor/verifier.md"
         template.write_text(template.read_text().replace("model:", "model-old:"))
         before = snapshot(target)
         result = invoke(target, "apply", "--layers", "core")
-        assert result.returncode == 1 and "templates/agents/cursor/verifier.md" in result.stdout
+        assert result.returncode == 1 and ".agents/skills/workflow-config/assets/agents/cursor/verifier.md" in result.stdout
         assert snapshot(target) == before
     finally:
         shutil.rmtree(target)
@@ -1465,7 +1620,7 @@ def test_status_uses_only_public_state_vocabulary() -> None:
         assert invoke(target, "apply", "--layers", "core").returncode == 0
         clean = json.loads(invoke(target, "status", "--json").stdout)
         assert {entry["action"] for entry in clean["actions"]} <= {"clean", "missing", "modified", "retained"}
-        managed = target / "tools/knowledge/src/cli.ts"
+        managed = target / ".agents/skills/knowledge-check/scripts/cli.ts"
         managed.unlink()
         before = snapshot(target)
         missing_result = invoke(target, "status", "--json")
@@ -1475,7 +1630,7 @@ def test_status_uses_only_public_state_vocabulary() -> None:
         managed.write_text("modified\n")
         modified = json.loads(invoke(target, "status", "--json").stdout)
         assert any(entry["action"] == "modified" for entry in modified["actions"])
-        consumer = target / "tools/ad-index.py"
+        consumer = target / adopt.PRODUCT_CONTEXT_PATH
         consumer.write_text("consumer\n")
         retained = json.loads(invoke(target, "status", "--json").stdout)
         assert any(entry["action"] == "retained" for entry in retained["actions"])
@@ -1487,14 +1642,14 @@ def test_clean_managed_files_update_when_source_bytes_change() -> None:
     target = temporary_target()
     try:
         assert invoke(target, "apply", "--layers", "core").returncode == 0
-        source = ROOT / "tools/shared/src/frontmatter.ts"
+        source = ROOT / ".agents/skills/knowledge-check/scripts/frontmatter.ts"
         original = source.read_bytes()
         try:
             source.write_bytes(original + b"\n// source update\n")
             result = invoke(target, "apply", "--layers", "core", "--json")
             assert result.returncode == 0
             assert json.loads(result.stdout)["status"] == "ready"
-            assert (target / "tools/shared/src/frontmatter.ts").read_bytes() == source.read_bytes()
+            assert (target / ".agents/skills/knowledge-check/scripts/frontmatter.ts").read_bytes() == source.read_bytes()
         finally:
             source.write_bytes(original)
     finally:
@@ -1566,9 +1721,9 @@ def test_resolve_publication_writes_adoption_manifest_after_other_entries() -> N
             published.append(f"write:{path.relative_to(target).as_posix()}")
 
         with patch.object(adopt, "_atomic_write", side_effect=record_write), patch.object(adopt, "remove_legacy_managed_tests"), patch.object(adopt, "_link_claude_skills"):
-            assert adopt.main(["adopt.py", "resolve", str(target), "--layers", "parallel", "--replace", "tools/resource_lock.py", "--skip-agents"]) == 0
+            assert adopt.main(["adopt.py", "resolve", str(target), "--layers", "parallel", "--replace", RESOURCE_RUNTIME, "--skip-agents"]) == 0
         manifest_index = published.index("write:.my-workflow/adoption.json")
-        assert "write:tools/resource_lock.py" in published[:manifest_index]
+        assert f"write:{RESOURCE_RUNTIME}" in published[:manifest_index]
         assert manifest_index == len(published) - 1
     finally:
         shutil.rmtree(target)
@@ -1630,7 +1785,7 @@ def test_fresh_and_refuse() -> None:
     target = temporary_target()
     try:
         assert invoke(target, "apply", "--layers", "full").returncode == 0
-        assert (target / "tools/knowledge/src/cli.ts").is_file()
+        assert (target / ".agents/skills/knowledge-check/scripts/cli.ts").is_file()
         assert not list((target / "tools").rglob("*.test.ts"))
         agents = target / "AGENTS.md"
         agents.write_text("# Product instructions\n\nA product.\n")
@@ -1695,13 +1850,13 @@ def test_legacy_080_skip_agents_migrates_without_designer_sync() -> None:
             if pointer.is_symlink():
                 pointer.unlink()
         for provider, extension in (("claude", "md"), ("codex", "toml"), ("cursor", "md")):
-            (target / "templates/agents" / provider / f"designer.{extension}").unlink()
+            (target / ".agents/skills/workflow-config/assets/agents" / provider / f"designer.{extension}").unlink()
             (target / f".{provider}/agents" / f"designer.{extension}").unlink()
         manifest["files"] = {
             relative: record
             for relative, record in manifest["files"].items()
             if not relative.startswith(".agents/skills/")
-            and not relative.startswith("templates/agents/")
+            and not relative.startswith(".agents/skills/workflow-config/assets/agents/")
             and "/agents/designer." not in relative
         }
         manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -1731,7 +1886,7 @@ def test_adoption_imports_probe_without_orca_effect() -> None:
         fake = target / "orca"
         fake.write_text(f"#!/bin/sh\nprintf called >> {calls}\n")
         fake.chmod(0o755)
-        result = subprocess.run([sys.executable, "-c", "import tools.orca_assisted_probe"], cwd=target, env={**os.environ, "PATH": f"{target}:{os.environ.get('PATH', '')}"}, text=True, capture_output=True, check=False)
+        result = subprocess.run([sys.executable, "-c", "import sys; sys.path.insert(0, '.agents/skills/autonomous/scripts'); import orca_assisted_probe"], cwd=target, env={**os.environ, "PATH": f"{target}:{os.environ.get('PATH', '')}"}, text=True, capture_output=True, check=False)
         assert result.returncode == 0 and not calls.exists()
     finally:
         shutil.rmtree(target)
@@ -1740,8 +1895,8 @@ def test_adoption_imports_probe_without_orca_effect() -> None:
 def test_adoption_rejects_symlinked_managed_destination_without_mutation() -> None:
     target, outside = temporary_target(), temporary_target()
     try:
-        (target / "tools").mkdir()
-        destination = target / "tools/orca_assisted_probe.py"
+        (target / ".agents/skills/autonomous/scripts").mkdir(parents=True)
+        destination = target / ".agents/skills/autonomous/scripts/orca_assisted_probe.py"
         destination.symlink_to(outside / "probe.py")
         before = snapshot(target)
         assert invoke(target, "apply", "--layers", "parallel").returncode == 2
@@ -1756,14 +1911,14 @@ def test_existing_config_drives_all_native_values_and_preserves_non_model_bytes(
     try:
         assert invoke(target, "apply", "--layers", "core").returncode == 0
         config = target / ".my-workflow.toml"
-        template = target / "templates/agents/claude/planner.md"
+        template = target / ".agents/skills/workflow-config/assets/agents/claude/planner.md"
         config_before = config.read_bytes() + b"# consumer setting\n"
         template_before = template.read_bytes() + b"\n# consumer instruction\n"
         config.write_bytes(config_before)
         template.write_bytes(template_before)
         result = invoke(target, "apply", "--layers", "core", "--json")
         assert result.returncode == 1
-        assert "templates/agents/claude/planner.md" in json.loads(result.stdout)["conflicts"]
+        assert ".agents/skills/workflow-config/assets/agents/claude/planner.md" in json.loads(result.stdout)["conflicts"]
         assert config.read_bytes() == config_before
         assert template.read_bytes() == template_before
     finally:
@@ -1771,7 +1926,7 @@ def test_existing_config_drives_all_native_values_and_preserves_non_model_bytes(
 
 
 def test_resolve_exact_conflicts_publishes_manifest_and_normal_apply_is_idempotent() -> None:
-    target = legacy_target(("tools/resource_lock.py", "tools/qa_parallel_pilot.py"))
+    target = legacy_target((RESOURCE_RUNTIME, PILOT_RUNTIME))
     try:
         (target / "AGENTS.md").write_bytes(b"project agents\r\n")
         (target / "CLAUDE.md").write_bytes(b"project claude\r\n")
@@ -1780,16 +1935,16 @@ def test_resolve_exact_conflicts_publishes_manifest_and_normal_apply_is_idempote
         instructions_before = (target / "AGENTS.md").read_bytes(), (target / "CLAUDE.md").read_bytes()
         plan = invoke(target, "plan", "--layers", "parallel", "--skip-agents", "--json")
         assert plan.returncode == 1
-        assert json.loads(plan.stdout)["conflicts"] == ["tools/qa_parallel_pilot.py", "tools/resource_lock.py"]
+        assert json.loads(plan.stdout)["conflicts"] == [PILOT_RUNTIME, RESOURCE_RUNTIME]
         result = invoke(
-            target, "resolve", "--layers", "parallel", "--replace", "tools/resource_lock.py",
-            "--replace", "tools/qa_parallel_pilot.py", "--skip-agents", "--json",
+            target, "resolve", "--layers", "parallel", "--replace", RESOURCE_RUNTIME,
+            "--replace", PILOT_RUNTIME, "--skip-agents", "--json",
         )
         assert result.returncode == 0, result.stderr
         document = json.loads(result.stdout)
         assert document["command"] == "resolve"
         assert document["status"] == "ready" and document["conflicts"] == []
-        assert document["replacements"] == ["tools/qa_parallel_pilot.py", "tools/resource_lock.py"]
+        assert document["replacements"] == [PILOT_RUNTIME, RESOURCE_RUNTIME]
         assert {item["path"] for item in document["actions"] if item["action"] == "replace"} == set(document["replacements"])
         assert ((target / "AGENTS.md").read_bytes(), (target / "CLAUDE.md").read_bytes()) == instructions_before
         manifest = json.loads((target / ".my-workflow/adoption.json").read_text(encoding="utf-8"))
@@ -1798,18 +1953,20 @@ def test_resolve_exact_conflicts_publishes_manifest_and_normal_apply_is_idempote
         before_apply = snapshot(target)
         assert invoke(target, "apply", "--layers", "parallel", "--skip-agents").returncode == 0
         assert snapshot(target) == before_apply
+        assert (target / ".agents/skills/autonomous/scripts/resource_lock.py").is_file()
+        assert (target / ".agents/skills/autonomous/scripts/qa_parallel_pilot.py").is_file()
     finally:
         shutil.rmtree(target)
 
 
 def test_resolve_incomplete_authorization_reports_all_unresolved_without_writes() -> None:
-    target = legacy_target(("tools/resource_lock.py", "tools/qa_parallel_pilot.py"))
+    target = legacy_target((RESOURCE_RUNTIME, PILOT_RUNTIME))
     try:
         before = snapshot(target)
-        result = invoke(target, "resolve", "--layers", "parallel", "--replace", "tools/resource_lock.py", "--skip-agents", "--json")
+        result = invoke(target, "resolve", "--layers", "parallel", "--replace", RESOURCE_RUNTIME, "--skip-agents", "--json")
         assert result.returncode == 1
         document = json.loads(result.stdout)
-        assert "tools/qa_parallel_pilot.py" in document["conflicts"]
+        assert PILOT_RUNTIME in document["conflicts"]
         assert snapshot(target) == before
         assert not (target / ".my-workflow/adoption.json").exists()
     finally:
@@ -1824,7 +1981,7 @@ def test_resolve_allows_ignored_files_but_rejects_untracked_files() -> None:
         subprocess.run(["git", "commit", "-qm", "ignore cache"], cwd=target, check=True)
         (target / "cache/dependency.bin").parent.mkdir()
         (target / "cache/dependency.bin").write_bytes(b"ignored\n")
-        result = invoke(target, "resolve", "--layers", "parallel", "--replace", "tools/resource_lock.py", "--skip-agents")
+        result = invoke(target, "resolve", "--layers", "parallel", "--replace", RESOURCE_RUNTIME, "--skip-agents")
         assert result.returncode == 0, result.stderr
         assert json.loads(invoke(target, "status", "--json").stdout)["status"] == "clean"
 
@@ -1832,7 +1989,7 @@ def test_resolve_allows_ignored_files_but_rejects_untracked_files() -> None:
         try:
             (dirty / "untracked.txt").write_text("blocks resolve\n", encoding="utf-8")
             before = snapshot(dirty)
-            blocked = invoke(dirty, "resolve", "--layers", "parallel", "--replace", "tools/resource_lock.py", "--skip-agents")
+            blocked = invoke(dirty, "resolve", "--layers", "parallel", "--replace", RESOURCE_RUNTIME, "--skip-agents")
             assert blocked.returncode == 2
             assert snapshot(dirty) == before
         finally:
@@ -1843,9 +2000,9 @@ def test_resolve_allows_ignored_files_but_rejects_untracked_files() -> None:
 
 def test_resolve_rejects_non_conflict_extra_and_duplicate_authorizations_without_writes() -> None:
     cases = (
-        ("tools/resource_lock.py", "tools/qa_parallel_pilot.py"),
-        ("tools/resource_lock.py", "tools/resource_lock.py"),
-        ("tools/resource_lock.py", "README.md"),
+        (RESOURCE_RUNTIME, PILOT_RUNTIME),
+        (RESOURCE_RUNTIME, RESOURCE_RUNTIME),
+        (RESOURCE_RUNTIME, "README.md"),
     )
     for replacements in cases:
         target = legacy_target()
@@ -1860,7 +2017,7 @@ def test_resolve_rejects_non_conflict_extra_and_duplicate_authorizations_without
 
 
 def test_resolve_rejects_unsafe_and_managed_block_paths_without_writes() -> None:
-    for replacement in ("../x", "/tmp/x", "tools//resource_lock.py", "./tools/resource_lock.py", "AGENTS.md:core"):
+    for replacement in ("../x", "/tmp/x", ".agents//skills/autonomous/scripts/resource_lock.py", "./.agents/skills/autonomous/scripts/resource_lock.py", "AGENTS.md:core"):
         target = legacy_target()
         try:
             before = snapshot(target)
@@ -1872,11 +2029,11 @@ def test_resolve_rejects_unsafe_and_managed_block_paths_without_writes() -> None
 
 
 def test_resolve_helpers_validate_replacements_and_git_boundary() -> None:
-    assert adopt._relative_path("tools/resource_lock.py") == "tools/resource_lock.py"
-    for value in ("../x", "/tmp/x", "tools//resource_lock.py", "./tools/resource_lock.py"):
+    assert adopt._relative_path(RESOURCE_RUNTIME) == RESOURCE_RUNTIME
+    for value in ("../x", "/tmp/x", ".agents//skills/autonomous/scripts/resource_lock.py", "./.agents/skills/autonomous/scripts/resource_lock.py"):
         expect_adoption_error(lambda value=value: adopt._relative_path(value))
 
-    conflicts = ["tools/resource_lock.py", "tools/qa_parallel_pilot.py"]
+    conflicts = [RESOURCE_RUNTIME, PILOT_RUNTIME]
     catalog = {path: "parallel" for path in conflicts}
     exact, complete = adopt._resolve_replacement_set(conflicts, conflicts, catalog)
     assert exact == set(conflicts) and complete is True
@@ -1916,20 +2073,20 @@ def test_resolve_rejects_replaceable_leaf_and_parent_symlinks_without_writes() -
         target, outside = legacy_target(), temporary_target()
         try:
             if parent_symlink:
-                shutil.rmtree(target / "tools")
-                (outside / "tools").mkdir()
-                (outside / "tools/resource_lock.py").write_bytes(b"outside\n")
-                (target / "tools").symlink_to(outside / "tools", target_is_directory=True)
+                shutil.rmtree(target / ".agents")
+                (outside / ".agents/skills/autonomous/scripts").mkdir(parents=True)
+                (outside / RESOURCE_RUNTIME).write_bytes(b"outside\n")
+                (target / ".agents").symlink_to(outside / ".agents", target_is_directory=True)
             else:
                 referent = outside / "resource_lock.py"
                 referent.write_bytes(b"outside\n")
-                (target / "tools/resource_lock.py").unlink()
-                (target / "tools/resource_lock.py").symlink_to(referent)
+                (target / RESOURCE_RUNTIME).unlink()
+                (target / RESOURCE_RUNTIME).symlink_to(referent)
             subprocess.run(["git", "add", "-A"], cwd=target, check=True)
             subprocess.run(["git", "commit", "-qm", "symlink baseline"], cwd=target, check=True)
             before = snapshot(target)
             outside_before = snapshot(outside)
-            result = invoke(target, "resolve", "--layers", "parallel", "--replace", "tools/resource_lock.py", "--skip-agents")
+            result = invoke(target, "resolve", "--layers", "parallel", "--replace", RESOURCE_RUNTIME, "--skip-agents")
             assert result.returncode == 2 and "symlink" in result.stderr
             assert snapshot(target) == before
             assert snapshot(outside) == outside_before
@@ -1964,7 +2121,7 @@ def test_resolve_uses_trusted_workflow_config_without_importing_target_shadow() 
             "--layers",
             "parallel",
             "--replace",
-            "tools/resource_lock.py",
+            RESOURCE_RUNTIME,
         )
         assert result.returncode == 0, result.stderr
         assert not sentinel.exists()
@@ -1992,7 +2149,7 @@ def test_resolve_rejects_symlinked_claude_parent_without_external_mutation() -> 
             "--layers",
             "parallel",
             "--replace",
-            "tools/resource_lock.py",
+            RESOURCE_RUNTIME,
             "--skip-agents",
         )
         assert result.returncode == 2
@@ -2011,14 +2168,14 @@ def test_resolve_rejects_dirty_non_git_missing_head_and_manifest_targets_without
     try:
         (dirty / "dirty.txt").write_text("uncommitted\n", encoding="utf-8")
         dirty_before = snapshot(dirty)
-        assert invoke(dirty, "resolve", "--layers", "parallel", "--replace", "tools/resource_lock.py", "--skip-agents").returncode == 2
+        assert invoke(dirty, "resolve", "--layers", "parallel", "--replace", RESOURCE_RUNTIME, "--skip-agents").returncode == 2
         assert snapshot(dirty) == dirty_before
         no_git_before = snapshot(no_git)
-        assert invoke(no_git, "resolve", "--layers", "parallel", "--replace", "tools/resource_lock.py", "--skip-agents").returncode == 2
+        assert invoke(no_git, "resolve", "--layers", "parallel", "--replace", RESOURCE_RUNTIME, "--skip-agents").returncode == 2
         assert snapshot(no_git) == no_git_before
         subprocess.run(["git", "init", "-q"], cwd=missing_head, check=True, capture_output=True, text=True)
         missing_head_before = snapshot(missing_head)
-        assert invoke(missing_head, "resolve", "--layers", "parallel", "--replace", "tools/resource_lock.py", "--skip-agents").returncode == 2
+        assert invoke(missing_head, "resolve", "--layers", "parallel", "--replace", RESOURCE_RUNTIME, "--skip-agents").returncode == 2
         assert snapshot(missing_head) == missing_head_before
         (manifest_target / "baseline.txt").write_text("baseline\n", encoding="utf-8")
         commit_target(manifest_target)
@@ -2026,7 +2183,7 @@ def test_resolve_rejects_dirty_non_git_missing_head_and_manifest_targets_without
         subprocess.run(["git", "add", "-A"], cwd=manifest_target, check=True)
         subprocess.run(["git", "commit", "-qm", "adopted baseline"], cwd=manifest_target, check=True)
         before = snapshot(manifest_target)
-        result = invoke(manifest_target, "resolve", "--layers", "parallel", "--replace", "tools/resource_lock.py", "--skip-agents")
+        result = invoke(manifest_target, "resolve", "--layers", "parallel", "--replace", RESOURCE_RUNTIME, "--skip-agents")
         assert result.returncode == 2 and snapshot(manifest_target) == before
     finally:
         for target in (dirty, no_git, missing_head, manifest_target):
@@ -2043,7 +2200,7 @@ def test_resolve_skip_agents_preserves_instruction_files() -> None:
         subprocess.run(["git", "add", "AGENTS.md", "CLAUDE.md"], cwd=target, check=True)
         subprocess.run(["git", "commit", "-qm", "instructions"], cwd=target, check=True)
         before = agents.read_bytes(), claude.read_bytes()
-        result = invoke(target, "resolve", "--layers", "parallel", "--replace", "tools/resource_lock.py", "--skip-agents")
+        result = invoke(target, "resolve", "--layers", "parallel", "--replace", RESOURCE_RUNTIME, "--skip-agents")
         assert result.returncode == 0, result.stderr
         assert (agents.read_bytes(), claude.read_bytes()) == before
     finally:
@@ -2057,7 +2214,7 @@ def test_resolve_keeps_altered_instruction_blocks_manual() -> None:
         subprocess.run(["git", "add", "AGENTS.md"], cwd=target, check=True)
         subprocess.run(["git", "commit", "-qm", "instructions"], cwd=target, check=True)
         before = snapshot(target)
-        result = invoke(target, "resolve", "--layers", "parallel", "--replace", "tools/resource_lock.py", "--json")
+        result = invoke(target, "resolve", "--layers", "parallel", "--replace", RESOURCE_RUNTIME, "--json")
         assert result.returncode == 1
         assert "AGENTS.md:core" in json.loads(result.stdout)["conflicts"]
         assert snapshot(target) == before
@@ -2077,7 +2234,7 @@ def test_resolve_publication_failure_rolls_back_and_keeps_manifest_absent() -> N
         stderr = io.StringIO()
         with patch.object(adopt, "_link_claude_skills", side_effect=RuntimeError("injected publication failure")), contextlib.redirect_stderr(stderr):
             try:
-                adopt.main(["adopt.py", "resolve", str(target), "--layers", "parallel", "--replace", "tools/resource_lock.py", "--skip-agents"])
+                adopt.main(["adopt.py", "resolve", str(target), "--layers", "parallel", "--replace", RESOURCE_RUNTIME, "--skip-agents"])
             except SystemExit as exc:
                 assert exc.code == 2
             else:
@@ -2109,7 +2266,7 @@ def test_resolve_rejects_target_dirty_before_publication() -> None:
         stderr = io.StringIO()
         with patch.object(adopt, "_tree_snapshot", side_effect=dirty_after_snapshot), contextlib.redirect_stderr(stderr):
             try:
-                adopt.main(["adopt.py", "resolve", str(target), "--layers", "parallel", "--replace", "tools/resource_lock.py", "--skip-agents"])
+                adopt.main(["adopt.py", "resolve", str(target), "--layers", "parallel", "--replace", RESOURCE_RUNTIME, "--skip-agents"])
             except SystemExit as exc:
                 assert exc.code == 2
             else:
@@ -2128,7 +2285,7 @@ def test_resolve_treats_shell_metacharacters_as_literal_argv() -> None:
     sentinel = target.parent / "shell-effect"
     target.rename(renamed)
     try:
-        result = invoke(renamed, "resolve", "--layers", "parallel", "--replace", "tools/resource_lock.py", "--skip-agents")
+        result = invoke(renamed, "resolve", "--layers", "parallel", "--replace", RESOURCE_RUNTIME, "--skip-agents")
         assert result.returncode == 0, result.stderr
         assert not sentinel.exists()
     finally:
@@ -2141,10 +2298,10 @@ def test_resolve_rejects_shell_metacharacters_in_replacement_as_literal() -> Non
     target = legacy_target()
     sentinel = target.parent / "replacement-shell-effect"
     try:
-        result = invoke(target, "resolve", "--layers", "parallel", "--replace", "tools/resource_lock.py;touch replacement-shell-effect", "--skip-agents")
+        result = invoke(target, "resolve", "--layers", "parallel", "--replace", RESOURCE_RUNTIME + ";touch replacement-shell-effect", "--skip-agents")
         assert result.returncode == 2
         assert not sentinel.exists()
-        assert snapshot(target)["tools/resource_lock.py"][1] == (ROOT / "tools/resource_lock.py").read_bytes() + b"\nlegacy project change\n"
+        assert snapshot(target)[RESOURCE_RUNTIME][1] == source_for(RESOURCE_RUNTIME).read_bytes() + b"\nlegacy project change\n"
     finally:
         shutil.rmtree(target)
         if sentinel.exists():
@@ -2198,6 +2355,10 @@ TESTS = (
     test_it004_edited_provider_template_conflicts_without_writes,
     test_it005_managed_blocks_refresh_without_touching_consumer_state,
     test_it013_retired_managed_paths_reconcile_safely,
+    test_it005_mapped_pristine_consumer_runtime_retires_and_prunes_empty_namespaces,
+    test_it006_mapped_edited_or_unproven_consumer_runtime_refuses_before_writes,
+    test_it007_retirement_preserves_unrelated_product_parents_and_prunes_absent_files,
+    test_sec003_cleanup_failure_restores_retired_files_directories_and_manifest,
     test_sec002_retired_symlink_is_rejected_before_external_write,
     test_sec002_unproven_retired_path_conflicts_without_writes,
     test_it007_package_bin_preserves_adopter_cli_contract,

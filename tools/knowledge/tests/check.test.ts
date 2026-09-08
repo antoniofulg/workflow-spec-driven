@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, describe, expect, it } from "bun:test";
-import { checkKnowledge, type KnowledgeFinding } from "../src/check.js";
+import { checkKnowledge, type KnowledgeFinding } from "../../../.agents/skills/knowledge-check/scripts/check.js";
 
 const createdRoots: string[] = [];
 

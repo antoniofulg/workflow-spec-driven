@@ -89,7 +89,7 @@ const activeAuthorityRoots = [
   "scripts",
   "tools",
   ".agents/skills",
-  "templates/agents",
+".agents/skills/workflow-config/assets/agents",
 ] as const;
 
 const historicalAuthorityAllowlist = [
@@ -241,9 +241,9 @@ function commitFixture(root: string, message: string): string {
 }
 
 const verifierPacketPaths = [
-  "templates/agents/cursor/verifier.md",
-  "templates/agents/claude/verifier.md",
-  "templates/agents/codex/verifier.toml",
+".agents/skills/workflow-config/assets/agents/cursor/verifier.md",
+".agents/skills/workflow-config/assets/agents/claude/verifier.md",
+".agents/skills/workflow-config/assets/agents/codex/verifier.toml",
 ] as const;
 
 describe("QA workflow artifact policy", () => {
@@ -305,14 +305,14 @@ describe("QA workflow artifact policy", () => {
     const validator = readRepositoryFile(".agents/skills/wverify/SKILL.md");
     const memory = readRepositoryFile(".agents/skills/workflow-spec-driven/references/memory.md");
     const providerPackets = [
-      readRepositoryFile("templates/agents/cursor/implementer.md"),
-      readRepositoryFile("templates/agents/claude/implementer.md"),
-      readRepositoryFile("templates/agents/codex/implementer.toml"),
+readRepositoryFile(".agents/skills/workflow-config/assets/agents/cursor/implementer.md"),
+readRepositoryFile(".agents/skills/workflow-config/assets/agents/claude/implementer.md"),
+readRepositoryFile(".agents/skills/workflow-config/assets/agents/codex/implementer.toml"),
     ];
     const plannerPackets = [
-      readRepositoryFile("templates/agents/cursor/planner.md"),
-      readRepositoryFile("templates/agents/claude/planner.md"),
-      readRepositoryFile("templates/agents/codex/planner.toml"),
+readRepositoryFile(".agents/skills/workflow-config/assets/agents/cursor/planner.md"),
+readRepositoryFile(".agents/skills/workflow-config/assets/agents/claude/planner.md"),
+readRepositoryFile(".agents/skills/workflow-config/assets/agents/codex/planner.toml"),
     ];
 
     expect(agents).toMatch(
@@ -881,7 +881,7 @@ describe("agent configuration", () => {
         const agentName = role === "deep_reviewer" ? "deep-reviewer" : role;
         const extension = provider === "codex" ? "toml" : "md";
         const format = provider === "codex" ? "toml" : "frontmatter";
-        const relativePath = `templates/agents/${provider}/${agentName}.${extension}`;
+        const relativePath = `.agents/skills/workflow-config/assets/agents/${provider}/${agentName}.${extension}`;
         const source = readRepositoryFile(relativePath);
         const expected = settings.get(`${provider}.${role}`)!;
         expect(source).toContain("docs/product/AGENT-CONTEXT.md");
@@ -903,10 +903,10 @@ describe("agent configuration", () => {
       }
     }
 
-    expect(readRepositoryFile("templates/agents/claude/deep-reviewer.md")).toMatch(
+    expect(readRepositoryFile(".agents/skills/workflow-config/assets/agents/claude/deep-reviewer.md")).toMatch(
       /^tools:\s*Read, Grep, Glob, Bash$/m,
     );
-    const cursorDeepReviewer = readRepositoryFile("templates/agents/cursor/deep-reviewer.md");
+    const cursorDeepReviewer = readRepositoryFile(".agents/skills/workflow-config/assets/agents/cursor/deep-reviewer.md");
     expect(cursorDeepReviewer).not.toMatch(/^readonly:\s*true$/m);
 
     const runtime = readRepositoryFile(".agents/skills/deep-review/references/subagent-runtimes.md");
@@ -1002,7 +1002,7 @@ describe("adoption and public setup", () => {
     expect(adopt).toContain('".agents/skills/qa-plan"');
     expect(adopt).toContain('".agents/skills/qa-execute"');
     expect(adopt).toContain('".my-workflow.toml.example"');
-    expect(adopt).toContain('"templates/agents"');
+    expect(adopt).toContain('".agents/skills/workflow-config"');
   });
 
   it("IT-009 exposes the fixed layered adoption boundary", () => {
@@ -1147,9 +1147,9 @@ describe("adoption and public setup", () => {
     expect(pack.status).toBe(0);
     const packOutput = `${pack.stdout}${pack.stderr}`;
     for (const requiredPath of [
-      "tools/resource_lock.py",
-      "tools/qa_parallel_pilot.py",
-      "tools/orca_assisted_probe.py",
+      ".agents/skills/autonomous/scripts/resource_lock.py",
+      ".agents/skills/autonomous/scripts/qa_parallel_pilot.py",
+      ".agents/skills/autonomous/scripts/orca_assisted_probe.py",
       ".agents/skills/autonomous/remediation.py",
       "scripts/adopt.py",
     ]) {
@@ -1219,8 +1219,8 @@ describe("Bun tooling runtime contract", () => {
       expect(readRepositoryFile(suite)).toMatch(/from ["']bun:test["']/);
     }
     expect(manifest).not.toMatch(/"(?:vitest|tsx|yaml)"\s*:/);
-    expect(readRepositoryFile("tools/shared/src/frontmatter.ts")).not.toMatch(/from ["']yaml["']/);
-    expect(readRepositoryFile("tools/shared/src/frontmatter.ts")).toContain("Bun.YAML.parse");
+    expect(readRepositoryFile(".agents/skills/knowledge-check/scripts/frontmatter.ts")).not.toMatch(/from ["']yaml["']/);
+    expect(readRepositoryFile(".agents/skills/knowledge-check/scripts/frontmatter.ts")).toContain("Bun.YAML.parse");
   });
 
   it("IT-006 keeps Bun as the active command authority while allowing historical evidence", () => {
@@ -1232,7 +1232,7 @@ describe("Bun tooling runtime contract", () => {
     expect(scannedPaths).toContain("docs/qa/README.md");
     expect(scannedPaths).toContain("knowledge/AGENTS.md");
     expect(scannedPaths).toContain(".agents/skills/ponytail/SKILL.md");
-    expect(scannedPaths).toContain("templates/agents/codex/planner.toml");
+    expect(scannedPaths).toContain(".agents/skills/workflow-config/assets/agents/codex/planner.toml");
     expect(violations).toEqual([]);
 
     const historicalPaths = trackedPaths.filter(isHistoricalAuthority);
@@ -1245,7 +1245,7 @@ describe("Bun tooling runtime contract", () => {
 
     for (const relativePath of [
       ".agents/skills/ponytail/SKILL.md",
-      "templates/agents/codex/planner.toml",
+      ".agents/skills/workflow-config/assets/agents/codex/planner.toml",
     ]) {
       for (const command of [
         "npm run forbidden",

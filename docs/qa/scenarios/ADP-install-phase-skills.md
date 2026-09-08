@@ -18,7 +18,7 @@ overlaps: ADP-adopt-workflow-safely; ADP-layered-workflow-adoption; ADP-install-
 
 New promise from the `phase-skills` feature. `scripts/adopt.py` `CORE_PATHS` gained
 `.agents/skills/wspecify`, `wdesign`, `wtasks`, `wimplement`, and `wverify`, and `_prepare_sync`
-now treats `.agents/skills` as a sync input alongside `templates/agents`. The checkout tracks
+now treats `.agents/skills` as a sync input alongside skill-owned packet assets. The checkout tracks
 `.claude/skills/w<phase>` as symlinks to `../../.agents/skills/w<phase>`.
 
 The observable an adopter cares about is the installed result, not the catalog constant: after a

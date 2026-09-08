@@ -11,10 +11,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 HANDOFF = ROOT / ".specs/features/parallel-slice-executor/qa-pilot.md"
-HARNESS = ROOT / "tools/qa_parallel_pilot.py"
+HARNESS = ROOT / ".agents/skills/autonomous/scripts/qa_parallel_pilot.py"
 OWNED_WORKTREES = ("parallel-pilot/A-T1", "parallel-pilot/B-T2")
 
-sys.path.insert(0, str(ROOT / "tools"))
+sys.path.insert(0, str(ROOT / ".agents/skills/autonomous/scripts"))
 import qa_parallel_pilot
 sys.path.insert(0, str(ROOT / ".agents/skills/autonomous/scripts"))
 import parallel_execute

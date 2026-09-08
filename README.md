@@ -188,8 +188,8 @@ then authorize every reviewed file conflict explicitly:
 npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
   my-workflow resolve /path/to/target-project \
   --layers parallel \
-  --replace tools/resource_lock.py \
-  --replace tools/qa_parallel_pilot.py \
+  --replace .agents/skills/autonomous/scripts/resource_lock.py \
+  --replace .agents/skills/autonomous/scripts/qa_parallel_pilot.py \
   --skip-agents
 npm exec --yes --package ./my-workflow-0.10.0.tgz -- \
   my-workflow status /path/to/target-project
@@ -203,7 +203,7 @@ drift.
 
 ### Serialize only contested test resources
 
-The `parallel` layer installs the dormant `tools/resource_lock.py` wrapper. Activation is explicit:
+The `parallel` layer installs the dormant `.agents/skills/autonomous/scripts/resource_lock.py` helper. Activation is explicit:
 adoption does not rewrite a consumer command or gate. Wrap only a heavy command that shares a
 browser, database, container runtime, or other declared resource; unit tests and other light gates
 remain concurrent.
@@ -211,7 +211,7 @@ remain concurrent.
 For worktrees of the same project, use the default project scope:
 
 ```bash
-python3 tools/resource_lock.py run \
+python3 .agents/skills/autonomous/scripts/resource_lock.py run \
   --resource browser \
   -- python3 -m pytest tests/e2e
 ```
@@ -219,13 +219,13 @@ python3 tools/resource_lock.py run \
 To serialize that resource across separate projects on one machine, opt into machine scope:
 
 ```bash
-python3 tools/resource_lock.py run \
+python3 .agents/skills/autonomous/scripts/resource_lock.py run \
   --resource browser --scope machine \
   -- python3 -m pytest tests/e2e
 ```
 
 The wrapper holds the named lock only for the wrapped command and passes its arguments directly.
-Run `python3 tools/resource_lock.py run --help` for the authoritative flags, defaults, and result
+Run `python3 .agents/skills/autonomous/scripts/resource_lock.py run --help` for the authoritative flags, defaults, and result
 codes.
 
 The old positional `adopt.py TARGET` command is intentionally removed. Package `plan`, `apply`, and
@@ -251,7 +251,7 @@ The tracked `.my-workflow.toml.example` documents the complete v3 matrix and `mi
 checkout owns an ignored `.my-workflow.toml`, initialized from that example by adoption without
 `--skip-agents` or by explicit sync;
 it is the single editable source for all Claude, Codex, and Cursor model and effort choices. The
-tracked `templates/agents/` trees hold canonical instruction bodies, while sync generates the
+tracked `.agents/skills/workflow-config/assets/agents/` trees hold canonical instruction bodies, while sync generates the
 ignored native runtime packets. Re-adoption preserves an existing local config byte-for-byte and
 regenerates runtime packets from the templates and that config when `--skip-agents` is not used.
 With `--skip-agents`, sync is an explicit later operator step.
@@ -366,8 +366,7 @@ decision approves its registry name and license.
 ## Managed paths
 
 Review the managed paths and the plan's per-file actions. Adoption updates only workflow-owned files,
-preserves unknown consumer files, creates missing `tools/ad-index.py`, `.my-workflow.toml.example`,
-and `templates/agents/`, and records ownership in `.my-workflow/adoption.json`. It never removes an
+preserves unknown consumer files, creates `.my-workflow.toml.example` and skill-owned runtime, and records ownership in `.my-workflow/adoption.json`. It never removes an
 installed layer or consumer file. Product documentation, `.specs/`, `package.json`, `bun.lock`, an
 existing local `.my-workflow.toml`, and an existing `docs/qa/README.md` remain consumer-owned.
 
@@ -435,7 +434,7 @@ The installer uses only the reviewed refs and hashes in `skills-lock.json`; it d
 running it. Until it succeeds, do not treat the security gate as covered.
 
 `autonomous` is vendored here. `CLAUDE.md` is the one line `@AGENTS.md` (not a symlink). Canonical
-packet templates live under `templates/agents/{cursor,claude,codex}/`; generated implementer,
+packet templates live under `.agents/skills/workflow-config/assets/agents/{cursor,claude,codex}/`; generated implementer,
 explorer and verifier runtimes live under the ignored `.cursor/agents/`, `.claude/agents/` and
 `.codex/agents/` directories.
 

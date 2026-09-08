@@ -12,7 +12,7 @@ orchestrator dispatch the frozen route.
 
 `.my-workflow.toml` is the checkout-local single editable source for every Claude, Codex, and Cursor
 model and effort across planner, implementer, verifier, explorer, and deep reviewer. The tracked
-`.my-workflow.toml.example` initializes it, and tracked `templates/agents/` bodies are the source
+`.my-workflow.toml.example` initializes it, and tracked `.agents/skills/workflow-config/assets/agents/` bodies are the source
 for ignored generated runtime packets. Native packet fields are generated output; edit templates
 for instruction changes.
 
@@ -25,7 +25,7 @@ python3 .agents/skills/workflow-config/scripts/workflow_config.py \
 
 The command validates the complete matrix and every template before writing, initializes a missing
 local config from the example, reports `changed` and `unchanged` runtime paths, and is idempotent.
-Adoption runs it after installing missing example/templates.
+Adoption runs it after installing the missing example and skill-owned packet assets.
 
 ## Remediation stall bound
 

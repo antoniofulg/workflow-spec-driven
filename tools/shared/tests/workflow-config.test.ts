@@ -107,7 +107,7 @@ describe("workflow configuration skill", () => {
     for (const provider of providers) {
       for (const role of roles) {
         const extension = provider === "codex" ? "toml" : "md";
-        const path = `templates/agents/${provider}/${role}.${extension}`;
+const path = `.agents/skills/workflow-config/assets/agents/${provider}/${role}.${extension}`;
         expect(existsSync(join(repositoryRoot, path)), path).toBe(true);
         expect(readRepositoryFile(path).trim(), path).not.toBe("");
       }
@@ -119,7 +119,7 @@ describe("workflow configuration skill", () => {
       cwd: repositoryRoot,
       encoding: "utf8",
     }).trim()).toBe("");
-    expect(execFileSync("git", ["ls-files", "--", ".my-workflow.toml.example", "templates/agents"], {
+    expect(execFileSync("git", ["ls-files", "--", ".my-workflow.toml.example", ".agents/skills/workflow-config/assets/agents"], {
       cwd: repositoryRoot,
       encoding: "utf8",
     })).toContain(".my-workflow.toml.example");
@@ -133,9 +133,9 @@ describe("workflow configuration skill", () => {
     }
     const packaged = packagedFiles();
     expect(packaged).toContain(".my-workflow.toml.example");
-    expect(packaged).toContain("templates/agents/claude/planner.md");
-    expect(packaged).toContain("templates/agents/codex/planner.toml");
-    expect(packaged).toContain("templates/agents/cursor/planner.md");
+    expect(packaged).toContain(".agents/skills/workflow-config/assets/agents/claude/planner.md");
+    expect(packaged).toContain(".agents/skills/workflow-config/assets/agents/codex/planner.toml");
+    expect(packaged).toContain(".agents/skills/workflow-config/assets/agents/cursor/planner.md");
     expect(packaged).not.toContain(".my-workflow.toml");
     expect(packaged.some((path) => path.startsWith(".claude/agents/"))).toBe(false);
     expect(packaged.some((path) => path.startsWith(".codex/agents/"))).toBe(false);
@@ -150,7 +150,6 @@ describe("workflow configuration skill", () => {
 
     const temporaryRoot = mkdtempSync(join(tmpdir(), "workflow-profile-"));
     try {
-      cpSync(join(repositoryRoot, "templates"), join(temporaryRoot, "templates"), { recursive: true });
       cpSync(join(repositoryRoot, ".agents/skills"), join(temporaryRoot, ".agents/skills"), {
         recursive: true,
       });
@@ -199,7 +198,6 @@ describe("workflow configuration skill", () => {
   it("asserts resolver-returned agent files for every non-native provider route", () => {
     const temporaryRoot = mkdtempSync(join(tmpdir(), "workflow-config-"));
     try {
-      cpSync(join(repositoryRoot, "templates"), join(temporaryRoot, "templates"), { recursive: true });
       cpSync(join(repositoryRoot, ".agents/skills"), join(temporaryRoot, ".agents/skills"), {
         recursive: true,
       });
