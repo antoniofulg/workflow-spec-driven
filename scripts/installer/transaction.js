@@ -1,0 +1,41 @@
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
+import { safePath, sha256, InstallerError } from './engine.js';
+
+const fail = (message) => { throw new InstallerError(message); };
+const atomicWrite = (file, content) => { fs.mkdirSync(path.dirname(file), { recursive: true }); const temporary = path.join(path.dirname(file), `.${path.basename(file)}.${process.pid}.${crypto.randomUUID()}.tmp`); try { const fd = fs.openSync(temporary, 'w', 0o600); fs.writeFileSync(fd, content); fs.fsyncSync(fd); fs.closeSync(fd); fs.renameSync(temporary, file); } finally { if (fs.existsSync(temporary)) fs.unlinkSync(temporary); } };
+const targetOf = (input) => path.resolve(input?.targetRoot || input?.target || process.cwd());
+const timestamp = (clock) => new Date(typeof clock === 'function' ? clock() : clock || Date.now()).toISOString().replace(/:/g, '-');
+const journalPath = (root) => path.join(root, '.my-workflow', 'transaction.json');
+
+function actionPath(action) { return action.path.includes(':') && !action.path.startsWith('.my-workflow/') ? action.path.split(':')[0] : action.path; }
+function destructive(action) { return ['update', 'replace', 'remove'].includes(action.kind || action.action); }
+function entry(root, action, backupRoot) {
+  const relative = actionPath(action); const file = safePath(root, relative, 'backup source'); if (!fs.existsSync(file)) fail(`backup failed: ${relative} could not be read`); const stat = fs.lstatSync(file); if (!stat.isFile() || stat.isSymbolicLink()) fail(`backup failed: ${relative} is not a regular file`); const bytes = fs.readFileSync(file); const backup = path.join(backupRoot, 'files', ...relative.split('/')); fs.mkdirSync(path.dirname(backup), { recursive: true }); fs.writeFileSync(backup, bytes, { mode: stat.mode & 0o7777 }); const copied = fs.readFileSync(backup); if (sha256(bytes) !== sha256(copied) || (fs.statSync(backup).mode & 0o7777) !== (stat.mode & 0o7777)) fail(`backup failed: ${relative} could not be verified`); return { path: relative, action: action.kind || action.action, sha256: sha256(bytes), mode: stat.mode & 0o7777, backup: posix(path.relative(backupRoot, backup)) }; }
+const posix = (value) => value.split(path.sep).join('/');
+
+export function prepareBackup(input, maybeTarget) {
+  const value = input?.plan ? input : { plan: input, targetRoot: maybeTarget }; const root = targetOf(value); const plan = value.plan || {}; const actions = (plan.actions || []).filter(destructive); if (!actions.length) return { targetRoot: root, plan, staged: value.staged || {}, backup: null, journal: null, entries: [] };
+  const backupRelative = `.my-workflow/backups/${timestamp(value.clock)}`; const backupRoot = path.join(root, ...backupRelative.split('/')); if (fs.existsSync(backupRoot)) fail(`backup already exists: ${backupRelative}`); fs.mkdirSync(path.join(backupRoot, 'files'), { recursive: true });
+  const entries = []; const seen = new Set(); try { for (const action of actions) { const relative = actionPath(action); if (seen.has(relative)) continue; seen.add(relative); entries.push(entry(root, action, backupRoot)); } const manifest = { created_at: new Date(typeof value.clock === 'function' ? value.clock() : value.clock || Date.now()).toISOString(), package: 'workflow-spec-driven', version: plan.packageVersion || '0.10.0', target: '.', files: entries }; atomicWrite(path.join(backupRoot, 'manifest.json'), Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`)); const adoption = path.join(root, '.my-workflow', 'adoption.json'); const journal = { schema: 1, state: 'prepared', backup: backupRelative, restore: entries, removeOnRestore: [], previousAdoptionState: fs.existsSync(adoption) ? fs.readFileSync(adoption, 'utf8') : null }; atomicWrite(journalPath(root), Buffer.from(`${JSON.stringify(journal, null, 2)}\n`)); return { targetRoot: root, plan, staged: value.staged || {}, backup: backupRelative, journal, entries }; } catch (error) { removePath(backupRoot); throw error; } }
+
+function removePath(target) { if (!fs.existsSync(target) && !fs.lstatSync(target, { throwIfNoEntry: false })) return; const stat = fs.lstatSync(target); if (stat.isDirectory() && !stat.isSymbolicLink()) for (const child of fs.readdirSync(target)) removePath(path.join(target, child)); fs.rmSync(target, { recursive: true, force: true }); }
+function publishBytes(root, relative, bytes) { const destination = safePath(root, relative, 'publication destination'); atomicWrite(destination, bytes); }
+
+export function publish(prepared, options = {}) {
+  const root = targetOf(prepared); const plan = prepared.plan || {}; const staged = prepared.staged || {}; const entries = prepared.entries || []; const journal = prepared.journal || null; const order = (relative) => relative === '.my-workflow/adoption.json' ? 2 : relative === '.my-workflow.toml' || relative.startsWith('.claude/agents/') || relative.startsWith('.codex/agents/') || relative.startsWith('.cursor/agents/') ? 1 : 0;
+  try { for (const [relative, bytes] of Object.entries(staged).sort(([a], [b]) => order(a) - order(b) || a.localeCompare(b))) { if (relative === '.my-workflow/adoption.json') continue; if (options.failAfter && options.failAfter === relative) fail(`injected publication failure: ${relative}`); publishBytes(root, relative, bytes); } for (const action of plan.actions || []) if ((action.kind || action.action) === 'remove') { const relative = actionPath(action); const destination = safePath(root, relative, 'retired destination'); if (fs.existsSync(destination)) { if (!fs.lstatSync(destination).isFile()) fail(`retired destination is no longer a file: ${relative}`); fs.unlinkSync(destination); } } if (staged['.my-workflow/adoption.json']) publishBytes(root, '.my-workflow/adoption.json', staged['.my-workflow/adoption.json']); if (journal && fs.existsSync(journalPath(root))) fs.unlinkSync(journalPath(root)); return { ok: true, backup: prepared.backup }; } catch (error) { if (journal) { try { restoreInterrupted({ targetRoot: root, journal }); } catch (restoreError) { fail(`publication failed and rollback failed: ${restoreError.message}`); } } throw new InstallerError(`publication failed; previous repository state was restored: ${error.message}`); }
+}
+
+export function applyTransaction(input, options = {}) { const prepared = prepareBackup(input); return publish(prepared, options); }
+
+export function restoreInterrupted(input) {
+  const root = targetOf(input); const journal = input?.journal || (() => { const file = journalPath(root); if (!fs.existsSync(file)) return null; try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch (error) { fail(`invalid transaction journal: ${error.message}`); } })(); if (!journal) return { restored: false, reason: 'none' }; if (journal.schema !== 1 || journal.state !== 'prepared' || typeof journal.backup !== 'string') fail('invalid transaction journal');
+  for (const record of journal.restore || []) { const target = safePath(root, record.path, 'restore target'); const backup = safePath(path.join(root, ...journal.backup.split('/')), record.backup, 'restore backup'); if (!fs.existsSync(backup) || sha256(fs.readFileSync(backup)) !== record.sha256) fail(`backup verification failed: ${record.path}`); publishBytes(root, record.path, fs.readFileSync(backup)); fs.chmodSync(target, record.mode); }
+  for (const relative of journal.removeOnRestore || []) { const target = safePath(root, relative, 'restore cleanup'); if (fs.existsSync(target)) removePath(target); }
+  const adoption = path.join(root, '.my-workflow', 'adoption.json'); if (journal.previousAdoptionState === null) { if (fs.existsSync(adoption)) fs.unlinkSync(adoption); } else atomicWrite(adoption, Buffer.from(journal.previousAdoptionState)); if (fs.existsSync(journalPath(root))) fs.unlinkSync(journalPath(root)); return { restored: true, backup: journal.backup };
+}
+
+export function hasInterruptedTransaction(root = process.cwd()) { return fs.existsSync(journalPath(path.resolve(root))); }
+export default { prepareBackup, publish, applyTransaction, restoreInterrupted, hasInterruptedTransaction };

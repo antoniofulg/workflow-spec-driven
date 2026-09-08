@@ -186,12 +186,12 @@ Installing or upgrading the workflow currently requires a version-pinned scoped 
 | MOD-005 | P1: Module selection | Tasks | Implemented T1 |
 | STATE-001 | P1: Module selection | Tasks | Implemented T1 |
 | SAFE-001 | P1: Repository protection | Tasks | In Tasks |
-| SAFE-002 | P1: Repository protection | Tasks | In Tasks |
-| SAFE-003 | P1: Repository protection | Tasks | In Tasks |
-| SAFE-004 | P1: Repository protection | Tasks | In Tasks |
+| SAFE-002 | P1: Repository protection | Tasks | Implemented T3 |
+| SAFE-003 | P1: Repository protection | Tasks | Implemented T3 |
+| SAFE-004 | P1: Repository protection | Tasks | Implemented T3 |
 | SAFE-005 | P1: Repository protection | Tasks | In Tasks |
 | SAFE-006 | P1: Repository protection | Tasks | In Tasks |
-| SAFE-007 | P1: Repository protection | Tasks | In Tasks |
+| SAFE-007 | P1: Repository protection | Tasks | Implemented T3 |
 | KNOW-001 | P1: Knowledge transfer | Tasks | In Tasks |
 | KNOW-002 | P1: Knowledge transfer | Tasks | In Tasks |
 | KNOW-003 | P1: Knowledge transfer | Tasks | In Tasks |
@@ -202,13 +202,13 @@ Installing or upgrading the workflow currently requires a version-pinned scoped 
 | PAR-003 | P2: Port parity | Tasks | In Tasks |
 | PAR-004 | P2: Port parity | Tasks | In Tasks |
 | SEC-001 | Edge cases | Tasks | Implemented T1 |
-| SEC-002 | Edge cases | Tasks | In Tasks |
-| SEC-003 | Edge cases | Tasks | In Tasks |
+| SEC-002 | Edge cases | Tasks | Implemented T3 |
+| SEC-003 | Edge cases | Tasks | Implemented T3 |
 | EDGE-001 | Edge cases | Tasks | Implemented T1 |
 | EDGE-002 | Edge cases | Tasks | Implemented T1 |
 | EDGE-003 | Edge cases | Tasks | Implemented T1 |
-| EDGE-004 | Edge cases | Tasks | In Tasks |
-| EDGE-005 | Edge cases | Tasks | In Tasks |
+| EDGE-004 | Edge cases | Tasks | Implemented T3 |
+| EDGE-005 | Edge cases | Tasks | Implemented T3 |
 
 **Coverage:** 35 total, 35 mapped to tasks, 0 unmapped.
 

@@ -146,13 +146,13 @@ T7 -> T8 -> T9
 
 **Done when**:
 
-- [ ] `tests/installer/transaction.test.js` maps UT-009, IT-003, IT-007, IT-008, IT-013, IT-014, IT-020, SEC-002, SEC-003, and SEC-005 to exact filesystem outcomes.
-- [ ] Backups preserve exact bytes and modes and verify SHA-256 before workflow publication.
-- [ ] `.my-workflow/transaction.json` is atomic, blocks new mutation, and is removed only after success or verified restoration.
-- [ ] Added paths are removed and original paths/adoption state are restored after injected failures.
-- [ ] Add-only and no-op transactions create no backup directory.
-- [ ] Gate passes: `node --test tests/installer/transaction.test.js`.
-- [ ] Test count: 10 feature cases pass, 0 fail, 0 skipped.
+- [x] `tests/installer/transaction.test.js` maps UT-009, IT-003, IT-007, IT-008, IT-013, IT-014, IT-020, SEC-002, SEC-003, and SEC-005 to exact filesystem outcomes.
+- [x] Backups preserve exact bytes and modes and verify SHA-256 before workflow publication.
+- [x] `.my-workflow/transaction.json` is atomic, blocks new mutation, and is removed only after success or verified restoration.
+- [x] Added paths are removed and original paths/adoption state are restored after injected failures.
+- [x] Add-only and no-op transactions create no backup directory.
+- [x] Gate passes: `node --test tests/installer/transaction.test.js`.
+- [x] Test count: 10 feature cases pass, 0 fail, 0 skipped.
 
 **Tests**: integration + security
 **Gate**: declared
