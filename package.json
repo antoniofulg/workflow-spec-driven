@@ -55,7 +55,7 @@
     "knowledge": "bun .agents/skills/knowledge-check/scripts/cli.ts",
     "review:graft:build": "graft build",
     "review:graft:version": "graft --version",
-    "test": "bun test",
+    "test": "bun test && node --test tests/installer/*.test.js",
     "test:python": "git ls-files -- 'scripts/test_*.py' 'tools/test_*.py' | sort | while read test; do python3 \"$test\" || exit $?; done",
     "test:all": "bun run test && bun run test:python"
   },

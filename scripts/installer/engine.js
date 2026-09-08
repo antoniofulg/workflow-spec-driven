@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 export const WORKFLOW_VERSION = '0.10.0';
 export const LAYERS = ['core', 'parallel', 'quality', 'extras'];
@@ -100,9 +101,9 @@ export function requestedModules(values) {
 function catalog(root, modules) {
   const entries = new Map();
   for (const module of modules) for (const item of [...LAYER_PATHS[module], ...LAYER_MISSING_PATHS[module]]) for (const relative of sourceFiles(root, item)) {
-    const prior = entries.get(relative); if (prior && prior !== module) fail(`workflow path belongs to multiple modules: ${relative}`); entries.set(relative, module);
+    const prior = entries.get(relative); if (prior && !prior.includes(module)) prior.push(module); else if (!prior) entries.set(relative, [module]);
   }
-  if (modules.includes('core')) for (const [destination, source] of Object.entries(CONSUMER_MISSING_SOURCES)) { sourceFiles(root, source); entries.set(destination, 'core'); }
+  if (modules.includes('core')) for (const [destination, source] of Object.entries(CONSUMER_MISSING_SOURCES)) { sourceFiles(root, source); entries.set(destination, ['core']); }
   return entries;
 }
 
@@ -165,17 +166,18 @@ function mergeIgnore(existing, entries, remove = []) { const lines = (existing ?
 function sourceBytes(root, relative) { return fs.readFileSync(path.join(root, (CONSUMER_MISSING_SOURCES[relative] || relative).split('/').join(path.sep))); }
 
 export function buildPlan({ sourceRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..'), targetRoot = process.cwd(), selectedModules, modules } = {}) {
-  const source = asRoot(sourceRoot), target = asRoot(targetRoot); const requested = selectedModules || modules; const requestedResolved = requestedModules(requested); const installedManifest = loadManifest(target); const installed = installedManifest.layers || []; const effective = resolveModules([...requestedResolved, ...installed]);
-  const entries = catalog(source, effective); const actions = [], records = {}, conflicts = [], retired = [];
+  const source = asRoot(sourceRoot), target = asRoot(targetRoot); const requested = selectedModules || modules; const requestedResolved = requestedModules(requested); const installedManifest = loadManifest(target); const installed = installedManifest.layers || []; const effective = resolveModules(requestedResolved); const manifestLayers = resolveModules([...requestedResolved, ...installed]);
+  const entries = catalog(source, effective); const actions = [], conflicts = [], retired = []; const records = Object.fromEntries(Object.entries(installedManifest.files || {}).filter(([, record]) => !effective.includes(record.layer)));
   const missing = new Set(effective.flatMap((module) => LAYER_MISSING_PATHS[module].flatMap((item) => sourceFiles(source, item)))); if (effective.includes('core')) Object.keys(CONSUMER_MISSING_SOURCES).forEach((item) => missing.add(item));
-  for (const [relative, module] of [...entries.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+  for (const [relative, owners] of [...entries.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+    const module = owners[0];
     const packageBytes = sourceBytes(source, relative), installedBytes = adoptedBytes(relative, packageBytes), destination = safePath(target, relative, 'managed destination'); const previous = installedManifest.files[relative]; const exists = fs.existsSync(destination);
-    if (missing.has(relative)) { actions.push({ path: relative, kind: exists ? 'preserve' : 'add', modules: [module], reason: exists ? 'consumer-owned file unchanged' : 'new neutral scaffolding' }); records[relative] = record(module, 'consumer', packageBytes, null); continue; }
-    if (previous?.ownership === 'consumer' && !isProvider(relative)) { actions.push({ path: relative, kind: 'preserve', modules: [module], reason: 'consumer-owned file unchanged' }); records[relative] = previous; continue; }
+    if (missing.has(relative)) { actions.push({ path: relative, kind: exists ? 'preserve' : 'add', modules: owners, reason: exists ? 'consumer-owned file unchanged' : 'new neutral scaffolding' }); records[relative] = record(module, 'consumer', packageBytes, null); continue; }
+    if (previous?.ownership === 'consumer' && !isProvider(relative)) { actions.push({ path: relative, kind: 'preserve', modules: owners, reason: 'consumer-owned file unchanged' }); records[relative] = previous; continue; }
     const current = exists ? fs.readFileSync(destination) : null; let kind;
-    if (previous) { if (!current || sha256(current) !== previous.installed_sha256) { kind = 'conflict'; conflicts.push(relative); } else kind = current.compare(installedBytes) === 0 ? 'no-change' : 'update'; }
+    if (previous) { if (!current) { kind = 'conflict'; conflicts.push(relative); } else if (sha256(current) !== previous.installed_sha256) { kind = 'modified'; conflicts.push(relative); } else kind = current.compare(installedBytes) === 0 ? 'no-change' : 'update'; }
     else if (!exists) kind = 'add'; else if (current.compare(installedBytes) === 0) kind = 'claim'; else { kind = 'conflict'; conflicts.push(relative); }
-    actions.push({ path: relative, kind, modules: [module], sourceSha256: sha256(packageBytes), installedSha256: exists ? sha256(installedBytes) : undefined, reason: kind === 'conflict' ? 'consumer content requires a decision' : kind === 'claim' ? 'file unchanged; ownership record added' : undefined }); records[relative] = record(module, 'managed', packageBytes, installedBytes);
+    actions.push({ path: relative, kind, modules: owners, sourceSha256: sha256(packageBytes), installedSha256: exists ? sha256(installedBytes) : undefined, reason: ['conflict', 'modified'].includes(kind) ? 'consumer content requires a decision' : kind === 'claim' ? 'file unchanged; ownership record added' : undefined }); records[relative] = record(module, 'managed', packageBytes, installedBytes);
   }
   for (const [relative, previous] of Object.entries(installedManifest.files || {}).sort(([a], [b]) => a.localeCompare(b))) {
     if (records[relative] || previous.ownership === 'consumer' || relative.startsWith('knowledge/wiki/')) continue;
@@ -183,16 +185,28 @@ export function buildPlan({ sourceRoot = path.resolve(path.dirname(new URL(impor
     if (!fs.existsSync(destination)) { retired.push(relative); actions.push({ path: relative, kind: 'remove', modules: [previous.layer], reason: 'retired workflow path' }); continue; }
     const expected = previous.ownership === 'consumer' ? previous.source_sha256 : previous.installed_sha256; if (sha256(fs.readFileSync(destination)) !== expected) { conflicts.push(relative); actions.push({ path: relative, kind: 'conflict', modules: [previous.layer], reason: 'retired file was modified' }); } else { retired.push(relative); actions.push({ path: relative, kind: 'remove', modules: [previous.layer], reason: 'retired workflow path' }); }
   }
-  const blocks = composeBlocks(source, target, effective, installedManifest); conflicts.push(...blocks.conflicts);
+  const blocks = composeBlocks(source, target, effective, installedManifest); conflicts.push(...blocks.conflicts); for (const conflict of blocks.conflicts) { const [filename, owner] = conflict.split(':'); actions.push({ path: conflict, kind: 'conflict', modules: [owner], reason: 'consumer content requires a decision' }); }
   const staged = { '.gitignore': mergeIgnore(fs.existsSync(path.join(target, '.gitignore')) ? fs.readFileSync(path.join(target, '.gitignore')) : null, WORKFLOW_GITIGNORE_ENTRIES, LEGACY_WORKFLOW_GITIGNORE_ENTRIES), '.ignore': mergeIgnore(fs.existsSync(path.join(target, '.ignore')) ? fs.readFileSync(path.join(target, '.ignore')) : null, WORKFLOW_SEARCHIGNORE_ENTRIES), ...blocks.outputs };
   for (const action of actions) if (['add', 'update', 'claim'].includes(action.kind)) staged[action.path] = adoptedBytes(action.path, sourceBytes(source, action.path));
-  const newManifest = { schema: 1, workflow_version: WORKFLOW_VERSION, layers: effective, files: records, blocks: blocks.blocks }; staged['.my-workflow/adoption.json'] = Buffer.from(`${JSON.stringify(newManifest, null, 2)}\n`);
-  const selectedSet = new Set(effective); const assessments = effective.map((id) => { const own = actions.filter((action) => action.modules.includes(id)); const kinds = new Set(own.map((action) => action.kind)); const status = kinds.has('conflict') ? 'conflict' : kinds.has('replace') ? 'modified' : kinds.has('update') ? 'outdated' : kinds.has('add') || kinds.has('claim') ? 'not installed' : 'up to date'; return { id, status, requiredBy: LAYERS.filter((candidate) => candidate !== id && DEPENDENCIES[candidate].includes(id) && selectedSet.has(candidate)), actions: own }; });
+  const newManifest = { schema: 1, workflow_version: WORKFLOW_VERSION, layers: manifestLayers, files: records, blocks: blocks.blocks }; staged['.my-workflow/adoption.json'] = Buffer.from(`${JSON.stringify(newManifest, null, 2)}\n`);
+  const selectedSet = new Set(effective); const assessments = effective.map((id) => { const own = actions.filter((action) => action.modules.includes(id)); const kinds = new Set(own.map((action) => action.kind)); const status = kinds.has('conflict') ? 'conflict' : kinds.has('modified') ? 'modified' : kinds.has('update') ? 'outdated' : kinds.has('add') || kinds.has('claim') ? 'not installed' : 'up to date'; return { id, status, requiredBy: LAYERS.filter((candidate) => candidate !== id && DEPENDENCIES[candidate].includes(id) && selectedSet.has(candidate)), actions: own }; });
   const noChange = actions.length > 0 && actions.every((action) => ['preserve', 'no-change'].includes(action.kind)) && !conflicts.length;
   return { plan: { target, packageVersion: WORKFLOW_VERSION, selectedModules: effective, assessments, actions: actions.map((action) => ({ ...action, modules: [...new Set(action.modules)] })).sort((a, b) => a.path.localeCompare(b.path)), unresolved: [...new Set(conflicts)].sort(), retired, status: conflicts.length ? 'conflict' : noChange ? 'no-change' : 'ready', message: noChange ? 'Selected modules are up to date. No files will change.' : undefined }, staged, manifest: newManifest };
+}
+
+export function gitProof(root, runner = execFileSync) {
+  const target = asRoot(root);
+  try {
+    const run = (args) => String(runner('git', args, { cwd: target, shell: false, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })).trim();
+    if (run(['rev-parse', '--is-inside-work-tree']) !== 'true') fail('Git work tree required');
+    if (path.resolve(run(['rev-parse', '--show-toplevel'])) !== target) fail('target must be the root of its Git work tree');
+    if (!run(['rev-parse', '--verify', 'HEAD'])) fail('Git repository requires HEAD');
+    if (run(['status', '--porcelain', '--untracked-files=all'])) fail('Git target must be clean');
+    return true;
+  } catch (error) { if (error instanceof InstallerError) throw error; fail(`Git proof failed: ${error.message}`); }
 }
 
 export function assessModules(input) { return buildPlan(input).plan.assessments; }
 export function recalculatePlan(planInput, decisions = {}) { const result = buildPlan({ ...planInput, selectedModules: decisions.selectedModules || planInput.selectedModules }); if (decisions.replacements) for (const action of result.plan.actions) if (action.kind === 'conflict' && decisions.replacements.includes(action.path)) { action.kind = 'replace'; result.plan.unresolved = result.plan.unresolved.filter((item) => item !== action.path); } return result; }
 
-export default { buildPlan, assessModules, recalculatePlan, resolveModules, requestedModules, loadManifest, validateRelative, safePath, sha256, LAYERS };
+export default { buildPlan, assessModules, recalculatePlan, resolveModules, requestedModules, loadManifest, validateRelative, safePath, sha256, gitProof, LAYERS };

@@ -1121,7 +1121,7 @@ describe("adoption and public setup", () => {
     expect(manifest.name).toBe("workflow-spec-driven");
     expect(manifest.private).toBe(false);
     expect(manifest.packageManager).toBe("bun@1.4.0");
-    expect(manifest.scripts?.test).toBe("bun test");
+    expect(manifest.scripts?.test).toBe("bun test && node --test tests/installer/*.test.js");
     expect(readRepositoryFile("bun.lock")).toContain('"name": "workflow-spec-driven"');
     expect(existsSync(join(repositoryRoot, "package-lock.json"))).toBe(false);
     expect(latestHeading).toBe("0.10.0");
@@ -1196,7 +1196,7 @@ describe("Bun tooling runtime contract", () => {
     expect(bunfig).toContain("[test]");
     expect(bunfig).toContain('root = "./tools"');
     expect(bunfig).toContain('preload = ["./tools/shared/src/bun-version.ts"]');
-    expect(manifest.scripts?.test).toBe("bun test");
+    expect(manifest.scripts?.test).toBe("bun test && node --test tests/installer/*.test.js");
     expect(manifest.scripts?.["test:all"]).toBe("bun run test && bun run test:python");
     expect(pythonSuites).toEqual(expectedPythonSuites);
     expect(manifest.scripts?.["test:python"]).toBe(pythonLoop);

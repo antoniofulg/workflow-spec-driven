@@ -9,6 +9,13 @@ Implement these tasks with the `wimplement` skill and verify them with `wverify`
 **Design**: `.specs/features/interactive-installer/design.md`
 **Status**: In execution
 
+### Remediation batch 2026-09-08
+
+Technical verification follow-up closes the eight fingerprints recorded in
+`validation-guided-installer.md` and `review-fingerprints.json`: full-gate Node test discovery,
+security-test migration, planner state/deselection semantics, contained transaction recovery,
+fixed-argv Git proof, terminal contract assertions, and transaction-bound knowledge checklists.
+
 ---
 
 ## Test Coverage Matrix
