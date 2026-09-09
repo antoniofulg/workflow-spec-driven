@@ -50,6 +50,13 @@ the approved 80x24 and 120x40 transcripts, including pending-transfer guidance a
 progress/copy. Focused suites pass 182/182 and the full gate exits 0; the scoped threat model is
 present and the remediation checkpoint is ready for its atomic commit.
 
+### Final security remediation checkpoint 2026-09-08
+
+The final focused batch makes restore lstat every backup parent/component before reading, promotes
+`.gitignore` and `.ignore` to visible first-class plan actions with backup/journal rollback, and adds
+the owning regression assertions for outside sentinels, preview ordering, and failure restoration.
+Focused installer tests pass 187/187 and the full gate exits 0; ready for the atomic checkpoint commit.
+
 ---
 
 ## Test Coverage Matrix
