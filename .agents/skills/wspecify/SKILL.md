@@ -1,6 +1,6 @@
 ---
 name: wspecify
-description: "Specify phase - capture WHAT to build with testable, traceable EARS requirements, run the closure gate, and trigger discuss for gray areas. Argument: the feature slug. Preloaded by the planner agent; enter with /wspecify."
+description: "Specify phase - capture testable EARS requirements, resolve gray areas, and run the closure gate. Argument: feature slug. Preloaded by planner; enter with /wspecify."
 argument-hint: "<feature-or-slice>"
 context: fork
 agent: planner
@@ -94,7 +94,7 @@ Write every acceptance criterion in **EARS** (Easy Approach to Requirements Synt
 
 ### 5. UI/UX Surface Map (uiux.md)
 
-Only when a screen is added or changed: write `.specs/features/[feature]/uiux.md` after acceptance criteria and before the closure gate, following `docs/guidelines/UI-UX.md`. Enumerate screens, entry points, states, breakpoints, components, copy, and out-of-scope surfaces. Features with no new or changed screen skip this step.
+Only when a screen is added or changed: write `.specs/features/[feature]/uiux.md` after acceptance criteria and before the closure gate, following `docs/guidelines/UI-UX.md`. Enumerate screens, entry points, states, breakpoints, components, copy, and out-of-scope surfaces. If an approved source/frame or frozen export is supplied, record its revision, route/state/viewport mapping, captures, environment, fonts/assets, token provenance/mapping, responsive constraints, and expected differences/tolerances in the `Reference` section. Features with no new or changed screen skip this step.
 
 ### 6. Requirement Closure Gate (before confirm)
 

@@ -4,15 +4,15 @@ area: ADP
 title: Adopt the workflow without replacing consumer-owned state
 persona: Workflow adopter
 journey: J-adopt-workflow
-expected: A fresh target receives the v3 assisted workflow, pointer-only probe, tracked example/templates including designer packets, initialized local config, generated runtime packets for all six roles, and valid guidance; re-adoption preserves consumer-owned local state and feature workflow state remains visible to Git.
-entry_points: README.md#adopt-the-workflow; docs/guidelines/ARTIFACT-LIFECYCLE.md; scripts/adopt.py; tools/orca_assisted_probe.py; .my-workflow.toml.example; .my-workflow.toml; templates/agents/
+expected: An exact package applies canonical skill-owned runtime and generated packets while preserving consumer context, config, QA, and knowledge, retiring proven old copies, and refusing edited or unproven old runtime before publication.
+entry_points: README.md#quick-start; docs/workflow/pack.md; npx workflow-spec-driven install
 qa_status: pass
 bug_ids: BUG-20260822-deep-review-learnings-untrackable; BUG-20260822-feature-specs-ignored; BUG-20260822-feature-state-gate-conflicts; BUG-20260825-adoption-omits-parallel-pilot; BUG-20260829-final-qa-pass-conflicts-with-adoption-gate
 fix_status: fixed
 retest_status: pass
 fix_commits: 0413862; a7397d2; 43e9910; a3fc718; 5b5474e; 816afd6; 9653ed1
-evidence: docs/qa/evidence/2026-09-04-release-0-9-1/37-migration-readback.txt; docs/qa/evidence/2026-09-04-release-0-9-1/45-full-readback.txt; docs/qa/evidence/2026-09-04-release-0-9-1/62-full-runtime-canary.txt; docs/qa/evidence/2026-09-04-release-0-9-1/72-independent-reload.txt
-last_report: docs/qa/reports/2026-09-04-release-0-9-1.md
+evidence: docs/qa/evidence/2026-09-09-interactive-installer/47-knowledge-readback.json; docs/qa/evidence/2026-09-09-interactive-installer/49b-recovery-readback.json; docs/qa/evidence/2026-09-09-interactive-installer/50-malformed-state.log; docs/qa/evidence/2026-09-09-interactive-installer/50-unsafe-manifest.log; docs/qa/evidence/2026-09-09-interactive-installer/54-final-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/closeout-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/provenance-readback.json
+last_report: docs/qa/reports/2026-09-09-interactive-installer.md
 overlaps:
 ---
 
@@ -25,7 +25,7 @@ skills and links installed before designer configuration, strict sync failed wit
 eighteen runtime packets appeared on configured full adoption, package bytes survived, probe import
 made zero Orca calls, and independent reload retained clean state.
 
-For issue #36, fresh adoption must install `tools/ad-index.py`; after the consumer changes that file,
+For issue #36, fresh adoption must install the skill-owned AD index; after the consumer changes that file,
 re-adoption must preserve its bytes.
 
 For issue #37, `docs/workflow/pack.md` remains source-only. Fresh adoption receives the other tour
@@ -36,10 +36,11 @@ omits the guide and both links without losing the other five pages, all remainin
 resolve, and re-adoption preserves a consumer-owned sentinel byte-for-byte.
 
 QA on 2026-08-22 confirmed fresh installation and identical SHA-256 before and after re-adoption of
-a consumer-modified `tools/ad-index.py`. The bundled-skill and release-contract canaries also passed.
+a consumer-modified skill-owned AD index. The bundled-skill and release-contract canaries also passed.
 
 QA for issue #39 confirmed initial adoption and re-adoption install byte-identical workflow validator
-CLIs while preserving consumer-owned `.my-workflow.toml` and `docs/qa/README.md` byte-for-byte.
+CLIs while preserving consumer-owned `.my-workflow.toml` and `docs/qa/README.md` byte-for-byte. The
+deterministic package path extends that preservation to consumer knowledge and neutral fresh scaffolds.
 
 For issue #41, adoption documents Ponytail activation at workflow start and points to `AGENTS.md`
 for the full-cycle persistence rule. QA on 2026-08-22 confirmed the installed `AGENTS.md`, Ponytail
@@ -75,7 +76,7 @@ preserved consumer-owned bytes, retained tracked lock provenance, and only print
 installer command.
 
 QA on 2026-08-25 found the `0.6.0` adoption regression: executor and adapter files install, but the
-public `tools/qa_parallel_pilot.py` lifecycle entry point does not. See
+public `.agents/skills/autonomous/scripts/qa_parallel_pilot.py` lifecycle entry point does not. See
 `BUG-20260825-adoption-omits-parallel-pilot`.
 
 Fresh QA after `816afd6` passed the affected adoption journey. The pilot installed with exact source
@@ -84,7 +85,7 @@ configuration byte-for-byte, and all 15 generated provider packets remained unch
 release/package canary also passed; see the current report.
 
 The hybrid-slice feature changes this public promise to v3 assisted-by-default adoption and adds
-the pointer-only `tools/orca_assisted_probe.py`. The implementation gate is not a user QA walk, so
+the pointer-only `.agents/skills/autonomous/scripts/orca_assisted_probe.py`. The implementation gate is not a user QA walk, so
 this scenario is reset to `untested` until fresh QA confirms the installed tree.
 
 Fresh QA Execute at `8257d37` retested the adoption-gate fix through a new disposable consumer.
@@ -96,3 +97,7 @@ remain `blocked-verify`; this offline adoption pass does not change that boundar
 The `phase-skills` feature adds five phase skill directories to the core catalog and makes `.agents/skills` a sync input in `_prepare_sync`; the set of assets a fresh target receives and re-adoption preserves has changed, so this scenario is reset to `untested` pending the 2026-09-03 cycle. Prior evidence remains historical.
 
 The `specify-impact-designer` feature adds three designer templates and three designer runtime paths to `RUNTIME_PATHS`. Fresh adoption must install those templates and generate the six-role packets; re-adoption must still preserve consumer-owned local state. Reset to `untested`. Prior evidence remains historical.
+
+The `lean-consumer-installation` cycle relocates installed runtime into owning skills and changes how
+proven previous-layout copies retire. Reset to `untested`; the 2026-09-07 report and evidence remain
+historical. Walk `CH-install-skill-owned-runtime-2026-09-08` from a final reviewed package.

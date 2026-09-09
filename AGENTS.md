@@ -17,7 +17,7 @@ Specify + Design + Tasks here. After approval, dispatch **implementer** and stay
 
 Spawn the named agent; do not override its model. A search or trace is `explorer`; do not search the
 product tree in the parent chat. Local `.my-workflow.toml` owns model/effort choices; tracked
-`templates/agents/` bodies and generated ignored provider runtimes materialize native metadata, and
+`.agents/skills/workflow-config/assets/agents/` bodies and generated ignored provider runtimes materialize native metadata, and
 feature snapshots freeze delegated settings. Cursor also sees `.claude/` and `.codex/`; the same
 `name` resolves to `.cursor/`. Real files, no symlinks.
 
@@ -103,7 +103,7 @@ Docs and formatting do not trigger `SECURITY.md`.
 consuming project's architecture docs. Cite the file with the label. Do not invent invariant ids in
 this pack.
 
-Recording an `AD-NNN` also runs `python3 tools/ad-index.py` in that commit. Skill validators live in
+Recording an `AD-NNN` also runs `python3 .agents/skills/workflow-spec-driven/scripts/ad-index.py` in that commit. Skill validators live in
 the installed `workflow-spec-driven` skill (`validate_spec.py`, `validate_tasks.py`, `check_commit.py`,
 `validate_state.py`). The consuming project owns `make check`.
 

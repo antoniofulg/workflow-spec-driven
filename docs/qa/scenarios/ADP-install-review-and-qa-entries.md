@@ -5,14 +5,14 @@ title: Install the review and QA entry skills with the core layer
 persona: Workflow adopter
 journey: J-adopt-workflow
 expected: A core-layer adoption reports the review and QA entry skills as managed and leaves each SKILL.md plus a .claude/skills link that opens the same file.
-entry_points: README.md#adopt-the-workflow; python3 scripts/adopt.py plan <target> --layers core --json; python3 scripts/adopt.py apply <target> --layers core; python3 scripts/adopt.py status <target>; .agents/skills/wreview; .agents/skills/wqa; .claude/skills/
+entry_points: README.md#adopt-the-workflow; npx workflow-spec-driven install; .agents/skills/wreview; .agents/skills/wqa; .claude/skills/
 qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-03-w-entry-points/11-plan-core.json; docs/qa/evidence/2026-09-03-w-entry-points/12-target-after-plan.txt; docs/qa/evidence/2026-09-03-w-entry-points/13-apply-core.log; docs/qa/evidence/2026-09-03-w-entry-points/14-status.log; docs/qa/evidence/2026-09-03-w-entry-points/15-skill-links.txt; docs/qa/evidence/2026-09-03-w-entry-points/17-body-lines.txt
-last_report: docs/qa/reports/2026-09-03-w-entry-points.md
+evidence: docs/qa/evidence/2026-09-07-deterministic-installer/fresh-walk-summary.json; docs/qa/evidence/2026-09-07-deterministic-installer/independent-readback.json
+last_report: docs/qa/reports/2026-09-07-deterministic-installer.md
 overlaps: ADP-install-phase-skills; ADP-adopt-workflow-safely; ADP-layered-workflow-adoption
 ---
 

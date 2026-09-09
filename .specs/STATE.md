@@ -2,12 +2,12 @@
 
 ## Handoff
 
-- **Feature**: `specify-impact-designer` (branch `feat/specify-impact-designer`, roadmap slice 3)
-- **Phase / Task**: complete; delivery (push, pull request, merge) in progress under `autonomous`
-- **Completed**: S1 and S2 on Cursor; verifications converged after test-strength batches (S1 round 7, S2 round 7); deep review round 1 FIX_BEFORE_SHIP remediated, round 2 SHIP; QA plan and execute pass; feature `validation.md` PASS (sensor 7/7); `validate_state.py` exit 0
-- **In-progress** (file:line): none
-- **Next step**: roadmap slice 4 (mockup fidelity, reuse inventory, lint on raw elements, visual diff gate)
-- **Blockers**: none. Live Orca transport stays `blocked-verify`.
+- **Feature**: `lean-consumer-installation` (branch `fix/lean-consumer-installation`)
+- **Phase / Task**: Complete locally — T1, review remediation and final package QA at `8f268bae`
+- **Completed**: skill-owned runtime, 28 proven old-copy retirements, consumer preservation, independent technical PASS, R1 with both Minor findings fixed, and final `bun run test:all` exit 0. Public QA: 8/9 passed; see `.specs/features/lean-consumer-installation/review-closeout.md` and the dated QA report.
+- **In-progress** (file:line): none for the installation relocation
+- **Next step**: optional separate QA work to supply the unchanged executor's missing offline adapter; its scenario remains `untested`, and the two live-host scenarios retain `blocked-verify`.
+- **Blockers**: none for the installed-runtime scope. Remote delivery, publication and real-consumer updates remain separately scheduled.
 
 ## Decisions
 
@@ -358,6 +358,23 @@
 - **Scope**: Assisted Orca packet delivery, the `parallelization.md` contract, AST-04, IT-005, and
   the assisted QA charter and scenario.
 - **Date**: 2026-08-27
+- **Status**: active
+
+### AD-030
+
+- **Decision**: The canonical consumer installer is the unscoped `workflow-spec-driven` npm package
+  and homonymous Node.js 18 executable. Its guided installer ports the adoption and install-time
+  packet-generation path from Python, while workflow tools unrelated to installation remain with
+  their current owners and runtimes.
+- **Reason**: Repository maintainers need one discoverable `npx workflow-spec-driven install`
+  journey with module selection, recoverable upgrades, and no Python prerequisite during
+  installation.
+- **Trade-off**: The JavaScript port must prove parity with a mature Python adopter and temporarily
+  duplicates install-time packet rendering from the Python workflow resolver. The already-published
+  scoped package remains immutable registry history rather than a compatibility channel.
+- **Scope**: npm package identity, installer CLI, adoption planner and transaction, install-time
+  provider packet generation, installation tests, adoption documentation, and QA scenarios.
+- **Date**: 2026-09-08
 - **Status**: active
 
 ### AD-023

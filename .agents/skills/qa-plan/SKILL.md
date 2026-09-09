@@ -1,6 +1,6 @@
 ---
 name: qa-plan
-description: Plan user-visible QA coverage by mapping feature intent to durable journeys, scenarios, and session charters. Use when a Verifier prepares QA for a changed user-facing surface or adoption. Don't use for live product walks, defect fixes, or selecting a test framework.
+description: Plan user-visible QA through journeys, scenarios, and charters. Use when a Verifier prepares QA; Don't use for live walks, product fixes, or framework selection.
 metadata:
   author: Antonio Fulgêncio
 ---
@@ -43,6 +43,10 @@ Maintain a criterion disposition for every changed acceptance criterion. Map use
 to a QA journey/scenario; for an internal criterion, enumerate it in the handoff with the reason it
 does not change a user-visible promise. If no criterion is user-visible, record `no user-visible
 change` in the task handoff and stop.
+
+For a visual criterion, point the disposition at the owning feature `uiux.md` reference row and follow
+`UI-UX.md#verifying-the-built-screen`. The visual comparison remains evidence for that criterion; it
+does not replace behavioral coverage.
 
 **Done when:** every changed acceptance criterion has one explicit disposition, and the no-surface
 case has a written handoff.

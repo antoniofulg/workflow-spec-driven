@@ -1,4 +1,6 @@
-# my-workflow
+# workflow-spec-driven
+
+The npm package and executable are both `workflow-spec-driven`.
 
 An operating system for agents. It ships the workflow-owned [`workflow-spec-driven`](.agents/skills/workflow-spec-driven/SKILL.md)
 router and its five phase skills (`wspecify`, `wdesign`, `wtasks`, `wimplement`, `wverify`)
@@ -12,31 +14,26 @@ human-owned merge.
 
 ## Quick start
 
-Keep the immutable release checkout separate from the project receiving it. The target directory must
-already exist. A Git repository is recommended so plans, conflicts, and workflow state remain
-reviewable.
+From the repository you want to install into, run the guided Node.js installer:
 
 ```bash
-git clone --branch v0.10.0 --depth 1 https://github.com/antoniofulg/my-workflow.git /path/to/my-workflow-0.10.0
-mkdir -p /path/to/target-project
-python3 /path/to/my-workflow-0.10.0/scripts/adopt.py plan /path/to/target-project --layers core --json
-python3 /path/to/my-workflow-0.10.0/scripts/adopt.py apply /path/to/target-project --layers core
-python3 /path/to/my-workflow-0.10.0/scripts/adopt.py status /path/to/target-project
+npx workflow-spec-driven install
 ```
 
-Use `core` for the operating loop and Bun tooling. Use `full` for parallel execution, quality and QA
-skills, and optional Ponytail utilities; selected layers are cumulative, and every non-core layer
-includes `core`. `full` installs capabilities but does not mandate every stage; the task classifier
-selects the work. Adoption requires Python 3. Bun 1.4.x is needed only for source-pack tooling, not
-adoption itself. Use the same target and `--layers` value with `plan` and `apply`; `status` reads
-installed layers from the manifest and takes no layer selector.
+The command targets the current directory, requires Node.js 18 or newer, and walks through module
+selection, state assessment, a complete preview, conflict decisions, final confirmation, and a
+result summary. It never requires Python. Existing files that are replaced or removed are copied
+byte-for-byte with their modes into `.my-workflow/backups/<UTC timestamp>/`; the adoption manifest
+is published last. Cancelling at any prompt writes nothing.
 
-After the first apply, immediately fill the consumer-owned `docs/product/AGENT-CONTEXT.md` with the
-product identity, critical constraints, and routes to existing files or headings. Do not create empty
-brand, design, or architecture files. Task-specific routes beat role defaults: visual polish reads
-design/accessibility (for example, a button color), customer copy reads voice, a planner reads the
-overview plus affected capabilities, and an implementer reads its approved task plus applicable
-architecture/design. Narrow context never bypasses safety, permission, QA, or review requirements.
+Choose `core`, `parallel`, `quality`, or `extras`; selecting any non-core module also selects `core`.
+Every module is shown as `not installed`, `up to date`, `outdated`, `modified`, or `conflict`. A
+conflict must be explicitly backed up and replaced, excluded, or cancelled. Successful replacements
+that affect consumer guidance include a `knowledge-transfer.md` checklist with a pending human
+transfer; consumer knowledge is never merged automatically.
+
+The terminal wizard supports 80×24 and 120×40 layouts and `NO_COLOR=1`. The package's complete
+current workflow is documented in [docs/workflow/](docs/workflow/).
 
 Start here: **[docs/workflow/](docs/workflow/)** — an index of every stage, guideline, and choice.
 
@@ -128,30 +125,34 @@ separate installer command; run it only after explicit authorization because it 
 and writes the consumer's `.agents/skills/` tree. It does not install `latest` or silently update
 these dependencies.
 
-## Adopt the workflow
+## Guided installation details
 
-Copy the loop, not the product. New projects use the shared `AGENTS.md` pointer and receive a neutral,
-consumer-owned `docs/product/AGENT-CONTEXT.md` index; fill its identity and routes with existing
-project references instead of copying this source pack's profile. Existing projects preserve their
-filled product paragraph and product-owned documentation. For a legacy `AGENTS.md`, extract product
-rules into that index before deliberately replacing older prose; adoption never infers or performs
-that migration.
+Copy the loop, not the product. New projects receive a neutral, consumer-owned
+`docs/product/AGENT-CONTEXT.md` index; fill its identity and routes with existing project references
+instead of copying this source pack's profile. Existing projects preserve their filled product
+paragraph and product-owned documentation. Knowledge transfer is always a human review step.
 
-Choose a fixed capability layer. `core` contains the operating loop and Bun tooling, `parallel`
-adds assisted slice execution, `quality` adds review and QA skills, and `extras` adds optional
-Ponytail utilities. Selecting `parallel`, `quality`, or `extras` automatically includes `core`;
-`full` resolves all four layers. Planning is read-only and should precede
-every apply:
+The four fixed modules are `core` (operating loop and shared tooling), `parallel` (assisted slice
+execution), `quality` (review and QA), and `extras` (optional Ponytail utilities). Selecting
+`parallel`, `quality`, or `extras` automatically includes `core`. The guided command is:
+
+`core` contains the operating loop and Bun tooling; `parallel` adds assisted slice execution;
+`quality` adds review and QA skills; `extras` adds optional Ponytail utilities. `full` resolves all
+four catalog modules when inspecting the package contents.
+The module definitions are: `parallel` (assisted slice execution), `quality` (review and QA), and
+`extras` (optional Ponytail utilities).
 
 ```bash
-python3 scripts/adopt.py plan /path/to/target-project --layers core --json
-python3 scripts/adopt.py apply /path/to/target-project --layers core
-python3 scripts/adopt.py status /path/to/target-project
+npx workflow-spec-driven install
 ```
 
-This release changes only this source pack's shared `AGENTS.md` and managed workflow files. Updating
-an existing consumer remains a separate adoption step. Start that update from a clean dedicated
-branch; adoption preserves unknown consumer files and aborts before writing when it finds conflicts.
+The target must be the current directory and the command must run in an interactive terminal.
+The command never invokes Python. It previews add, update, adopt, preserve, replace, remove, and
+no-change actions before asking for final confirmation.
+
+Cancellation exits 0 with no target, adoption, journal, or backup changes. Invalid state, unsafe
+paths, backup failures, and publication failures exit 1; non-interactive use exits 2 with the exact
+TTY guidance.
 
 Add capabilities later with another apply; installed layers are cumulative and omitted layers are
 never removed. `--skip-agents` preserves both instruction files byte-for-byte and skips local-config
@@ -159,31 +160,18 @@ initialization and packet synchronization. Without it, adoption appends managed 
 and `quality` blocks while preserving consumer prose. A differing
 managed file or unowned destination is reported as a conflict and causes zero writes.
 
-### Resolve a legacy no-manifest conflict
+### Recovery and conflict handling
 
-For an existing project copied from an older workflow release, run `plan` first. If it reports
-conflicts and the target has no `.my-workflow/adoption.json`, review each path and move any product
-customization into the target's product-owned documentation or code. Commit that clean baseline,
-then authorize every reviewed file conflict explicitly:
+For an existing project copied from an older workflow release, the wizard inspects current files and
+the adoption manifest. It reports every conflict before writing. Choose `Back up and replace`,
+`Exclude module`, or `Cancel installation`; excluding `core` also excludes dependent modules.
 
-```bash
-python3 /path/to/my-workflow/scripts/adopt.py resolve /path/to/target-project \
-  --layers parallel \
-  --replace tools/resource_lock.py \
-  --replace tools/qa_parallel_pilot.py \
-  --skip-agents
-python3 /path/to/my-workflow/scripts/adopt.py status /path/to/target-project
-```
-
-Use one `--replace` for each reviewed file conflict, and usually pass `--skip-agents` when the
-target has product-specific `AGENTS.md` or `CLAUDE.md` instructions. There is no `--replace-all`.
-Altered managed instruction blocks remain manual conflicts. Once an adoption manifest exists,
-resolve is no longer available: use `status`, `apply`, and manual resolution for managed-file
-drift.
+If the process stops after publication begins, the next run detects the transaction journal and
+offers restoration from its verified backup before allowing a new installation.
 
 ### Serialize only contested test resources
 
-The `parallel` layer installs the dormant `tools/resource_lock.py` wrapper. Activation is explicit:
+The `parallel` layer installs the dormant `.agents/skills/autonomous/scripts/resource_lock.py` helper. Activation is explicit:
 adoption does not rewrite a consumer command or gate. Wrap only a heavy command that shares a
 browser, database, container runtime, or other declared resource; unit tests and other light gates
 remain concurrent.
@@ -191,7 +179,7 @@ remain concurrent.
 For worktrees of the same project, use the default project scope:
 
 ```bash
-python3 tools/resource_lock.py run \
+python3 .agents/skills/autonomous/scripts/resource_lock.py run \
   --resource browser \
   -- python3 -m pytest tests/e2e
 ```
@@ -199,26 +187,19 @@ python3 tools/resource_lock.py run \
 To serialize that resource across separate projects on one machine, opt into machine scope:
 
 ```bash
-python3 tools/resource_lock.py run \
+python3 .agents/skills/autonomous/scripts/resource_lock.py run \
   --resource browser --scope machine \
   -- python3 -m pytest tests/e2e
 ```
 
 The wrapper holds the named lock only for the wrapped command and passes its arguments directly.
-Run `python3 tools/resource_lock.py run --help` for the authoritative flags, defaults, and result
+Run `python3 .agents/skills/autonomous/scripts/resource_lock.py run --help` for the authoritative flags, defaults, and result
 codes.
 
-The old positional `adopt.py TARGET` command is intentionally removed. `plan` and `apply` require
-`--layers`; `status` reports clean state with exit 0, drift with exit 1, and invalid state or
-invocation with exit 2.
+Prerequisites: Node.js 18 or newer and an interactive terminal. Python is not an installer
+prerequisite; unrelated Python workflow tools remain available after installation.
 
-Prerequisites: the target directory must already exist, and `adopt.py` requires Python 3. Adoption
-does not require a Git `HEAD`. Before running the workflow-config resolver, the target must be a Git
-repository with at least one commit. Bun 1.4.x is the JavaScript/TypeScript runtime for this pack;
-it is needed only to validate the source pack's gates, not to adopt it.
-
-Adoption is a review before it is a command. [`docs/adoption-prompt.md`](docs/adoption-prompt.md)
-carries the prompt for the read-only inspection, adoption command, and diff review.
+The preview is the review: inspect the complete action list and backup destination before confirming.
 
 Feature workflow state follows the [artifact lifecycle](docs/guidelines/ARTIFACT-LIFECYCLE.md) and
 remains visible to Git. Adoption removes only the exact legacy `.specs/features/` ignore line,
@@ -229,7 +210,7 @@ The tracked `.my-workflow.toml.example` documents the complete v3 matrix and `mi
 checkout owns an ignored `.my-workflow.toml`, initialized from that example by adoption without
 `--skip-agents` or by explicit sync;
 it is the single editable source for all Claude, Codex, and Cursor model and effort choices. The
-tracked `templates/agents/` trees hold canonical instruction bodies, while sync generates the
+tracked `.agents/skills/workflow-config/assets/agents/` trees hold canonical instruction bodies, while sync generates the
 ignored native runtime packets. Re-adoption preserves an existing local config byte-for-byte and
 regenerates runtime packets from the templates and that config when `--skip-agents` is not used.
 With `--skip-agents`, sync is an explicit later operator step.
@@ -312,58 +293,56 @@ The complete contract is in the
 ## Update an adopted project
 
 Start from a clean tree and a dedicated update branch. Read the changelog since the version the
-project adopted, plan the smallest layer update, then inspect the complete diff before committing:
+project adopted, then run the guided installer and inspect the complete diff before committing:
 
 ```bash
 cd /path/to/target-project
 git status --short
-git switch -c chore/update-my-workflow
-python3 /path/to/my-workflow/scripts/adopt.py plan . --layers full
-python3 /path/to/my-workflow/scripts/adopt.py apply . --layers full --skip-agents
+git switch -c build/update-workflow-spec-driven
+npx workflow-spec-driven install
 git diff
 ```
 
-Use `--skip-agents` when the target has product-specific instructions. It preserves `AGENTS.md` and
-`CLAUDE.md`, skips local-config initialization and packet sync, and leaves managed instruction blocks
-for manual merge. Read
-[`CHANGELOG.md`](CHANGELOG.md) between the adopted version and the current package version before
-accepting the update. Apply is additive: it does not remove an installed layer or consumer file.
+Run `npx workflow-spec-driven install` for every installation or update. It updates pristine
+workflow-owned files, promotes provider templates using recorded source hashes, refreshes managed
+instruction blocks and runtime packets, and stops with all conflicts before writing.
+
+Adoption preserves product context, local config, package metadata, existing knowledge, and unknown
+consumer files. A fresh target receives managed generic knowledge instructions plus neutral,
+consumer-owned wiki indexes and log. Source concepts and dated raw observations never cross the
+repository boundary. Retired workflow files are removed only when their managed hashes prove they
+are pristine; edited or unproven paths conflict with zero writes.
 
 Each release lists its upgrade steps under `### Migration` in the changelog; follow them in order
-after `apply`. Templates install only when the directory is missing, so merge template changes by
-hand while retaining customizations, then run the explicit sync command. Without `--skip-agents`,
-apply performs normal sync; with it, local config and packets stay untouched until you sync later.
-The roadmap's deterministic installer (`docs/workflow/roadmap.md`) is the planned replacement for
-manual template merging.
+after installation. The package identity for this release is `workflow-spec-driven@0.10.1`.
 
 ## Managed paths
 
-Review the managed paths and the plan's per-file actions. Adoption updates only workflow-owned files, preserves unknown
-consumer files, creates missing `docs/qa/README.md`, `tools/ad-index.py`, `.my-workflow.toml.example`,
-and `templates/agents/`, and records ownership in `.my-workflow/adoption.json`. It never removes an
-installed layer or consumer file. Product documentation, `.specs/`, `package.json`, `bun.lock`, and
-an existing local `.my-workflow.toml` remain consumer-owned.
+Review the managed paths and the installer's per-file actions. Installation updates only workflow-owned files,
+preserves unknown consumer files, creates `.my-workflow.toml.example` and skill-owned runtime, and records ownership in `.my-workflow/adoption.json`. It never removes an
+installed layer or consumer file. Product documentation, `.specs/`, `package.json`, `bun.lock`, an
+existing local `.my-workflow.toml`, and an existing `docs/qa/README.md` remain consumer-owned.
 
-The local config is the source for generated provider packets. Adoption preserves an existing
-`.my-workflow.toml` and installs tracked templates when missing. Without `--skip-agents`, apply runs
-`--sync-agents`; sync creates the local config when absent and regenerates or overwrites the ignored `.claude/agents/`,
+The local config is the source for generated provider packets. Installation preserves an existing
+`.my-workflow.toml` and installs tracked templates when missing. The guided command synchronizes and
+regenerates the ignored `.claude/agents/`,
 `.codex/agents/`, and `.cursor/agents/` packets from the templates and config. Edit the config or
 tracked templates, not generated runtime packets.
 
 ## Troubleshooting
 
-**`conflict` in a plan or apply.** Review every listed path. Restore an owned file to its recorded
-hash or resolve an unowned collision, then run the plan again. Apply is all-preflight: no selected
-file or manifest is written while any conflict remains.
+**`conflict` during installation.** Review every listed path. Restore an owned file to its recorded
+hash or resolve an unowned collision, then run the guided command again. Installation is all-preflight:
+no selected file or manifest is written while any conflict remains.
 
 **`refusing adoption: Makefile:N uses machine-global workflow skill path`** Point the target's gate at
 the vendored `.agents/skills/workflow-spec-driven/scripts/...` path.
 
-**Claude skill symlinks point nowhere.** Re-run `apply --layers ...`; it recreates the `.claude/skills/`
+**Claude skill symlinks point nowhere.** Re-run `npx workflow-spec-driven install`; it recreates the `.claude/skills/`
 links into `.agents/skills/`.
 
 **A runtime packet has the wrong model or effort.** Edit the local `.my-workflow.toml`, then run
-the documented `workflow_config.py --sync-agents` command. Runtime packets are generated output.
+`npx workflow-spec-driven install`. Runtime packets are generated output.
 
 ## Optional integrations
 
@@ -377,7 +356,7 @@ available:
 No integration is mandatory or installed by adoption. Keep daemon, port, CLI and version details in
 the relevant integration documentation.
 
-The adopter merges workflow-owned ignore entries, copies missing example/templates, generates
+The installer merges workflow-owned ignore entries, copies missing example/templates, generates
 local runtime packets, and records per-file ownership in `.my-workflow/adoption.json`. It preserves
 consumer prose through managed blocks, never removes an installed layer, and leaves package
 metadata, local config, and unknown files untouched. Always review the plan and resulting diff
@@ -392,14 +371,14 @@ Codex and OpenCode consume `.agents`. Do not add `.cursor/skills` or other agent
 project-owned `qa-plan` and `qa-execute` skills use the consuming project's profile in
 `docs/qa/README.md`; they do not select a framework or replace the project's gate.
 
-`adopt.py` installs and updates only the workflow-owned `workflow-spec-driven` router, its five
+`npx workflow-spec-driven install` installs and updates only the workflow-owned `workflow-spec-driven` router, its five
 phase skills (`wspecify`, `wdesign`, `wtasks`, `wimplement`, `wverify`), Ponytail, Deep
 Review, QA, workflow-config, and autonomous skills. Keep those canonical copies in
 `.agents/skills/` and the Claude Code
 symlinks in `.claude/skills/`. The three external security skills are a separate authorized step:
 
 ```bash
-python3 /path/to/my-workflow/scripts/install_security_skills.py \
+python3 /path/to/workflow-spec-driven/scripts/install_security_skills.py \
   /path/to/target-project --yes
 ```
 
@@ -408,7 +387,7 @@ The installer uses only the reviewed refs and hashes in `skills-lock.json`; it d
 running it. Until it succeeds, do not treat the security gate as covered.
 
 `autonomous` is vendored here. `CLAUDE.md` is the one line `@AGENTS.md` (not a symlink). Canonical
-packet templates live under `templates/agents/{cursor,claude,codex}/`; generated implementer,
+packet templates live under `.agents/skills/workflow-config/assets/agents/{cursor,claude,codex}/`; generated implementer,
 explorer and verifier runtimes live under the ignored `.cursor/agents/`, `.claude/agents/` and
 `.codex/agents/` directories.
 

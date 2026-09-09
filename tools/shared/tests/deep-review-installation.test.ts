@@ -55,7 +55,7 @@ describe("deep-review installation", { timeout: 30_000 }, () => {
       source: "pedronauck/skills",
       sourceType: "github",
       skillPath: "skills/mine/deep-review/SKILL.md",
-      computedHash: "d57a61109aa72b75f01739faeb448fc9e0624f0a68eaa9cabb52e2ffdbfc097f",
+      computedHash: "6a618525f635e2526fe7d63f646c4362fedbcd570cfb86cb9197cc97ab57054f",
     });
     expect(hashSkillTree(skillDirectory)).toBe(lockEntry?.computedHash);
 
@@ -64,7 +64,7 @@ describe("deep-review installation", { timeout: 30_000 }, () => {
       packageManager?: string;
       devDependencies?: Record<string, string>;
     };
-    expect(packageManifest.version).toBe("0.10.0");
+    expect(packageManifest.version).toBe("0.10.1");
     expect(packageManifest.packageManager).toBe("bun@1.4.0");
     expect(existsSync(join(repositoryRoot, "bun.lock"))).toBe(true);
     expect(existsSync(join(repositoryRoot, "package-lock.json"))).toBe(false);

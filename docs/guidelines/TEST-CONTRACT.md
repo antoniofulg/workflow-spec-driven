@@ -93,3 +93,11 @@ the matrix sets the shape, `tests.md` enumerates the content.
 
 The mutation sensor stays. Enumerated cases prove coverage exists; the sensor proves the coverage is
 real. Neither substitutes for the other.
+
+## Visual acceptance evidence
+
+When a visual acceptance criterion names an approved reference, assign the implementing task a pointer
+to its feature `uiux.md` row and a paired-capture done criterion. Follow the method in
+`docs/guidelines/UI-UX.md#verifying-the-built-screen` and record its output fields. A manual paired
+comparison is evidence, not an automated test, and never replaces behavioral cases. Add automated
+screenshot regression only when an actual visual invariant has an owning canonical suite.

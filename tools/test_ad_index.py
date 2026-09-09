@@ -1,4 +1,4 @@
-"""Self-check for tools/ad-index.py. Run: python3 tools/test_ad_index.py"""
+"""Self-check for the bundled AD index. Run: python3 tools/test_ad_index.py"""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-MODULE_PATH = Path(__file__).resolve().parent / "ad-index.py"
+MODULE_PATH = Path(__file__).resolve().parent.parent / ".agents/skills/workflow-spec-driven/scripts/ad-index.py"
 
 
 def load():
@@ -55,9 +55,8 @@ def test_check_stale_then_fresh() -> None:
         specs = root / ".specs"
         specs.mkdir()
         (specs / "STATE.md").write_text(SAMPLE, encoding="utf-8")
-        tools = root / "tools"
-        tools.mkdir()
-        dest = tools / "ad-index.py"
+        dest = root / ".agents/skills/workflow-spec-driven/scripts/ad-index.py"
+        dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(MODULE_PATH.read_text(encoding="utf-8"), encoding="utf-8")
         cmd = ["python3", str(dest), "--check"]
         stale = subprocess.run(cmd, cwd=root, capture_output=True, text=True)

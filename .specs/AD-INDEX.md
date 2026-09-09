@@ -3,7 +3,7 @@
 One line per `AD-NNN`. The append-only body lives in `.specs/STATE.md`.
 
 Body: `rg -A 20 '^### AD-NNN' .specs/STATE.md`. Resume: `rg -A 20 '^## Handoff' .specs/STATE.md`.
-When recording an `AD-NNN`, run `python3 tools/ad-index.py` in the same commit.
+When recording an `AD-NNN`, run the bundled workflow-spec-driven ad-index.py in the same commit.
 
 | ID | Status | Decision |
 | --- | --- | --- |
@@ -36,3 +36,4 @@ When recording an `AD-NNN`, run `python3 tools/ad-index.py` in the same commit.
 | `AD-027` | active | Round 2's Finding 1 is resolved as documentation, not code. |
 | `AD-028` | active | Each workflow phase (Specify, Design, Tasks, Implement, Verify) is its own skill (`wspecify`, `wdesign`, `wtasks`, `wimplement`, `wverify`)… |
 | `AD-029` | active | `designer` is a delegated matrix role that owns mockups and `uiux-review.md`; Claude runs it on `inherit`. |
+| `AD-030` | active | The canonical consumer installer is the unscoped `workflow-spec-driven` npm package and homonymous Node.js 18 executable. |

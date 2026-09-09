@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 77,
+  "next_id": 83,
   "lessons": [
     {
       "id": "L-001",
@@ -1383,6 +1383,114 @@
       ],
       "created": "2026-09-03T23:50:49Z",
       "last_seen": "2026-09-03T23:50:49Z"
+    },
+    {
+      "id": "L-077",
+      "key": "surviving_mutant::exercise ownership relinquishment with prior managed manifest records as well as fresh consumer files",
+      "text": "Exercise ownership relinquishment with prior managed manifest records as well as fresh consumer files.",
+      "signal": "surviving_mutant",
+      "scope": "adoption",
+      "status": "candidate",
+      "features": [
+        "deterministic-installer"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "SENSOR-001 (adoption)"
+      ],
+      "created": "2026-09-07T22:39:24Z",
+      "last_seen": "2026-09-07T22:39:24Z"
+    },
+    {
+      "id": "L-078",
+      "key": "ac_gap::use different old and new package bytes to verify provider template upgrades and installed hashes",
+      "text": "Use different old and new package bytes to verify provider-template upgrades and installed hashes.",
+      "signal": "ac_gap",
+      "scope": "adoption",
+      "status": "candidate",
+      "features": [
+        "deterministic-installer"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "IT-003 (adoption)"
+      ],
+      "created": "2026-09-07T22:39:24Z",
+      "last_seen": "2026-09-07T22:39:24Z"
+    },
+    {
+      "id": "L-079",
+      "key": "ac_gap::assert planned removals and retained layers before verifying that retired workflow files disappear",
+      "text": "Assert planned removals and retained layers before verifying that retired workflow files disappear.",
+      "signal": "ac_gap",
+      "scope": "adoption",
+      "status": "candidate",
+      "features": [
+        "deterministic-installer"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "IT-013 (adoption)"
+      ],
+      "created": "2026-09-07T22:39:24Z",
+      "last_seen": "2026-09-07T22:39:24Z"
+    },
+    {
+      "id": "L-080",
+      "key": "ac_gap::run relocated runtime entry points from an external tarball installation beyond testing installer apply and status",
+      "text": "Run relocated runtime entry points from an external tarball installation, beyond testing installer apply and status.",
+      "signal": "ac_gap",
+      "scope": "installer",
+      "status": "candidate",
+      "features": [
+        "lean-consumer-installation"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md:P1-AC10 (installer)"
+      ],
+      "created": "2026-09-08T05:02:34Z",
+      "last_seen": "2026-09-08T05:02:34Z"
+    },
+    {
+      "id": "L-081",
+      "key": "ac_gap::exercise adopter rollback after legacy directory pruning including a tracked file already absent before apply",
+      "text": "Exercise adopter rollback after legacy-directory pruning, including a tracked file already absent before apply.",
+      "signal": "ac_gap",
+      "scope": "installer",
+      "status": "candidate",
+      "features": [
+        "lean-consumer-installation"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md:SEC-003 (installer)"
+      ],
+      "created": "2026-09-08T05:02:34Z",
+      "last_seen": "2026-09-08T05:02:34Z"
+    },
+    {
+      "id": "L-082",
+      "key": "ac_gap::assert the adopter target s real directory footprint for each supported layer selection alongside manifest inventory",
+      "text": "Assert the adopter target's real directory footprint for each supported layer selection, alongside manifest inventory.",
+      "signal": "ac_gap",
+      "scope": "installer",
+      "status": "candidate",
+      "features": [
+        "lean-consumer-installation"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md:P1-AC1 (installer)"
+      ],
+      "created": "2026-09-08T05:02:34Z",
+      "last_seen": "2026-09-08T05:02:34Z"
     }
   ]
 }

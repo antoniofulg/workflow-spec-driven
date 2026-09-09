@@ -5,7 +5,7 @@ title: Fork each w skill into a fresh agent
 persona: Workflow adopter
 journey: J-adopt-workflow
 expected: Each of the seven w skills is marked to run in a fresh agent with the documented role and argument, the five phase skills and wqa bind the slash argument and stop when it is missing, and a spawned implementer still receives wimplement and ponytail without a Skill tool.
-entry_points: .agents/skills/wspecify/SKILL.md; .agents/skills/wdesign/SKILL.md; .agents/skills/wtasks/SKILL.md; .agents/skills/wimplement/SKILL.md; .agents/skills/wverify/SKILL.md; .agents/skills/wreview/SKILL.md; .agents/skills/wqa/SKILL.md; templates/agents/claude/implementer.md
+entry_points: .agents/skills/wspecify/SKILL.md; .agents/skills/wdesign/SKILL.md; .agents/skills/wtasks/SKILL.md; .agents/skills/wimplement/SKILL.md; .agents/skills/wverify/SKILL.md; .agents/skills/wreview/SKILL.md; .agents/skills/wqa/SKILL.md; .agents/skills/workflow-config/assets/agents/claude/implementer.md
 qa_status: pass
 bug_ids:
 fix_status:

@@ -470,6 +470,42 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation-s1-r6.md SID-01 AC4 (skill-text-tests)
 - last seen: 2026-09-03T23:50:49Z
 
+### L-077 - Exercise ownership relinquishment with prior managed manifest records as well as fresh consumer files.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `adoption` · harmful: 0
+- features: deterministic-installer
+- evidence: SENSOR-001 (adoption)
+- last seen: 2026-09-07T22:39:24Z
+
+### L-078 - Use different old and new package bytes to verify provider-template upgrades and installed hashes.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `adoption` · harmful: 0
+- features: deterministic-installer
+- evidence: IT-003 (adoption)
+- last seen: 2026-09-07T22:39:24Z
+
+### L-079 - Assert planned removals and retained layers before verifying that retired workflow files disappear.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `adoption` · harmful: 0
+- features: deterministic-installer
+- evidence: IT-013 (adoption)
+- last seen: 2026-09-07T22:39:24Z
+
+### L-080 - Run relocated runtime entry points from an external tarball installation, beyond testing installer apply and status.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `installer` · harmful: 0
+- features: lean-consumer-installation
+- evidence: validation.md:P1-AC10 (installer)
+- last seen: 2026-09-08T05:02:34Z
+
+### L-081 - Exercise adopter rollback after legacy-directory pruning, including a tracked file already absent before apply.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `installer` · harmful: 0
+- features: lean-consumer-installation
+- evidence: validation.md:SEC-003 (installer)
+- last seen: 2026-09-08T05:02:34Z
+
+### L-082 - Assert the adopter target's real directory footprint for each supported layer selection, alongside manifest inventory.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `installer` · harmful: 0
+- features: lean-consumer-installation
+- evidence: validation.md:P1-AC1 (installer)
+- last seen: 2026-09-08T05:02:34Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

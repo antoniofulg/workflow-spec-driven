@@ -11,10 +11,11 @@ import sys
 import tempfile
 from pathlib import Path
 
-import orca_assisted_probe as probe
-
 
 ROOT = Path(__file__).resolve().parent
+SCRIPT = ROOT.parent / ".agents/skills/autonomous/scripts/orca_assisted_probe.py"
+sys.path.insert(0, str(SCRIPT.parent))
+import orca_assisted_probe as probe
 
 
 def _repo(root: Path) -> str:
@@ -100,7 +101,7 @@ def test_IT006_IT011_SEC005_dispatch_persists_complete_state_and_sends_only_poin
         _fake_orca(fake, calls)
         request_path, state_path = root / "request.json", root / "state.json"
         request_path.write_text(json.dumps(_request(root, head)), encoding="utf-8")
-        completed = subprocess.run([sys.executable, str(ROOT / "orca_assisted_probe.py"), "--orca", str(fake), "dispatch",
+        completed = subprocess.run([sys.executable, str(SCRIPT), "--orca", str(fake), "dispatch",
                                     "--request", str(request_path), "--state", str(state_path)], capture_output=True, text=True, check=False)
         assert completed.returncode == 0, completed.stderr
         state = json.loads(state_path.read_text(encoding="utf-8"))
@@ -119,12 +120,12 @@ def test_SEC001_dispatch_rejects_outside_state_and_symlinked_packet_before_orca(
         _fake_orca(fake, calls); request = _request(root, head)
         outside = root.parent / "outside-state.json"; request_path = root / "request.json"
         request_path.write_text(json.dumps(request), encoding="utf-8")
-        completed = subprocess.run([sys.executable, str(ROOT / "orca_assisted_probe.py"), "--orca", str(fake), "dispatch",
+        completed = subprocess.run([sys.executable, str(SCRIPT), "--orca", str(fake), "dispatch",
                                     "--request", str(request_path), "--state", str(outside)], capture_output=True, text=True, check=False)
         assert completed.returncode != 0; assert not outside.exists()
         link = root / "state" / "link.md"; link.parent.mkdir(); link.symlink_to(root / "seed")
         request["packet_path"] = "state/link.md"; request_path.write_text(json.dumps(request), encoding="utf-8")
-        completed = subprocess.run([sys.executable, str(ROOT / "orca_assisted_probe.py"), "--orca", str(fake), "dispatch",
+        completed = subprocess.run([sys.executable, str(SCRIPT), "--orca", str(fake), "dispatch",
                                     "--request", str(request_path), "--state", str(root / "state.json")], capture_output=True, text=True, check=False)
         assert completed.returncode != 0; assert not calls.exists()
 
@@ -159,7 +160,7 @@ def test_IT007_IT008_SEC006_declared_orca_git_and_lease_mutations_are_issued_onc
         effects += [{"effect_id": "git-1", "kind": "git", "argv": ["add", "seed"]},
                     {"effect_id": "lease-1", "kind": "lease", "provider": str(provider), "operation": "acquire", "argv": ["acquire"], "resources": ["lease-S4"], "idempotency_key": "lease-1"}]
         request = root / "request.json"; request.write_text(json.dumps(_request(root, head, effects=effects)), encoding="utf-8"); state = root / "state.json"
-        completed = subprocess.run([sys.executable, str(ROOT / "orca_assisted_probe.py"), "--orca", str(fake), "dispatch", "--request", str(request), "--state", str(state)], capture_output=True, text=True, check=False)
+        completed = subprocess.run([sys.executable, str(SCRIPT), "--orca", str(fake), "dispatch", "--request", str(request), "--state", str(state)], capture_output=True, text=True, check=False)
         assert completed.returncode == 0, completed.stderr
         data = json.loads(state.read_text(encoding="utf-8")); assert all(effect["attempts"] == 1 and effect["status"] == "settled" for effect in data["effects"][:-1])
         sent = calls.read_text(encoding="utf-8").splitlines(); assert sum("worktree create" in call for call in sent) == 1; assert sum("terminal send" in call for call in sent) == 2
@@ -172,8 +173,8 @@ def test_SEC006_post_effect_failure_is_not_retried() -> None:
         fake.write_text("#!/bin/sh\nprintf '%s\\n' \"$*\" >> " + str(calls) + "\nexit 1\n", encoding="utf-8"); fake.chmod(0o755)
         request = root / "request.json"; request.write_text(json.dumps(_request(root, head, effects=[{"effect_id": "create-1", "kind": "orca", "argv": ["worktree", "create"]}])), encoding="utf-8")
         state = root / "state.json"
-        first = subprocess.run([sys.executable, str(ROOT / "orca_assisted_probe.py"), "--orca", str(fake), "dispatch", "--request", str(request), "--state", str(state)], capture_output=True, text=True, check=False)
-        second = subprocess.run([sys.executable, str(ROOT / "orca_assisted_probe.py"), "--orca", str(fake), "dispatch", "--request", str(request), "--state", str(state)], capture_output=True, text=True, check=False)
+        first = subprocess.run([sys.executable, str(SCRIPT), "--orca", str(fake), "dispatch", "--request", str(request), "--state", str(state)], capture_output=True, text=True, check=False)
+        second = subprocess.run([sys.executable, str(SCRIPT), "--orca", str(fake), "dispatch", "--request", str(request), "--state", str(state)], capture_output=True, text=True, check=False)
         assert first.returncode != 0 and second.returncode != 0
         assert json.loads(state.read_text(encoding="utf-8"))["effects"][0]["attempts"] == 1
         assert sum("worktree create" in line for line in calls.read_text(encoding="utf-8").splitlines()) == 1
@@ -183,7 +184,7 @@ def test_IT011_import_is_inert() -> None:
     with tempfile.TemporaryDirectory() as directory:
         calls, fake = Path(directory) / "calls", Path(directory) / "orca"; _fake_orca(fake, calls)
         env = {**os.environ, "PATH": f"{Path(directory)}:{os.environ.get('PATH', '')}"}
-        completed = subprocess.run([sys.executable, "-c", f"import runpy; runpy.run_path({str(ROOT / 'orca_assisted_probe.py')!r})"], env=env, capture_output=True, text=True, check=False)
+        completed = subprocess.run([sys.executable, "-c", f"import runpy; runpy.run_path({str(SCRIPT)!r})"], env=env, capture_output=True, text=True, check=False)
         assert completed.returncode == 0, completed.stderr; assert not calls.exists()
 
 
@@ -302,7 +303,7 @@ def test_IT017_IT018_IT019_SEC013_path_backed_cleanup_ledgers_reconcile_once() -
         state_path, receipt_path = root / "state.json", root / "receipt.json"
         state_path.write_text(json.dumps(state), encoding="utf-8"); receipt_path.write_text(json.dumps(state["receipt"]), encoding="utf-8")
         env = {**os.environ, "PATH": f"{container}:{os.environ.get('PATH', '')}"}
-        command = [sys.executable, str(ROOT / "orca_assisted_probe.py"), "--repo", "repo", "--orca", str(fake_orca),
+        command = [sys.executable, str(SCRIPT), "--repo", "repo", "--orca", str(fake_orca),
                    "cleanup", "--state", str(state_path), "--integration-head", head, "--settle-window", "0.1", "--interval", "0.01"]
         first = subprocess.run(command, env=env, capture_output=True, text=True, check=False)
         assert first.returncode != 0 and "FAIL_CLOSED" in first.stderr
@@ -513,7 +514,7 @@ def test_SEC001_dispatch_rejects_repository_symlink_before_any_effect() -> None:
         fake, calls = root / "orca", root / "calls"; _fake_orca(fake, calls)
         request = _request(real, head); request["repository_root"] = str(link)
         request_path, state_path = real / "request.json", real / "state.json"; request_path.write_text(json.dumps(request), encoding="utf-8")
-        completed = subprocess.run([sys.executable, str(ROOT / "orca_assisted_probe.py"), "--orca", str(fake), "dispatch", "--request", str(request_path), "--state", str(state_path)], capture_output=True, text=True, check=False)
+        completed = subprocess.run([sys.executable, str(SCRIPT), "--orca", str(fake), "dispatch", "--request", str(request_path), "--state", str(state_path)], capture_output=True, text=True, check=False)
         assert completed.returncode != 0 and not calls.exists() and not state_path.exists()
 
 
@@ -611,7 +612,7 @@ def _check_public_call(call: ast.Call, owner: str) -> None:
 
 
 def test_UT020_public_lifecycle_has_one_mutation_issuer() -> None:
-    source = (ROOT / "orca_assisted_probe.py").read_text(encoding="utf-8")
+    source = SCRIPT.read_text(encoding="utf-8")
     _assert_public_mutation_boundary(source)
     runner = next(node for node in ast.parse(source).body if isinstance(node, ast.ClassDef) and node.name == "MutationRunner")
     assert any(isinstance(node, ast.FunctionDef) and node.name == "issue" for node in runner.body)
@@ -695,7 +696,7 @@ def test_IT018_IT019_SEC013_physical_ledgers_cover_git_provider_orca_and_restart
         ]
         request.write_text(json.dumps(_request(root, head, effects=effects)), encoding="utf-8")
         env = {**os.environ, "PATH": f"{root}:{os.environ.get('PATH', '')}"}
-        completed = subprocess.run([sys.executable, str(ROOT / "orca_assisted_probe.py"), "--orca", str(fake_orca), "dispatch", "--request", str(request), "--state", str(state_path)], env=env, capture_output=True, text=True, check=False)
+        completed = subprocess.run([sys.executable, str(SCRIPT), "--orca", str(fake_orca), "dispatch", "--request", str(request), "--state", str(state_path)], env=env, capture_output=True, text=True, check=False)
         assert completed.returncode == 0, completed.stderr
         orca_lines = orca_ledger.read_text(encoding="utf-8").splitlines()
         assert sum("worktree create" in line for line in orca_lines) == 1

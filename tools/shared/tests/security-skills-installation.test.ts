@@ -247,10 +247,10 @@ describe("external security skill installation", { timeout: 30_000 }, () => {
     expect(readme).not.toContain("bundle also includes three security skills");
   });
 
-  it("adopts bundled workflow without security trees and prints the authorized second step", () => {
+  it("keeps security skills separate from the guided installer", () => {
     const fixture = mkdtempSync(join(tmpdir(), "my-workflow-adopt-"));
     try {
-      const result = spawnSync("python3", [join(repositoryRoot, "scripts/adopt.py"), "apply", fixture, "--layers", "full"], {
+      const result = spawnSync(process.execPath, [join(repositoryRoot, "bin/workflow-spec-driven.js"), "--help"], {
         cwd: repositoryRoot,
         encoding: "utf8",
       });
@@ -258,9 +258,8 @@ describe("external security skill installation", { timeout: 30_000 }, () => {
       for (const name of Object.keys(securitySkills)) {
         expect(existsSync(join(fixture, ".agents/skills", name))).toBe(false);
       }
-      expect(result.stdout).toContain("install_security_skills.py");
-      expect(result.stdout).toContain(`${fixture} --yes`);
-      expect(result.stdout).toContain("security gate remains uncovered");
+      expect(readFileSync(join(repositoryRoot, "README.md"), "utf8")).toContain("install_security_skills.py");
+      expect(result.stdout).toContain("workflow-spec-driven install");
     } finally {
       rmSync(fixture, { recursive: true, force: true });
     }

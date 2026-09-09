@@ -1,6 +1,6 @@
 ---
 name: wqa
-description: "QA phase - run user-visible QA plans or walks over tagged journeys. Argument: [plan] <flow> tag. Enter with /wqa."
+description: "QA phase - plan or walk tagged user journeys. Argument: [plan] <flow> tag. Enter with /wqa."
 argument-hint: "[plan] <flow>"
 context: fork
 agent: verifier

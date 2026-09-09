@@ -17,9 +17,9 @@ import time
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parent.parent
-SCRIPT = ROOT / "tools/resource_lock.py"
-sys.path.insert(0, str(ROOT))
-from tools import resource_lock
+SCRIPT = ROOT / ".agents/skills/autonomous/scripts/resource_lock.py"
+sys.path.insert(0, str(SCRIPT.parent))
+import resource_lock
 
 
 def run_lock(cwd: Path, temporary: Path, resource: str, command: list[str], *extra: str, scope: str | None = "project", timeout: float = 5) -> subprocess.CompletedProcess[str]:

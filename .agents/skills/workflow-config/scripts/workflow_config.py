@@ -632,7 +632,7 @@ def _runtime_relative(provider: str, role: str) -> Path:
 def _template_relative(provider: str, role: str) -> Path:
     extension = "toml" if provider == "codex" else "md"
     agent_name = AGENT_NAMES.get(role, role)
-    return Path("templates") / "agents" / provider / f"{agent_name}.{extension}"
+    return Path(".agents") / "skills" / "workflow-config" / "assets" / "agents" / provider / f"{agent_name}.{extension}"
 
 
 def _agent_file(root: Path, provider: str, role: str) -> str:

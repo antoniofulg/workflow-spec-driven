@@ -44,7 +44,7 @@ FORBIDDEN_ROUTER_HEADINGS = ("## Commands", "## Context Loading Strategy", "## C
 
 AGENTS_LINE_CAP = 134
 
-TEMPLATES = ROOT / "templates/agents"
+TEMPLATES = ROOT / ".agents/skills/workflow-config/assets/agents"
 TEMPLATE_ROLES = ("planner", "implementer", "verifier", "explorer", "deep-reviewer", "designer")
 # Providers whose templates UT-006 scans.
 SCANNED_PROVIDERS: tuple[str, ...] = ("claude", "codex", "cursor")
@@ -85,7 +85,7 @@ def frontmatter(path: Path) -> dict[str, str]:
 
 # One-off Bun program: the repo's own frontmatter reader over every path given on argv.
 BUN_STRICT_YAML = """
-import { readFrontmatter } from "./tools/shared/src/frontmatter.ts";
+import { readFrontmatter } from "./.agents/skills/knowledge-check/scripts/frontmatter.ts";
 for (const path of Bun.argv.slice(1)) {
   const parsed = readFrontmatter(await Bun.file(path).text());
   if (!parsed.present || parsed.error || !parsed.data) {

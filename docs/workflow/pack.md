@@ -32,7 +32,7 @@ commit refs and hashes; it does not install
 uncovered.
 
 Planner / implementer / explorer / verifier / designer are five windows. Canonical packet bodies live in
-`templates/agents/{cursor,claude,codex}/`; sync generates ignored runtime files in
+`.agents/skills/workflow-config/assets/agents/{cursor,claude,codex}/`; sync generates ignored runtime files in
 `.cursor/agents/`, `.claude/agents/`, and `.codex/agents/`. Spawn models live on those generated
 files. `CLAUDE.md` is `@AGENTS.md`. Explorer is read-only and handles product-tree searches and
 flow traces for the parent agent.
@@ -54,26 +54,30 @@ Empty on purpose. Machinery only: operating schema, `raw/` README, stub indexes,
 | `knowledge/raw/` | Immutable originals. Privacy surface — committed, so strip personal data |
 | `bun run knowledge` | Conformance, drift, gaps. Run when writing to the bundle, not as the product gate |
 
-## Adopt
+## Guided installation
 
-`python3 scripts/adopt.py plan <target> --layers core` previews a fixed layer before application.
-Use `apply <target> --layers core|parallel|quality|extras|full` to install additive capabilities,
-then `status <target>` to inspect drift. The catalog includes the operating loop, Bun-native
-knowledge tooling, assisted slice probe, review/QA skills, and optional Ponytail utilities. `full`
-resolves all four layers; subsequent applies union requested and installed layers and never remove
-files. Existing consumer prose remains outside managed `AGENTS.md`/`CLAUDE.md` blocks, and
-`--skip-agents` leaves both instruction files byte-identical. Adoption preserves package metadata,
-`.my-workflow.toml`, and unknown files. It copies missing
-`.my-workflow.toml.example` and `templates/agents/`, preserves an existing local
-`.my-workflow.toml`, and generates ignored runtime packets from those sources. Adoption rejects
-Makefile references to machine-global `$(HOME)/.claude/...`,
-`${HOME}/.claude/...`, `$HOME/.claude/...`, or `~/.claude/...`; point
-`workflow-spec-driven` gates at the adopted
-`.agents/skills/workflow-spec-driven/scripts/...` path instead.
+The package `workflow-spec-driven@0.10.1` exposes the single canonical command:
 
-Adoption does not install the external security dependencies. After the bundled workflow is
-adopted, it prints the exact project-local command to run with `--yes`. Review and authorize that
-second step before allowing network access or writes to the consumer.
+```bash
+npx workflow-spec-driven install
+```
+
+The wizard targets the current directory, requires Node.js 18 or newer and an interactive
+terminal, and never requires Python. It selects `core`, `parallel`, `quality`, or `extras` (with
+`core` automatically included for every non-core selection), previews every action, and requires
+an explicit conflict choice before publication. Replaced or removed files are verified in
+`.my-workflow/backups/<UTC timestamp>/`; the adoption manifest publishes last. Cancellation writes
+nothing. A successful knowledge-bearing replacement creates a pending `knowledge-transfer.md`
+checklist; consumer content is never semantically merged.
+
+The installer catalog includes the operating loop, Bun-native knowledge tooling, assisted slice
+execution, review/QA skills, and optional Ponytail utilities. Existing consumer prose and knowledge
+remain owned by the consuming project. An interrupted publication leaves a transaction journal;
+the next run offers restoration before a new plan.
+
+Fresh consumers receive generic managed knowledge instructions and neutral consumer-owned wiki
+indexes/log files. Source concepts and dated raw observations are never copied. External security
+dependencies remain separately authorized and are not installed by this command.
 
 The consuming project owns product docs, architecture, design, stack, and `make check`.
 

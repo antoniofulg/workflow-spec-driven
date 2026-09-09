@@ -8,6 +8,10 @@ pull request. Never weaken a test to go green.
 The consuming project owns commands. `make check`, when present, is the full gate; a documented
 selector is the scoped gate. Name the actual commands.
 
+For a named visual reference, `docs/guidelines/UI-UX.md` owns the reference rows and paired visual
+evidence. Include that targeted comparison in scoped validation when the reference is in scope; it
+does not by itself escalate a behavior-preserving correction to Verifier, QA, e2e, or the full gate.
+
 Classify the resulting diff before applying generic feature rules. Pure documentation maintenance
 uses accuracy, affected-link, heading, and whitespace checks only. Agent-instruction changes use a
 consistency check and an existing relevant contract check. Mixed documentation and executable changes

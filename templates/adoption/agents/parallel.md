@@ -4,4 +4,4 @@ through the coordinator, and let the coordinator own integration, verification, 
 cleanup.
 
 When a gate declares a resource shared with another checkout, consult
-`python3 tools/resource_lock.py run --help` and wrap only that gate with the adopted command.
+`python3 .agents/skills/autonomous/scripts/resource_lock.py run --help` and wrap only that gate with the adopted command.

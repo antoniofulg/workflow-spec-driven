@@ -1,25 +1,72 @@
 {
-  "name": "my-workflow",
-  "version": "0.10.0",
-  "private": true,
+  "name": "workflow-spec-driven",
+  "version": "0.10.1",
+  "private": false,
   "type": "module",
   "packageManager": "bun@1.4.0",
+  "bin": {
+    "workflow-spec-driven": "bin/workflow-spec-driven.js"
+  },
   "engines": {
+    "node": ">=18.0.0",
     "bun": ">=1.4.0 <1.5.0"
   },
+  "files": [
+    "bin/workflow-spec-driven.js",
+    "scripts/installer",
+    "scripts/install_security_skills.py",
+    "skills-lock.json",
+    "AGENTS.md",
+    ".my-workflow.toml.example",
+    "knowledge/AGENTS.md",
+    "knowledge/raw/README.md",
+    "templates/adoption",
+    "docs/guidelines",
+    "docs/workflow/README.md",
+    "docs/workflow/decisions.md",
+    "docs/workflow/guidelines.md",
+    "docs/workflow/loop.md",
+    "docs/workflow/purpose.md",
+    "docs/workflow/reviews.md",
+    ".agents/skills/workflow-spec-driven",
+    ".agents/skills/workflow-config",
+    ".agents/skills/knowledge-check",
+    ".agents/skills/wspecify",
+    ".agents/skills/wdesign",
+    ".agents/skills/wtasks",
+    ".agents/skills/wimplement",
+    ".agents/skills/wverify",
+    ".agents/skills/wreview",
+    ".agents/skills/wqa",
+    ".agents/skills/ponytail",
+    ".agents/skills/autonomous",
+    ".agents/skills/deep-review",
+    ".agents/skills/qa-plan",
+    ".agents/skills/qa-execute",
+    ".agents/skills/ponytail-audit",
+    ".agents/skills/ponytail-debt",
+    ".agents/skills/ponytail-gain",
+    ".agents/skills/ponytail-help",
+    ".agents/skills/ponytail-review",
+    "!**/__pycache__/**",
+    "!**/*.pyc"
+  ],
   "scripts": {
-    "knowledge": "bun tools/knowledge/src/cli.ts",
+    "knowledge": "bun .agents/skills/knowledge-check/scripts/cli.ts",
     "review:graft:build": "graft build",
     "review:graft:version": "graft --version",
-    "test": "bun test",
+    "test": "bun test && node --test tests/installer/*.test.js",
     "test:python": "git ls-files -- 'scripts/test_*.py' 'tools/test_*.py' | sort | while read test; do python3 \"$test\" || exit $?; done",
     "test:all": "bun run test && bun run test:python"
   },
   "devDependencies": {
-    "@types/node": "22.20.1",
-    "@types/bun": "1.4.0",
     "@nanonets/graft": "0.10.1",
+    "@types/bun": "1.4.0",
+    "@types/node": "22.20.1",
     "skills": "1.5.23",
     "typescript": "5.9.3"
+  },
+  "dependencies": {
+    "smol-toml": "1.8.0"
   }
 }

@@ -5,7 +5,7 @@ title: Keep disposable workflow artifacts out of Git
 persona: Workflow adopter
 journey: J-adopt-workflow
 expected: Git and package output include reviewable workflow sources but exclude local agent config and generated runtimes, while a clean clone can regenerate checkout-local packets and durable feature state remains reviewable.
-entry_points: .gitignore; .ignore; .my-workflow.toml.example; .my-workflow.toml; templates/agents/; .claude/agents/; .codex/agents/; .cursor/agents/; package.json; scripts/adopt.py; .specs/features/<feature>/tasks.md; .deep-review/learnings.md; graft/
+entry_points: .gitignore; .ignore; .my-workflow.toml.example; .my-workflow.toml; .agents/skills/workflow-config/assets/agents/; .claude/agents/; .codex/agents/; .cursor/agents/; package.json; npx workflow-spec-driven install; .specs/features/<feature>/tasks.md; .deep-review/learnings.md; graft/
 qa_status: pass
 bug_ids: BUG-20260822-adoption-omits-graft-ignores; BUG-20260822-feature-specs-ignored; BUG-20260822-feature-state-gate-conflicts
 fix_status: fixed

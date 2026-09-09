@@ -4,6 +4,16 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-09-08
+
+### Fixed
+
+- The guided Node-only installer now closes its acceptance contract across packed execution,
+  recoverable transactions, knowledge handoff, parity fixtures, path safety, and terminal transcript
+  layouts at 80x24 and 120x40.
+- The consumer-owned knowledge path remains subject to proportional validation, with explicit packet sync
+  still validating its config.
+
 ## [0.10.0] - 2026-09-04
 
 ### Added
@@ -16,6 +26,8 @@ All notable changes to this project are documented here.
 
 ### Changed
 
+- The npm package identity is now `@antoniofulg/workflow-spec-driven`; the installed executable remains
+  `my-workflow`.
 - Provider packets and slice packets expose the selected product-context entry point without
   changing packet schema or budgets.
 - Documentation, instruction, and mixed executable changes now use proportional validation and

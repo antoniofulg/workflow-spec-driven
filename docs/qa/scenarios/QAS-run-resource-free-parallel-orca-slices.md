@@ -5,7 +5,7 @@ title: Run two resource-free Orca slices concurrently
 persona: Workflow operator
 journey: J-execute-parallel-slices
 expected: Two resource-free slices become active in distinct owned worktrees and terminals, then finish through correlated read, acknowledgement, release, and status receipts without changing TLC task or verification order.
-entry_points: tools/orca_assisted_probe.py dispatch|inspect|cleanup; tools/qa_parallel_pilot.py; .agents/skills/autonomous/scripts/parallel_execute.py start; .agents/skills/autonomous/scripts/parallel_execute.py status; .agents/skills/autonomous/scripts/parallel_execute.py resume
+entry_points: .agents/skills/autonomous/scripts/orca_assisted_probe.py dispatch|inspect|cleanup; .agents/skills/autonomous/scripts/qa_parallel_pilot.py; .agents/skills/autonomous/scripts/parallel_execute.py start; .agents/skills/autonomous/scripts/parallel_execute.py status; .agents/skills/autonomous/scripts/parallel_execute.py resume
 qa_status: blocked-verify
 bug_ids: BUG-20260824-parallel-executor-worker-start-fallback-leaks-worktree
 fix_status: fixed

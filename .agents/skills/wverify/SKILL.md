@@ -1,6 +1,6 @@
 ---
 name: wverify
-description: "Verify phase - independent spec-anchored validation: AC evidence, edge cases, build gate, discrimination sensor, code quality, UAT, fix plans, and the lessons hook. Argument: the feature or slice. Preloaded by the verifier agent; enter with /wverify."
+description: "Verify phase - independently check spec acceptance, evidence, edge cases, gates, UAT, and fix plans. Argument: feature or slice. Preloaded by verifier; enter with /wverify."
 argument-hint: "<feature-or-slice>"
 context: fork
 agent: verifier
@@ -20,7 +20,7 @@ Slash argument: $ARGUMENTS — when this skill was entered with /wverify and the
 2. **Slice-level validation (fresh Technical Verifier, always-on, never prompted):** After each code-changing slice reaches its checkpoint, the coordinator dispatches a **fresh Technical Verifier** (see [sub-agents.md](.agents/skills/workflow-spec-driven/references/sub-agents.md)) before any dependent slice consumes that checkpoint. Independent slices may be verified concurrently; each dependent route waits only for its own verified checkpoint. It runs without asking the user. The Verifier:
    - Runs **read-only** over the real implementation and tests - mutations run in a scratch/throwaway state only (see Discrimination Sensor section)
    - Scopes coverage to the feature's **git diff surface** (not the full repository)
-   - Re-derives coverage independently using **evidence-or-zero**: every AC must be traced to a `file:line` + assertion expression; a criterion with no `file:line` citation counts as NOT covered
+   - Re-derives coverage independently using **evidence-or-zero**: every behavioral AC must be traced to a `file:line` + assertion expression; a visual AC uses the paired capture verdict for its feature `uiux.md` row and source revision
    - Runs the **spec-anchored outcome check** and the **discrimination sensor** (both described below)
    - Writes `.specs/features/[feature]/validation-[slice].md` with the full slice evidence report as versioned workflow state; a concurrent Verifier therefore cannot overwrite another slice's evidence. The final integrated Verifier alone writes `.specs/features/[feature]/validation.md`.
    - Returns a compact verdict + ranked gap list to the orchestrator in chat
@@ -33,6 +33,13 @@ Slash argument: $ARGUMENTS — when this skill was entered with /wverify and the
 **Trigger for explicit validation:** "Validate", "verify work", "UAT", "test with me", "walk me through it"
 
 ---
+
+## Visual reference evidence
+
+For a visual AC, read `docs/guidelines/UI-UX.md#verifying-the-built-screen` and the feature `uiux.md`
+row in `design_excerpt` (or bounded inline record); use the report's visual-evidence fields. Missing
+evidence is unverified and cannot PASS; mismatch fails. Behavioral assertions remain required; no
+universal pixel threshold or DOM identity rule applies.
 
 ## Process
 
@@ -49,16 +56,16 @@ For each acceptance criterion in `spec.md`, the Verifier re-derives the **spec-d
 
 **Acceptance Criteria**:
 
-| Criterion (WHEN X THEN Y) | Spec-defined outcome | `file:line` + assertion expression | Result |
-| ------------------------- | -------------------- | ---------------------------------- | ------ |
-| WHEN [X] THEN [Y]         | [precise value/state from spec] | `path/to/test.ts:42` - `expect(result.field).toBe(expected)` | ✅ PASS / ❌ GAP / ⚠️ Spec-precision gap |
+| Criterion (WHEN X THEN Y) | Spec-defined outcome | Behavioral `file:line` assertion, or visual `uiux.md` row + capture verdict | Result |
+| ------------------------- | -------------------- | --------------------------------------------------------------- | ------ |
+| WHEN [X] THEN [Y]         | [precise value/state from spec] | `path/to/test.ts:42` - `expect(result.field).toBe(expected)` or `uiux.md#reference` + report row | ✅ PASS / ❌ GAP / ⚠️ Spec-precision gap |
 ```
 
 **Rules:**
 
 - Where the spec defines a precise outcome (specific status code, field value, error message, state), the test assertion targets that exact outcome - not just that an assertion exists.
 - Where the spec does not define a precise outcome, mark as **⚠️ Spec-precision gap** and flag it in the report; a vague assertion is never passed silently.
-- Evidence-or-zero: a criterion with no `file:line` citation counts as NOT covered.
+- Behavioral evidence-or-zero: a criterion with no `file:line` citation counts as NOT covered. A visual criterion uses the paired capture verdict in the existing report, with its feature `uiux.md` row and source revision; a manual comparison is not an automated assertion.
 
 ### 3. Check Edge Cases
 
@@ -188,10 +195,3 @@ After all checks complete, the Verifier:
 This is the closing action of validation - not a separate phase. Immediately after the report is written, turn its grounded failures into reusable, project-local guidance by following [lessons.md](.agents/skills/workflow-spec-driven/references/lessons.md). In short: for each surviving mutant, spec-precision gap, failed/uncovered AC, or `// SPEC_DEVIATION`, record one terse general lesson via `python3 .agents/skills/workflow-spec-driven/scripts/lessons.py add` (the script enforces grounding and owns all bookkeeping). A clean PASS with no signal → record nothing. Run the self-check: if there was signal but no lesson was recorded, say so in chat. See [lessons.md](.agents/skills/workflow-spec-driven/references/lessons.md) for the exact commands, phrasing rules, scope discipline, and the no-script fallback.
 
 Write the compact chat summary and `validation[-slice].md` from `references/validation-template.md`.
-
-## Tips
-
-- **P1 first** - MVP must work before P2/P3
-- **WHEN/THEN = Test** - Each criterion is a test case
-- **Be specific** - "Doesn't work" isn't helpful
-- **Recommend fixes** - Don't just report problems, create fix tasks

@@ -15,5 +15,3 @@ Two rules, both detailed in [the operating schema](../AGENTS.md):
 * **Committed, so it is a privacy surface.** Strip names, contact details and precise locations
   before writing anything here. Never store credentials or customer data. Applicable privacy law
   applies to the whole repository, and rewriting git history is not a remedy you want to need.
-
-Collected so far: `2026-09-03-e2e-gate-remediation-cost.md`.

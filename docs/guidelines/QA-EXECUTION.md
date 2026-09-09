@@ -37,6 +37,9 @@ retests the affected journey, and resumes the cycle.
   exact path, evidence, and limitation. It does not install tooling or invent commands.
 - Each checkout owns its runtime and raw evidence. Keep durable reports and statuses in `docs/qa/`
   and keep generated evidence in the consuming project's disposable evidence path.
+- When a selected QA scope carries a visual AC, follow `UI-UX.md#verifying-the-built-screen`, point the
+  report at its feature `uiux.md` row, and record the paired-capture output fields. A manual comparison
+  is evidence, not an automated test; keep behavioral assertions intact.
 
 Read the two skills and `QA-SCENARIOS.md` for the active branch; this bridge deliberately carries no
 duplicate scenario schema or live-walk protocol.

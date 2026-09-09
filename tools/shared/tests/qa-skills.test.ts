@@ -89,7 +89,7 @@ const activeAuthorityRoots = [
   "scripts",
   "tools",
   ".agents/skills",
-  "templates/agents",
+".agents/skills/workflow-config/assets/agents",
 ] as const;
 
 const historicalAuthorityAllowlist = [
@@ -151,13 +151,14 @@ function forbiddenAuthorityViolations(
 ): string[] {
   const scannedPaths = activeAuthorityPaths(paths);
   const forbiddenCommands = [
-    /(?:^|[`$>#;&|]\s*)(?:npm|npx)\s+\S+/i,
+    /(?:^|[`$>#;&|]\s*)npm\s+(?!(?:pack\s+--pack-destination\s+\S+(?:\s*#.*)?$|exec\s+--yes\s+--package\s+\S+\s+--\s+my-workflow\s+(?:plan|apply|resolve|status)\b))\S+/i,
+    /(?:^|[`$>#;&|]\s*)npx\s+(?!(?:workflow-spec-driven\s+install|--yes\s+<approved-package>@<exact-version>(?:\s+(?:plan|apply|resolve|status)\b|(?=\s*`|$))))\S+/i,
     /\bvitest\s+(?:run|--|[A-Za-z])/i,
     /\btsx\s+(?:--|[A-Za-z])/i,
     /(?:from|require)\s*[(]?['"]yaml['"]/i,
   ];
   return scannedPaths.flatMap((relativePath) => {
-    const lines = read(relativePath).split(/\r?\n/);
+    const lines = read(relativePath).replace(/\\\r?\n\s*/g, " ").split(/\r?\n/);
     return lines.flatMap((line, index) =>
       forbiddenCommands.some((pattern) => pattern.test(line))
         ? [`${relativePath}:${index + 1}: ${line.trim()}`]
@@ -240,9 +241,9 @@ function commitFixture(root: string, message: string): string {
 }
 
 const verifierPacketPaths = [
-  "templates/agents/cursor/verifier.md",
-  "templates/agents/claude/verifier.md",
-  "templates/agents/codex/verifier.toml",
+".agents/skills/workflow-config/assets/agents/cursor/verifier.md",
+".agents/skills/workflow-config/assets/agents/claude/verifier.md",
+".agents/skills/workflow-config/assets/agents/codex/verifier.toml",
 ] as const;
 
 describe("QA workflow artifact policy", () => {
@@ -304,14 +305,14 @@ describe("QA workflow artifact policy", () => {
     const validator = readRepositoryFile(".agents/skills/wverify/SKILL.md");
     const memory = readRepositoryFile(".agents/skills/workflow-spec-driven/references/memory.md");
     const providerPackets = [
-      readRepositoryFile("templates/agents/cursor/implementer.md"),
-      readRepositoryFile("templates/agents/claude/implementer.md"),
-      readRepositoryFile("templates/agents/codex/implementer.toml"),
+readRepositoryFile(".agents/skills/workflow-config/assets/agents/cursor/implementer.md"),
+readRepositoryFile(".agents/skills/workflow-config/assets/agents/claude/implementer.md"),
+readRepositoryFile(".agents/skills/workflow-config/assets/agents/codex/implementer.toml"),
     ];
     const plannerPackets = [
-      readRepositoryFile("templates/agents/cursor/planner.md"),
-      readRepositoryFile("templates/agents/claude/planner.md"),
-      readRepositoryFile("templates/agents/codex/planner.toml"),
+readRepositoryFile(".agents/skills/workflow-config/assets/agents/cursor/planner.md"),
+readRepositoryFile(".agents/skills/workflow-config/assets/agents/claude/planner.md"),
+readRepositoryFile(".agents/skills/workflow-config/assets/agents/codex/planner.toml"),
     ];
 
     expect(agents).toMatch(
@@ -880,7 +881,7 @@ describe("agent configuration", () => {
         const agentName = role === "deep_reviewer" ? "deep-reviewer" : role;
         const extension = provider === "codex" ? "toml" : "md";
         const format = provider === "codex" ? "toml" : "frontmatter";
-        const relativePath = `templates/agents/${provider}/${agentName}.${extension}`;
+        const relativePath = `.agents/skills/workflow-config/assets/agents/${provider}/${agentName}.${extension}`;
         const source = readRepositoryFile(relativePath);
         const expected = settings.get(`${provider}.${role}`)!;
         expect(source).toContain("docs/product/AGENT-CONTEXT.md");
@@ -902,10 +903,10 @@ describe("agent configuration", () => {
       }
     }
 
-    expect(readRepositoryFile("templates/agents/claude/deep-reviewer.md")).toMatch(
+    expect(readRepositoryFile(".agents/skills/workflow-config/assets/agents/claude/deep-reviewer.md")).toMatch(
       /^tools:\s*Read, Grep, Glob, Bash$/m,
     );
-    const cursorDeepReviewer = readRepositoryFile("templates/agents/cursor/deep-reviewer.md");
+    const cursorDeepReviewer = readRepositoryFile(".agents/skills/workflow-config/assets/agents/cursor/deep-reviewer.md");
     expect(cursorDeepReviewer).not.toMatch(/^readonly:\s*true$/m);
 
     const runtime = readRepositoryFile(".agents/skills/deep-review/references/subagent-runtimes.md");
@@ -979,9 +980,9 @@ describe("adoption and public setup", () => {
   it("IT-010 makes adoption reviewable and routes QA by observability", () => {
     const readme = readRepositoryFile("README.md");
     const prompt = readRepositoryFile("docs/adoption-prompt.md");
-    const adopt = readRepositoryFile("scripts/adopt.py");
+    const adopt = readRepositoryFile("scripts/installer/engine.js");
 
-    expect(readme).toContain("docs/adoption-prompt.md");
+    expect(readme).toContain("npx workflow-spec-driven install");
     expect(readme).toContain("managed paths");
     expect(prompt).toContain("git status --short");
     expect(prompt).toContain("read-only");
@@ -991,17 +992,17 @@ describe("adoption and public setup", () => {
     expect(prompt).toContain("managed paths");
     expect(prompt).toContain("complete diff");
     expect(prompt).toContain("declared full gate");
-    expect(prompt).toContain("If `docs/qa/README.md` is absent, create it when `quality` is selected");
-    expect(prompt).toContain("If it exists, merge only newly discovered facts");
+    expect(prompt).toContain("If `docs/qa/README.md` exists, preserve it byte-for-byte during adoption");
+    expect(prompt).toContain("If it is absent, let the adopted quality skills discover");
     expect(prompt).toContain("never overwrite existing content");
     expect(prompt).toContain("qa-plan");
     expect(prompt).toContain("qa-execute");
     expect(prompt).toContain("purely internal refactor");
     expect(prompt).toContain("no user-visible change");
-    expect(adopt).toContain('".agents/skills/qa-plan"');
-    expect(adopt).toContain('".agents/skills/qa-execute"');
-    expect(adopt).toContain('".my-workflow.toml.example"');
-    expect(adopt).toContain('"templates/agents"');
+    expect(adopt).toContain("'.agents/skills/qa-plan'");
+    expect(adopt).toContain("'.agents/skills/qa-execute'");
+    expect(adopt).toContain("'.my-workflow.toml.example'");
+    expect(adopt).toContain("'.agents/skills/workflow-config'");
   });
 
   it("IT-009 exposes the fixed layered adoption boundary", () => {
@@ -1011,23 +1012,20 @@ describe("adoption and public setup", () => {
     expect(readme).toContain("`parallel`");
     expect(readme).toContain("`quality`");
     expect(readme).toContain("`extras`");
-    expect(readme).toContain("`full` resolves all four layers");
+    expect(readme).toContain("The four fixed modules");
   });
 
   it("IT-019 keeps README installation prerequisites and bundled skills authoritative", () => {
     const readme = readRepositoryFile("README.md");
 
-    expect(readme).toContain("the target directory must already exist");
-    expect(readme).toContain("`adopt.py` requires Python 3");
-    expect(readme).toMatch(/Adoption\s+does not require a Git `HEAD`/);
-    expect(readme).toMatch(/the target must be a Git\s+repository with at least one commit/);
-    expect(readme).toMatch(/Bun 1\.4\.x is the JavaScript\/TypeScript runtime for this pack;\s+it is needed only to validate the source pack's gates/);
-    expect(readme).toContain("records per-file ownership in `.my-workflow/adoption.json`");
-    expect(readme).toContain("`core` contains the operating loop and Bun tooling");
-    expect(readme).toMatch(/`parallel`\s+adds assisted slice execution/);
-    expect(readme).toMatch(/`quality`\s+adds review and QA skills/);
-    expect(readme).toMatch(/`extras`\s+adds optional/);
-    expect(readme).toContain("`full` resolves all four layers");
+    expect(readme).toContain("Node.js 18 or newer");
+    expect(readme).toContain("interactive terminal");
+    expect(readme).toContain("never requires Python");
+    expect(readme).toContain("`.my-workflow/backups/<UTC timestamp>/`");
+    expect(readme).toContain("`core` (operating loop and shared tooling)");
+    expect(readme).toMatch(/`parallel`\s+\(assisted slice execution\)/);
+    expect(readme).toMatch(/`quality`\s+\(review and QA\)/);
+    expect(readme).toMatch(/`extras`\s+\(optional Ponytail utilities\)/);
     expect(readme).toContain("The three external security skills are a separate authorized step");
     expect(readme).toContain("install_security_skills.py");
     expect(readme).not.toContain("@tech-leads-club/agent-skills install");
@@ -1062,7 +1060,7 @@ describe("adoption and public setup", () => {
     const pack = readRepositoryFile("docs/workflow/pack.md");
 
     expect(tour).toContain("[Skills, knowledge, adopt](pack.md)");
-    expect(pack).toContain("`python3 scripts/adopt.py plan <target> --layers core`");
+    expect(pack).toContain("npx workflow-spec-driven install");
   });
 
   it("IT-011 keeps stack-specific QA capabilities in the operational profile", () => {
@@ -1099,6 +1097,7 @@ describe("adoption and public setup", () => {
 
   it("IT-005 / AIM-11 reports release version and Bun lock identity consistently", () => {
     const manifest = JSON.parse(readRepositoryFile("package.json")) as {
+      name?: string;
       version?: string;
       private?: boolean;
       packageManager?: string;
@@ -1118,13 +1117,14 @@ describe("adoption and public setup", () => {
       changelog.indexOf("## [0.9.1]"),
     );
 
-    expect(manifest.version).toBe("0.10.0");
-    expect(manifest.private).toBe(true);
+    expect(manifest.version).toBe("0.10.1");
+    expect(manifest.name).toBe("workflow-spec-driven");
+    expect(manifest.private).toBe(false);
     expect(manifest.packageManager).toBe("bun@1.4.0");
-    expect(manifest.scripts?.test).toBe("bun test");
-    expect(readRepositoryFile("bun.lock")).toContain('"name": "my-workflow"');
+    expect(manifest.scripts?.test).toBe("bun test && node --test tests/installer/*.test.js");
+    expect(readRepositoryFile("bun.lock")).toContain('"name": "workflow-spec-driven"');
     expect(existsSync(join(repositoryRoot, "package-lock.json"))).toBe(false);
-    expect(latestHeading).toBe("0.10.0");
+    expect(latestHeading).toBe("0.10.1");
     expect(latestHeading).toBe(manifest.version);
     expect(currentScenarioVersion).toBe(manifest.version);
     expect(releaseScenario.match(/^expected: .*$/m)?.[0]).toBe(
@@ -1146,11 +1146,11 @@ describe("adoption and public setup", () => {
     expect(pack.status).toBe(0);
     const packOutput = `${pack.stdout}${pack.stderr}`;
     for (const requiredPath of [
-      "tools/resource_lock.py",
-      "tools/qa_parallel_pilot.py",
-      "tools/orca_assisted_probe.py",
+      ".agents/skills/autonomous/scripts/resource_lock.py",
+      ".agents/skills/autonomous/scripts/qa_parallel_pilot.py",
+      ".agents/skills/autonomous/scripts/orca_assisted_probe.py",
       ".agents/skills/autonomous/remediation.py",
-      "scripts/adopt.py",
+      "scripts/installer/engine.js",
     ]) {
       expect(packOutput).toContain(requiredPath);
     }
@@ -1169,7 +1169,6 @@ describe("Bun tooling runtime contract", () => {
       .filter((relativePath) => /^(?:scripts|tools)\/test_[^/]+\.py$/.test(relativePath))
       .sort();
     const expectedPythonSuites = [
-      "scripts/test_adopt.py",
       "tools/test_ad_index.py",
       "tools/test_deep_review_contract.py",
       "tools/test_deep_review_symlink_manifest.py",
@@ -1197,7 +1196,7 @@ describe("Bun tooling runtime contract", () => {
     expect(bunfig).toContain("[test]");
     expect(bunfig).toContain('root = "./tools"');
     expect(bunfig).toContain('preload = ["./tools/shared/src/bun-version.ts"]');
-    expect(manifest.scripts?.test).toBe("bun test");
+    expect(manifest.scripts?.test).toBe("bun test && node --test tests/installer/*.test.js");
     expect(manifest.scripts?.["test:all"]).toBe("bun run test && bun run test:python");
     expect(pythonSuites).toEqual(expectedPythonSuites);
     expect(manifest.scripts?.["test:python"]).toBe(pythonLoop);
@@ -1218,8 +1217,8 @@ describe("Bun tooling runtime contract", () => {
       expect(readRepositoryFile(suite)).toMatch(/from ["']bun:test["']/);
     }
     expect(manifest).not.toMatch(/"(?:vitest|tsx|yaml)"\s*:/);
-    expect(readRepositoryFile("tools/shared/src/frontmatter.ts")).not.toMatch(/from ["']yaml["']/);
-    expect(readRepositoryFile("tools/shared/src/frontmatter.ts")).toContain("Bun.YAML.parse");
+    expect(readRepositoryFile(".agents/skills/knowledge-check/scripts/frontmatter.ts")).not.toMatch(/from ["']yaml["']/);
+    expect(readRepositoryFile(".agents/skills/knowledge-check/scripts/frontmatter.ts")).toContain("Bun.YAML.parse");
   });
 
   it("IT-006 keeps Bun as the active command authority while allowing historical evidence", () => {
@@ -1231,7 +1230,7 @@ describe("Bun tooling runtime contract", () => {
     expect(scannedPaths).toContain("docs/qa/README.md");
     expect(scannedPaths).toContain("knowledge/AGENTS.md");
     expect(scannedPaths).toContain(".agents/skills/ponytail/SKILL.md");
-    expect(scannedPaths).toContain("templates/agents/codex/planner.toml");
+    expect(scannedPaths).toContain(".agents/skills/workflow-config/assets/agents/codex/planner.toml");
     expect(violations).toEqual([]);
 
     const historicalPaths = trackedPaths.filter(isHistoricalAuthority);
@@ -1244,9 +1243,18 @@ describe("Bun tooling runtime contract", () => {
 
     for (const relativePath of [
       ".agents/skills/ponytail/SKILL.md",
-      "templates/agents/codex/planner.toml",
+      ".agents/skills/workflow-config/assets/agents/codex/planner.toml",
     ]) {
-      for (const command of ["npm run forbidden", "npm start", "npx foo"]) {
+      for (const command of [
+        "npm run forbidden",
+        "npm start",
+        "npx foo",
+        "npx --yes eslint",
+        "npm exec eslint",
+        "npm pack foo",
+        "npm pack --pack-destination /tmp/release unrelated-package",
+        "npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \\\neslint",
+      ]) {
         const mutated = new Map([[relativePath, `${readRepositoryFile(relativePath)}\n${command}\n`]]);
         const mutationViolations = forbiddenAuthorityViolations(
           [relativePath],
@@ -1263,6 +1271,19 @@ describe("Bun tooling runtime contract", () => {
         forbiddenAuthorityViolations(
           [relativePath],
           (path) => descriptive.get(path) ?? readRepositoryFile(path),
+        ),
+      ).toEqual([]);
+
+      const allowed = new Map([
+        [
+          relativePath,
+          `${readRepositoryFile(relativePath)}\nnpm pack --pack-destination /tmp/release\nnpm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- my-workflow apply /tmp/target\nnpm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \\\n  my-workflow status /tmp/target\nnpx --yes <approved-package>@<exact-version> apply /tmp/target\n`,
+        ],
+      ]);
+      expect(
+        forbiddenAuthorityViolations(
+          [relativePath],
+          (path) => allowed.get(path) ?? readRepositoryFile(path),
         ),
       ).toEqual([]);
     }

@@ -1,6 +1,6 @@
 ---
 name: wimplement
-description: "Execute phase - implement one task at a time with spec-derived tests, a deterministic gate, an atomic Conventional Commit, and slice-level verification. Argument: the feature or slice. Preloaded by the implementer agent; enter with /wimplement."
+description: "Execute phase - implement tasks with spec-derived checks, gates, atomic commits, and slice verification. Argument: feature or slice. Preloaded by implementer; enter with /wimplement."
 argument-hint: "<feature-or-slice>"
 context: fork
 agent: implementer
@@ -46,7 +46,7 @@ If a dependency is not done, say which one and propose doing it first.
 
 ### 3. State Implementation Plan
 
-Before writing code, record the scope the task is held to, using the record block in `references/execution-template.md`.
+Before writing code, record the scope the task is held to, using the record block in `references/execution-template.md`. When the task names a visual reference, load `docs/guidelines/UI-UX.md` and the pointed `uiux.md` row or bounded inline record from `design_excerpt`; retain it and state paired visual evidence in the done criterion.
 
 ### 4. Write Tests (derived from spec, not from implementation)
 
@@ -55,8 +55,8 @@ present, or the inline execution plan when Tasks was skipped):
 
 1. Write the test file(s) covering the task's acceptance criteria.
 2. Tests MUST be derived from the task's "Done when" criteria and `spec.md` ACs - **not** from the implementation. Each test encodes what the spec requires; never write tests by reading the code and asserting what it currently does.
-3. Each acceptance criterion from "Done when" maps to at least one test assertion whose asserted value matches the **spec-defined expected outcome**. Where the spec does not define a precise outcome, note it as a **spec-precision gap** rather than writing a vague assertion and passing silently.
-4. Edge cases from spec.md that apply to this task get test cases too.
+3. Each behavioral criterion from "Done when" maps to at least one test assertion whose asserted value matches the **spec-defined expected outcome**. Where the spec does not define a precise outcome, note it as a **spec-precision gap** rather than writing a vague assertion and passing silently.
+4. Edge cases from spec.md that apply to this task get test cases too. A manual visual criterion uses comparison evidence against the feature `uiux.md` row; it is not an automated assertion and does not replace behavioral tests.
 
 **Test integrity:** assertions are not weakened, and test cases are not deleted, skipped, or disabled to get a pass; a failing test is a signal, not noise. If a test is genuinely wrong (tests the wrong behavior per spec), ask the user before modifying it.
 

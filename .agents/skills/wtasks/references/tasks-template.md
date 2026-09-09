@@ -137,7 +137,7 @@ T8 → T9
 
 **Done when**:
 
-- [ ] Component renders correctly
+- [ ] When a visual reference is named, the task points to its `uiux.md` row and records paired evidence at the declared states and exact viewports
 - [ ] Handles props from interface
 - [ ] Follows existing component patterns
 - [ ] Gate check passes: `[quick gate command from the Gate Check Commands above]`

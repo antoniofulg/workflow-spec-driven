@@ -22,6 +22,7 @@ The verification must be at least as broad as the claim.
 | "task complete" | The task's own tests and validation commands, plus the scoped gate |
 | "feature complete" / "ready for a pull request" | The full gate |
 | bounded documentation or instruction update | The proportional scoped checks selected by `GATES.md` |
+| visual-reference completion | Fresh paired reference/implementation captures at the declared states and viewports, with environment, fonts/assets, and expected differences recorded in the `UI-UX.md` contract |
 | "bug fixed" | The original symptom reproduced failing, then passing |
 | "regression test works" | Red before the fix, green after — both observed |
 

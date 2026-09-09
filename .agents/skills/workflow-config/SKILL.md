@@ -1,6 +1,6 @@
 ---
 name: workflow-config
-description: Workflow configuration synchronizes central agent models and efforts, then resolves deep-review cadence and delegated-role providers before feature dispatch. Use when editing model settings, syncing packets, planning or resuming a feature, selecting native or mixed providers, or freezing a feature workflow. Don't use for project gates, QA policy, or planning depth.
+description: Configure workflow models, efforts, review cadence, and role providers. Use when editing settings, syncing packets, planning or resuming features, or freezing provider routes; not for gates, QA policy, or planning depth.
 ---
 
 # Workflow Configuration
@@ -12,7 +12,7 @@ orchestrator dispatch the frozen route.
 
 `.my-workflow.toml` is the checkout-local single editable source for every Claude, Codex, and Cursor
 model and effort across planner, implementer, verifier, explorer, and deep reviewer. The tracked
-`.my-workflow.toml.example` initializes it, and tracked `templates/agents/` bodies are the source
+`.my-workflow.toml.example` initializes it, and tracked `.agents/skills/workflow-config/assets/agents/` bodies are the source
 for ignored generated runtime packets. Native packet fields are generated output; edit templates
 for instruction changes.
 
@@ -25,7 +25,7 @@ python3 .agents/skills/workflow-config/scripts/workflow_config.py \
 
 The command validates the complete matrix and every template before writing, initializes a missing
 local config from the example, reports `changed` and `unchanged` runtime paths, and is idempotent.
-Adoption runs it after installing missing example/templates.
+Adoption runs it after installing the missing example and skill-owned packet assets.
 
 ## Remediation stall bound
 

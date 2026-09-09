@@ -82,12 +82,10 @@ Features run sequentially; slices inside a feature parallelize only when machine
 
 ## Mockup fidelity
 
-Port, do not reinterpret. The implementer starts from the mockup file and copies markup and
-styles, then wires behaviour. Design tokens are extracted from the mockup once into the token
-file; no colour or spacing is retyped. Any deviation is listed with a reason in the report. The
-verifier runs a visual diff at the mockup viewport (Playwright screenshot against the mockup
-render, pixel threshold) plus a DOM structure diff; the UI slice carries a fidelity TEST id in the
-test contract. Other viewports follow the responsive rules in `uiux.md` and FRONTEND.md.
+Reference fidelity is governed by [`docs/guidelines/UI-UX.md`](../guidelines/UI-UX.md): it covers
+approved source or export selection, HTML/CSS porting, token provenance and mapping, paired visual
+comparison, expected differences and tolerances, and the evidence boundary. The current contract does
+not require blanket DOM identity or a universal pixel threshold.
 
 Reuse before create. `ponytail` already says "already in this codebase? reuse it", and it was not
 enough. Three reinforcements: the implementer packet requires a component inventory step (grep the

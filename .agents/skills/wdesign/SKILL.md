@@ -1,6 +1,6 @@
 ---
 name: wdesign
-description: "Design phase - define HOW to build a specified feature: architecture, components, interfaces, data models, reuse, and risks. Argument: the feature slug. Pulled on demand by the planner agent; enter with /wdesign."
+description: "Design phase - define architecture, interfaces, data models, reuse, and risks for a specified feature. Argument: feature slug. Loaded on demand by planner; enter with /wdesign."
 argument-hint: "<feature-or-slice>"
 context: fork
 agent: planner
@@ -55,9 +55,10 @@ Every flagged concern carries a mitigation - how the design (or a follow-up task
 
 ### 2. Define Architecture
 
-For UI-bearing work, follow the bounded constraints, reference selection, alternatives, subtraction,
-refinement, and handoff procedure in `docs/guidelines/UI-UX.md`. Existing patterns cover bounded
-compositions; three distinct alternatives apply only to a genuinely new screen or meaningful redesign.
+For UI-bearing work, follow the bounded constraints, approved-reference selection, HTML/CSS porting,
+token mapping, paired-evidence, subtraction, refinement, and handoff procedure in
+`docs/guidelines/UI-UX.md`. Existing patterns cover bounded compositions; three distinct alternatives
+apply only to a genuinely new screen or meaningful redesign without an approved reference; retain `uiux.md` rows as the source pointer for the design excerpt.
 
 **Large/Complex only - approach exploration:** Before committing to a single architecture, present 2-3 viable approaches with trade-offs and a recommendation. Lead with the recommendation to avoid analysis paralysis. All approaches must deliver the same scoped thing (no alternative scopes). Confirm the chosen approach with the user before detailing components. Medium features: skip - design inline.
 

@@ -5,14 +5,14 @@ title: Preload role skills and scope the Skill tool in generated packets
 persona: Workflow adopter
 journey: J-configure-feature-workflow
 expected: Sync renders each Claude packet's `skills:` and `disallowedTools:` lines byte-identical to its template with only model and effort replaced, including the designer packet's `skills: [wdesign, ponytail]` and absent `disallowedTools`, and refuses a template that preloads a skill with no `SKILL.md`, naming the template and the skill and writing nothing.
-entry_points: templates/agents/claude/; templates/agents/cursor/; templates/agents/codex/; python3 .agents/skills/workflow-config/scripts/workflow_config.py --root . --sync-agents; .claude/agents/
+entry_points: .agents/skills/workflow-config/assets/agents/claude/; .agents/skills/workflow-config/assets/agents/cursor/; .agents/skills/workflow-config/assets/agents/codex/; python3 .agents/skills/workflow-config/scripts/workflow_config.py --root . --sync-agents; .claude/agents/
 qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-03-specify-impact-designer/31-designer-packets.txt; docs/qa/evidence/2026-09-03-specify-impact-designer/35-skills-lines.txt; docs/qa/evidence/2026-09-03-specify-impact-designer/42-neg-ghost.log; docs/qa/evidence/2026-09-03-specify-impact-designer/42-neg-ghost-cmp.txt
-last_report: docs/qa/reports/2026-09-03-specify-impact-designer.md
+evidence: docs/qa/evidence/2026-09-08-lean-consumer-installation/56-packet-readback.txt; docs/qa/evidence/2026-09-08-lean-consumer-installation/55-sync-missing-table.stderr; docs/qa/evidence/2026-09-08-lean-consumer-installation/55-sync-ghost.stderr
+last_report: docs/qa/reports/2026-09-08-lean-consumer-installation.md
 overlaps: CFG-centralize-agent-model-routing
 ---
 
@@ -37,3 +37,7 @@ promise; this scenario owns only preload declaration and tool scope.
 The `specify-impact-designer` feature adds a Claude designer packet with `skills: [wdesign, ponytail]`
 and no `disallowedTools`. The set of Claude packets this promise walks has changed. Reset to
 `untested`. Prior evidence remains historical.
+
+The `lean-consumer-installation` cycle moves all provider template sources under their owning skill.
+Reset to `untested`; prior evidence remains historical. Fresh sync must prove packet body and preload
+scope from the canonical installed assets without an old root-template reader.
