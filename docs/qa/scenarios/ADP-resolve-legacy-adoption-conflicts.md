@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: A maintainer reviews every legacy or unowned conflict in the guided installer, deliberately replaces with a verified backup, excludes the affected module, or cancels, while consumer instructions and cancelled targets remain unchanged.
 entry_points: README.md#recovery-and-conflict-handling; npx workflow-spec-driven install
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-07-deterministic-installer/resolve-valid-python-attempt1.json; docs/qa/evidence/2026-09-07-deterministic-installer/git-metadata-attribution.json
-last_report: docs/qa/reports/2026-09-07-deterministic-installer.md
+evidence: docs/qa/evidence/2026-09-09-interactive-installer/47-knowledge-readback.json; docs/qa/evidence/2026-09-09-interactive-installer/48-conflict-exclude.log; docs/qa/evidence/2026-09-09-interactive-installer/48-conflict-cancel.log; docs/qa/evidence/2026-09-09-interactive-installer/50-unsafe-manifest.log; docs/qa/evidence/2026-09-09-interactive-installer/54-final-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/closeout-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/provenance-readback.json
+last_report: docs/qa/reports/2026-09-09-interactive-installer.md
 overlaps: ADP-layered-workflow-adoption; ADP-adopt-workflow-safely
 ---
 

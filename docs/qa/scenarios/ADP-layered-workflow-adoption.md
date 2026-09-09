@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: A project selects fixed modules incrementally, sees dependency closure and conflicts before approval, preserves consumer content, installs canonical skill-owned runtime without root templates or tools, and repeats with an explicit no-change result.
 entry_points: README.md#quick-start; npx workflow-spec-driven install
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-08-lean-consumer-installation/11-core-plan.json; docs/qa/evidence/2026-09-08-lean-consumer-installation/13-core-status.json; docs/qa/evidence/2026-09-08-lean-consumer-installation/16-full-status.json
-last_report: docs/qa/reports/2026-09-08-lean-consumer-installation.md
+evidence: docs/qa/evidence/2026-09-09-interactive-installer/43-full-80-no-color.log; docs/qa/evidence/2026-09-09-interactive-installer/45-noop.log; docs/qa/evidence/2026-09-09-interactive-installer/48-conflict-exclude.log; docs/qa/evidence/2026-09-09-interactive-installer/52-python-free-core.log; docs/qa/evidence/2026-09-09-interactive-installer/54-final-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/closeout-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/provenance-readback.json
+last_report: docs/qa/reports/2026-09-09-interactive-installer.md
 overlaps: ADP-adopt-workflow-safely
 ---
 

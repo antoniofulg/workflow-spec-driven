@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: An exact package applies canonical skill-owned runtime and generated packets while preserving consumer context, config, QA, and knowledge, retiring proven old copies, and refusing edited or unproven old runtime before publication.
 entry_points: README.md#quick-start; docs/workflow/pack.md; npx workflow-spec-driven install
-qa_status: untested
+qa_status: pass
 bug_ids: BUG-20260822-deep-review-learnings-untrackable; BUG-20260822-feature-specs-ignored; BUG-20260822-feature-state-gate-conflicts; BUG-20260825-adoption-omits-parallel-pilot; BUG-20260829-final-qa-pass-conflicts-with-adoption-gate
 fix_status: fixed
 retest_status: pass
 fix_commits: 0413862; a7397d2; 43e9910; a3fc718; 5b5474e; 816afd6; 9653ed1
-evidence: docs/qa/evidence/2026-09-08-lean-consumer-installation/21-upgrade-sentinels-before.sha256; docs/qa/evidence/2026-09-08-lean-consumer-installation/24-upgrade-sentinels-after.sha256; docs/qa/evidence/2026-09-08-lean-consumer-installation/31-refuse-edited-managed-before.sha256; docs/qa/evidence/2026-09-08-lean-consumer-installation/34-refuse-edited-managed-after.sha256
-last_report: docs/qa/reports/2026-09-08-lean-consumer-installation.md
+evidence: docs/qa/evidence/2026-09-09-interactive-installer/47-knowledge-readback.json; docs/qa/evidence/2026-09-09-interactive-installer/49b-recovery-readback.json; docs/qa/evidence/2026-09-09-interactive-installer/50-malformed-state.log; docs/qa/evidence/2026-09-09-interactive-installer/50-unsafe-manifest.log; docs/qa/evidence/2026-09-09-interactive-installer/54-final-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/closeout-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/provenance-readback.json
+last_report: docs/qa/reports/2026-09-09-interactive-installer.md
 overlaps:
 ---
 

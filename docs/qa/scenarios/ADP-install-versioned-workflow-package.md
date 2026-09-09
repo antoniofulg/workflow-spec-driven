@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: An exact local package completes the guided install and upgrade, repeats with an explicit no-change result, preserves consumer context, configuration, QA, and knowledge, and resolves edited content before publication.
 entry_points: README.md#quick-start; npx workflow-spec-driven install
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-08-lean-consumer-installation/package/artifact.sha256; docs/qa/evidence/2026-09-08-lean-consumer-installation/package/archive-inventory.txt; docs/qa/evidence/2026-09-08-lean-consumer-installation/22-upgrade-plan.json; docs/qa/evidence/2026-09-08-lean-consumer-installation/27-upgrade-reload-status.json
-last_report: docs/qa/reports/2026-09-08-lean-consumer-installation.md
+evidence: docs/qa/evidence/2026-09-09-interactive-installer/package/final/artifact.sha256; docs/qa/evidence/2026-09-09-interactive-installer/46b-outdated-upgrade.log; docs/qa/evidence/2026-09-09-interactive-installer/54-final-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/package/artifact.sha256; docs/qa/evidence/2026-09-09-interactive-installer/closeout/package/pack.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/closeout-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/provenance-readback.json
+last_report: docs/qa/reports/2026-09-09-interactive-installer.md
 overlaps: ADP-adopt-workflow-safely; ADP-layered-workflow-adoption; ADP-resolve-legacy-adoption-conflicts
 ---
 
