@@ -220,6 +220,37 @@ class DeepReviewContractTests(unittest.TestCase):
         self.assertEqual(len(groups), 1)
         self.assertIn("booking.py:40", merge_group(groups[0])["also_applies"])
 
+    def test_prior_open_major_without_disposition_blocks_ship(self) -> None:
+        # IT-001 (P1 AC5)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out = render_fixture(root, [])
+            head = git(root, "rev-parse", "HEAD")
+            manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+            (out / "manifest.json").write_text(json.dumps({**manifest, "round": 2}), encoding="utf-8")
+            (out / "state.json").write_text(json.dumps({
+                "target": "test", "rounds": [{"n": 1, "head": head}],
+                "ledger": {"fp-major": {
+                    "file": "source.txt", "title": "Original defect still exists.",
+                    "severity": "major", "status": "open", "round": 1,
+                    "result_kind": "defect", "comment_id": None, "resolved_in": None,
+                }},
+            }), encoding="utf-8")
+            ledger = json.loads((out / "findings.json").read_text(encoding="utf-8"))
+            ledger["reconciliation"] = {"resolved": [], "still_open_unreviewed": ["fp-major"]}
+            (out / "findings.json").write_text(json.dumps(ledger), encoding="utf-8")
+
+            result = run_script(RENDER_REVIEW, root, "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            review = (out / "review.md").read_text(encoding="utf-8")
+            verdict_line = next(line for line in review.splitlines() if line.startswith("**Verdict:"))
+            self.assertTrue(verdict_line.startswith("**Verdict: FIX_BEFORE_SHIP**"), verdict_line)
+            duplicates = review.split("## Duplicates", 1)[1].split("## Advisories", 1)[0]
+            self.assertIn("Original defect still exists.", duplicates)
+            state = json.loads((out / "state.json").read_text(encoding="utf-8"))
+            self.assertEqual(state["ledger"]["fp-major"]["status"], "open")
+            self.assertEqual(state["rounds"][-1]["verdict"], "FIX_BEFORE_SHIP")
+
     def test_undispositioned_prior_open_finding_stays_open(self) -> None:
         # UT-003 (P1 AC3)
         prior = {"rounds": [{"n": 1}], "ledger": {"fp-major": {"status": "open", "file": "source.txt"}}}

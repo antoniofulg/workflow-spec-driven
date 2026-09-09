@@ -173,10 +173,10 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] A prior open Major with zero new findings and no disposition renders `FIX_BEFORE_SHIP`
-- [ ] The Duplicates section still lists it
-- [ ] Gate check passes: `python3 tools/test_deep_review_contract.py`
-- [ ] Test count: 17 tests pass
+- [x] A prior open Major with zero new findings and no disposition renders `FIX_BEFORE_SHIP`
+- [x] The Duplicates section still lists it
+- [x] Gate check passes: `python3 tools/test_deep_review_contract.py`
+- [x] Test count: 17 tests pass
 
 **Tests**: integration — IT-001
 **Gate**: quick

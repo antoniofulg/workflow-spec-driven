@@ -170,7 +170,12 @@ def main() -> int:
         new_advisories = [f for f in advisories if f["round_status"] == "new"]
         duplicate_advisories = [f for f in advisories if f["round_status"] == "duplicate"]
         open_findings = new + duplicates
-        open_cm = [f for f in open_findings if f["severity"] in {"critical", "major"}]
+        prior_state = read_json(out / "state.json") if (out / "state.json").is_file() else {"target": manifest["target"], "rounds": [], "ledger": {}}
+        prior_ledger = prior_state.get("ledger", {})
+        reconciliation = ledger.get("reconciliation", {})
+        # Prior open entries without a disposition stay open and count in the verdict.
+        carried = [prior_ledger[fp] for fp in reconciliation.get("still_open_unreviewed", []) if fp in prior_ledger]
+        open_cm = [f for f in [*open_findings, *carried] if f["severity"] in {"critical", "major"}]
         artifacts = spec_artifacts(context_pack)
         spec_mapping = map_spec_violations(open_findings, artifacts) if artifacts else {}
 
@@ -208,9 +213,7 @@ def main() -> int:
     sev_counts = defaultdict(int)
     for finding in new:
         sev_counts[finding["severity"]] += 1
-    reconciliation = ledger.get("reconciliation", {})
     resolved = reconciliation.get("resolved", [])
-    prior_state = read_json(out / "state.json") if (out / "state.json").is_file() else {"target": manifest["target"], "rounds": [], "ledger": {}}
     round_n = manifest["round"]
 
     review: list[str] = [
@@ -244,7 +247,6 @@ def main() -> int:
         review.append("")
 
     review += [f"## Duplicates (unresolved from round {round_n - 1})", ""]
-    prior_ledger = prior_state.get("ledger", {})
     duplicate_lines = [
         f"- _{SEVERITY_BADGE[f['severity']]}_ · {claim(f['title'])} — first raised round "
         f"{f.get('first_round', '?')} <!-- deep-review:fp:{f['fingerprint']} -->"
