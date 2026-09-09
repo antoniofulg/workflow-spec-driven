@@ -70,7 +70,7 @@ def valid_payload() -> dict:
     }
 
 
-def write_job_round(root: Path, *, payload: dict | None = None) -> Path:
+def write_job_round(root: Path, *, payload: dict | None = None, job: dict | None = None) -> Path:
     out = root / ".deep-review" / "out"
     out.mkdir(parents=True)
     head = git(root, "rev-parse", "HEAD")
@@ -109,6 +109,7 @@ def write_job_round(root: Path, *, payload: dict | None = None) -> Path:
                         "output": str(output.relative_to(root)),
                         "required_hunks": [],
                         "rule_ids": [],
+                        **(job or {}),
                     }
                 ]
             }
@@ -116,6 +117,12 @@ def write_job_round(root: Path, *, payload: dict | None = None) -> Path:
         encoding="utf-8",
     )
     return out
+
+
+def validate_status(root: Path, out: Path) -> tuple[subprocess.CompletedProcess[str], dict]:
+    result = run_script(RUN_JOBS, root, "--out", str(out), "--validate-only")
+    status = json.loads((out / "runs/jobs-status.json").read_text(encoding="utf-8"))
+    return result, status["jobs"][0]
 
 
 def render_fixture(root: Path, findings: list[dict]) -> Path:
@@ -212,6 +219,45 @@ class DeepReviewContractTests(unittest.TestCase):
         groups = group_duplicates([first, second])
         self.assertEqual(len(groups), 1)
         self.assertIn("booking.py:40", merge_group(groups[0])["also_applies"])
+
+    def test_missing_prior_disposition_invalidates_output(self) -> None:
+        # IT-008 (P2 AC5)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out = write_job_round(root, payload=valid_payload(), job={"prior_fingerprints": ["fp-major"]})
+            result, row = validate_status(root, out)
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            self.assertEqual(row["status"], "invalid")
+            self.assertIn("fp-major", row["reason"])
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            payload = {**valid_payload(), "prior_findings": [
+                {"fingerprint": "fp-major", "status": "open", "evidence": "source.txt:1 → still there"}
+            ]}
+            out = write_job_round(root, payload=payload, job={"prior_fingerprints": ["fp-major"]})
+            result, row = validate_status(root, out)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(row["status"], "valid")
+
+    def test_full_mode_rejects_prior_dispositions(self) -> None:
+        # IT-009 (P2 AC6)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            payload = {**valid_payload(), "prior_findings": [
+                {"fingerprint": "fp-major", "status": "resolved", "evidence": "source.txt:1 → gone"}
+            ]}
+            out = write_job_round(root, payload=payload)
+            result, row = validate_status(root, out)
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            self.assertEqual(row["status"], "invalid")
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out = write_job_round(root, payload=valid_payload())
+            result, row = validate_status(root, out)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(row["status"], "valid")
 
     def test_walkthrough_publish_is_one_idempotent_upsert(self) -> None:
         recipe = publish_walkthrough_recipe()

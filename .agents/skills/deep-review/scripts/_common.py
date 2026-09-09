@@ -230,9 +230,20 @@ def findings_contract_errors(payload: dict) -> list[str]:
 
 
 def job_contract_errors(payload: dict, job: dict) -> list[str]:
-    """Validate lane ownership, hunk coverage, and rule accountability."""
+    """Validate lane ownership, hunk coverage, rule accountability, and
+    prior-finding dispositions (exactly one row per job.prior_fingerprints)."""
     errors: list[str] = []
     lane = str(job.get("lane", ""))
+    expected_prior = set(job.get("prior_fingerprints", []))
+    actual_prior = [str(row.get("fingerprint")) for row in payload.get("prior_findings", [])]
+    if len(actual_prior) != len(set(actual_prior)):
+        errors.append("$.prior_findings: duplicate fingerprint rows")
+    if set(actual_prior) != expected_prior:
+        errors.append(
+            "$.prior_findings: disposition mismatch "
+            f"missing={sorted(expected_prior - set(actual_prior))[:6]} "
+            f"extra={sorted(set(actual_prior) - expected_prior)[:6]}"
+        )
     expected_hunks = {
         (str(row["file"]), str(row["hunk"])) for row in job.get("required_hunks", [])
     }

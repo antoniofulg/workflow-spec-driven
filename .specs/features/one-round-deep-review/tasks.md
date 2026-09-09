@@ -115,11 +115,11 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] A job with `prior_fingerprints: [fp]` and an output lacking a row for `fp` validates `invalid` naming `fp`
-- [ ] A job without `prior_fingerprints` and an output with a non-empty `prior_findings` validates `invalid`
-- [ ] Outputs without the key validate as before
-- [ ] Gate check passes: `python3 tools/test_deep_review_contract.py`
-- [ ] Test count: 14 tests pass
+- [x] A job with `prior_fingerprints: [fp]` and an output lacking a row for `fp` validates `invalid` naming `fp`
+- [x] A job without `prior_fingerprints` and an output with a non-empty `prior_findings` validates `invalid`
+- [x] Outputs without the key validate as before
+- [x] Gate check passes: `python3 tools/test_deep_review_contract.py`
+- [x] Test count: 14 tests pass
 
 **Tests**: integration — IT-008, IT-009
 **Gate**: quick

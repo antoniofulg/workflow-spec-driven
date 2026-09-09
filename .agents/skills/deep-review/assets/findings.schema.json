@@ -50,6 +50,18 @@
         }
       }
     },
+    "prior_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["fingerprint", "status", "evidence"],
+        "properties": {
+          "fingerprint": { "type": "string" },
+          "status": { "enum": ["resolved", "open"] },
+          "evidence": { "type": "string" }
+        }
+      }
+    },
     "suppressions": {
       "type": "array",
       "items": {
