@@ -119,7 +119,7 @@ export function loadManifest(root) {
   if (!fs.existsSync(target)) return emptyManifest();
   let data; try { data = JSON.parse(decodeUtf8(fs.readFileSync(target), 'adoption manifest')); } catch (error) { fail(`invalid adoption manifest: ${error.message}`); }
   if (!data || typeof data !== 'object' || Array.isArray(data) || Object.keys(data).sort().join() !== 'blocks,files,layers,schema,workflow_version') fail('adoption manifest has an unsupported schema');
-  if (data.schema !== 1 || typeof data.workflow_version !== 'string' || !/^(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})$/.test(data.workflow_version) || semver(data.workflow_version).some((part, index) => part > semver(WORKFLOW_VERSION)[index])) fail('adoption manifest schema must be version 1 and workflow version must not be newer than the installer');
+  if (data.schema !== 1 || typeof data.workflow_version !== 'string' || !/^(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})$/.test(data.workflow_version) || semver(data.workflow_version)[0] > semver(WORKFLOW_VERSION)[0] || semver(data.workflow_version)[0] === semver(WORKFLOW_VERSION)[0] && (semver(data.workflow_version)[1] > semver(WORKFLOW_VERSION)[1] || semver(data.workflow_version)[1] === semver(WORKFLOW_VERSION)[1] && semver(data.workflow_version)[2] > semver(WORKFLOW_VERSION)[2])) fail('adoption manifest schema must be version 1; workflow version is newer than the installer');
   if (!Array.isArray(data.layers) || data.layers.some((module) => !LAYERS.includes(module)) || data.layers.join() !== [...new Set(data.layers)].sort((a, b) => LAYERS.indexOf(a) - LAYERS.indexOf(b)).join()) fail('manifest layers must be unique and catalog-ordered');
   if (data.layers.length && JSON.stringify(resolveModules(data.layers)) !== JSON.stringify(data.layers)) fail('manifest layers must include every fixed dependency');
   if (!data.files || typeof data.files !== 'object' || Array.isArray(data.files) || !data.blocks || typeof data.blocks !== 'object' || Array.isArray(data.blocks)) fail('manifest files and blocks must be objects');
@@ -148,7 +148,7 @@ function blockContent(sourceRoot, module, filename) {
   const body = filename === 'CLAUDE.md' ? '@AGENTS.md' : fs.readFileSync(path.join(sourceRoot, 'templates/adoption/agents', `${module}.md`), 'utf8').trimEnd();
   return `<!-- my-workflow:${module}:start -->\n${body}\n<!-- my-workflow:${module}:end -->`;
 }
-function composeBlocks(sourceRoot, root, modules, manifest) {
+export function composeBlocks(sourceRoot, root, modules, manifest) {
   const outputs = {}, blocks = { ...manifest.blocks }, conflicts = [];
   for (const filename of ['AGENTS.md', 'CLAUDE.md']) {
     const target = safePath(root, filename, 'managed instruction'); const exists = fs.existsSync(target); let rendered = exists ? decodeUtf8(fs.readFileSync(target), `${filename} instruction`) : filename === 'AGENTS.md' ? decodeUtf8(fs.readFileSync(path.join(sourceRoot, filename)), `${filename} package source`) : '';

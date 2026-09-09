@@ -64,6 +64,13 @@ or inconsistent manifest provenance and invalid UTF-8 instructions, preserves un
 records, handles absent destructive paths without false backup failures, and updates current
 documentation to the canonical interactive command. Focused installer tests pass 187/187.
 
+### Final deep-review checkpoint 2026-09-09
+
+Managed-block replacement now composes only the selected block while preserving surrounding prose
+and other managed blocks. Current adoption guidance states the guided install exit contract, and
+manifest version checks compare semver components lexicographically. Focused installer tests pass
+192/192 and the full gate exits 0.
+
 ---
 
 ## Test Coverage Matrix
