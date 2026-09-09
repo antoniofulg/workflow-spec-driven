@@ -520,6 +520,58 @@ class DeepReviewContractTests(unittest.TestCase):
                 self.assertIn("**Verdict: FIX_BEFORE_SHIP**", review)
                 self.assertNotIn("**Verdict: SHIP**", review)
 
+    def repaired_findings(self) -> list[dict]:
+        return [
+            {
+                **finding(severity),
+                "also_applies": [f"source.txt:{7 + index}", "other.py:3"],
+                "evidence": [f"Premise: guard missing → Path: {severity} caller skips the guard → Verdict: blocked."],
+                "suggestion": "add_guard()" if severity == "major" else "",
+            }
+            for index, severity in enumerate(("critical", "major", "minor"))
+        ]
+
+    def test_repair_plan_rendered_for_every_defect_severity(self) -> None:
+        # IT-004 (P2 AC1)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            findings = self.repaired_findings()
+            out = render_fixture(root, findings)
+            result = run_script(RENDER_REVIEW, root, "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            review = (out / "review.md").read_text(encoding="utf-8")
+            self.assertNotIn("Prompt for AI Agents", review)
+
+            def block(item: dict) -> str:
+                before = review.split(f"<!-- deep-review:fp:{item['fingerprint']} -->", 1)[0]
+                return before.rsplit(f"**{item['title']}.**", 1)[1]
+
+            for item in findings:
+                text = block(item)
+                self.assertIn("Repair plan", text)
+                self.assertIn(f"{item['severity']} caller skips the guard", text)
+                for anchor in item["also_applies"]:
+                    self.assertIn(anchor, text)
+                self.assertIn("grep", text)
+                self.assertIn("fails on the Premise", text)
+            self.assertIn("Suggested change: add_guard()", block(findings[1]))
+
+    def test_ledger_open_entries_carry_certificate(self) -> None:
+        # IT-005 (P2 AC2)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            findings = self.repaired_findings()
+            out = render_fixture(root, findings)
+            result = run_script(RENDER_REVIEW, root, "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            ledger = json.loads((out / "state.json").read_text(encoding="utf-8"))["ledger"]
+            for item in findings:
+                entry = ledger[item["fingerprint"]]
+                self.assertEqual(entry["status"], "open")
+                self.assertEqual(entry["certificate"], item["evidence"][0])
+                self.assertEqual(entry["also_applies"], item["also_applies"])
+                self.assertEqual(entry["line"], item["line"])
+
     def test_incomplete_defect_or_polish_hunk_coverage_is_rejected(self) -> None:
         manifest = {
             "files": [

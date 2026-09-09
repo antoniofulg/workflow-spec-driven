@@ -57,6 +57,14 @@ def line_range(finding: dict) -> str:
     return f"{finding['line']}-{end}" if end != finding["line"] else str(finding["line"])
 
 
+def path_clause(certificate: str) -> str:
+    """The `Path:` clause of a `Premise → Path → Verdict` certificate."""
+    for part in certificate.split("→"):
+        if part.strip().startswith("Path:"):
+            return one_line(part.strip()[5:])
+    return one_line(certificate)
+
+
 def render_finding(finding: dict, rules_by_id: dict[str, dict]) -> str:
     badges = [f"_{CATEGORY_BADGE[finding['category']]}_", f"_{SEVERITY_BADGE[finding['severity']]}_"]
     if finding.get("quick_win"):
@@ -79,15 +87,16 @@ def render_finding(finding: dict, rules_by_id: dict[str, dict]) -> str:
             f"> ‼️ **IMPORTANT**: review before committing — generated against lines {line_range(finding)}.",
             "", "```suggestion", *safe.splitlines(), "```", "</details>",
         ]
-    if finding["severity"] in {"critical", "major"}:
-        remediation = one_line(suggestion) if suggestion else "correct the failure mode described in the finding at the owning layer"
-        rule_ids = ", ".join(finding.get("rule_ids") or []) or "review evidence"
+    if finding["severity"] in {"critical", "major", "minor"}:
+        anchor = f"{finding['file']}:{finding['line']}"
         lines += [
-            "", "<details>", "<summary>🤖 Prompt for AI Agents</summary>", "", "```",
-            "Verify this finding against the current code and fix it only if still valid.",
-            f"In {finding['file']} around lines {line_range(finding)}, {remediation}",
-            f"Reference anchor: {finding['file']}:{finding['line']}; rules: {rule_ids}.",
-            "```", "</details>",
+            "", "<details>", "<summary>🛠️ Repair plan</summary>", "",
+            f"1. Root cause: {path_clause(evidence[0]) if evidence else 'see the finding body'}",
+            f"2. Fix every site: {', '.join([anchor, *(finding.get('also_applies') or [])])}",
+            f"3. Before editing, grep every caller of the symbol at {anchor}; fix at the owning layer.",
+            "4. Extend the nearest test so it fails on the Premise, then fix until it passes.",
+            f"5. Suggested change: {one_line(suggestion) if suggestion else 'none'}",
+            "</details>",
         ]
     lines.append(f"<!-- deep-review:fp:{finding['fingerprint']} -->")
     return "\n".join(lines)
@@ -283,7 +292,9 @@ def main() -> int:
                 "file": finding["file"], "title": finding["title"],
                 "severity": finding["severity"], "status": "open",
                 "round": round_n, "result_kind": finding["result_kind"],
-                "comment_id": None, "resolved_in": None,
+                "comment_id": None, "resolved_in": None, "line": finding["line"],
+                "certificate": (finding.get("evidence") or [""])[0],
+                "also_applies": finding.get("also_applies") or [],
             }
     rounds = [r for r in prior_state.get("rounds", []) if r["n"] != round_n]
     rounds.append({"n": round_n, "base": manifest["base"], "head": head, "verdict": verdict,

@@ -229,10 +229,10 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] Each rendered defect block contains `Repair plan`, its Path text, all `also_applies` anchors, `grep`, `fails on the Premise`
-- [ ] `state.json` open entries carry the three new fields
-- [ ] Gate check passes: `python3 tools/test_deep_review_contract.py`
-- [ ] Test count: 21 tests pass
+- [x] Each rendered defect block contains `Repair plan`, its Path text, all `also_applies` anchors, `grep`, `fails on the Premise`
+- [x] `state.json` open entries carry the three new fields
+- [x] Gate check passes: `python3 tools/test_deep_review_contract.py`
+- [x] Test count: 21 tests pass
 
 **Tests**: integration — IT-004, IT-005
 **Gate**: quick
