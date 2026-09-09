@@ -11,7 +11,7 @@ const root = path.resolve(import.meta.dirname, '../..');
 test('IT-019 package exposes the unscoped executable only', () => { const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')); assert.equal(pkg.name, 'workflow-spec-driven'); assert.deepEqual(Object.keys(pkg.bin), ['workflow-spec-driven']); assert.equal(pkg.bin['workflow-spec-driven'], 'bin/workflow-spec-driven.js'); assert.equal(pkg.files.includes('scripts/adopt.py'), false); });
 test('IT-010 pack dry-run includes Node installer and excludes Python adopter', () => { const json = execFileSync('npm', ['pack', '--dry-run', '--json'], { cwd: root, encoding: 'utf8' }); const metadata = JSON.parse(json)[0]; const names = metadata.files.map((item) => item.path); assert.ok(names.includes('bin/workflow-spec-driven.js')); assert.ok(names.includes('scripts/installer/engine.js')); assert.equal(names.some((name) => name === 'scripts/adopt.py' || name === 'bin/my-workflow.js'), false); });
 test('IT-019 package can resolve from a clean directory', () => { const target = fs.mkdtempSync(path.join(os.tmpdir(), 'installer-package-')); const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')); assert.equal(packageJson.engines.node, '>=18.0.0'); assert.ok(target.startsWith(os.tmpdir())); });
-test('IT-010 tarball executable performs Node-only install with Python absent', async () => {
+test('IT-010 and IT-015 packed executable performs Node-only install and public cancellation probes', async () => {
   const destination = fs.mkdtempSync(path.join(os.tmpdir(), 'installer-tarball-'));
   const json = execFileSync('npm', ['pack', '--pack-destination', destination, '--json'], { cwd: root, encoding: 'utf8' });
   const tarball = path.join(destination, JSON.parse(json)[0].filename);
@@ -32,6 +32,24 @@ test('IT-010 tarball executable performs Node-only install with Python absent', 
   execFileSync('git', ['add', '.gitignore', '.ignore', 'package.json'], { cwd: clean, env });
   execFileSync('git', ['commit', '-qm', 'fixture'], { cwd: clean, env });
   const executable = path.join(clean, 'node_modules/.bin/workflow-spec-driven');
+  const clone = () => { const target = fs.mkdtempSync(path.join(os.tmpdir(), 'installer-pty-')); fs.cpSync(clean, target, { recursive: true }); return target; };
+  const assertResidueZero = (target) => { assert.equal(execFileSync('git', ['status', '--porcelain'], { cwd: target, env, encoding: 'utf8' }), ''); for (const relative of ['.my-workflow/adoption.json', '.my-workflow/transaction.json', '.my-workflow/backups']) assert.equal(fs.existsSync(path.join(target, relative)), false, relative); };
+  const runCancellationProbe = (target, signal) => spawnSync('/usr/bin/expect', ['-c', [`set timeout 60`, `log_user 1`, `spawn -noecho $env(EXEC) install`, `stty rows 24 columns 80`, `expect -re {Modules.*comma-separated} { send "${signal}\\r" }`, `expect "Installation cancelled. No files changed."`, `expect eof`].join('\n')], { cwd: target, env: { ...env, NO_COLOR: '1', EXEC: path.join(target, 'node_modules/.bin/workflow-spec-driven') }, encoding: 'utf8' });
+  const eofTarget = clone();
+  const eof = runCancellationProbe(eofTarget, '\\004');
+  assert.equal(eof.status, 0, `${eof.error?.message || ''} signal=${eof.signal || ''}\n${eof.stderr}\n${eof.stdout}`);
+  assert.equal((eof.stdout.match(/Installation cancelled\. No files changed\./g) || []).length, 1, eof.stdout);
+  assertResidueZero(eofTarget);
+  const interruptTarget = clone();
+  const interrupt = runCancellationProbe(interruptTarget, '\\003');
+  assert.equal(interrupt.status, 0, `${interrupt.error?.message || ''} signal=${interrupt.signal || ''}\n${interrupt.stderr}\n${interrupt.stdout}`);
+  assert.equal((interrupt.stdout.match(/Installation cancelled\. No files changed\./g) || []).length, 1, interrupt.stdout);
+  assertResidueZero(interruptTarget);
+  const normalTarget = clone();
+  const normal = spawnSync('/usr/bin/expect', ['-c', [`set timeout 60`, `log_user 1`, `spawn -noecho $env(EXEC) install`, `stty rows 24 columns 80`, `expect -re {Modules.*comma-separated} { send "1\\r" }`, `expect -re {Continue to preview} { send "n\\r" }`, `expect "Installation cancelled. No files changed."`, `expect eof`].join('\n')], { cwd: normalTarget, env: { ...env, EXEC: path.join(normalTarget, 'node_modules/.bin/workflow-spec-driven') }, encoding: 'utf8' });
+  assert.equal(normal.status, 0, `${normal.error?.message || ''} signal=${normal.signal || ''}\n${normal.stderr}\n${normal.stdout}`);
+  assert.equal((normal.stdout.match(/Installation cancelled\. No files changed\./g) || []).length, 1, normal.stdout);
+  assertResidueZero(normalTarget);
   const colorEnv = { ...env };
   delete colorEnv.NO_COLOR;
   const noColor = spawnSync('/usr/bin/expect', ['-c', 'set timeout 60\nlog_user 1\nspawn -noecho $env(EXEC) install\nexpect -re {Modules.*comma-separated} { send "4\\r" }\nexpect -re {Continue to preview} { send "n\\r" }\nexpect "Installation cancelled."\nexpect eof'], { cwd: clean, env: { ...env, NO_COLOR: '1', EXEC: executable }, encoding: 'utf8' });
@@ -39,7 +57,8 @@ test('IT-010 tarball executable performs Node-only install with Python absent', 
   const heading = noColor.stdout.indexOf('Workflow Spec-Driven Installer');
   assert.ok(heading >= 0, noColor.stdout);
   assert.equal(/\u001b\[[0-?]*[ -/]*[@-~]/.test(noColor.stdout.slice(heading)), false, noColor.stdout.slice(heading));
-  assert.match(noColor.stdout, /Installation cancelled\./);
+  assert.equal((noColor.stdout.match(/Installation cancelled\. No files changed\./g) || []).length, 1, noColor.stdout);
+  assertResidueZero(clean);
   const result = spawnSync('/usr/bin/expect', ['-c', 'set timeout 60\nlog_user 1\nspawn -noecho $env(EXEC) install\nexpect -re {Modules.*comma-separated} { send "1\\r" }\nexpect -re {Continue to preview} { send "y\\r" }\nexpect -re {Apply this plan} { send "y\\r" }\nexpect "Installation complete."\nexpect eof'], { cwd: clean, env: { ...colorEnv, EXEC: executable }, encoding: 'utf8' });
   // Keep color-capable TTY behavior covered by the adjacent accepted flow below.
   assert.equal(result.status, 0, `${result.error?.message || ''} signal=${result.signal || ''}\n${result.stderr}\n${result.stdout}`);

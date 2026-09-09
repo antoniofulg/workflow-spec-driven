@@ -71,6 +71,15 @@ and other managed blocks. Current adoption guidance states the guided install ex
 manifest version checks compare semver components lexicographically. Focused installer tests pass
 192/192 and the full gate exits 0.
 
+### Public cancellation remediation checkpoint 2026-09-09
+
+The packed public entrypoint now reports the exact cancellation result for real Ctrl-D and Ctrl-C
+in an 80×24 `NO_COLOR=1` terminal while ordinary cancellation remains single-emission and all
+pre-publication paths leave target, adoption, journal, and backup state unchanged. Packed PTY
+regressions cover EOF, interrupt, and normal selection cancellation. Scoped terminal and CLI tests
+pass 44/44; the packed package suite passes 4/4; `bun run test:all` exits 0; `npm pack` reports
+`workflow-spec-driven@0.10.1` with 146 entries.
+
 ---
 
 ## Test Coverage Matrix
