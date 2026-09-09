@@ -69,7 +69,7 @@ def anchor(finding: dict) -> str:
 def collect(repo: Path, out: Path) -> dict[str, list[dict]]:
     results: dict[str, list[dict]] = {
         "defects": [], "advisories": [], "suppressions": [],
-        "hunk_coverage": [], "rule_coverage": [],
+        "hunk_coverage": [], "rule_coverage": [], "dispositions": [],
     }
     for job in load_jobs(out / "jobs.json"):
         try:
@@ -100,6 +100,8 @@ def collect(repo: Path, out: Path) -> dict[str, list[dict]]:
             results["rule_coverage"].append({
                 "source_job": job["label"], "lane": job["lane"], **item,
             })
+        for item in payload.get("prior_findings", []):
+            results["dispositions"].append({"source_job": job["label"], **item})
     return results
 
 
@@ -156,7 +158,7 @@ def raw_ledger_entries(members: list[dict], merged: dict) -> list[dict]:
 
 
 def reconcile(canonical: list[dict], found_fps: set[str], prior_state: dict | None,
-              selected_paths: set[str], manifest_paths: set[str]) -> dict:
+              dispositions: list[dict]) -> dict:
     ledger = (prior_state or {}).get("ledger", {})
     for finding in canonical:
         row = ledger.get(finding["fingerprint"])
@@ -168,17 +170,14 @@ def reconcile(canonical: list[dict], found_fps: set[str], prior_state: dict | No
         else:  # dismissed — overruled before; never re-raise
             finding["round_status"] = "suppressed"
             finding["suppressed_as"] = row["status"]
+    # A prior open finding is resolved only by an explicit reviewer disposition;
+    # absence from the new output never means fixed.
+    resolved_fps = {d["fingerprint"] for d in dispositions if d["status"] == "resolved"}
     resolved, still_open = [], []
     for fp, row in ledger.items():
         if row.get("status") != "open" or fp in found_fps:
             continue
-        # Resolved when the finding's file was re-reviewed (selected) or left the
-        # diff entirely (fix reverted it to base / deleted the change). A file
-        # still in the manifest but not re-reviewed (carried/skipped) stays open.
-        if row.get("file") in selected_paths or row.get("file") not in manifest_paths:
-            resolved.append(fp)
-        else:
-            still_open.append(fp)
+        (resolved if fp in resolved_fps else still_open).append(fp)
     return {
         "resolved": sorted(resolved),
         "still_open_unreviewed": sorted(still_open),
@@ -264,12 +263,8 @@ def main() -> int:
     canonical_results = [*canonical_by_kind["defects"], *canonical_by_kind["advisories"]]
 
     prior_state = read_json(out / "state.json") if (out / "state.json").is_file() else None
-    selected_paths = {f["path"] for f in manifest["files"] if f["disposition"] == "selected"}
-    manifest_paths = {f["path"] for f in manifest["files"]}
     found_fps = {finding["fingerprint"] for finding in canonical_results}
-    reconciliation = reconcile(
-        canonical_results, found_fps, prior_state, selected_paths, manifest_paths
-    )
+    reconciliation = reconcile(canonical_results, found_fps, prior_state, collected["dispositions"])
 
     raw_count = len(collected["defects"]) + len(collected["advisories"])
     canonical_count = len(canonical_results)
@@ -299,6 +294,7 @@ def main() -> int:
         "findings": canonical_by_kind["defects"],
         "advisories": canonical_by_kind["advisories"],
         "suppressions": collected["suppressions"],
+        "dispositions": collected["dispositions"],
         "coverage": coverage,
         "review_stats": review_stats,
         "raw_ledger": raw_ledger,

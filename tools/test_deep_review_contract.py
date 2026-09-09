@@ -26,7 +26,7 @@ PUBLISH_RECIPE = (
 sys.path.insert(0, str(SCRIPTS))
 
 from _common import fingerprint, freeze_snapshot  # noqa: E402
-from merge_findings import coverage_ledger, group_duplicates, merge_group  # noqa: E402
+from merge_findings import coverage_ledger, group_duplicates, merge_group, reconcile  # noqa: E402
 
 
 def git(root: Path, *args: str) -> str:
@@ -219,6 +219,21 @@ class DeepReviewContractTests(unittest.TestCase):
         groups = group_duplicates([first, second])
         self.assertEqual(len(groups), 1)
         self.assertIn("booking.py:40", merge_group(groups[0])["also_applies"])
+
+    def test_undispositioned_prior_open_finding_stays_open(self) -> None:
+        # UT-003 (P1 AC3)
+        prior = {"rounds": [{"n": 1}], "ledger": {"fp-major": {"status": "open", "file": "source.txt"}}}
+        result = reconcile([], set(), prior, [])
+        self.assertEqual(result["still_open_unreviewed"], ["fp-major"])
+        self.assertEqual(result["resolved"], [])
+
+    def test_resolved_disposition_resolves_prior_finding(self) -> None:
+        # UT-004 (P1 AC4)
+        prior = {"rounds": [{"n": 1}], "ledger": {"fp-major": {"status": "open", "file": "source.txt"}}}
+        rows = [{"fingerprint": "fp-major", "status": "resolved", "evidence": "source.txt:1 → gone"}]
+        result = reconcile([], set(), prior, rows)
+        self.assertEqual(result["resolved"], ["fp-major"])
+        self.assertEqual(result["still_open_unreviewed"], [])
 
     def test_missing_prior_disposition_invalidates_output(self) -> None:
         # IT-008 (P2 AC5)

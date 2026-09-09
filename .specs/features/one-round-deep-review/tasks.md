@@ -144,11 +144,11 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] An open prior fingerprint with no disposition is in `still_open_unreviewed` and not in `resolved`
-- [ ] A `resolved` disposition puts the fingerprint in `resolved`
-- [ ] `selected_paths` / `manifest_paths` parameters and the comment explaining them are gone
-- [ ] Gate check passes: `python3 tools/test_deep_review_contract.py`
-- [ ] Test count: 16 tests pass
+- [x] An open prior fingerprint with no disposition is in `still_open_unreviewed` and not in `resolved`
+- [x] A `resolved` disposition puts the fingerprint in `resolved`
+- [x] `selected_paths` / `manifest_paths` parameters and the comment explaining them are gone
+- [x] Gate check passes: `python3 tools/test_deep_review_contract.py`
+- [x] Test count: 16 tests pass
 
 **Tests**: unit — UT-003, UT-004
 **Gate**: quick
