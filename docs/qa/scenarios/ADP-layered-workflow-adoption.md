@@ -4,7 +4,7 @@ area: ADP
 title: Adopt workflow capabilities incrementally
 persona: Workflow adopter
 journey: J-adopt-workflow
-expected: A project can apply fixed layers incrementally with canonical skill-owned runtime and no workflow-created root templates or tools while conflicts fail before writes, consumer content survives, and status reports clean state.
+expected: A project selects fixed modules incrementally, sees dependency closure and conflicts before approval, preserves consumer content, installs canonical skill-owned runtime without root templates or tools, and repeats with an explicit no-change result.
 entry_points: README.md#quick-start; npx workflow-spec-driven install
 qa_status: untested
 bug_ids:
@@ -16,16 +16,17 @@ last_report: docs/qa/reports/2026-09-08-lean-consumer-installation.md
 overlaps: ADP-adopt-workflow-safely
 ---
 
-This feature-specific handoff supersedes no historical result. Fresh QA must start with a read-only
-`plan`, apply `core`, then add dependent layers. Verify manifest ownership, managed instruction
-blocks, all-preflight conflict refusal, no-removal semantics, preserved `package.json` and
-`bun.lock`, Bun knowledge execution, and `status` exit codes. Record new evidence after the public
-journey is executed.
+Fresh QA must select and install `core`, then select dependent modules in a new PTY session. Verify
+that `core` is selected once and named as required, installed modules remain cumulative in the
+manifest, omitted modules and their records remain unchanged, consumer `package.json` and `bun.lock`
+survive, and the installed tree has canonical skill-owned runtime with no workflow-created root
+`templates/` or `tools/`. Repeat the same selection and require the exact no-change summary.
 
-The current cycle also covers `full`, legacy-command refusal, JSON stdout isolation, staged provider
-packet synchronization, and importing the installed assisted probe through a call-counting fake
-`orca`. Exact hash, path-containment, manifest-schema, and publication-order mechanics remain
-technical-verification evidence; QA observes their public no-write and atomic-publication outcomes.
+The current cycle also covers selecting all four modules, conflict exclusion with dependency
+cascade, staged provider-packet synchronization, and importing the installed assisted probe through
+a call-counting fake `orca`. Exact hash, path-containment, manifest-schema, and publication-order
+mechanics remain technical-verification evidence; QA observes their public no-write and
+atomic-publication outcomes.
 
 Release 0.9.1 adjacent QA passed fresh full and incremental consumers. Read-only plans stayed
 unchanged; core and final four-layer states were clean; package/lock hashes survived; Bun knowledge
@@ -53,3 +54,7 @@ The `phase-skills` feature changes the fixed core layer's managed path list, so 
 The `lean-consumer-installation` cycle changes the `core`, `parallel`, and default `full` installed
 footprints. Reset to `untested`; prior evidence remains historical. Fresh QA must confirm canonical
 skill paths and absence of workflow-created root `templates/` and `tools/`.
+
+The `interactive-installer` cycle removes the legacy command set. Current QA uses only the guided
+`install` command; historical `plan`, `apply`, and `status` results above are not current entry
+points or evidence for this cycle.
