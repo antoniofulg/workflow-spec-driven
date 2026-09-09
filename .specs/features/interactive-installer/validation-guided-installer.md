@@ -1,140 +1,187 @@
 # Interactive Installer: guided-installer Validation
 
-**Verdict**: FAIL
+**Verdict**: PASS
 **Date**: 2026-09-08
 **Spec**: `.specs/features/interactive-installer/spec.md`
-**Diff range**: `9acea915..07ca8e86`
+**Diff range**: `9acea915..a7865fad`
 **Verifier**: fresh independent Technical Verifier; author != verifier
 
-Generation 2 closes the prior contract and parity evidence gaps, but independent fail-closed
-probes found two implementation residuals. The feature is not closure-ready.
+## Task Completion
 
-## Remediation and task completion
-
-All prior fingerprints are closed except `08df71b43fa8eb1652c1309d2fc179d70b5da17181561b1b6165c347ef439676`,
-which is open in generation 2 as authorized by `tasks.md#human-authorized-resume-2026-09-08`.
-The visual fingerprint `a39559f...` remains closed. T1–T9 are marked done in `tasks.md`.
-
-## Spec-anchored acceptance criteria
-
-Current owning assertions in `tests/installer/acceptance.test.js`, `engine.test.js`,
-`transaction.test.js`, `terminal.test.js`, `cli.test.js`, `package.test.js`, and
-`knowledge.test.js` pass all previously open exact outcomes. The implementation residuals below
-mean four criteria cannot be passed on code review:
-
-| Criteria | Evidence | Result |
+| Task | Status | Evidence |
 | --- | --- | --- |
-| CLI-001, CLI-002, CLI-003 | `acceptance.test.js:36-38`; packed PTY proof in `evidence/guided-installer-r4/packed-proof-r5.md` | ✅ PASS |
-| PORT-001, PORT-002 | `acceptance.test.js:39-40`; `engine.test.js:38`; packed Python-free proof | ✅ PASS |
-| MOD-001..MOD-005, STATE-001 | `acceptance.test.js:41-46`; `engine.test.js:33-45` | ✅ PASS |
-| SAFE-001 | `acceptance.test.js:47`; `engine.js:189-195` stages `.gitignore`/`.ignore` without actions, so an existing ignore file can change without preview | ❌ GAP |
-| SAFE-002 | `acceptance.test.js:48`; `transaction.js:20-23` backs up destructive plan actions but not existing staged `.gitignore`/`.ignore` | ❌ GAP |
-| SAFE-003, SAFE-005..SAFE-007 | `acceptance.test.js:49,52-53`; `terminal.test.js:31-46`; `transaction.test.js:21-23` | ✅ PASS |
-| SAFE-004 | `acceptance.test.js:50`; direct injected failure leaves an existing changed `.gitignore` unrecovered (`transaction.js:29-39`) | ❌ GAP |
-| KNOW-001..KNOW-005 | `acceptance.test.js:54-58`; `knowledge.test.js:15-20`; packed upgrade proof | ✅ PASS |
-| PAR-001 | `acceptance.test.js:59,74`; complete normalized fixtures contain plan/manifest/packet/tree hashes and counts | ✅ PASS |
-| PAR-002, PAR-003, PAR-004 | `acceptance.test.js:60-63`; `packets.test.js`; full gate | ✅ PASS |
-| SEC-001 | `acceptance.test.js:64`; live symlink/traversal probes pass, but `transaction.js:36-39` accepts a symlinked `.my-workflow/backups` journal root and reads outside-controlled bytes | ❌ GAP |
-| SEC-002, SEC-003 | `acceptance.test.js:65-66`; `transaction.test.js:15-16,30-31`; `engine.test.js:29-31` | ✅ PASS |
-| EDGE-001..EDGE-005 | `acceptance.test.js:67-72`; `terminal.test.js:42-44` | ✅ PASS |
+| T1–T9 | ✅ Done | All task checkboxes are complete in `tasks.md`; final security remediation checkpoint is recorded there. |
 
-**Acceptance result**: **31/35 exact PASS, 4 GAP, 0 spec-precision gaps.**
+## Spec-Anchored Acceptance Criteria
 
-## Test-contract cases
+Every criterion has an exact outcome assertion. No spec-precision gaps.
 
-| Cases | Exact evidence | Result |
+| ID | Spec-defined outcome | Assertion evidence | Result |
+| --- | --- | --- | --- |
+| CLI-001 | Current directory is target; module selection opens | `tests/installer/acceptance.test.js:36` — exit `0`, target and module prompt | ✅ |
+| CLI-002 | Non-TTY exits `2`, exact guidance, zero writes | `tests/installer/acceptance.test.js:37` — exact stderr and empty target | ✅ |
+| CLI-003 | Help names install, modules, cwd, backups, Node 18 | `tests/installer/acceptance.test.js:38` — exact required strings | ✅ |
+| PORT-001 | Node-only install stages canonical files without Python | `tests/installer/acceptance.test.js:39`; packed PTY probe — Python-free PATH, fresh install and upgrade exit `0` | ✅ |
+| PORT-002 | Node platform and literal, non-shell child-process arguments | `tests/installer/acceptance.test.js:40`; `tests/installer/engine.test.js:29,38` — fixed argv, cwd, `shell:false` | ✅ |
+| MOD-001 | Four modules, descriptions, and state labels are listed | `tests/installer/acceptance.test.js:41`; `tests/installer/terminal.test.js:28` — exact rows/descriptions | ✅ |
+| MOD-002 | Dependent selections include core once and identify requester | `tests/installer/acceptance.test.js:42`; `tests/installer/engine.test.js:12,18,34` — closure and `requiredBy` | ✅ |
+| MOD-003 | State is one of the five specified labels | `tests/installer/acceptance.test.js:43`; `tests/installer/engine.test.js:16,17,42,43` — fresh, current, modified, outdated, conflict | ✅ |
+| MOD-004 | Deselected module actions and records remain untouched | `tests/installer/acceptance.test.js:44`; `tests/installer/engine.test.js:33,41` — excluded actions and bytes unchanged | ✅ |
+| MOD-005 | All-current selection displays exact no-change message and writes zero files | `tests/installer/acceptance.test.js:45`; `tests/installer/terminal.test.js:46` | ✅ |
+| STATE-001 | Invalid manifest version, path, ownership, or hash is rejected before planning | `tests/installer/acceptance.test.js:46`; `tests/installer/engine.test.js:21–23,28,36,39,45` | ✅ |
+| SAFE-001 | Every add/update/adopt/preserve/replace/remove/no-change/conflict action is previewed before final confirmation | `tests/installer/acceptance.test.js:47,73`; `tests/installer/terminal.test.js:29,47–48` — all labels plus `.gitignore`/`.ignore` preview | ✅ |
+| SAFE-002 | Replaced/removed existing bytes and modes are verified in backup manifest before mutation | `tests/installer/acceptance.test.js:48,73`; `tests/installer/transaction.test.js:10,26,27,33` — unique paths, hashes, modes, both ignore files | ✅ |
+| SAFE-003 | Backup failure names path and leaves target/adoption unchanged | `tests/installer/acceptance.test.js:49`; `tests/installer/transaction.test.js:21`; `tests/installer/cli.test.js:19` | ✅ |
+| SAFE-004 | Publication failure restores exact bytes, modes, adoption, and added-path residue | `tests/installer/acceptance.test.js:50`; `tests/installer/transaction.test.js:14,20,28,33` | ✅ |
+| SAFE-005 | Conflict requires replace, exclude, or cancel before final confirmation | `tests/installer/acceptance.test.js:51`; `tests/installer/terminal.test.js:31,49,50` — unresolved conflicts block confirmation | ✅ |
+| SAFE-006 | Any pre-publication cancel/EOF/interrupt leaves target, adoption, journal, and backup unchanged | `tests/installer/acceptance.test.js:52`; `tests/installer/terminal.test.js:43,51` | ✅ |
+| SAFE-007 | Adoption manifest publishes last and success reports backup/no-backup result | `tests/installer/acceptance.test.js:53`; `tests/installer/terminal.test.js:35,46` | ✅ |
+| KNOW-001 | Knowledge-bearing replacement identifies backup source and destination | `tests/installer/acceptance.test.js:54`; `tests/installer/knowledge.test.js:13,19` | ✅ |
+| KNOW-002 | Consumer knowledge is never automatically merged | `tests/installer/acceptance.test.js:55`; `tests/installer/knowledge.test.js:19,20` — consumer marker absent from destinations | ✅ |
+| KNOW-003 | Successful pending transfer writes and displays checklist fields | `tests/installer/acceptance.test.js:56`; `tests/installer/knowledge.test.js:16,19,20` | ✅ |
+| KNOW-004 | Declined knowledge replacement preserves original file and cancels | `tests/installer/acceptance.test.js:57`; `tests/installer/knowledge.test.js:19` | ✅ |
+| KNOW-005 | Fresh knowledge scaffolding is neutral and undated | `tests/installer/acceptance.test.js:58`; `tests/installer/engine.test.js:35` | ✅ |
+| PAR-001 | JS planner matches frozen fixture outcomes | `tests/installer/acceptance.test.js:59,75`; `tests/installer/engine.test.js:44` — complete normalized parity fixtures | ✅ |
+| PAR-002 | All provider-role packet outputs remain canonical | `tests/installer/acceptance.test.js:60`; `tests/installer/packets.test.js:13–18,20–33` | ✅ |
+| PAR-003 | Obsolete adopter and launcher are removed | `tests/installer/acceptance.test.js:61`; `tests/installer/package.test.js:11,12,14` | ✅ |
+| PAR-004 | Unrelated Python tools retain baseline bytes | `tests/installer/acceptance.test.js:62,63` — baseline presence and byte equality | ✅ |
+| SEC-001 | Traversal and symlink paths reject before outside read/write | `tests/installer/acceptance.test.js:64`; `tests/installer/engine.test.js:37,40,46`; `tests/installer/transaction.test.js:22,34`; fresh outside-sentinel probe | ✅ |
+| SEC-002 | Unexpected object/symlink path names exact path and publishes nothing | `tests/installer/acceptance.test.js:65`; `tests/installer/transaction.test.js:15,16,24,30,31` | ✅ |
+| SEC-003 | Missing/malformed/dirty Git proof fails closed | `tests/installer/acceptance.test.js:66`; `tests/installer/engine.test.js:29–31` | ✅ |
+| EDGE-001 | Missing manifest collision is `conflict` | `tests/installer/acceptance.test.js:67`; `tests/installer/engine.test.js:17` | ✅ |
+| EDGE-002 | Malformed/unsupported state reports diagnostic and writes nothing | `tests/installer/acceptance.test.js:68`; `tests/installer/engine.test.js:21,28,36,45` | ✅ |
+| EDGE-003 | Shared paths are one action with all owners/dependencies | `tests/installer/acceptance.test.js:69`; `tests/installer/engine.test.js:34` | ✅ |
+| EDGE-004 | Pre-confirmation interruption leaves target and backup unchanged | `tests/installer/acceptance.test.js:70`; `tests/installer/terminal.test.js:41,51` | ✅ |
+| EDGE-005 | Next run offers/executes verified restoration before planning | `tests/installer/acceptance.test.js:71,72`; `tests/installer/terminal.test.js:42`; `tests/installer/transaction.test.js:18,34` | ✅ |
+
+**Acceptance result**: **35/35 exact PASS, 0 spec-precision gaps.**
+
+## Test-Contract Cases
+
+All 42 contract IDs have owning assertions and passed in the full gate.
+
+| Cases | Evidence | Result |
 | --- | --- | --- |
-| UT-001..UT-014 | `engine.test.js:12-45`, `terminal.test.js:15-18`; full gate | ✅ 14/14 |
-| IT-001..IT-020 | `terminal.test.js:21-47`, `transaction.test.js:10-32`, `cli.test.js:19`, `package.test.js:14-54`, `acceptance.test.js:74` | ✅ 20/20 |
-| E2E-001..E2E-002 | packed PTY install/upgrade and installed knowledge operation in `packed-proof-r5.md`; `package.test.js:34-54`, `knowledge.test.js:20` | ✅ 2/2 |
-| SEC-001..SEC-006 | `acceptance.test.js:64-66`; `engine.test.js:37-39,45`; `transaction.test.js:15-16,22,24,30-32` | ✅ 6/6 contract cases; SEC-001 implementation residual remains open |
+| UT-001..UT-008 | `tests/installer/engine.test.js:12–19,33–34`; exact closure, states, ownership, deselection, shared-path assertions | ✅ 8/8 |
+| UT-009 | `tests/installer/transaction.test.js:10,26` — exact bytes, hash, mode, unique backup paths | ✅ |
+| UT-010 | `tests/installer/knowledge.test.js:13` — exact source/destination/reason/status | ✅ |
+| UT-011 | `tests/installer/engine.test.js:20,35` — package bytes and neutral scaffolding | ✅ |
+| UT-012 | `tests/installer/engine.test.js:21–23,36,45` — invalid schema/path/ownership/hash | ✅ |
+| UT-013 | `tests/installer/engine.test.js:24` — exact message and `[]` actions | ✅ |
+| UT-014 | `tests/installer/terminal.test.js:15–18` — parsing and re-prompt | ✅ |
+| IT-001..IT-002 | `tests/installer/terminal.test.js:21–22,35–36`; packed PTY fresh install | ✅ 2/2 |
+| IT-003 | `tests/installer/terminal.test.js:37`; `tests/installer/transaction.test.js:11,27` | ✅ |
+| IT-004 | `tests/installer/knowledge.test.js:19,20` — exact original bytes/mode and checklist | ✅ |
+| IT-005..IT-006 | `tests/installer/terminal.test.js:23–24,39–40` — exclusion and cancellation residue | ✅ 2/2 |
+| IT-007 | `tests/installer/terminal.test.js:38`; `tests/installer/cli.test.js:19`; `tests/installer/transaction.test.js:21` | ✅ |
+| IT-008 | `tests/installer/acceptance.test.js:50`; `tests/installer/transaction.test.js:14,28` | ✅ |
+| IT-009 | `tests/installer/cli.test.js:17`; `tests/installer/acceptance.test.js:37` | ✅ |
+| IT-010 | `tests/installer/package.test.js:12,14`; fresh packed Python-free probe | ✅ |
+| IT-011 | `tests/installer/packets.test.js:13–18,20–33` | ✅ |
+| IT-012 | `tests/installer/acceptance.test.js:75`; `tests/installer/engine.test.js:44` | ✅ |
+| IT-013..IT-014 | `tests/installer/terminal.test.js:41–42`; `tests/installer/transaction.test.js:18–19` | ✅ 2/2 |
+| IT-015..IT-017 | `tests/installer/terminal.test.js:26–27,43,45,48,51`; exact defaults, interruptions, widths, no ANSI | ✅ 3/3 |
+| IT-018 | `tests/installer/cli.test.js:14` | ✅ |
+| IT-019 | `tests/installer/package.test.js:11–14`; packed executable resolution | ✅ |
+| IT-020 | `tests/installer/transaction.test.js:12–13,29`; `tests/installer/terminal.test.js:46` | ✅ |
+| E2E-001 | `tests/installer/terminal.test.js:33`; `tests/installer/package.test.js:14`; fresh packed PTY probe | ✅ |
+| E2E-002 | `tests/installer/knowledge.test.js:20`; packed safe upgrade probe | ✅ |
+| SEC-001..SEC-006 | `tests/installer/acceptance.test.js:64–66`; `tests/installer/engine.test.js:28–31,37–40,46`; `tests/installer/transaction.test.js:15–17,22,24,30–32,34` | ✅ 6/6 |
 
-**Contract result**: **42/42 exact cases pass.** This does not waive the four implementation
-residuals above; the special staged files are not represented by a contract case.
+**Contract result**: **42/42 exact PASS.**
 
-## Edge cases
+## Edge Cases
 
-`EDGE-001..EDGE-005` pass their exact assertions. Live target/catalog/backup symlink sentinels,
-unexpected filesystem objects, manifest traversal, and journal traversal were exercised with
-outside sentinels. A journal whose `.my-workflow/backups` component is an outside symlink was
-accepted and read; this is the SEC-001 security residual.
+`SEC-001` through `SEC-006` and `EDGE-001` through `EDGE-005` passed their exact assertions.
+Fresh probes rejected manifest/journal traversal, target/catalog symlinks, symlinked backup roots,
+symlinked backup parents, unexpected filesystem objects, and tampered backups; outside sentinels
+remained byte-identical.
 
-## Gate check
+## Gate Check
 
-- **Command**: `bun run test:all`
+- **Full gate**: `bun run test:all`
 - **Exit**: `0`
 - **Bun suite**: **126 passed, 0 failed**.
-- **Node installer suite**: **182 passed, 0 failed, 0 skipped**.
-- **Tracked Python suites/job probes**: all green; no failures or skips reported.
-- **JavaScript total**: **308 passed, 0 failed** (126 Bun + 182 Node).
-- **Package**: `npm pack --pack-destination <tmp> --json`, `workflow-spec-driven@0.10.1`, **146 entries**, exit 0.
-- **Baseline installer count**: no installer suite at `9acea915`; current suite is 182 tests. No test was weakened or deleted to pass.
-- **QA impact**: `ADP-install-versioned-workflow-package`, `ADP-layered-workflow-adoption`, `ADP-adopt-workflow-safely`, and `ADP-resolve-legacy-adoption-conflicts` remain `untested`; QA/UAT was not run per packet scope.
+- **Node installer suite**: **187 passed, 0 failed, 0 skipped**.
+- **Tracked Python lanes**: 20 files, all exit `0`; no failures or skips.
+- **JavaScript total**: **313 passed, 0 failed**.
+- **Working-tree check**: `git status --porcelain` empty; `git diff --check` exit `0`.
+- **Pack**: `npm pack --pack-destination <tmp> --json` → `workflow-spec-driven@0.10.1`, **146 entries**, exit `0`.
+- **Packed runtime**: fresh and committed-consumer-edit upgrade through the `.bin` entrypoint under a PATH containing only temporary Node/Git shims and no Python; both PTY runs exit `0`; backup contains exact `AGENTS.md` bytes and `knowledge-transfer.md` fields.
+- **Baseline test count**: no installer suite existed at `9acea915`; current installer suite is 187 tests. No test was weakened, deleted, or skipped to pass.
+- **QA impact**: `ADP-install-versioned-workflow-package`, `ADP-layered-workflow-adoption`, `ADP-adopt-workflow-safely`, `ADP-resolve-legacy-adoption-conflicts`, and `ADP-interactive-workflow-install` remain `untested`; no QA/UAT was run per packet scope.
 
-## Discrimination sensor
+## Discrimination Sensor
 
-Three lightweight high-risk mutations were run in isolated temporary worktrees; the real tree
-returned to its exact clean baseline after cleanup.
+Baseline real-tree status was empty before and after all scratch worktrees.
 
-| Mutation | Command/result | Killed |
+| Mutation | Command/result | Killed? |
 | --- | --- | --- |
-| `engine.js:55` disabled symlink rejection | `node --test tests/installer/engine.test.js tests/installer/acceptance.test.js tests/installer/transaction.test.js`; 90/93 pass, 3 fail | ✅ |
-| `transaction.js:37` removed restored-mode `chmod` | `node --test tests/installer/transaction.test.js`; 21/22 pass, 1 fail | ✅ |
-| `terminal.js:73` retained replacement actions as `conflict` | `node --test tests/installer/*.test.js`; 175/182 pass, 7 fail | ✅ |
+| `scripts/installer/transaction.js:36` removed backup-root/parent containment checks | `node --test tests/installer/transaction.test.js` → 23 passed, 1 failed, exit `1` | ✅ |
+| `scripts/installer/engine.js:177` changed existing-file `update` to `no-change` | `node --test tests/installer/acceptance.test.js` → 37 passed, 2 failed, exit `1` | ✅ |
+| `scripts/installer/transaction.js:37` restored every mode as `0o644` | `node --test tests/installer/transaction.test.js` → 23 passed, 1 failed, exit `1` | ✅ |
 
-**Sensor**: **3/3 killed, 0 survived. PASS.**
+**Sensor depth**: lightweight (three targeted behavior mutations). **Result**: **3/3 killed, 0
+survived. PASS.**
 
-## Visual reference evidence
+## Visual Reference Evidence
 
-Authority: `uiux.md:3-12,16-54,66-89`; approved sources
-`docs/design/interactive-installer/terminal-80x24.md` and `terminal-120x40.md`.
+Authority: `.specs/features/interactive-installer/uiux.md:3–12,16–54,66–89`; textual approved
+sources `docs/design/interactive-installer/terminal-80x24.md` and `terminal-120x40.md`.
 
-| State + viewport | Captures | Verdict |
-| --- | --- | --- |
-| Mixed conflict/replace/confirm/apply/success/transfer, 80×24 color + `NO_COLOR=1` | `evidence/guided-installer-r4/impl-80x24-{color,no-color}.txt`; exact marker/width comparison | ✅ PASS |
-| Same, 120×40 color + `NO_COLOR=1` | `evidence/guided-installer-r4/impl-120x40-{color,no-color}.txt`; exact marker/width comparison | ✅ PASS |
+| Reference row/source revision | State + exact viewport | Environment/fonts/assets | Paired captures | Verdict |
+| --- | --- | --- | --- | --- |
+| `uiux.md` Reference, current implementation HEAD `a7865fad` | Mixed conflict/replace/confirm/apply/success/transfer, 80×24 | macOS, Node.js 22.23.1, native terminal text, deterministic fixture, no external fonts/assets | `evidence/guided-installer-r4/impl-80x24-{color,no-color}.txt`; fresh current wizard transcript exact match | PASS |
+| `uiux.md` Reference, current implementation HEAD `a7865fad` | Same state, 120×40 | Same environment | `evidence/guided-installer-r4/impl-120x40-{color,no-color}.txt`; fresh current wizard transcript exact match | PASS |
 
-Environment: macOS, Node.js 22.23.1, native terminal text, deterministic mixed-status fixture,
-no external fonts/assets. Color and no-color captures are byte-identical and contain no ANSI;
-maximum widths are 79 columns at 80×24 and 103 columns at 120×40. Expected differences are only
-the shell/npm wrapper, answer echo, and timestamp/target substitutions permitted by `uiux.md`.
+The current4 captures remain current: `terminal.js` is unchanged in `07ca8e86..a7865fad`, fresh
+80×24 and 120×40 transcript comparisons are exact after target substitution, and each color/no-color
+pair is byte-identical with no ANSI sequences. Expected differences remain only target, shell/npm
+wrapper, answer echo, and timestamp substitutions allowed by `uiux.md`.
 
-## Security evidence
+## Security Evidence
 
-- Declared surfaces: `spec.md:37-42` — S1, S6, S10, S11.
-- Threat model: `.specs/features/interactive-installer/threat-model.md` present and scoped.
-- Security controls/cases: SEC-002..SEC-006 pass exact assertions; five independent outside-sentinel probes passed.
-- **Open residual 1 (Blocker / security High)**: `transaction.js:36-39` validates only the lexical
-  journal backup string. A symlinked `.my-workflow/backups` lets `restoreInterrupted` read a
-  backup file outside the target before writing target bytes. It must reject the backup root and
-  every parent with `lstat` containment checks before reading.
-- **Open residual 2 (Major)**: `engine.js:189` and `transaction.js:29-39` publish existing
-  `.gitignore`/`.ignore` updates without preview, backup manifest entry, or journal restore data.
-  A failed publication leaves the changed ignore file; successful publication has no backup path
-  for the existing bytes.
-- Open Critical: **0**. Open High security findings: **1**. Open Blocker: **1**. Open Major: **1**.
+- Declared surfaces: `spec.md:37–42` — S1, S6, S10, S11.
+- Threat model: `.specs/features/interactive-installer/threat-model.md` — scoped to installer paths,
+  persistence, backups, Git proof, and process isolation.
+- Security skills applied: `wverify` security evidence procedure, `SECURITY.md`, and the project
+  coding principles; no external network or credential-bearing tool was used.
+- SEC-001: **PASS** — `transaction.js:36` now lstat-validates `.my-workflow`, `backups`, and every
+  backup component before any restore read; fresh symlink-root outside-sentinel probe passed.
+- SEC-002: **PASS** — `engine.js:48–59` and `transaction.js:11,16,25–26` reject symlink,
+  non-directory, non-file, and special-object paths before publication.
+- SEC-003: **PASS** — `engine.js:198–207` uses fixed Git argv, target `cwd`, `shell:false`, and
+  fail-closed errors.
+- SEC-004: **PASS** — `engine.test.js:38` proves shell metacharacters remain literal.
+- SEC-005: **PASS** — `transaction.test.js:17,32` rejects tampered backup bytes without changing
+  target bytes or mode.
+- SEC-006: **PASS** — `engine.test.js:28,36,39,45` rejects unsupported state before assessment.
+- **Open Critical**: 0. **Open High**: 0. **Open Blocker**: 0. **Open Major**: 0.
 
-## Code quality
+## Code Quality
 
 | Principle | Result |
 | --- | --- |
-| Minimum code, no unrequested features, surgical scope, existing patterns | ✅ PASS |
-| Spec-anchored outcomes and per-layer non-shallow coverage | ⚠️ four implementation gaps above |
-| Every counted contract case maps to a requirement | ✅ PASS |
-| Security containment and exact rollback | ❌ FAIL |
-| Guidelines applied | `TEST-CONTRACT.md`, `REVIEW-ROUNDS.md`, `SECURITY.md`, `UI-UX.md`, `GATES.md`, `VERIFICATION-EVIDENCE.md`, `QA-SCENARIOS.md` |
+| No features beyond request; no single-use abstraction; no unnecessary flexibility | ✅ |
+| Surgical scope; existing patterns; senior-approval bar | ✅ |
+| Spec-anchored outcomes and per-layer non-shallow coverage | ✅ |
+| Every counted case maps to a requirement; no unclaimed installer case | ✅ |
+| Security containment and exact rollback | ✅ |
+| Guidelines followed | `TEST-CONTRACT.md`, `SECURITY.md`, `REVIEW-ROUNDS.md`, `UI-UX.md`, `GATES.md`, `VERIFICATION-EVIDENCE.md`, `QA-SCENARIOS.md` |
+
+## Requirement Traceability
+
+All 35 requirements in `spec.md` are verified by the assertions above. No requirement status was
+rewritten; this report is the fresh evidence record for `a7865fad`.
 
 ## Summary
 
-**Overall**: ❌ Not ready for integration, deep review, or QA.
+**Overall**: ✅ Ready for generation closure; no code fix task, QA, deep review, or remote action was
+performed.
 
-**Spec-anchored**: **31/35 exact; 4 gaps.**
-**Contract**: **42/42 exact cases; implementation residuals remain.**
-**Gate**: **308 JavaScript tests passed, 0 failed; tracked Python lanes green.**
-**Sensor**: **3/3 mutations killed.**
-**Visuals**: **4/4 paired states pass.**
-
-Required fix before closure: reject symlinked journal backup roots before any backup read, and
-represent `.gitignore`/`.ignore` staged updates as previewed, backed-up, journaled actions with
-exact rollback. Stop at this FAIL per the authorized generation-2 packet; no fixes, QA, deep
-review, push, merge, tag, release, or publish were performed.
+**Spec-anchored check**: **35/35 exact PASS, 0 spec-precision gaps**<br>
+**Contract**: **42/42 exact PASS**<br>
+**Gate**: **313 JavaScript tests passed, 0 failed; tracked Python lanes all green**<br>
+**Sensor**: **3/3 mutations killed**<br>
+**Visuals**: **4/4 current4 paired states PASS**<br>
+**Security**: **0 open Critical, High, Blocker, or Major findings**
