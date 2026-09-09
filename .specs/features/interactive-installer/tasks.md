@@ -7,7 +7,7 @@ Implement these tasks with the `wimplement` skill and verify them with `wverify`
 ---
 
 **Design**: `.specs/features/interactive-installer/design.md`
-**Status**: In execution
+**Status**: Done
 
 ### Remediation batch 2026-09-08
 

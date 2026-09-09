@@ -174,49 +174,49 @@ Installing or upgrading the workflow currently requires a version-pinned scoped 
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| CLI-001 | P1: Guided installation | Tasks | Implemented T5 |
-| CLI-002 | P1: Guided installation | Tasks | Implemented T6 |
-| CLI-003 | P1: Guided installation | Tasks | Implemented T6 |
-| PORT-001 | P1: Guided installation | Tasks | Implemented T7 |
-| PORT-002 | P1: Guided installation | Tasks | In Tasks |
-| MOD-001 | P1: Module selection | Tasks | Implemented T5 |
-| MOD-002 | P1: Module selection | Tasks | Implemented T5 |
-| MOD-003 | P1: Module selection | Tasks | Implemented T1 |
-| MOD-004 | P1: Module selection | Tasks | Implemented T5 |
-| MOD-005 | P1: Module selection | Tasks | Implemented T5 |
-| STATE-001 | P1: Module selection | Tasks | Implemented T1 |
-| SAFE-001 | P1: Repository protection | Tasks | Implemented T5 |
-| SAFE-002 | P1: Repository protection | Tasks | Implemented T3 |
-| SAFE-003 | P1: Repository protection | Tasks | Implemented T3 |
-| SAFE-004 | P1: Repository protection | Tasks | Implemented T3 |
-| SAFE-005 | P1: Repository protection | Tasks | Implemented T5 |
-| SAFE-006 | P1: Repository protection | Tasks | Implemented T5 |
-| SAFE-007 | P1: Repository protection | Tasks | Implemented T3 |
-| KNOW-001 | P1: Knowledge transfer | Tasks | Implemented T4 |
-| KNOW-002 | P1: Knowledge transfer | Tasks | Implemented T4 |
-| KNOW-003 | P1: Knowledge transfer | Tasks | Implemented T5 |
-| KNOW-004 | P1: Knowledge transfer | Tasks | Implemented T4 |
-| KNOW-005 | P1: Knowledge transfer | Tasks | Implemented T1 |
-| PAR-001 | P2: Port parity | Tasks | Implemented T1 |
-| PAR-002 | P2: Port parity | Tasks | Implemented T2 |
-| PAR-003 | P2: Port parity | Tasks | Implemented T7 |
-| PAR-004 | P2: Port parity | Tasks | Implemented T7 |
-| SEC-001 | Edge cases | Tasks | Implemented T1 |
-| SEC-002 | Edge cases | Tasks | Implemented T3 |
-| SEC-003 | Edge cases | Tasks | Implemented T3 |
-| EDGE-001 | Edge cases | Tasks | Implemented T1 |
-| EDGE-002 | Edge cases | Tasks | Implemented T1 |
-| EDGE-003 | Edge cases | Tasks | Implemented T1 |
-| EDGE-004 | Edge cases | Tasks | Implemented T3 |
-| EDGE-005 | Edge cases | Tasks | Implemented T3 |
+| CLI-001 | P1: Guided installation | Execute | Verified |
+| CLI-002 | P1: Guided installation | Execute | Verified |
+| CLI-003 | P1: Guided installation | Execute | Verified |
+| PORT-001 | P1: Guided installation | Execute | Verified |
+| PORT-002 | P1: Guided installation | Execute | Verified |
+| MOD-001 | P1: Module selection | Execute | Verified |
+| MOD-002 | P1: Module selection | Execute | Verified |
+| MOD-003 | P1: Module selection | Execute | Verified |
+| MOD-004 | P1: Module selection | Execute | Verified |
+| MOD-005 | P1: Module selection | Execute | Verified |
+| STATE-001 | P1: Module selection | Execute | Verified |
+| SAFE-001 | P1: Repository protection | Execute | Verified |
+| SAFE-002 | P1: Repository protection | Execute | Verified |
+| SAFE-003 | P1: Repository protection | Execute | Verified |
+| SAFE-004 | P1: Repository protection | Execute | Verified |
+| SAFE-005 | P1: Repository protection | Execute | Verified |
+| SAFE-006 | P1: Repository protection | Execute | Verified |
+| SAFE-007 | P1: Repository protection | Execute | Verified |
+| KNOW-001 | P1: Knowledge transfer | Execute | Verified |
+| KNOW-002 | P1: Knowledge transfer | Execute | Verified |
+| KNOW-003 | P1: Knowledge transfer | Execute | Verified |
+| KNOW-004 | P1: Knowledge transfer | Execute | Verified |
+| KNOW-005 | P1: Knowledge transfer | Execute | Verified |
+| PAR-001 | P2: Port parity | Execute | Verified |
+| PAR-002 | P2: Port parity | Execute | Verified |
+| PAR-003 | P2: Port parity | Execute | Verified |
+| PAR-004 | P2: Port parity | Execute | Verified |
+| SEC-001 | Edge cases | Execute | Verified |
+| SEC-002 | Edge cases | Execute | Verified |
+| SEC-003 | Edge cases | Execute | Verified |
+| EDGE-001 | Edge cases | Execute | Verified |
+| EDGE-002 | Edge cases | Execute | Verified |
+| EDGE-003 | Edge cases | Execute | Verified |
+| EDGE-004 | Edge cases | Execute | Verified |
+| EDGE-005 | Edge cases | Execute | Verified |
 
 **Coverage:** 35 total, 35 mapped to tasks, 0 unmapped.
 
 ## Success Criteria
 
-- [ ] A fresh temporary Git repository completes `npx workflow-spec-driven install` with Node.js 18+ and no Python on `PATH`.
-- [ ] Every selected-module state and action is visible before confirmation.
-- [ ] Every replaced or removed byte is recoverable from a verified backup.
-- [ ] Cancellation, backup failure, invalid paths, and publication failure produce zero unaccounted target changes.
-- [ ] Consumer knowledge is never silently merged or discarded.
-- [ ] The canonical gate and interactive CLI QA scenarios pass before any npm publication is proposed.
+- [x] A fresh temporary Git repository completes `npx workflow-spec-driven install` with Node.js 18+ and no Python on `PATH`.
+- [x] Every selected-module state and action is visible before confirmation.
+- [x] Every replaced or removed byte is recoverable from a verified backup.
+- [x] Cancellation, backup failure, invalid paths, and publication failure produce zero unaccounted target changes.
+- [x] Consumer knowledge is never silently merged or discarded.
+- [x] The canonical gate and interactive CLI QA scenarios pass before any npm publication is proposed.
