@@ -5,7 +5,7 @@ title: Synchronize every provider agent from central model settings
 persona: Workflow adopter
 journey: J-configure-feature-workflow
 expected: An explicit sync initializes local state when needed, renders all eighteen native model and effort fields from templates plus `.my-workflow.toml` including the designer tables, refuses a missing designer table by name with no writes, reports idempotent results, and adoption preserves local configuration.
-entry_points: .my-workflow.toml.example; .my-workflow.toml; .agents/skills/workflow-config/assets/agents/; .agents/skills/workflow-config/scripts/workflow_config.py; scripts/adopt.py; AGENTS.md; docs/workflow/pack.md
+entry_points: .my-workflow.toml.example; .my-workflow.toml; .agents/skills/workflow-config/assets/agents/; .agents/skills/workflow-config/scripts/workflow_config.py; npx workflow-spec-driven install; AGENTS.md; docs/workflow/pack.md
 qa_status: pass
 bug_ids:
 fix_status:

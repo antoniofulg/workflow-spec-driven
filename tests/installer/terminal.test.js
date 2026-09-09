@@ -6,11 +6,12 @@ import path from 'node:path';
 import { parseModuleSelection, renderPlan, runInstallWizard } from '../../scripts/installer/terminal.js';
 import { buildPlan, sha256 } from '../../scripts/installer/engine.js';
 import { prepareBackup } from '../../scripts/installer/transaction.js';
+import { stageAgentPackets } from '../../scripts/installer/packets.js';
 const root = path.resolve(import.meta.dirname, '../..');
 const temp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'installer-terminal-'));
 const feed = (values, output = []) => { let index = 0; return { input: async () => values[index++], write: (value) => output.push(value) }; };
 const snapshot = (root) => { const result = {}; const walk = (dir) => { for (const entry of fs.readdirSync(dir, { withFileTypes: true })) { const file = path.join(dir, entry.name); const relative = path.relative(root, file).split(path.sep).join('/'); if (entry.isDirectory()) walk(file); else result[relative] = fs.readFileSync(file).toString('base64'); } }; walk(root); return result; };
-const seed = (target) => { const result = buildPlan({ sourceRoot: root, targetRoot: target, selectedModules: ['core'] }); for (const [relative, content] of Object.entries(result.staged)) { const file = path.join(target, relative); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, content); } };
+const seed = (target) => { const result = buildPlan({ sourceRoot: root, targetRoot: target, selectedModules: ['core'] }); for (const [relative, content] of Object.entries(result.staged)) { const file = path.join(target, relative); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, content); } for (const [relative, content] of Object.entries(stageAgentPackets(root, target))) { const file = path.join(target, relative); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, content); } };
 
 test('UT-014 parses comma-separated unique module numbers', () => assert.deepEqual(parseModuleSelection('2,4,2'), ['parallel', 'extras']));
 test('UT-014 rejects unknown module numbers', () => assert.equal(parseModuleSelection('0'), null));

@@ -9,7 +9,7 @@ For consuming projects, those authorities are their executable manifests or CI j
 
 | Area | Interface | Entry point | Authority |
 | --- | --- | --- | --- |
-| `ADP` | Version-pinned adoption package, external-skill CLI, and generated filesystem | `my-workflow` through a local tarball or approved exact package; `scripts/install_security_skills.py` with a disposable target | [README adoption contract](../../README.md#adopt-the-workflow), [`package.json`](../../package.json), [`scripts/adopt.py`](../../scripts/adopt.py), [`scripts/install_security_skills.py`](../../scripts/install_security_skills.py) |
+| `ADP` | Guided installer, external-skill CLI, and generated filesystem | `npx workflow-spec-driven install`; `scripts/install_security_skills.py` with a disposable target | [README installation contract](../../README.md#adopt-the-workflow), [`package.json`](../../package.json), [`scripts/install_security_skills.py`](../../scripts/install_security_skills.py) |
 | `QAS` | Manual agent-file inspection, checkout-local CLI recipes, and Orca-backed workflow execution | `.agents/skills/qa-plan/`, `.agents/skills/qa-execute/`, `.agents/skills/autonomous/scripts/parallel_execute.py`, `tools/gate_cache.py`, `.agents/skills/deep-review/references/publish-github.md`, provider Verifier packets | [Skills contract](../../README.md#skills), [parallel executor contract](../../.agents/skills/autonomous/references/parallelization.md), [Deep Review publication recipe](../../.agents/skills/deep-review/references/publish-github.md) |
 | `DOC` | Documentation | `README.md` | [`README.md`](../../README.md) |
 | `CFG` | Workflow configuration, derived slice contract, generated state, and Git visibility | `.my-workflow.toml.example`; `.my-workflow.toml`; `.agents/skills/workflow-config/assets/agents/`; `.agents/skills/workflow-config/scripts/workflow_config.py`; `.agents/skills/workflow-config/scripts/parallel_plan.py`; `.agents/skills/workflow-spec-driven/scripts/validate_tasks.py --slice-contract-json`; `.agents/skills/wtasks/references/tasks-template.md`; `.gitignore`; `.specs/` | [README configuration contract](../../README.md#adopt-the-workflow), [`workflow-config` skill](../../.agents/skills/workflow-config/SKILL.md), [`wtasks` task template](../../.agents/skills/wtasks/references/tasks-template.md), [artifact lifecycle](../guidelines/ARTIFACT-LIFECYCLE.md) |
@@ -19,7 +19,7 @@ No browser, API, or mobile surface exists in this repository.
 
 ## Runner and adapter
 
-- Existing runner or adapter: CLI/manual, using the version-pinned package bin, public workflow resolver, adoption script,
+- Existing runner or adapter: CLI/manual, using the canonical `workflow-spec-driven install` bin,
   parallel executor, assisted pointer probe, and filesystem inspection. The parallel-slice journey
   uses the installed Orca CLI only after its `orchestration.contract.v1` capability is proven; the
   disposable fixture and lifecycle oracle are owned by
@@ -29,11 +29,11 @@ No browser, API, or mobile surface exists in this repository.
   use a checkout-local fake `gh` that logs arguments;
   [`tools/test_deep_review_contract.py`](../../tools/test_deep_review_contract.py) owns that
   no-network adapter.
-- Manifest or CI authority: [`package.json`](../../package.json) owns the structural gate;
-  [`scripts/test_adopt.py`](../../scripts/test_adopt.py) owns the disposable adoption smoke path.
-- Exact path used by `qa-execute`: invoke the exact package command documented by the
+- Manifest or CI authority: [`package.json`](../../package.json) owns the structural gate and
+  `tests/installer/*.test.js` owns the disposable installer smoke path.
+- Exact path used by `qa-execute`: invoke `npx workflow-spec-driven install` as documented by the
 [README adoption contract](../../README.md#adopt-the-workflow) inside a checkout-local
-disposable Git repository; invoke `npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- my-workflow plan <target>`
+disposable Git repository; invoke `npx workflow-spec-driven install` from the target
 against a separate
 checkout-local disposable target; inspect package membership with `bun pm pack --dry-run`
   from the active checkout, and create any clean-clone canary from the active local repository into
@@ -52,7 +52,7 @@ checkout-local disposable target; inspect package membership with `bun pm pack -
   serial fallback or incomplete lifecycle with a simulated success.
 - Installed QA tooling discovered: Bun's `bun:test` is declared by [`package.json`](../../package.json)
   for structural checks; it is not a real-user runner. Python standard-library checks live in
-  [`scripts/test_adopt.py`](../../scripts/test_adopt.py).
+  `tests/installer/*.test.js`.
 
 The workflow does not install a framework or invent commands when a runner is absent. A consumer's
 existing `docs/qa/README.md` remains consumer-owned; a fresh consumer's quality skills discover and
@@ -67,7 +67,7 @@ record its own profile instead of receiving this source repository's profile.
   the parallel pilot dry-run validates exactly two resource-free lanes, and its lifecycle-check
   accepts only two correlated terminal read-before-ack-before-release receipts.
 - Environment and checkout isolation: each QA run uses a target directory owned by the active
-  checkout; [`scripts/test_adopt.py`](../../scripts/test_adopt.py) demonstrates isolated temporary
+  checkout; `tests/installer/*.test.js` demonstrates isolated temporary
   targets and cleanup.
 - Automated gate authority: the `test` script in [`package.json`](../../package.json).
 
@@ -79,7 +79,7 @@ record its own profile instead of receiving this source repository's profile.
   and [`merge-alone-two-slices.md`](../../tools/fixtures/tlc-validator/merge-alone-two-slices.md),
   copied into a disposable checkout-local feature directory as `tasks.md`; plus disposable empty and
   pre-populated directories created by
-  [`scripts/test_adopt.py`](../../scripts/test_adopt.py), plus the two-lane resource-free Git fixture
+  `tests/installer/*.test.js`, plus the two-lane resource-free Git fixture
   created by [`.agents/skills/autonomous/scripts/qa_parallel_pilot.py`](../../.agents/skills/autonomous/scripts/qa_parallel_pilot.py).
 - Cleanup and teardown authority: remove only the disposable target created for the active QA run;
   adoption owns its temporary-directory teardown, while the parallel pilot's public cleanup
@@ -100,7 +100,7 @@ record its own profile instead of receiving this source repository's profile.
   process-race, exact Git checkpoint mutation, provider receipt spoofing, and interrupted-publication
   controls remain technical-verification surfaces.
 - External dependencies requiring a human: installing the three pinned external security skills is
-  an explicit, networked authorization step printed by [`scripts/adopt.py`](../../scripts/adopt.py);
+  an explicit, networked authorization step printed by the security-skill installer;
   QA must not run it implicitly. The adapter requires Python 3 for adoption and Bun 1.4.x for the
   workflow gates, with network access only when the QA packet authorizes the installer command.
 

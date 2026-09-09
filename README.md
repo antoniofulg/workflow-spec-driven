@@ -303,11 +303,9 @@ npx workflow-spec-driven install
 git diff
 ```
 
-Normal `apply` is the deterministic update path. It updates pristine workflow-owned files, promotes
-pristine provider templates using recorded source hashes, refreshes managed instruction blocks and
-runtime packets, and stops with all conflicts before writing when an edit is found. Use
-`--skip-agents` only as an explicit opt-out when instruction files and packet synchronization are
-being merged separately.
+Run `npx workflow-spec-driven install` for every installation or update. It updates pristine
+workflow-owned files, promotes provider templates using recorded source hashes, refreshes managed
+instruction blocks and runtime packets, and stops with all conflicts before writing.
 
 Adoption preserves product context, local config, package metadata, existing knowledge, and unknown
 consumer files. A fresh target receives managed generic knowledge instructions plus neutral,
@@ -320,31 +318,31 @@ after installation. The package identity for this release is `workflow-spec-driv
 
 ## Managed paths
 
-Review the managed paths and the plan's per-file actions. Adoption updates only workflow-owned files,
+Review the managed paths and the installer's per-file actions. Installation updates only workflow-owned files,
 preserves unknown consumer files, creates `.my-workflow.toml.example` and skill-owned runtime, and records ownership in `.my-workflow/adoption.json`. It never removes an
 installed layer or consumer file. Product documentation, `.specs/`, `package.json`, `bun.lock`, an
 existing local `.my-workflow.toml`, and an existing `docs/qa/README.md` remain consumer-owned.
 
-The local config is the source for generated provider packets. Adoption preserves an existing
-`.my-workflow.toml` and installs tracked templates when missing. Normal apply runs synchronization;
-sync creates the local config when absent and regenerates or overwrites the ignored `.claude/agents/`,
+The local config is the source for generated provider packets. Installation preserves an existing
+`.my-workflow.toml` and installs tracked templates when missing. The guided command synchronizes and
+regenerates the ignored `.claude/agents/`,
 `.codex/agents/`, and `.cursor/agents/` packets from the templates and config. Edit the config or
 tracked templates, not generated runtime packets.
 
 ## Troubleshooting
 
-**`conflict` in a plan or apply.** Review every listed path. Restore an owned file to its recorded
-hash or resolve an unowned collision, then run the plan again. Apply is all-preflight: no selected
-file or manifest is written while any conflict remains.
+**`conflict` during installation.** Review every listed path. Restore an owned file to its recorded
+hash or resolve an unowned collision, then run the guided command again. Installation is all-preflight:
+no selected file or manifest is written while any conflict remains.
 
 **`refusing adoption: Makefile:N uses machine-global workflow skill path`** Point the target's gate at
 the vendored `.agents/skills/workflow-spec-driven/scripts/...` path.
 
-**Claude skill symlinks point nowhere.** Re-run `apply --layers ...`; it recreates the `.claude/skills/`
+**Claude skill symlinks point nowhere.** Re-run `npx workflow-spec-driven install`; it recreates the `.claude/skills/`
 links into `.agents/skills/`.
 
 **A runtime packet has the wrong model or effort.** Edit the local `.my-workflow.toml`, then run
-the documented `workflow_config.py --sync-agents` command. Runtime packets are generated output.
+`npx workflow-spec-driven install`. Runtime packets are generated output.
 
 ## Optional integrations
 
@@ -358,7 +356,7 @@ available:
 No integration is mandatory or installed by adoption. Keep daemon, port, CLI and version details in
 the relevant integration documentation.
 
-The adopter merges workflow-owned ignore entries, copies missing example/templates, generates
+The installer merges workflow-owned ignore entries, copies missing example/templates, generates
 local runtime packets, and records per-file ownership in `.my-workflow/adoption.json`. It preserves
 consumer prose through managed blocks, never removes an installed layer, and leaves package
 metadata, local config, and unknown files untouched. Always review the plan and resulting diff
@@ -373,7 +371,7 @@ Codex and OpenCode consume `.agents`. Do not add `.cursor/skills` or other agent
 project-owned `qa-plan` and `qa-execute` skills use the consuming project's profile in
 `docs/qa/README.md`; they do not select a framework or replace the project's gate.
 
-`adopt.py` installs and updates only the workflow-owned `workflow-spec-driven` router, its five
+`npx workflow-spec-driven install` installs and updates only the workflow-owned `workflow-spec-driven` router, its five
 phase skills (`wspecify`, `wdesign`, `wtasks`, `wimplement`, `wverify`), Ponytail, Deep
 Review, QA, workflow-config, and autonomous skills. Keep those canonical copies in
 `.agents/skills/` and the Claude Code

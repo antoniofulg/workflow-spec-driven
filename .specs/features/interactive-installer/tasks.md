@@ -57,6 +57,13 @@ The final focused batch makes restore lstat every backup parent/component before
 the owning regression assertions for outside sentinels, preview ordering, and failure restoration.
 Focused installer tests pass 187/187 and the full gate exits 0; ready for the atomic checkpoint commit.
 
+### Deep-review remediation checkpoint 2026-09-09
+
+The installer now previews and transactionally protects generated provider packets, rejects future
+or inconsistent manifest provenance and invalid UTF-8 instructions, preserves unselected block
+records, handles absent destructive paths without false backup failures, and updates current
+documentation to the canonical interactive command. Focused installer tests pass 187/187.
+
 ---
 
 ## Test Coverage Matrix

@@ -5,7 +5,7 @@ title: Install workflow runtime under its owning skills
 persona: Workflow adopter
 journey: J-adopt-workflow
 expected: Fresh and proven previous-layout installations use only canonical skill-owned runtime, retire only proven old workflow copies, preserve consumer-owned bytes, and remain clean on repeat apply.
-entry_points: README.md#adopt-the-workflow; npm exec --yes --package <exact-local-tarball> -- my-workflow plan|apply|status <target>; .agents/skills/workflow-config/scripts/workflow_config.py; .agents/skills/workflow-spec-driven/scripts/ad-index.py; .agents/skills/knowledge-check/scripts/cli.ts; .agents/skills/autonomous/scripts/
+entry_points: README.md#adopt-the-workflow; npx workflow-spec-driven install; .agents/skills/workflow-config/scripts/workflow_config.py; .agents/skills/workflow-spec-driven/scripts/ad-index.py; .agents/skills/knowledge-check/scripts/cli.ts; .agents/skills/autonomous/scripts/
 qa_status: pass
 bug_ids:
 fix_status:

@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { TextDecoder } from 'node:util';
 
 export const WORKFLOW_VERSION = '0.10.1';
 export const LAYERS = ['core', 'parallel', 'quality', 'extras'];
@@ -38,6 +39,8 @@ export class InstallerError extends Error {}
 const fail = (message) => { throw new InstallerError(message); };
 const asRoot = (root) => path.resolve(root);
 const posix = (value) => value.split(path.sep).join('/');
+const decodeUtf8 = (value, label) => { try { return new TextDecoder('utf-8', { fatal: true }).decode(value); } catch (error) { fail(`${label} is not valid UTF-8: ${error.message}`); } };
+const semver = (value) => value.split('.').map(Number);
 export const sha256 = (value) => crypto.createHash('sha256').update(value).digest('hex');
 
 export function validateRelative(relative) {
@@ -114,18 +117,18 @@ function validHash(value, label, allowNull = false) { if (allowNull && value ===
 export function loadManifest(root) {
   const target = safePath(root, '.my-workflow/adoption.json', 'manifest');
   if (!fs.existsSync(target)) return emptyManifest();
-  let data; try { data = JSON.parse(fs.readFileSync(target, 'utf8')); } catch (error) { fail(`invalid adoption manifest: ${error.message}`); }
+  let data; try { data = JSON.parse(decodeUtf8(fs.readFileSync(target), 'adoption manifest')); } catch (error) { fail(`invalid adoption manifest: ${error.message}`); }
   if (!data || typeof data !== 'object' || Array.isArray(data) || Object.keys(data).sort().join() !== 'blocks,files,layers,schema,workflow_version') fail('adoption manifest has an unsupported schema');
-  if (data.schema !== 1 || typeof data.workflow_version !== 'string' || !/^(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})$/.test(data.workflow_version)) fail('adoption manifest schema must be version 1');
+  if (data.schema !== 1 || typeof data.workflow_version !== 'string' || !/^(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})$/.test(data.workflow_version) || semver(data.workflow_version).some((part, index) => part > semver(WORKFLOW_VERSION)[index])) fail('adoption manifest schema must be version 1 and workflow version must not be newer than the installer');
   if (!Array.isArray(data.layers) || data.layers.some((module) => !LAYERS.includes(module)) || data.layers.join() !== [...new Set(data.layers)].sort((a, b) => LAYERS.indexOf(a) - LAYERS.indexOf(b)).join()) fail('manifest layers must be unique and catalog-ordered');
   if (data.layers.length && JSON.stringify(resolveModules(data.layers)) !== JSON.stringify(data.layers)) fail('manifest layers must include every fixed dependency');
   if (!data.files || typeof data.files !== 'object' || Array.isArray(data.files) || !data.blocks || typeof data.blocks !== 'object' || Array.isArray(data.blocks)) fail('manifest files and blocks must be objects');
   for (const [relative, record] of Object.entries(data.files)) {
     validateRelative(relative); if (!record || typeof record !== 'object' || Object.keys(record).sort().join() !== 'installed_sha256,layer,ownership,source_sha256') fail(`manifest file record is invalid: ${relative}`);
     if (!LAYERS.includes(record.layer) || !['managed', 'consumer'].includes(record.ownership)) fail(`manifest file record has invalid ownership/layer: ${relative}`);
-    validHash(record.source_sha256, `source_sha256 for ${relative}`); validHash(record.installed_sha256, `installed_sha256 for ${relative}`, record.ownership === 'consumer');
+    validHash(record.source_sha256, `source_sha256 for ${relative}`); if (record.ownership === 'consumer' && record.installed_sha256 !== null) fail(`manifest installed_sha256 for ${relative} must be null for consumer ownership`); validHash(record.installed_sha256, `installed_sha256 for ${relative}`, record.ownership === 'consumer');
   }
-  for (const [key, record] of Object.entries(data.blocks)) { const [relative, module] = key.split(/:(?=[^:]+$)/); validateRelative(relative); if (!['AGENTS.md', 'CLAUDE.md'].includes(relative) || !BLOCK_LAYERS.includes(module) || (relative === 'CLAUDE.md' && module !== 'core') || !record || Object.keys(record).join() !== 'sha256') fail(`manifest block record is invalid: ${key}`); validHash(record.sha256, `block ${key}`); }
+  for (const [key, record] of Object.entries(data.blocks)) { const [relative, module] = key.split(/:(?=[^:]+$)/); validateRelative(relative); if (!['AGENTS.md', 'CLAUDE.md'].includes(relative) || !BLOCK_LAYERS.includes(module) || !data.layers.includes(module) || (relative === 'CLAUDE.md' && module !== 'core') || !record || Object.keys(record).join() !== 'sha256') fail(`manifest block record is invalid: ${key}`); validHash(record.sha256, `block ${key}`); }
   return data;
 }
 
@@ -146,9 +149,9 @@ function blockContent(sourceRoot, module, filename) {
   return `<!-- my-workflow:${module}:start -->\n${body}\n<!-- my-workflow:${module}:end -->`;
 }
 function composeBlocks(sourceRoot, root, modules, manifest) {
-  const outputs = {}, blocks = {}, conflicts = [];
+  const outputs = {}, blocks = { ...manifest.blocks }, conflicts = [];
   for (const filename of ['AGENTS.md', 'CLAUDE.md']) {
-    const target = safePath(root, filename, 'managed instruction'); const exists = fs.existsSync(target); let rendered = exists ? fs.readFileSync(target, 'utf8') : filename === 'AGENTS.md' ? fs.readFileSync(path.join(sourceRoot, filename), 'utf8') : '';
+    const target = safePath(root, filename, 'managed instruction'); const exists = fs.existsSync(target); let rendered = exists ? decodeUtf8(fs.readFileSync(target), `${filename} instruction`) : filename === 'AGENTS.md' ? decodeUtf8(fs.readFileSync(path.join(sourceRoot, filename)), `${filename} package source`) : '';
     for (const module of (filename === 'AGENTS.md' ? BLOCK_LAYERS : ['core'])) if (modules.includes(module)) {
       let span; try { span = blockSpan(rendered, module); } catch { conflicts.push(`${filename}:${module}`); continue; }
       const block = blockContent(sourceRoot, module, filename); const key = `${filename}:${module}`;
