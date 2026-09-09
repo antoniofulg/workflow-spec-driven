@@ -4,8 +4,7 @@
 Mechanically folds every reviewer/sweep output into the canonical ledger —
 no agents involved. Collects defects, advisories, suppressions, and coverage
 from jobs.json outputs (validating each against the schema), merges duplicates
-by union-find (identical fingerprint, or same file + category + overlapping
-line range), and reconciles against any prior state.json ledger: new /
+by identical fingerprint only, and reconciles against any prior state.json ledger: new /
 duplicate (still open from a prior round) / suppressed (dismissed before;
 never re-raised) — plus the resolved sweep for prior findings the fix
 removed. Emits findings.json, the single input render_review.py consumes.
@@ -67,11 +66,6 @@ def anchor(finding: dict) -> str:
     return f"{finding['file']}:{suffix}"
 
 
-def line_span(finding: dict) -> tuple[int, int]:
-    end = finding.get("end_line") or finding["line"]
-    return (min(finding["line"], end), max(finding["line"], end))
-
-
 def collect(repo: Path, out: Path) -> dict[str, list[dict]]:
     results: dict[str, list[dict]] = {
         "defects": [], "advisories": [], "suppressions": [],
@@ -110,7 +104,7 @@ def collect(repo: Path, out: Path) -> dict[str, list[dict]]:
 
 
 def group_duplicates(findings: list[dict]) -> list[list[dict]]:
-    """Union identical fingerprints and same-file/category overlapping ranges."""
+    """Union identical fingerprints only; distinct defects never merge."""
     uf = UnionFind([finding["raw_id"] for finding in findings])
     by_fingerprint: dict[str, list[dict]] = {}
     for finding in findings:
@@ -118,16 +112,6 @@ def group_duplicates(findings: list[dict]) -> list[list[dict]]:
     for members in by_fingerprint.values():
         for member in members[1:]:
             uf.union(members[0]["raw_id"], member["raw_id"])
-    by_bucket: dict[tuple[str, str], list[dict]] = {}
-    for finding in findings:
-        by_bucket.setdefault((finding["file"], finding["category"]), []).append(finding)
-    for members in by_bucket.values():
-        members.sort(key=line_span)
-        reach = None
-        for left, right in zip(members, members[1:]):
-            reach = max(reach or line_span(left)[1], line_span(left)[1])
-            if line_span(right)[0] <= reach:
-                uf.union(left["raw_id"], right["raw_id"])
     grouped: dict[str, list[dict]] = {}
     for finding in findings:
         grouped.setdefault(uf.find(finding["raw_id"]), []).append(finding)

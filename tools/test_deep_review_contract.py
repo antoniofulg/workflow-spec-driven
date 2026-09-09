@@ -25,8 +25,8 @@ PUBLISH_RECIPE = (
 )
 sys.path.insert(0, str(SCRIPTS))
 
-from _common import freeze_snapshot  # noqa: E402
-from merge_findings import coverage_ledger  # noqa: E402
+from _common import fingerprint, freeze_snapshot  # noqa: E402
+from merge_findings import coverage_ledger, group_duplicates, merge_group  # noqa: E402
 
 
 def git(root: Path, *args: str) -> str:
@@ -180,7 +180,39 @@ def finding(severity: str) -> dict:
     }
 
 
+def raw_defect(raw_id: str, title: str, line: int, end_line: int, suggestion: str) -> dict:
+    item = {
+        "raw_id": raw_id, "source_job": f"job-{raw_id}", "result_kind": "defect",
+        "file": "booking.py", "category": "potential-issue", "severity": "major",
+        "line": line, "end_line": end_line, "in_diff": True, "hunk": "new:100-108",
+        "quick_win": False, "rule_ids": [], "title": title, "body": title,
+        "evidence": [f"Premise: {title} → Path: booking.py:{line} → Verdict: blocked."],
+        "suggestion": suggestion,
+    }
+    return {**item, "fingerprint": fingerprint(item)}
+
+
 class DeepReviewContractTests(unittest.TestCase):
+    def test_distinct_fingerprints_on_overlapping_lines_never_merge(self) -> None:
+        # UT-001 (P1 AC1)
+        first = raw_defect("RD0001", "Reject bookings owned by another account", 100, 105, "check_owner()")
+        second = raw_defect("RD0002", "Reject negative booking amounts", 103, 108, "check_amount()")
+        groups = group_duplicates([first, second])
+        self.assertEqual(len(groups), 2)
+        merged = {m["raw_id"]: m for m in (merge_group(g) for g in groups)}
+        for raw in (first, second):
+            self.assertEqual(merged[raw["raw_id"]]["evidence"][0], raw["evidence"][0])
+            self.assertEqual(merged[raw["raw_id"]]["suggestion"], raw["suggestion"])
+            self.assertEqual(merged[raw["raw_id"]]["also_applies"], [])
+
+    def test_identical_fingerprints_merge_and_keep_anchors(self) -> None:
+        # UT-002 (P1 AC2)
+        first = raw_defect("RD0001", "Reject negative booking amounts", 10, 10, "check_amount()")
+        second = raw_defect("RD0002", "Reject negative booking amounts", 40, 40, "check_amount()")
+        groups = group_duplicates([first, second])
+        self.assertEqual(len(groups), 1)
+        self.assertIn("booking.py:40", merge_group(groups[0])["also_applies"])
+
     def test_walkthrough_publish_is_one_idempotent_upsert(self) -> None:
         recipe = publish_walkthrough_recipe()
         self.assertIn("--jq '[.[] | select(.body | contains(\"<!-- deep-review:walkthrough -->\"))][0].id // empty'", recipe)

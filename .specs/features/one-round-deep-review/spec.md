@@ -159,7 +159,7 @@ jobs, prompts contain no `RULE COVERAGE`, `graft-context.md` is one line.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| ORDR-01 | P1: fingerprint-only merge (AC 1–2) | Design | Pending |
+| ORDR-01 | P1: fingerprint-only merge (AC 1–2) | Execute | Implementing |
 | ORDR-02 | P1: prior findings resolve only by disposition (AC 3–4) | Design | Pending |
 | ORDR-03 | P1: verdict counts every open Critical/Major (AC 5) | Design | Pending |
 | ORDR-04 | P1: stale outputs archived on snapshot change (AC 6–7) | Design | Pending |

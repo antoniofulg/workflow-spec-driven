@@ -86,11 +86,11 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] Two defects with different fingerprints on overlapping lines produce two canonical findings, each with its own `evidence[0]` and `suggestion`
-- [ ] Identical fingerprints still merge and record non-canonical anchors in `also_applies`
-- [ ] Module docstring no longer promises overlap merging
-- [ ] Gate check passes: `python3 tools/test_deep_review_contract.py`
-- [ ] Test count: 12 tests pass (10 existing + UT-001, UT-002)
+- [x] Two defects with different fingerprints on overlapping lines produce two canonical findings, each with its own `evidence[0]` and `suggestion`
+- [x] Identical fingerprints still merge and record non-canonical anchors in `also_applies`
+- [x] Module docstring no longer promises overlap merging
+- [x] Gate check passes: `python3 tools/test_deep_review_contract.py`
+- [x] Test count: 12 tests pass (10 existing + UT-001, UT-002)
 
 **Tests**: unit — UT-001, UT-002
 **Gate**: quick
