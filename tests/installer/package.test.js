@@ -39,11 +39,13 @@ test('IT-010 and IT-015 packed executable performs Node-only install and public 
   const eof = runCancellationProbe(eofTarget, '\\004');
   assert.equal(eof.status, 0, `${eof.error?.message || ''} signal=${eof.signal || ''}\n${eof.stderr}\n${eof.stdout}`);
   assert.equal((eof.stdout.match(/Installation cancelled\. No files changed\./g) || []).length, 1, eof.stdout);
+  assert.equal(eof.stdout.includes('scripts/install_security_skills.py'), false, eof.stdout);
   assertResidueZero(eofTarget);
   const interruptTarget = clone();
   const interrupt = runCancellationProbe(interruptTarget, '\\003');
   assert.equal(interrupt.status, 0, `${interrupt.error?.message || ''} signal=${interrupt.signal || ''}\n${interrupt.stderr}\n${interrupt.stdout}`);
   assert.equal((interrupt.stdout.match(/Installation cancelled\. No files changed\./g) || []).length, 1, interrupt.stdout);
+  assert.equal(interrupt.stdout.includes('scripts/install_security_skills.py'), false, interrupt.stdout);
   assertResidueZero(interruptTarget);
   const normalTarget = clone();
   const normal = spawnSync('/usr/bin/expect', ['-c', [`set timeout 60`, `log_user 1`, `spawn -noecho $env(EXEC) install`, `stty rows 24 columns 80`, `expect -re {Modules.*comma-separated} { send "1\\r" }`, `expect -re {Continue to preview} { send "n\\r" }`, `expect "Installation cancelled. No files changed."`, `expect eof`].join('\n')], { cwd: normalTarget, env: { ...env, EXEC: path.join(normalTarget, 'node_modules/.bin/workflow-spec-driven') }, encoding: 'utf8' });
@@ -64,6 +66,9 @@ test('IT-010 and IT-015 packed executable performs Node-only install and public 
   assert.equal(result.status, 0, `${result.error?.message || ''} signal=${result.signal || ''}\n${result.stderr}\n${result.stdout}`);
   assert.match(result.stdout, /Workflow Spec-Driven Installer/);
   assert.match(result.stdout, /Installation complete\./);
+  const cleanRoot = fs.realpathSync(clean);
+  const securityCommand = `python3 '${path.join(cleanRoot, 'node_modules/workflow-spec-driven/scripts/install_security_skills.py')}' '${cleanRoot}' --yes`;
+  assert.equal(result.stdout.includes(securityCommand), true, result.stdout);
   const manifestPath = path.join(clean, '.my-workflow/adoption.json');
   assert.equal(fs.existsSync(manifestPath), true);
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
@@ -72,6 +77,9 @@ test('IT-010 and IT-015 packed executable performs Node-only install and public 
   assert.deepEqual(manifest.files, expected.files);
   assert.equal(fs.existsSync(path.join(noPython, 'python')), false);
   assert.equal(fs.existsSync(path.join(noPython, 'python3')), false);
+  for (const skill of ['security-best-practices', 'security-threat-model', 'security-review']) {
+    assert.equal(fs.existsSync(path.join(clean, '.agents/skills', skill)), false, skill);
+  }
   assert.equal(env.PATH, `${noPython}:${toolchain}`);
   assert.equal(fs.existsSync(path.join(clean, 'node_modules/workflow-spec-driven/scripts/adopt.py')), false);
   assert.match(execFileSync(executable, ['--help'], { cwd: clean, env, encoding: 'utf8' }), /workflow-spec-driven install/);

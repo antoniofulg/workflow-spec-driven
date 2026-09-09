@@ -80,6 +80,14 @@ regressions cover EOF, interrupt, and normal selection cancellation. Scoped term
 pass 44/44; the packed package suite passes 4/4; `bun run test:all` exits 0; `npm pack` reports
 `workflow-spec-driven@0.10.1` with 146 entries.
 
+### Security-command remediation checkpoint 2026-09-09
+
+Successful guided installs and no-op runs now print the exact separately authorized
+`scripts/install_security_skills.py` command with shell-quoted package-root and target paths. The
+command is not emitted by cancellation or failed-install paths and does not execute or install
+external security skills. Scoped terminal tests pass 38/38, packed package probes pass 4/4, QA
+contract tests pass 32/32, and `bun run test:all` exits 0. A fresh Verifier owns the retest status.
+
 ---
 
 ## Test Coverage Matrix
