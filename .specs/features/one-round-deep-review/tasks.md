@@ -201,10 +201,10 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] Drift → restart → `--validate-only` reports `pending`; old output lives under the stale directory
-- [ ] No drift → restart → `--validate-only` reports `valid`
-- [ ] Gate check passes: `bun run test:python`
-- [ ] Test count: 19 tests pass in `tools/test_deep_review_contract.py`
+- [x] Drift → restart → `--validate-only` reports `pending`; old output lives under the stale directory
+- [x] No drift → restart → `--validate-only` reports `valid`
+- [x] Gate check passes: `bun run test:python`
+- [x] Test count: 19 tests pass in `tools/test_deep_review_contract.py`
 
 **Tests**: integration — IT-002, IT-003
 **Gate**: declared

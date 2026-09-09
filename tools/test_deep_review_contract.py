@@ -251,6 +251,37 @@ class DeepReviewContractTests(unittest.TestCase):
             self.assertEqual(state["ledger"]["fp-major"]["status"], "open")
             self.assertEqual(state["rounds"][-1]["verdict"], "FIX_BEFORE_SHIP")
 
+    def test_same_round_snapshot_drift_archives_reviewer_outputs(self) -> None:
+        # IT-002 (P1 AC6)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out = write_job_round(root, payload=valid_payload())
+            old = json.loads((out / "manifest.json").read_text(encoding="utf-8"))["worktree_snapshot"]
+            original = (out / "agents/job.json").read_bytes()
+            (root / "source.txt").write_text("changed after reviewer finished\n", encoding="utf-8")
+            restarted = run_script(BUILD_MANIFEST, root, "--out", str(out), "--base", "HEAD", "--worktree")
+            self.assertEqual(restarted.returncode, 0, restarted.stdout + restarted.stderr)
+            self.assertIn("stale outputs archived: 1", restarted.stdout)
+            self.assertEqual(list((out / "agents").iterdir()), [])
+            self.assertEqual((out / "rounds" / f"round-1-stale-{old[:12]}" / "job.json").read_bytes(), original)
+            result, row = validate_status(root, out)
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            self.assertEqual(row["status"], "pending")
+
+    def test_same_round_unchanged_snapshot_keeps_reviewer_outputs(self) -> None:
+        # IT-003 (P1 AC7)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out = write_job_round(root, payload=valid_payload())
+            restarted = run_script(BUILD_MANIFEST, root, "--out", str(out), "--base", "HEAD", "--worktree")
+            self.assertEqual(restarted.returncode, 0, restarted.stdout + restarted.stderr)
+            self.assertNotIn("stale outputs archived", restarted.stdout)
+            self.assertTrue((out / "agents/job.json").is_file())
+            self.assertFalse((out / "rounds").exists())
+            result, row = validate_status(root, out)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(row["status"], "valid")
+
     def test_undispositioned_prior_open_finding_stays_open(self) -> None:
         # UT-003 (P1 AC3)
         prior = {"rounds": [{"n": 1}], "ledger": {"fp-major": {"status": "open", "file": "source.txt"}}}
