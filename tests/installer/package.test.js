@@ -32,7 +32,16 @@ test('IT-010 tarball executable performs Node-only install with Python absent', 
   execFileSync('git', ['add', '.gitignore', '.ignore', 'package.json'], { cwd: clean, env });
   execFileSync('git', ['commit', '-qm', 'fixture'], { cwd: clean, env });
   const executable = path.join(clean, 'node_modules/.bin/workflow-spec-driven');
-  const result = spawnSync('/usr/bin/expect', ['-c', 'set timeout 60\nlog_user 1\nspawn -noecho $env(EXEC) install\nexpect -re {Modules.*comma-separated} { send "1\\r" }\nexpect -re {Continue to preview} { send "y\\r" }\nexpect -re {Apply this plan} { send "y\\r" }\nexpect "Installation complete."\nexpect eof'], { cwd: clean, env: { ...env, EXEC: executable }, encoding: 'utf8' });
+  const colorEnv = { ...env };
+  delete colorEnv.NO_COLOR;
+  const noColor = spawnSync('/usr/bin/expect', ['-c', 'set timeout 60\nlog_user 1\nspawn -noecho $env(EXEC) install\nexpect -re {Modules.*comma-separated} { send "4\\r" }\nexpect -re {Continue to preview} { send "n\\r" }\nexpect "Installation cancelled."\nexpect eof'], { cwd: clean, env: { ...env, NO_COLOR: '1', EXEC: executable }, encoding: 'utf8' });
+  assert.equal(noColor.status, 0, `${noColor.error?.message || ''} signal=${noColor.signal || ''}\n${noColor.stderr}\n${noColor.stdout}`);
+  const heading = noColor.stdout.indexOf('Workflow Spec-Driven Installer');
+  assert.ok(heading >= 0, noColor.stdout);
+  assert.equal(/\u001b\[[0-?]*[ -/]*[@-~]/.test(noColor.stdout.slice(heading)), false, noColor.stdout.slice(heading));
+  assert.match(noColor.stdout, /Installation cancelled\./);
+  const result = spawnSync('/usr/bin/expect', ['-c', 'set timeout 60\nlog_user 1\nspawn -noecho $env(EXEC) install\nexpect -re {Modules.*comma-separated} { send "1\\r" }\nexpect -re {Continue to preview} { send "y\\r" }\nexpect -re {Apply this plan} { send "y\\r" }\nexpect "Installation complete."\nexpect eof'], { cwd: clean, env: { ...colorEnv, EXEC: executable }, encoding: 'utf8' });
+  // Keep color-capable TTY behavior covered by the adjacent accepted flow below.
   assert.equal(result.status, 0, `${result.error?.message || ''} signal=${result.signal || ''}\n${result.stderr}\n${result.stdout}`);
   assert.match(result.stdout, /Workflow Spec-Driven Installer/);
   assert.match(result.stdout, /Installation complete\./);
