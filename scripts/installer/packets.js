@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parse } from 'smol-toml';
+import { safePath } from './engine.js';
 
 export const PROVIDERS = ['claude', 'codex', 'cursor'];
 export const ROLES = ['planner', 'implementer', 'verifier', 'explorer', 'deep_reviewer', 'designer'];
@@ -31,7 +32,7 @@ export function validateWorkflowConfig(config) {
 }
 
 export function readWorkflowConfig(root) {
-  const local = path.join(root, '.my-workflow.toml'); const example = path.join(root, '.my-workflow.toml.example'); const configPath = fs.existsSync(local) ? local : example;
+  const local = safePath(root, '.my-workflow.toml', 'workflow config'); const example = safePath(root, '.my-workflow.toml.example', 'workflow config'); const configPath = fs.existsSync(local) ? local : example;
   if (!fs.existsSync(configPath)) error('.my-workflow.toml is missing');
   let config; try { config = parse(fs.readFileSync(configPath, 'utf8')); } catch (cause) { error(`invalid .my-workflow.toml: ${cause.message}`); }
   return validateWorkflowConfig(config);

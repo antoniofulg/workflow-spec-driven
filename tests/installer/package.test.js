@@ -5,21 +5,22 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { buildPlan } from '../../scripts/installer/engine.js';
+import { pathToFileURL } from 'node:url';
 const root = path.resolve(import.meta.dirname, '../..');
 
 test('IT-019 package exposes the unscoped executable only', () => { const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')); assert.equal(pkg.name, 'workflow-spec-driven'); assert.deepEqual(Object.keys(pkg.bin), ['workflow-spec-driven']); assert.equal(pkg.bin['workflow-spec-driven'], 'bin/workflow-spec-driven.js'); assert.equal(pkg.files.includes('scripts/adopt.py'), false); });
 test('IT-010 pack dry-run includes Node installer and excludes Python adopter', () => { const json = execFileSync('npm', ['pack', '--dry-run', '--json'], { cwd: root, encoding: 'utf8' }); const metadata = JSON.parse(json)[0]; const names = metadata.files.map((item) => item.path); assert.ok(names.includes('bin/workflow-spec-driven.js')); assert.ok(names.includes('scripts/installer/engine.js')); assert.equal(names.some((name) => name === 'scripts/adopt.py' || name === 'bin/my-workflow.js'), false); });
 test('IT-019 package can resolve from a clean directory', () => { const target = fs.mkdtempSync(path.join(os.tmpdir(), 'installer-package-')); const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')); assert.equal(packageJson.engines.node, '>=18.0.0'); assert.ok(target.startsWith(os.tmpdir())); });
-test('IT-010 tarball executable performs Node-only install with Python absent', () => {
+test('IT-010 tarball executable performs Node-only install with Python absent', async () => {
   const destination = fs.mkdtempSync(path.join(os.tmpdir(), 'installer-tarball-'));
   const json = execFileSync('npm', ['pack', '--pack-destination', destination, '--json'], { cwd: root, encoding: 'utf8' });
   const tarball = path.join(destination, JSON.parse(json)[0].filename);
   const clean = fs.mkdtempSync(path.join(os.tmpdir(), 'installer-clean-'));
   const noPython = fs.mkdtempSync(path.join(os.tmpdir(), 'installer-no-python-'));
-  const pythonMarker = path.join(noPython, 'invoked');
-  fs.writeFileSync(path.join(noPython, 'python'), `#!/bin/sh\nprintf invoked > "${pythonMarker}"\nexit 127\n`, { mode: 0o755 });
-  fs.writeFileSync(path.join(noPython, 'python3'), `#!/bin/sh\nprintf invoked > "${pythonMarker}"\nexit 127\n`, { mode: 0o755 });
-  const env = { ...process.env, PATH: `${noPython}:${path.dirname(process.execPath)}:/bin:/usr/bin` };
+  const toolchain = fs.mkdtempSync(path.join(os.tmpdir(), 'installer-toolchain-'));
+  fs.symlinkSync(process.execPath, path.join(toolchain, 'node'));
+  fs.symlinkSync(execFileSync('which', ['git'], { encoding: 'utf8' }).trim(), path.join(toolchain, 'git'));
+  const env = { ...process.env, PATH: `${noPython}:${toolchain}` };
   execFileSync('npm', ['install', '--ignore-scripts', '--no-package-lock', tarball], { cwd: clean });
   execFileSync('git', ['init', '-q'], { cwd: clean, env });
   execFileSync('git', ['config', 'user.email', 'installer@test.invalid'], { cwd: clean, env });
@@ -31,8 +32,8 @@ test('IT-010 tarball executable performs Node-only install with Python absent', 
   execFileSync('git', ['add', '.gitignore', '.ignore', 'package.json'], { cwd: clean, env });
   execFileSync('git', ['commit', '-qm', 'fixture'], { cwd: clean, env });
   const executable = path.join(clean, 'node_modules/.bin/workflow-spec-driven');
-  const result = spawnSync('expect', ['-c', 'set timeout 60\nlog_user 1\nspawn -noecho $env(EXEC) install\nexpect -re {Modules.*comma-separated} { send "1\\r" }\nexpect -re {Continue to preview} { send "y\\r" }\nexpect -re {Apply this plan} { send "y\\r" }\nexpect "Installation complete."\nexpect eof'], { cwd: clean, env: { ...env, EXEC: executable }, encoding: 'utf8' });
-  assert.equal(result.status, 0, result.stderr);
+  const result = spawnSync('/usr/bin/expect', ['-c', 'set timeout 60\nlog_user 1\nspawn -noecho $env(EXEC) install\nexpect -re {Modules.*comma-separated} { send "1\\r" }\nexpect -re {Continue to preview} { send "y\\r" }\nexpect -re {Apply this plan} { send "y\\r" }\nexpect "Installation complete."\nexpect eof'], { cwd: clean, env: { ...env, EXEC: executable }, encoding: 'utf8' });
+  assert.equal(result.status, 0, `${result.error?.message || ''} signal=${result.signal || ''}\n${result.stderr}\n${result.stdout}`);
   assert.match(result.stdout, /Workflow Spec-Driven Installer/);
   assert.match(result.stdout, /Installation complete\./);
   const manifestPath = path.join(clean, '.my-workflow/adoption.json');
@@ -41,7 +42,13 @@ test('IT-010 tarball executable performs Node-only install with Python absent', 
   assert.deepEqual(manifest.layers, ['core']);
   const expected = buildPlan({ sourceRoot: root, targetRoot: fs.mkdtempSync(path.join(os.tmpdir(), 'installer-expected-')), selectedModules: ['core'] }).manifest;
   assert.deepEqual(manifest.files, expected.files);
-  assert.equal(fs.existsSync(pythonMarker), false);
+  assert.equal(fs.existsSync(path.join(noPython, 'python')), false);
+  assert.equal(fs.existsSync(path.join(noPython, 'python3')), false);
+  assert.equal(env.PATH, `${noPython}:${toolchain}`);
   assert.equal(fs.existsSync(path.join(clean, 'node_modules/workflow-spec-driven/scripts/adopt.py')), false);
   assert.match(execFileSync(executable, ['--help'], { cwd: clean, env, encoding: 'utf8' }), /workflow-spec-driven install/);
+  const installedEngine = await import(pathToFileURL(path.join(clean, 'node_modules/workflow-spec-driven/scripts/installer/engine.js')).href);
+  const installedManifest = installedEngine.loadManifest(clean);
+  assert.deepEqual(installedManifest.layers, ['core']);
+  assert.equal(Object.keys(installedManifest.files).length, Object.keys(manifest.files).length);
 });

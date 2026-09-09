@@ -149,7 +149,7 @@ function blockContent(sourceRoot, module, filename) {
 function composeBlocks(sourceRoot, root, modules, manifest) {
   const outputs = {}, blocks = {}, conflicts = [];
   for (const filename of ['AGENTS.md', 'CLAUDE.md']) {
-    const target = path.join(root, filename); let rendered = fs.existsSync(target) ? fs.readFileSync(target, 'utf8') : filename === 'AGENTS.md' ? fs.readFileSync(path.join(sourceRoot, filename), 'utf8') : '';
+    const target = safePath(root, filename, 'managed instruction'); const exists = fs.existsSync(target); let rendered = exists ? fs.readFileSync(target, 'utf8') : filename === 'AGENTS.md' ? fs.readFileSync(path.join(sourceRoot, filename), 'utf8') : '';
     for (const module of (filename === 'AGENTS.md' ? BLOCK_LAYERS : ['core'])) if (modules.includes(module)) {
       let span; try { span = blockSpan(rendered, module); } catch { conflicts.push(`${filename}:${module}`); continue; }
       const block = blockContent(sourceRoot, module, filename); const key = `${filename}:${module}`;
@@ -157,7 +157,7 @@ function composeBlocks(sourceRoot, root, modules, manifest) {
       else { if (rendered && !rendered.endsWith('\n')) rendered += '\n'; if (rendered) rendered += '\n'; rendered += block + '\n'; }
       blocks[key] = { sha256: sha256(Buffer.from(block)) };
     }
-    if (Buffer.from(rendered).compare(fs.existsSync(target) ? fs.readFileSync(target) : Buffer.alloc(0)) !== 0) outputs[filename] = Buffer.from(rendered);
+    if (Buffer.from(rendered).compare(exists ? fs.readFileSync(target) : Buffer.alloc(0)) !== 0) outputs[filename] = Buffer.from(rendered);
   }
   return { outputs, blocks, conflicts };
 }
@@ -186,7 +186,7 @@ export function buildPlan({ sourceRoot = path.resolve(path.dirname(new URL(impor
     const expected = previous.ownership === 'consumer' ? previous.source_sha256 : previous.installed_sha256; if (sha256(fs.readFileSync(destination)) !== expected) { conflicts.push(relative); actions.push({ path: relative, kind: 'conflict', modules: [previous.layer], reason: 'retired file was modified' }); } else { retired.push(relative); actions.push({ path: relative, kind: 'remove', modules: [previous.layer], reason: 'retired workflow path' }); }
   }
   const blocks = composeBlocks(source, target, effective, installedManifest); conflicts.push(...blocks.conflicts); for (const conflict of blocks.conflicts) { const [filename, owner] = conflict.split(':'); actions.push({ path: conflict, kind: 'conflict', modules: [owner], reason: 'consumer content requires a decision' }); }
-  const staged = { '.gitignore': mergeIgnore(fs.existsSync(path.join(target, '.gitignore')) ? fs.readFileSync(path.join(target, '.gitignore')) : null, WORKFLOW_GITIGNORE_ENTRIES, LEGACY_WORKFLOW_GITIGNORE_ENTRIES), '.ignore': mergeIgnore(fs.existsSync(path.join(target, '.ignore')) ? fs.readFileSync(path.join(target, '.ignore')) : null, WORKFLOW_SEARCHIGNORE_ENTRIES), ...blocks.outputs };
+  const gitignore = safePath(target, '.gitignore', 'ignore file'); const searchignore = safePath(target, '.ignore', 'ignore file'); const staged = { '.gitignore': mergeIgnore(fs.existsSync(gitignore) ? fs.readFileSync(gitignore) : null, WORKFLOW_GITIGNORE_ENTRIES, LEGACY_WORKFLOW_GITIGNORE_ENTRIES), '.ignore': mergeIgnore(fs.existsSync(searchignore) ? fs.readFileSync(searchignore) : null, WORKFLOW_SEARCHIGNORE_ENTRIES), ...blocks.outputs };
   for (const action of actions) if (['add', 'update', 'claim'].includes(action.kind)) staged[action.path] = adoptedBytes(action.path, sourceBytes(source, action.path));
   const newManifest = { schema: 1, workflow_version: WORKFLOW_VERSION, layers: manifestLayers, files: records, blocks: blocks.blocks }; staged['.my-workflow/adoption.json'] = Buffer.from(`${JSON.stringify(newManifest, null, 2)}\n`);
   const selectedSet = new Set(effective); const assessments = effective.map((id) => { const own = actions.filter((action) => action.modules.includes(id)); const kinds = new Set(own.map((action) => action.kind)); const status = kinds.has('conflict') ? 'conflict' : kinds.has('modified') ? 'modified' : kinds.has('update') ? 'outdated' : kinds.has('add') || kinds.has('claim') ? 'not installed' : 'up to date'; return { id, status, requiredBy: LAYERS.filter((candidate) => candidate !== id && DEPENDENCIES[candidate].includes(id) && selectedSet.has(candidate)), actions: own }; });

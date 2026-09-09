@@ -47,8 +47,8 @@ The focused batch closes SAFE-007, KNOW-002, PAR-001, PAR-004, EDGE-003, and EDG
 owning canonical assertions, plus UT-008, UT-014, IT-002, IT-003, IT-004, IT-005, IT-007, IT-012,
 IT-014, IT-015, IT-016, IT-017, E2E-001, E2E-002, SEC-002, and SEC-004. Terminal fixtures now match
 the approved 80x24 and 120x40 transcripts, including pending-transfer guidance and width-specific
-progress/copy. Focused suites pass 176/176 and the full gate exits 0; remediation checkpoint committed
-as `80ffa876`.
+progress/copy. Focused suites pass 182/182 and the full gate exits 0; the scoped threat model is
+present and the remediation checkpoint is ready for its atomic commit.
 
 ---
 
