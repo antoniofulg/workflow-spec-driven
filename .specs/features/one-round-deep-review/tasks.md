@@ -453,10 +453,10 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] No rendered prompt contains `RULE COVERAGE`, `PRODUCT CONTEXT`, or `RECORD every investigated`
-- [ ] Outputs with and without `coverage.rules`/`suppressions` validate `valid`; `render_html.py` exits 0 on both
-- [ ] Gate check passes: `python3 tools/test_deep_review_contract.py`
-- [ ] Test count: 33 tests pass
+- [x] No rendered prompt contains `RULE COVERAGE`, `PRODUCT CONTEXT`, or `RECORD every investigated`
+- [x] Outputs with and without `coverage.rules`/`suppressions` validate `valid`; `render_html.py` exits 0 on both
+- [x] Gate check passes: `python3 tools/test_deep_review_contract.py`
+- [x] Test count: 33 tests pass — actual: 34
 
 **Tests**: integration — IT-014
 **Gate**: quick

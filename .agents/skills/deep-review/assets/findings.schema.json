@@ -1,6 +1,6 @@
 {
   "type": "object",
-  "required": ["defects", "advisories", "suppressions", "coverage"],
+  "required": ["defects", "advisories", "coverage"],
   "properties": {
     "defects": {
       "type": "array",
@@ -80,7 +80,7 @@
     },
     "coverage": {
       "type": "object",
-      "required": ["hunks", "rules"],
+      "required": ["hunks"],
       "properties": {
         "hunks": {
           "type": "array",

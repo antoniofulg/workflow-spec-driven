@@ -230,7 +230,7 @@ def findings_contract_errors(payload: dict) -> list[str]:
 
 
 def job_contract_errors(payload: dict, job: dict) -> list[str]:
-    """Validate lane ownership, hunk coverage, rule accountability, and
+    """Validate lane ownership, hunk coverage, rule-id sanity, and
     prior-finding dispositions (exactly one row per job.prior_fingerprints)."""
     errors: list[str] = []
     lane = str(job.get("lane", ""))
@@ -270,12 +270,6 @@ def job_contract_errors(payload: dict, job: dict) -> list[str]:
     actual_rules = [str(row.get("rule_id")) for row in rule_rows]
     if len(actual_rules) != len(set(actual_rules)):
         errors.append("$.coverage.rules: duplicate rule_id rows")
-    if set(actual_rules) != expected_rules:
-        errors.append(
-            "$.coverage.rules: assignment mismatch "
-            f"missing={sorted(expected_rules - set(actual_rules))[:6]} "
-            f"extra={sorted(set(actual_rules) - expected_rules)[:6]}"
-        )
 
     if lane == "defect":
         for result_kind in ("defects", "advisories"):

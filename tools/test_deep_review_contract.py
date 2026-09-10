@@ -21,6 +21,7 @@ BUILD_JOBS = SCRIPTS / "build_jobs.py"
 MERGE_FINDINGS = SCRIPTS / "merge_findings.py"
 RUN_JOBS = SCRIPTS / "run_jobs.py"
 RENDER_REVIEW = SCRIPTS / "render_review.py"
+RENDER_HTML = SCRIPTS / "render_html.py"
 PUBLISH_RECIPE = (
     Path(__file__).resolve().parents[1]
     / ".agents/skills/deep-review/references/publish-github.md"
@@ -878,6 +879,46 @@ class DeepReviewContractTests(unittest.TestCase):
             self.assertIn("**Verdict: SHIP**", review)
             self.assertNotIn("## Spec conformance", review)
             self.assertNotIn("spec-parity", review)
+
+    def test_prompt_and_schema_carry_no_reporting_only_obligations(self) -> None:
+        # IT-014 (P3 AC5)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out, build = full_fixture(root, {"sweeps": ["consistency"], "cohorts": [
+                {"id": "A", "name": "all", "risk": "normal", "files": ["file0.txt", "file1.txt", "file2.txt"]},
+            ]})
+            self.assertEqual(build.returncode, 0, build.stdout + build.stderr)
+            prompts = sorted((out / "prompts").iterdir())
+            self.assertEqual(len(prompts), 2)
+            for prompt in prompts:
+                text = prompt.read_text(encoding="utf-8")
+                for banned in ("RULE COVERAGE", "PRODUCT CONTEXT", "RECORD every investigated"):
+                    self.assertNotIn(banned, text, prompt.name)
+                self.assertIn("HUNK COVERAGE", text)
+
+            jobs = json.loads((out / "jobs.json").read_text(encoding="utf-8"))["jobs"]
+            bare = {"defects": [], "advisories": []}
+            full = {
+                "defects": [], "advisories": [],
+                "suppressions": [{"file": "file0.txt", "line": 1, "hunk": "new:1-1", "candidate": "trailing newline",
+                                  "reason": "formatting", "rule_ids": [], "note": "formatter-owned"}],
+            }
+            for variant, extra in (("bare", bare), ("full", full)):
+                with self.subTest(variant=variant):
+                    for job in jobs:
+                        hunks = [{**row, "checks": [job["coverage_check"]], "outcome": "clear"} for row in job["required_hunks"]]
+                        coverage = {"hunks": hunks}
+                        if variant == "full":
+                            coverage["rules"] = [{"rule_id": "R1", "status": "not-applicable", "note": "no match"}]
+                        (root / job["output"]).write_text(json.dumps({**extra, "coverage": coverage}), encoding="utf-8")
+                    result = run_script(RUN_JOBS, root, "--out", str(out), "--validate-only")
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                    status = json.loads((out / "runs/jobs-status.json").read_text(encoding="utf-8"))
+                    self.assertEqual({row["status"] for row in status["jobs"]}, {"valid"})
+                    merged = run_script(MERGE_FINDINGS, root, "--out", str(out))
+                    self.assertEqual(merged.returncode, 0, merged.stdout + merged.stderr)
+                    html = run_script(RENDER_HTML, root, "--out", str(out))
+                    self.assertEqual(html.returncode, 0, html.stdout + html.stderr)
 
     def test_validate_only_rejects_source_drift_before_accepting_valid_output(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

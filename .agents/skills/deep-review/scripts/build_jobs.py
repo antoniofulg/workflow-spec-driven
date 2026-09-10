@@ -351,12 +351,10 @@ def prior_findings_block(ledger: dict[str, dict]) -> str:
     return "\n".join(lines)
 
 
-def coverage_contract(required_hunks: list[dict], rule_ids: list[str], check: str) -> str:
+def coverage_contract(required_hunks: list[dict], check: str) -> str:
     return (
         "HUNK COVERAGE (one exact row per assignment; include check "
-        f"`{check}`): `{json.dumps(required_hunks, separators=(',', ':'))}`\n"
-        "RULE COVERAGE (one exact row per id, even when compliant or not applicable): "
-        f"`{json.dumps(rule_ids, separators=(',', ':'))}`"
+        f"`{check}`): `{json.dumps(required_hunks, separators=(',', ':'))}`"
     )
 
 
@@ -444,7 +442,7 @@ def main() -> int:
                     "reliability, or failing-capable test defects. Put survivors in `defects`; "
                     "leave `advisories` empty."
                 ),
-                "coverage_contract": coverage_contract(required_hunks, rule_ids, "defect"),
+                "coverage_contract": coverage_contract(required_hunks, "defect"),
             })
             (prompts_dir / f"{label}.md").write_text(prompt, encoding="utf-8")
             jobs.append({
@@ -468,7 +466,7 @@ def main() -> int:
                 "manifest": rel(out / "manifest.json", repo),
                 "output": rel(output, repo),
                 "rules_block": block,
-                "coverage_contract": coverage_contract([], rule_ids, f"sweep:{sweep['key']}"),
+                "coverage_contract": coverage_contract([], f"sweep:{sweep['key']}"),
             })
             (prompts_dir / f"{label}.md").write_text(prompt, encoding="utf-8")
             jobs.append({
