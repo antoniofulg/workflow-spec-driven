@@ -1113,6 +1113,39 @@ class DeepReviewContractTests(unittest.TestCase):
             validation = run_script(RUN_JOBS, root, "--out", str(out), "--validate-only")
             self.assertEqual(validation.returncode, 1, validation.stdout + validation.stderr)
 
+    def test_provider_block_detected_from_error_events_not_tool_output(self) -> None:
+        # Block patterns count in structured error events and raw non-JSON/stderr lines, never in tool output.
+        def run_stub(body: str) -> tuple[subprocess.CompletedProcess[str], bool]:
+            with tempfile.TemporaryDirectory() as raw:
+                root = init_repo(raw)
+                out = write_job_round(root)
+                stub = out / "stub.py"
+                stub.write_text("import json, sys\n" + body, encoding="utf-8")
+                result = run_script(
+                    RUN_JOBS, root, "--out", str(out), "--command",
+                    f"{sys.executable} {stub} {{prompt}} {{output}} {{label}}",
+                )
+                return result, (out / "run-blocker.json").exists()
+
+        tool_output = (
+            f"open(sys.argv[2], 'w').write(json.dumps({valid_payload()!r}))\n"
+            "print(json.dumps({'type': 'item.completed', 'item': {'type': 'command_execution',"
+            " 'aggregated_output': 'grep hit: usageLimitExceeded'}}))\n"
+        )
+        result, blocker = run_stub(tool_output)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("PASS sweep-tests", result.stdout)
+        self.assertFalse(blocker)
+
+        result, blocker = run_stub("print(json.dumps({'type': 'error', 'message': 'usageLimitExceeded'}))\n")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("BLOCKED sweep-tests", result.stdout)
+        self.assertTrue(blocker)
+
+        result, _ = run_stub("print('usageLimitExceeded', file=sys.stderr)\n")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("BLOCKED sweep-tests", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

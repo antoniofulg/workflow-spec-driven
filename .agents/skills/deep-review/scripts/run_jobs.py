@@ -68,6 +68,23 @@ def manifest_concurrency(out: Path) -> int:
     return value
 
 
+def blocked_pattern(stdout_text: str, stderr_text: str, patterns: list[str]) -> str | None:
+    """Match block patterns in structured error events and raw non-JSON/stderr lines — never in tool output."""
+    def hit(text: str) -> str | None:
+        return next((pattern for pattern in patterns if pattern in text), None)
+
+    for line in stdout_text.splitlines():
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            found = hit(line)  # unknown transport: the raw line is the signal
+        else:
+            found = hit(line) if isinstance(event, dict) and event.get("type") in {"error", "turn.failed"} else None
+        if found:
+            return found
+    return hit(stderr_text)
+
+
 def record_block(label: str, reason: str) -> None:
     with STOP_LOCK:
         STOP_EVENT.set()
@@ -115,10 +132,16 @@ def run_one(repo: Path, out: Path, job: dict, args) -> dict:
                 last_error = f"runner timeout after {args.timeout_min}m"
                 say(f"RETRY {label} attempt={attempt} reason={last_error}")
                 continue
-        streams = stdout_path.read_text(encoding="utf-8", errors="replace") + stderr_path.read_text(encoding="utf-8", errors="replace")
-        blocked_on = next((pattern for pattern in args.block_on if pattern in streams), None)
+        blocked_on = blocked_pattern(
+            stdout_path.read_text(encoding="utf-8", errors="replace"),
+            stderr_path.read_text(encoding="utf-8", errors="replace"),
+            args.block_on,
+        )
         if blocked_on:
-            record_block(label, blocked_on)
+            record_block(label, blocked_on)  # stop refilling slots even when this artifact landed
+            if job_state(repo, out, job)[0] == "valid":
+                say(f"PASS {label} attempt={attempt} (block {blocked_on} after a valid artifact)")
+                return {"label": label, "status": "pass", "attempt": attempt, "exit_code": exit_code}
             say(f"BLOCKED {label} pattern={blocked_on}")
             return {"label": label, "status": "blocked", "attempt": attempt, "exit_code": exit_code, "error": blocked_on}
         if exit_code != 0:
