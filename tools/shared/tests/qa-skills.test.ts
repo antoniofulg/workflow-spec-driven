@@ -493,7 +493,7 @@ describe("canonical QA skills", () => {
     expect(reviewRounds).toContain("live `[remediation].stall_attempts` threshold");
     expect(reviewRounds).toContain("every failed post-fix Verifier result, whether or not the build gate is green");
     expect(reviewRounds).toContain("Rewording or reopening a finding preserves its fingerprint and counter");
-    expect(reviewRounds).toContain("A distinct blocker starts at count zero and does not consume another fingerprint's counter");
+    expect(reviewRounds).toContain("A distinct finding starts at count zero and does not consume another fingerprint's counter");
     expect(reviewRounds).not.toMatch(/one global (?:remediation|blocker) counter/i);
 
     for (const relativePath of [
@@ -556,9 +556,10 @@ describe("canonical QA skills", () => {
     );
     expect(workflowConfig).toContain("[remediation]` table");
     const remediation = reviewRounds.slice(
-      reviewRounds.indexOf("When a cap is reached"),
+      reviewRounds.indexOf("## Escalation"),
       reviewRounds.indexOf("## Requirement and contract parity"),
     );
+    expect(remediation).toContain("While a remediation check leaves a Critical/Major open");
     expect(remediation).toContain("run its scoped gate after every attempt");
     expect(remediation).toContain(
       "stable signature from sorted failing-test identifiers after removing timings, absolute paths, and line numbers",
@@ -573,9 +574,12 @@ describe("canonical QA skills", () => {
       "when a nonzero threshold is reached, halt with the repeated signature, attempt count, and fixes tried",
     );
     expect(remediation).toContain(
-      "If the gate is unavailable, halt immediately without another deep-review round",
+      "If the gate is unavailable, halt immediately without another remediation check",
     );
-    expect(remediation).toContain("never starts round 3");
+    expect(remediation).toContain("An open Critical alone does not halt while attempts establish new minima");
+    expect(remediation.indexOf("While a remediation check leaves a Critical/Major open")).toBeLessThan(
+      remediation.indexOf("run its scoped gate after every attempt"),
+    );
     expect(remediation.indexOf("run its scoped gate after every attempt")).toBeLessThan(
       remediation.indexOf("stable signature from sorted failing-test identifiers"),
     );
@@ -616,35 +620,38 @@ describe("canonical QA skills", () => {
     expect(reviewGuideline.trimEnd().split(/\r?\n/).length).toBeLessThanOrEqual(160);
 
     const approvedLoopRule =
-      normalizePacket(reviewGuideline).match(/2\. \*\*Nitpicks never trigger a round\.\*.*?(?=3\. \*\*)/)?.[0] ?? "";
+      normalizePacket(reviewGuideline).match(/2\. \*\*Nitpicks never trigger a review\.\*.*?(?=3\. \*\*)/)?.[0] ?? "";
     for (const anchor of [
       "active, already-approved review loop",
       "fix blocking findings",
       "without new human approval",
-      "through the applicable review cap",
+      "one remediation batch, then one remediation check",
       "scoped gate",
       "after each correction",
-      "final deep-review round (round 2)",
-      "corrected automatically in the same loop",
-      "do not start round 3",
+      "a one-job incremental deep-review over reviewed_head..HEAD",
+      "Repeat batch + check until no Critical/Major is open",
+      "[remediation].stall_attempts halts",
       "escalate only",
       "post-fix gate fails",
-      "configured stall threshold is reached",
+      "stall threshold is reached for the same fingerprint",
       "remote actions retain separate approval requirements",
     ]) {
       expect(approvedLoopRule).toContain(anchor);
     }
+    expect(approvedLoopRule.indexOf("one remediation batch, then one remediation check")).toBeLessThan(
+      approvedLoopRule.indexOf("Repeat batch + check until no Critical/Major is open"),
+    );
+    expect(approvedLoopRule.indexOf("Repeat batch + check until no Critical/Major is open")).toBeLessThan(
+      approvedLoopRule.indexOf("without new human approval"),
+    );
     expect(approvedLoopRule.indexOf("without new human approval")).toBeLessThan(
-      approvedLoopRule.indexOf("corrected automatically in the same loop"),
+      approvedLoopRule.indexOf("scoped gate after each correction"),
     );
     expect(approvedLoopRule.indexOf("scoped gate after each correction")).toBeLessThan(
-      approvedLoopRule.indexOf("corrected automatically in the same loop"),
-    );
-    expect(approvedLoopRule.indexOf("corrected automatically in the same loop")).toBeLessThan(
-      approvedLoopRule.indexOf("do not start round 3"),
-    );
-    expect(approvedLoopRule.indexOf("do not start round 3")).toBeLessThan(
       approvedLoopRule.indexOf("escalate only"),
+    );
+    expect(approvedLoopRule.indexOf("escalate only")).toBeLessThan(
+      approvedLoopRule.indexOf("stall threshold is reached for the same fingerprint"),
     );
     expect(approvedLoopRule).not.toMatch(/ask(?: the human)? whether to fix/i);
     expect(readRepositoryFile(".agents/skills/deep-review/SKILL.md")).toContain(
@@ -791,13 +798,13 @@ describe("configurable review policy", () => {
       ".agents/skills/deep-review/references/output-contracts.md",
     );
     expect(reviewRounds).toContain("Fix every confirmed deep-review defect");
-    expect(reviewRounds).toContain("A Minor-only batch starts no fresh Technical Verifier");
-    expect(reviewRounds).toContain("Cosmetics and advisories become follow-ups");
+    expect(reviewRounds).toContain("a Minor-only batch starts no fresh Technical Verifier, QA phase, or remediation check");
+    expect(reviewRounds).toContain("Trivials and advisories become follow-ups");
     expect(reviews).toContain("Every deep-review defect is fixed inside the feature run");
     expect(reviews).toContain("Fix in one current-run batch, scoped gate, one commit");
     expect(reviewOutput).toContain("mandatory current-feature closeout batch");
-    expect(autonomous).toContain("`Blocker`, `Major`, and `Minor` are fixed in the feature run");
-    expect(pack).toContain("no Blocker, Major, or Minor left");
+    expect(autonomous).toContain("`Critical`, `Major`, and `Minor` are fixed in the feature run");
+    expect(pack).toContain("no Critical, Major, or Minor left");
     expect(implement).toContain("Except for deep-review Minor-only closeout batches");
     expect(implement).toContain("docs/guidelines/REVIEW-ROUNDS.md");
   });

@@ -292,6 +292,7 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 - [x] Byte size of `REVIEW-ROUNDS.md` does not grow (`CONTEXT-BUDGET.md`)
 - [x] Gate check passes: `python3 tools/test_deep_review_contract.py`
 - [x] Test count: 26 tests pass
+- [x] Remediation batch: Bun content checks (`qa-skills.test.ts`) and the remaining `Blocker`/`Cosmetic`/round-cap wording in `autonomous`, `wverify`, `docs/workflow`, `README.md` follow the remediation-check rule
 
 **Tests**: integration — IT-020
 **Gate**: quick

@@ -43,7 +43,7 @@ Start here: **[docs/workflow/](docs/workflow/)** — an index of every stage, gu
 | --- | --- |
 | Auto-sized planning (one line needs no spec) | Tests assert spec outcomes, not the implementation |
 | Proportional scoped gate; full gate only when selected | Never weaken a test to go green |
-| Nitpicks become filed issues, not extra rounds | Blocker and Major still hold the ship |
+| Nitpicks become filed issues, not extra rounds | Critical and Major still hold the ship |
 | `ponytail` at `full` — shortest code that works | Security surfaces declared and given `SEC-` ids |
 | `autonomous` scopes remote delivery | Its invocation authorizes the feature-branch push, one pull request, and merge after readiness is rechecked; readiness is evidence, not authorization for deploy/release, production mutations, force-push, direct `main` push, or unrelated remote actions |
 

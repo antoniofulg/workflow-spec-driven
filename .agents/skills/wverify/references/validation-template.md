@@ -121,7 +121,7 @@ Manual paired comparison is evidence, not an automated test. Missing captures, s
 
 - **Root cause**: [What's actually wrong]
 - **Fix task**: [Task definition]
-- **Priority**: [Blocker/Major/Minor/Cosmetic]
+- **Priority**: [Critical/Major/Minor/Trivial]
 
 ---
 

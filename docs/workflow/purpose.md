@@ -23,7 +23,7 @@ with the human.
 classifier selects it, and a full gate once when the classifier selects it.
 
 Neither side is optional for feature slices. A feature slice that skips the Verifier is not this
-workflow; neither is one that re-reviews Cosmetics until the diff stops moving. Credential-free
+workflow; neither is one that re-reviews Trivials until the diff stops moving. Credential-free
 declarative agent-tool configuration is a separate maintenance path defined by
 [`GATES.md`](../guidelines/GATES.md).
 
@@ -32,7 +32,7 @@ declarative agent-tool configuration is a separate maintenance path defined by
 | Cap | Protects |
 | --- | --- |
 | Verifier fingerprint cap, then escalate | Stops a repeated blocker from eating the week |
-| Deep-review ≤2, Blocker/Major only | Stops nitpick churn from being called “quality” |
+| Deep-review once, remediation check per batch, Critical/Major only | Stops nitpick churn from being called “quality” |
 | Stages do not loop into each other | Review groups bound repeated reading, then a human |
 | Proportional gate selection | Stops low-risk maintenance from paying for unrelated product checks |
 | Approval is local-only | Stops an agent from pushing, merging, or deploying on a spec yes |
