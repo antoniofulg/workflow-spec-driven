@@ -58,3 +58,14 @@ Native Cursor dispatch and `--publish` / walkthrough upsert were out of scope. N
 ## Verdict
 
 **PASS** — charter complete, all six scenarios and the adjacent canary passed through the reachable CLI/manual adapter, and C6/C8 now hold on the fixture even though the earlier Codex dry-run did not.
+
+## P1–P2 re-walk (`b79419ee`)
+
+- **Scope:** `feat/one-round-deep-review` at `b79419ee`
+- **Phase:** QA Execute (single scenario)
+- **Adapter:** CLI/manual — `build_manifest.py` → `build_knowledge.py` → `build_jobs.py` → `run_jobs.py --command` stub reviewer → `merge_findings.py` → `render_review.py` on `/var/folders/lc/_v1mn5h560d2tsmz474y7d1c0000gn/T/qa-ordr-repair-kd9_0oyk`. No LLM, no `render_html.py`.
+- **Journey check:** `J-run-deep-review.md` has no `review.html`; publish step still lists `QAS-upsert-deep-review-walkthrough`.
+
+| Charter | Scenario | Verdict | Independent confirmation | Evidence |
+| --- | --- | --- | --- | --- |
+| `CH-one-round-deep-review-2026-09-10` | `QAS-read-repair-plan-on-every-defect` | pass | Reloaded `qa-p1p2-review.md`: 3 `🛠️ Repair plan` blocks with all five steps; trivial advisory has none; `## Review details` present; no `review.html` | `qa-p1p2-review.md`; `qa-p1p2-session.md`; `qa-p1p2-summary.json` |

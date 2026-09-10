@@ -6,12 +6,12 @@ persona: Workflow operator
 journey: J-run-deep-review
 expected: Every Critical, Major, and Minor finding in review.md shows a 🛠️ Repair plan with root cause, all sites, a grep-callers step, a failing-first test step, and the suggestion.
 entry_points: .agents/skills/deep-review/SKILL.md; .agents/skills/deep-review/scripts/render_review.py
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-10-one-round-deep-review/fixture-review.md; docs/qa/evidence/2026-09-10-one-round-deep-review/fixture-review.html; docs/qa/evidence/2026-09-10-one-round-deep-review/qa-summary.json
+evidence: docs/qa/evidence/2026-09-10-one-round-deep-review/qa-p1p2-review.md; docs/qa/evidence/2026-09-10-one-round-deep-review/qa-p1p2-summary.json; docs/qa/evidence/2026-09-10-one-round-deep-review/qa-p1p2-session.md
 last_report: docs/qa/reports/2026-09-10-one-round-deep-review.md
 overlaps:
 ---

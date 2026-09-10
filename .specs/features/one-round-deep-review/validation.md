@@ -502,3 +502,77 @@ Prior gaps (FAIL at `430ddc15`) closed:
 - `bun run knowledge` → `0 error(s), 65 warning(s)`
 
 **Ranked gaps**: none.
+
+---
+
+## Direct corrections P1–P2 (b79419ee)
+
+**Date**: 2026-09-10
+**Diff range**: `2515039c..b79419ee` (`b057b517` P1, `b79419ee` P2)
+**Verifier**: independent sub-agent (author ≠ verifier)
+**Verdict**: FAIL
+
+### Criterion check
+
+| Criterion | Spec-defined outcome | Evidence | Result |
+| --- | --- | --- | --- |
+| P1 HTML report gone | `render_html.py` and `REVIEW_UI.html` deleted; no live refs under `.agents/skills/deep-review`, `tools`, `docs/guidelines`, `docs/workflow`, QA journey/scenarios except historical charter/evidence | Glob 0 files. `rg -n "render_html\|review\.html\|REVIEW_UI"` empty in those trees except `docs/qa/scenarios/QAS-read-repair-plan-on-every-defect.md` prior `fixture-review.html` evidence path (now replaced) and dated-report history. `J-run-deep-review.md` has no `review.html`. | ✅ |
+| P2 `review.md` details are script-generated; no walkthrough inline | `## Review details` with scope/files/jobs/concurrency/rules; no `## Walkthrough`, `Estimated code review effort`, or `Sequence Diagram`; renderer does not read `walkthrough.md` | `render_review.py:12-13` docstring; `:38-53` `review_details`; `:156` `details = review_details(...)`; never opens `walkthrough.md`. Complete fixture: `Scope … (full, round 1)` / `Files: 1 selected` / `Jobs: 1 (1 cohort)` / `Concurrency: 3` / `Rules: 0`. Banned headings absent. IT-010 `tools/test_deep_review_contract.py:709-713`. | ✅ |
+| P2 fallback on missing `mode`/`concurrency` | Forbidden compatibility path (`AGENTS.md` critical rules). `build_manifest.py` always emits both keys | `build_manifest.py:455` `"mode"`; `:459` `"concurrency"`. Renderer still `manifest.get('mode', 'full')` at `render_review.py:47` and `manifest.get('concurrency', 'unset')` at `:50`. Incomplete fixture rendered `Concurrency: unset` and `(full, round 1)`. `render_fixture` at `tools/test_deep_review_contract.py:136-146` still omits both keys. | ❌ |
+| P2 walkthrough is publish-only | Only `publish-github.md` authors `walkthrough.md`; shape = marker + Changes + Review details; SKILL Step 5 writes it; Step 2 does not mention it; publish test still runs | `publish-github.md:17` “publish is the only step”; `:19-29` marker + Changes table + Review details. `SKILL.md:138` Step 5; Step 2 `:88-107` has no `walkthrough`. `test_walkthrough_publish_is_one_idempotent_upsert` `:411-413`. | ✅ |
+| Tests deleted `2515039c..b79419ee` | None except HTML-artifact assertions | No `def test_` removed (44 remain). Removed: `RENDER_HTML` import; `run_script(RENDER_HTML)` + `review.html` asserts (`Repair plan`, Path, `Prompt for AI`, `ai_prompt`) in `test_prompt_and_schema_carry_no_reporting_only_obligations`; fixture `walkthrough.md` writes in contract + token-metrics helpers. | ✅ |
+
+### Discrimination sensor
+
+Scratch: `git worktree add --detach /tmp/ordr-sensor-p1p2 HEAD`. Real-tree porcelain empty before and after `git worktree remove --force`.
+
+| Mutation | File:line | Description | Killed? |
+| --- | --- | --- | --- |
+| 1 | `render_review.py:47` | Ignore `manifest['mode']`; always emit `full` | ✅ IT-010 `:710` `'(incremental, round 2)' not found` |
+| 2 | `render_review.py:50` | Always emit `Concurrency: unset` | ❌ Survived — `Ran 44 tests` OK |
+| 3 | `render_review.py:208` | Drop `*details` from `review.md` | ✅ IT-010 `:709` `## Review details` missing |
+
+**Sensor**: 2/3 killed — FAIL (surviving mutant = same fallback gap)
+
+### Gate check
+
+- `python3 tools/test_deep_review_contract.py` → `Ran 44 tests in 31.641s` OK
+- `python3 tools/test_deep_review_token_metrics.py` → `Ran 28 tests in 16.531s` OK
+- `bun run test:python` → exit 0
+- `bun test` → 126 pass, 0 fail
+- `node --test tests/installer/*.test.js` → 190 pass, 2 fail: `#39` IT-012 frozen Python fixtures; `#97` IT-011 frozen packet bytes (known on `origin/main`; first parallel run also flaked `#151` ENOENT `.deep-review/metrics-idempotent`, clean re-run 190/2)
+- `bun test tools/shared/tests/deep-review-installation.test.ts` → 1 pass
+- `bun run knowledge` → `0 error(s), 65 warning(s)`
+
+### Ranked gaps
+
+1. Compatibility fallback in `review_details` (`render_review.py:47,50`) — `build_manifest.py:455,459` always writes `mode` and `concurrency`; incomplete fixtures then render `full`/`unset`. Mutant 2 survived the full contract suite. Fix: require the keys (`manifest["mode"]`, `manifest["concurrency"]`) and put them on `render_fixture`.
+
+### Post-fix re-verification (76d7ae4a)
+
+**Date**: 2026-09-10
+**Diff range**: `b79419ee..76d7ae4a`
+**Verifier**: independent sub-agent (author ≠ verifier)
+**Verdict**: PASS
+
+Prior gap (FAIL at `b79419ee`): `review_details` fell back on missing `mode`/`concurrency`; concurrency mutant survived.
+
+| Prior gap | Close | Result |
+| --- | --- | --- |
+| Fallback `.get("mode")` / `.get("concurrency")` | `rg -n '\.get\("mode"\|\.get\("concurrency"' .agents/skills/deep-review/scripts/render_review.py` empty (exit 1). Live keys: `render_review.py:47` `manifest['mode']`; `:50` `manifest['concurrency']`. KeyError → `render_review.py:193-194` `manifest.json lacks key`. | ✅ |
+| Manifest without `concurrency` exits non-zero naming the key | `tools/test_deep_review_contract.py:1167` `assertNotEqual(returncode, 0)`; `:1168` `assertIn("concurrency", result.stderr)` — `test_render_requires_manifest_concurrency`. Fresh run: `Ran 1 test in 0.811s` OK. | ✅ |
+
+**Sensor**: scratch `git worktree add --detach /tmp/ordr-sensor-postfix-76d7 HEAD`. Restored `.get("concurrency", "unset")` at `render_review.py:50`. Killed at `:1167` `AssertionError: 0 == 0`. `git checkout --` then `git worktree remove --force`. Real-tree porcelain unchanged vs baseline (`M validation.md`, `M` two QA files).
+
+**Test integrity**: `b79419ee..76d7ae4a` — contract `def test_` 44→45; new method only; no prior assertion removed.
+
+**Gates (fresh at 76d7ae4a)**:
+- `python3 tools/test_deep_review_contract.py` → `Ran 45 tests in 95.887s` OK
+- `python3 tools/test_deep_review_token_metrics.py` → `Ran 28 tests in 37.146s` OK
+- `bun run test:python` → exit 0
+- `bun test` → 126 pass, 0 fail
+- `node --test tests/installer/*.test.js` → 190 pass, 2 fail: `#39` IT-012 frozen Python fixtures; `#97` IT-011 frozen packet bytes (known)
+- `bun test tools/shared/tests/deep-review-installation.test.ts` → 1 pass
+- `validate_state.py one-round-deep-review` → 0 errors
+
+**Ranked gaps**: none.
