@@ -765,28 +765,30 @@ class DeepReviewContractTests(unittest.TestCase):
         for banned in ("round 3", "Blocker", "Cosmetic", "≤2 rounds"):
             self.assertNotIn(banned, guideline)
 
-    def test_incomplete_defect_or_polish_hunk_coverage_is_rejected(self) -> None:
-        manifest = {
-            "files": [
-                {
-                    "path": "source.txt",
-                    "disposition": "selected",
-                    "hunks": [{"start": 1, "lines": 2, "side": "new"}],
-                }
-            ]
-        }
-        for missing_lane in ("defect", "polish"):
-            present_lane = "polish" if missing_lane == "defect" else "defect"
-            collected = {
-                "hunk_coverage": [
-                    {"lane": present_lane, "file": "source.txt", "hunk": "new:1-2"}
-                ],
-                "rule_coverage": [],
-            }
-            with self.subTest(missing_lane=missing_lane), self.assertRaisesRegex(
-                RuntimeError, f"{missing_lane} coverage incomplete"
-            ):
-                coverage_ledger(manifest, collected)
+    def test_coverage_gate_requires_the_defect_lane_only(self) -> None:
+        # IT-015 (P3 AC1): complete defect-lane coverage merges; a missing defect row is rejected
+        files = [{"path": "source.txt", "disposition": "selected", "status": "M", "adds": 1, "dels": 0,
+                  "hunks": [{"start": 1, "lines": 1, "side": "new"}]}]
+        with self.assertRaisesRegex(RuntimeError, "defect coverage incomplete"):
+            coverage_ledger({"files": files}, {"hunk_coverage": [], "rule_coverage": []})
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            hunks = [{"file": "source.txt", "hunk": "new:1-1"}]
+            payload = {**valid_payload(), "coverage": {
+                "hunks": [{**row, "checks": ["defect"], "outcome": "clear"} for row in hunks], "rules": [],
+            }}
+            out = write_job_round(root, payload=payload, job={
+                "label": "cohort-a", "kind": "cohort", "lane": "defect",
+                "coverage_check": "defect", "required_hunks": hunks,
+            })
+            manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+            (out / "manifest.json").write_text(json.dumps({**manifest, "files": files}), encoding="utf-8")
+            merged = run_script(MERGE_FINDINGS, root, "--out", str(out))
+            self.assertEqual(merged.returncode, 0, merged.stdout + merged.stderr)
+            lanes = json.loads((out / "review-stats.json").read_text(encoding="utf-8"))["coverage"]["lanes"]
+            self.assertTrue(lanes["defect"]["complete"])
+            self.assertNotIn("polish", lanes)
 
     def test_validate_only_rejects_source_drift_before_accepting_valid_output(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

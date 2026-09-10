@@ -343,9 +343,9 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] Defect-lane-complete outputs merge with exit 0 and `review-stats.json` has no `lanes.polish`
-- [ ] Gate check passes: `python3 tools/test_deep_review_contract.py`
-- [ ] Test count: 27 tests pass (existing polish-coverage test rewritten to the defect-only contract, not deleted)
+- [x] Defect-lane-complete outputs merge with exit 0 and `review-stats.json` has no `lanes.polish`
+- [x] Gate check passes: `python3 tools/test_deep_review_contract.py`
+- [x] Test count: 27 tests pass (existing polish-coverage test rewritten to the defect-only contract, not deleted) — actual: 28
 
 **Tests**: integration — IT-015
 **Gate**: quick

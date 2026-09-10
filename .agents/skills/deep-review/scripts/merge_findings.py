@@ -88,7 +88,7 @@ def collect(repo: Path, out: Path) -> dict[str, list[dict]]:
                     "fingerprint": fingerprint(decorated),
                     **decorated,
                 })
-        for item in payload["suppressions"]:
+        for item in payload.get("suppressions", []):
             results["suppressions"].append({
                 "source_job": job["label"], "lane": job["lane"], **item,
             })
@@ -96,7 +96,7 @@ def collect(repo: Path, out: Path) -> dict[str, list[dict]]:
             results["hunk_coverage"].append({
                 "source_job": job["label"], "lane": job["lane"], **item,
             })
-        for item in payload["coverage"]["rules"]:
+        for item in payload["coverage"].get("rules", []):
             results["rule_coverage"].append({
                 "source_job": job["label"], "lane": job["lane"], **item,
             })
@@ -207,10 +207,7 @@ def coverage_ledger(manifest: dict, collected: dict[str, list[dict]]) -> dict:
             expected += hunk_lines(file["path"], hunk_text(hunk))
 
     lane_stats = {}
-    # SPEC_DEVIATION: merge_findings.py is outside T7's file list.
-    # Reason: P2 AC3 makes the incremental round defect-lane only; T10 removes the polish lane everywhere.
-    lanes = ("defect",) if manifest.get("mode") == "incremental" else ("defect", "polish")
-    for lane in lanes:
+    for lane in ("defect",):
         actual = Counter()
         rows = [row for row in collected["hunk_coverage"] if row["lane"] == lane]
         for row in rows:

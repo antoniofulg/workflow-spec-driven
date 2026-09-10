@@ -166,12 +166,12 @@ jobs, prompts contain no `RULE COVERAGE`, `graft-context.md` is one line.
 | ORDR-05 | P2: repair plan rendered; ledger carries certificate (AC 1–2) | Execute | Implementing |
 | ORDR-06 | P2: incremental mode = one remediation-check job with prior findings (AC 3–6) | Execute | Implementing |
 | ORDR-07 | P2: guideline rule and vocabulary (AC 7–8) | Execute | Implementing |
-| ORDR-08 | P3: polish lane removed; advisories incidental (AC 1–2) | Design | Pending |
-| ORDR-09 | P3: `tests`/`spec-parity` sweeps and Spec conformance removed (AC 3–4) | Design | Pending |
-| ORDR-10 | P3: prompt/schema diet (AC 5) | Design | Pending |
-| ORDR-11 | P3: cohort floor (AC 6) | Design | Pending |
-| ORDR-12 | P3: knowledge discovery restricted and reused (AC 7–8) | Design | Pending |
-| ORDR-13 | P3: Graft opt-in (AC 9) | Design | Pending |
+| ORDR-08 | P3: polish lane removed; advisories incidental (AC 1–2) | Execute | Implementing |
+| ORDR-09 | P3: `tests`/`spec-parity` sweeps and Spec conformance removed (AC 3–4) | Execute | Implementing |
+| ORDR-10 | P3: prompt/schema diet (AC 5) | Execute | Implementing |
+| ORDR-11 | P3: cohort floor (AC 6) | Execute | Implementing |
+| ORDR-12 | P3: knowledge discovery restricted and reused (AC 7–8) | Execute | Implementing |
+| ORDR-13 | P3: Graft opt-in (AC 9) | Execute | Implementing |
 
 **Coverage:** 13 total, 0 mapped to tasks, 13 unmapped ⚠️
 
