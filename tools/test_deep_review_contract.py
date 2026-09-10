@@ -944,16 +944,27 @@ class DeepReviewContractTests(unittest.TestCase):
                     self.assertEqual(html.returncode, 0, html.stdout + html.stderr)
 
     def test_skill_candidacy_requires_explicit_dispatch(self) -> None:
-        # UT-005 (P3 AC7)
+        # UT-005 (P3 AC7; a skill whose own files are in the diff is a knowledge source)
         with tempfile.TemporaryDirectory() as raw:
             root = init_repo(raw)
-            for name, description in (("alpha", "Alpha helper."), ("beta", "Review source.txt source files.")):
+            skills = (("alpha", "Alpha helper."), ("beta", "Review source.txt source files."), ("gamma", "Gamma helper."))
+            for name, description in skills:
                 skill = root / ".agents" / "skills" / name / "SKILL.md"
                 skill.parent.mkdir(parents=True)
                 skill.write_text(f"---\nname: {name}\ndescription: {description}\n---\n# {name}\n", encoding="utf-8")
-            git(root, "add", ".agents")
+            (root / "AGENTS.md").write_text("# Agents\n\nUse the alpha skill.\n", encoding="utf-8")
+            git(root, "add", ".agents", "AGENTS.md")
             git(root, "commit", "-qm", "chore: skills")
-            out, _ = knowledge_round_one(root)
+            base = git(root, "rev-parse", "HEAD")
+            script = root / ".agents" / "skills" / "gamma" / "scripts" / "x.py"
+            script.parent.mkdir()
+            script.write_text("print('x')\n", encoding="utf-8")
+            (root / "source.txt").write_text("a\nb\n", encoding="utf-8")
+            git(root, "add", ".agents", "source.txt")
+            git(root, "commit", "-qm", "feat: change")
+            out = root / ".deep-review" / "out"
+            manifest = run_script(BUILD_MANIFEST, root, "--out", str(out), "--base", base)
+            self.assertEqual(manifest.returncode, 0, manifest.stdout + manifest.stderr)
             result = run_script(BUILD_KNOWLEDGE, root, "--out", str(out))
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             sources = {s["path"]: s for s in json.loads((out / "knowledge.json").read_text(encoding="utf-8"))["sources"]}
@@ -961,6 +972,10 @@ class DeepReviewContractTests(unittest.TestCase):
             beta = sources[".agents/skills/beta/SKILL.md"]
             self.assertFalse(beta["candidate"])
             self.assertEqual(beta["candidate_reason"], "no explicit dispatch")
+            gamma = sources[".agents/skills/gamma/SKILL.md"]
+            self.assertTrue(gamma["candidate"])
+            self.assertIn("skill directory contains", gamma["candidate_reason"])
+            self.assertEqual(gamma["applies_to"], [".agents/skills/gamma/scripts/x.py"])
 
     def test_rules_reused_when_no_applied_source_changed(self) -> None:
         # IT-016 (P3 AC8)

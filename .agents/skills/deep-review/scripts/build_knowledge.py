@@ -3,8 +3,9 @@
 
 Builds knowledge.json from the selected manifest paths and creates a
 rules.template.json accounting skeleton. Root/nested AGENTS.md and CLAUDE.md
-are directory-scoped. Repo-local SKILL.md files are candidates only when an
-applicable instruction explicitly dispatches them. Direct markdown references
+are directory-scoped. Repo-local SKILL.md files are candidates when an
+applicable instruction explicitly dispatches them or when a selected path lies
+under the skill's directory. Direct markdown references
 of candidate skills are included so their load decision is also auditable.
 
 In incremental mode, when no source marked applied in the prior round's
@@ -226,9 +227,16 @@ def main() -> int:
             dispatch_sources, dispatched_paths = explicit_dispatches(
                 name, path, instructions, instruction_text
             )
-            candidate = bool(dispatch_sources)
-            reason = f"explicitly dispatched by {', '.join(dispatch_sources)}" if candidate else "no explicit dispatch"
-            applies_to = dispatched_paths if candidate else []
+            skill_dir_rel = rel(skill.parent, repo)
+            under_skill = [item for item in selected if item.startswith(skill_dir_rel + "/")]
+            if dispatch_sources:
+                candidate, applies_to = True, dispatched_paths
+                reason = f"explicitly dispatched by {', '.join(dispatch_sources)}"
+            elif under_skill:  # a skill whose own files are under review is a knowledge source
+                candidate, applies_to = True, under_skill
+                reason = f"skill directory contains {len(under_skill)} selected path(s)"
+            else:
+                candidate, applies_to, reason = False, [], "no explicit dispatch"
             ref_paths = direct_references(skill, repo, text)
             skills.append({
                 "path": path,
