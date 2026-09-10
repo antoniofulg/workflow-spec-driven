@@ -264,7 +264,7 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 - [x] Gate check passes: `python3 tools/test_deep_review_contract.py`
 - [x] Test count: 25 tests pass
 
-**Tests**: integration — IT-006, IT-007, IT-010, IT-019
+**Tests**: integration — IT-006, IT-007, IT-010, IT-019, IT-022, IT-023
 **Gate**: quick
 
 **Commit**: `feat(deep-review): build a single remediation-check job in incremental mode`

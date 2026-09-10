@@ -581,19 +581,22 @@ class DeepReviewContractTests(unittest.TestCase):
             review = (out / "review.md").read_text(encoding="utf-8")
             self.assertNotIn("Prompt for AI Agents", review)
 
-            def block(item: dict) -> str:
+            def repair_plan(item: dict) -> str:
                 before = review.split(f"<!-- deep-review:fp:{item['fingerprint']} -->", 1)[0]
-                return before.rsplit(f"**{item['title']}.**", 1)[1]
+                finding_block = before.rsplit(f"**{item['title']}.**", 1)[1]
+                self.assertIn("<summary>🛠️ Repair plan</summary>", finding_block)
+                plan = finding_block.rsplit("<summary>🛠️ Repair plan</summary>", 1)[1]
+                return plan.split("</details>", 1)[0]
 
             for item in findings:
-                text = block(item)
-                self.assertIn("Repair plan", text)
-                self.assertIn(f"{item['severity']} caller skips the guard", text)
+                plan = repair_plan(item)
+                self.assertIn(f"{item['severity']} caller skips the guard", plan)
                 for anchor in item["also_applies"]:
-                    self.assertIn(anchor, text)
-                self.assertIn("grep", text)
-                self.assertIn("fails on the Premise", text)
-            self.assertIn("Suggested change: add_guard()", block(findings[1]))
+                    self.assertIn(anchor, plan)
+                self.assertIn(f"{item['file']}:{item['line']}", plan)
+                self.assertIn("grep", plan)
+                self.assertIn("fails on the Premise", plan)
+            self.assertIn("Suggested change: add_guard()", repair_plan(findings[1]))
 
     def test_ledger_open_entries_carry_certificate(self) -> None:
         # IT-005 (P2 AC2)
@@ -671,6 +674,76 @@ class DeepReviewContractTests(unittest.TestCase):
             self.assertEqual(state["ledger"]["fp-major"]["status"], "resolved")
             self.assertEqual(state["ledger"]["fp-major"]["resolved_in"], info["head"])
             self.assertEqual(state["rounds"][-1]["verdict"], "SHIP")
+
+    def test_incremental_round_with_empty_selection_keeps_prior_findings_open(self) -> None:
+        # IT-022 (edge: fix touched only ignored paths)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            base = git(root, "rev-parse", "HEAD")
+            out = render_fixture(root, [finding("major")])
+            first = run_script(RENDER_REVIEW, root, "--out", str(out))
+            self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+            before = json.loads((out / "state.json").read_text(encoding="utf-8"))["ledger"]
+            self.assertEqual(before["fp-major"]["status"], "open")
+
+            (root / "foo.lock").write_text("lockfile\n", encoding="utf-8")
+            git(root, "add", "foo.lock")
+            git(root, "commit", "-qm", "chore: bump lockfile")
+            result = run_script(BUILD_MANIFEST, root, "--out", str(out), "--base", base)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("nothing selected", result.stdout)
+            manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+            self.assertEqual(manifest["mode"], "incremental")
+            self.assertEqual([f for f in manifest["files"] if f["disposition"] == "selected"], [])
+            after = json.loads((out / "state.json").read_text(encoding="utf-8"))["ledger"]
+            self.assertEqual(after, before)
+            self.assertEqual(after["fp-major"]["status"], "open")
+
+    def test_open_disposition_and_new_defect_at_same_anchor_both_appear(self) -> None:
+        # IT-023 (edge: prior stays visible next to a distinct new defect at the same anchor)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out, info = incremental_fixture(root, sweeps=[])
+            job = json.loads((out / "jobs.json").read_text(encoding="utf-8"))["jobs"][0]
+            new_defect = {
+                "file": "source.txt", "line": 1, "end_line": None, "in_diff": False, "hunk": None,
+                "category": "potential-issue", "severity": "major", "quick_win": False, "rule_ids": [],
+                "title": "Guard rejects the wrong account",
+                "body": "The new guard compares the wrong identifier.",
+                "evidence": ["Premise: guard compares ids → Path: caller passes the owner id → Verdict: blocked."],
+            }
+            payload = {
+                **valid_payload(),
+                "defects": [new_defect],
+                "coverage": {
+                    "hunks": [{**row, "checks": ["defect"], "outcome": "reported"} for row in job["required_hunks"]],
+                    "rules": [],
+                },
+                "prior_findings": [
+                    {"fingerprint": "fp-major", "status": "open", "evidence": "source.txt:1 → guard still skipped"}
+                ],
+            }
+            (root / job["output"]).write_text(json.dumps(payload), encoding="utf-8")
+            merged = run_script(MERGE_FINDINGS, root, "--out", str(out))
+            self.assertEqual(merged.returncode, 0, merged.stdout + merged.stderr)
+            ledger = json.loads((out / "findings.json").read_text(encoding="utf-8"))
+            new = [f for f in ledger["findings"] if f["title"] == new_defect["title"]]
+            self.assertEqual(len(new), 1)
+            self.assertEqual(new[0]["round_status"], "new")
+            self.assertNotEqual(new[0]["fingerprint"], "fp-major")
+            self.assertIn("fp-major", ledger["reconciliation"]["still_open_unreviewed"])
+            self.assertNotIn("fp-major", ledger["reconciliation"]["resolved"])
+
+            rendered = run_script(RENDER_REVIEW, root, "--out", str(out))
+            self.assertEqual(rendered.returncode, 0, rendered.stdout + rendered.stderr)
+            review = (out / "review.md").read_text(encoding="utf-8")
+            self.assertIn("**Verdict: FIX_BEFORE_SHIP**", review)
+            self.assertIn(f"<!-- deep-review:fp:{new[0]['fingerprint']} -->", review)
+            duplicates = review.split("## Duplicates", 1)[1].split("## Advisories", 1)[0]
+            self.assertIn(info["major"]["title"], duplicates)
+            state = json.loads((out / "state.json").read_text(encoding="utf-8"))["ledger"]
+            self.assertEqual(state["fp-major"]["status"], "open")
+            self.assertEqual(state[new[0]["fingerprint"]]["status"], "open")
 
     def test_incremental_mode_with_no_open_prior_findings_still_emits_one_job(self) -> None:
         # IT-019 (edge: empty prior set)

@@ -39,9 +39,12 @@ real scripts via `run_script`). Every case below extends that file. Run: `python
 | IT-018 | Graft opt-in (ORDR-13, P3 AC9) | no `.deep-review.yaml`; `build_jobs.py` | `graft-context.md` is the single fallback line; no `graft` subprocess (assert via `PATH` shim that fails if invoked) |
 | IT-019 | Empty prior set still yields one job (edge) | incremental round with a ledger of only `resolved` entries | one job; prompt contains `No prior findings to disposition` |
 | IT-020 | Guideline text (ORDR-07, P2 AC7–8) | read `docs/guidelines/REVIEW-ROUNDS.md` | contains `remediation check`, `stall_attempts`; contains none of `round 3`, `Blocker`, `Cosmetic`, `≤2 rounds` |
+| IT-022 | Empty incremental selection keeps prior findings open (edge) | round-1 state with one open Major; fix commit touches only `foo.lock` (excluded by default filters); `build_manifest.py` | stdout contains `nothing selected`; manifest `mode == "incremental"` with zero selected files; `state.json` ledger unchanged, entry still `open` |
+| IT-023 | Open disposition and a distinct new defect at the same anchor both appear (edge) | remediation output with `prior_findings=[{fp, open, evidence}]` plus one new defect at the prior anchor with a different title; `merge_findings.py` then `render_review.py` | new defect `round_status == "new"` with a different fingerprint; prior fp in `still_open_unreviewed`, not `resolved`; verdict `FIX_BEFORE_SHIP`; `review.md` carries the new fp marker and lists the prior under Duplicates; both ledger entries `open` |
 
 IT-020 asserts documentation content; it is allowed because `REVIEW-ROUNDS.md` is the product contract
-for the remediation rule and no stronger gate owns it (`TEST-CONTRACT.md` exception).
+for the remediation rule and no stronger gate owns it (`TEST-CONTRACT.md` exception). IT-022 and IT-023
+cover the two remaining spec Edge Cases and belong to T7.
 
 ## End-to-end
 
