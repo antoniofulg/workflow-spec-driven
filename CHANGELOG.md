@@ -23,9 +23,18 @@ All notable changes to this project are documented here.
 
 ### Migration
 
-- No file changes are required. Re-read `docs/guidelines/VERIFICATION-EVIDENCE.md` `## Scoped PASS`
-  and the readiness table in `.agents/skills/autonomous/SKILL.md`. Consumer tests that pin pack text
-  or hashes may need their expected values refreshed.
+- Re-read `docs/guidelines/VERIFICATION-EVIDENCE.md` `## Scoped PASS` and the readiness table in
+  `.agents/skills/autonomous/SKILL.md`. Consumer tests that pin pack text or hashes may need their
+  expected values refreshed.
+- Upgrading from 0.10.0 also applies the 0.10.1 runtime move, which that release did not list. The
+  installer retires the old paths; repoint consumer references before running it:
+  - `tools/knowledge/src/cli.ts`, `tools/knowledge/src/check.ts`, `tools/shared/src/frontmatter.ts`
+    → `.agents/skills/knowledge-check/scripts/`. The `knowledge` script becomes
+    `bun .agents/skills/knowledge-check/scripts/cli.ts`.
+  - `tools/resource_lock.py`, `tools/orca_assisted_probe.py`, `tools/qa_parallel_pilot.py`
+    → `.agents/skills/autonomous/scripts/`.
+  - `.agents/skills/deep-review/scripts/render_html.py` and `assets/REVIEW_UI.html` are removed;
+    `templates/adoption/agents/*` is no longer installed.
 
 ## [0.10.1] - 2026-09-08
 
