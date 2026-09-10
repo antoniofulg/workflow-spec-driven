@@ -10,7 +10,7 @@ sources:
   - id: ui-contract
     resource: ../../../docs/guidelines/UI-UX.md
     title: UI/UX Surface Map
-    last_modified: 2026-09-07
+    last_modified: 2026-09-09
   - id: frontend-ownership
     resource: ../../../docs/guidelines/FRONTEND.md
     title: Front-End Engineering
