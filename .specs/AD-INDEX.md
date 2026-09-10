@@ -37,3 +37,5 @@ When recording an `AD-NNN`, run the bundled workflow-spec-driven ad-index.py in 
 | `AD-028` | active | Each workflow phase (Specify, Design, Tasks, Implement, Verify) is its own skill (`wspecify`, `wdesign`, `wtasks`, `wimplement`, `wverify`)… |
 | `AD-029` | active | `designer` is a delegated matrix role that owns mockups and `uiux-review.md`; Claude runs it on `inherit`. |
 | `AD-030` | active | The canonical consumer installer is the unscoped `workflow-spec-driven` npm package and homonymous Node.js 18 executable. |
+| `AD-031` | active | Deep-review runs one discovery review per implementation group. |
+| `AD-032` | active | `one-round-deep-review` is delivered with `bun run test:all` red only on `tests/installer` `IT-011` (frozen canonical packet bytes) and `IT… |

@@ -24,7 +24,7 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 
-from _common import check_freeze, load_jobs, repo_root, validate_job_output, write_json
+from _common import check_freeze, load_jobs, rel, repo_root, validate_job_output, write_json
 from token_metrics import (
     checkpoint_metrics,
     finalize_metrics,
@@ -68,6 +68,23 @@ def manifest_concurrency(out: Path) -> int:
     return value
 
 
+def blocked_pattern(stdout_text: str, stderr_text: str, patterns: list[str]) -> str | None:
+    """Match block patterns in structured error events and raw non-JSON/stderr lines — never in tool output."""
+    def hit(text: str) -> str | None:
+        return next((pattern for pattern in patterns if pattern in text), None)
+
+    for line in stdout_text.splitlines():
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            found = hit(line)  # unknown transport: the raw line is the signal
+        else:
+            found = hit(line) if isinstance(event, dict) and event.get("type") in {"error", "turn.failed"} else None
+        if found:
+            return found
+    return hit(stderr_text)
+
+
 def record_block(label: str, reason: str) -> None:
     with STOP_LOCK:
         STOP_EVENT.set()
@@ -75,13 +92,28 @@ def record_block(label: str, reason: str) -> None:
         STOP_REASON.setdefault("label", label)
 
 
-def render_command(template: str, job: dict) -> list[str]:
+def render_command(template: str, job: dict, prompt: str) -> list[str]:
     return [
-        token.replace("{prompt}", job["prompt"])
+        token.replace("{prompt}", prompt)
         .replace("{output}", job["output"])
         .replace("{label}", job["label"])
         for token in shlex.split(template)
     ]
+
+
+def repair_prompt(repo: Path, out: Path, job: dict, attempt: int, error: str, invalid: Path) -> str:
+    """Keep the invalid artifact and write the prompt that fixes it instead of re-reviewing."""
+    path = out / "prompts" / f"{job['label']}.repair-{attempt}.md"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        f"Original prompt: `{job['prompt']}`\nInvalid artifact: `{rel(invalid, repo)}`\n"
+        f"Output file: `{job['output']}`\nValidation errors:\n{error}\n\n"
+        "Your previous artifact failed validation for the reasons above. Do not re-review. Read the "
+        "invalid artifact, correct only what the errors name, keep every finding, disposition and "
+        "coverage row otherwise unchanged, and rewrite the output file.\n",
+        encoding="utf-8",
+    )
+    return rel(path, repo)
 
 
 def run_one(repo: Path, out: Path, job: dict, args) -> dict:
@@ -93,7 +125,7 @@ def run_one(repo: Path, out: Path, job: dict, args) -> dict:
         return {"label": label, "status": "pass", "attempt": 0, "preserved": True}
 
     runs_dir = out / "runs"
-    last_error, exit_code = "not run", None
+    last_error, exit_code, prompt = "not run", None, job["prompt"]
     for attempt in range(1, args.attempts + 1):
         if STOP_EVENT.is_set():
             return {"label": label, "status": "blocked", "attempt": attempt - 1,
@@ -106,7 +138,7 @@ def run_one(repo: Path, out: Path, job: dict, args) -> dict:
         with stdout_path.open("w", encoding="utf-8") as out_file, stderr_path.open("w", encoding="utf-8") as err_file:
             try:
                 completed = subprocess.run(
-                    render_command(args.command, job), cwd=repo, stdout=out_file, stderr=err_file,
+                    render_command(args.command, job, prompt), cwd=repo, stdout=out_file, stderr=err_file,
                     check=False, timeout=args.timeout_min * 60,
                 )
                 exit_code = completed.returncode
@@ -115,10 +147,16 @@ def run_one(repo: Path, out: Path, job: dict, args) -> dict:
                 last_error = f"runner timeout after {args.timeout_min}m"
                 say(f"RETRY {label} attempt={attempt} reason={last_error}")
                 continue
-        streams = stdout_path.read_text(encoding="utf-8", errors="replace") + stderr_path.read_text(encoding="utf-8", errors="replace")
-        blocked_on = next((pattern for pattern in args.block_on if pattern in streams), None)
+        blocked_on = blocked_pattern(
+            stdout_path.read_text(encoding="utf-8", errors="replace"),
+            stderr_path.read_text(encoding="utf-8", errors="replace"),
+            args.block_on,
+        )
         if blocked_on:
-            record_block(label, blocked_on)
+            record_block(label, blocked_on)  # stop refilling slots even when this artifact landed
+            if job_state(repo, out, job)[0] == "valid":
+                say(f"PASS {label} attempt={attempt} (block {blocked_on} after a valid artifact)")
+                return {"label": label, "status": "pass", "attempt": attempt, "exit_code": exit_code}
             say(f"BLOCKED {label} pattern={blocked_on}")
             return {"label": label, "status": "blocked", "attempt": attempt, "exit_code": exit_code, "error": blocked_on}
         if exit_code != 0:
@@ -129,6 +167,11 @@ def run_one(repo: Path, out: Path, job: dict, args) -> dict:
                 say(f"PASS {label} attempt={attempt}")
                 return {"label": label, "status": "pass", "attempt": attempt, "exit_code": 0}
             last_error = reason or "output invalid"
+            if attempt < args.attempts:  # keep the invalid artifact; the next attempt repairs it
+                kept = output.with_name(f"{output.name}.attempt-{attempt}-invalid.json")
+                output.replace(kept)
+                prompt = repair_prompt(repo, out, job, attempt + 1, reason, kept)
+                say(f"REPAIR {label} attempt={attempt + 1}")
         say(f"RETRY {label} attempt={attempt} reason={last_error}")
     return {"label": label, "status": "fail", "attempt": args.attempts, "exit_code": exit_code, "error": last_error}
 

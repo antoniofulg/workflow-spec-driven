@@ -18,7 +18,7 @@ from pathlib import Path
 SKILL_DIR = Path(__file__).resolve().parent.parent
 ASSETS_DIR = SKILL_DIR / "assets"
 SEVERITY_RANK = {"trivial": 0, "minor": 1, "major": 2, "critical": 3}
-KNOWN_KINDS = {"cohort", "polish", "sweep"}
+KNOWN_KINDS = {"cohort", "sweep"}
 
 
 # ---------- paths / IO ----------
@@ -230,9 +230,30 @@ def findings_contract_errors(payload: dict) -> list[str]:
 
 
 def job_contract_errors(payload: dict, job: dict) -> list[str]:
-    """Validate lane ownership, hunk coverage, and rule accountability."""
+    """Validate lane ownership, hunk coverage, rule-id sanity, and
+    prior-finding dispositions (exactly one row per job.prior_fingerprints,
+    never a defect re-reported at a prior anchor)."""
     errors: list[str] = []
     lane = str(job.get("lane", ""))
+    expected_prior = set(job.get("prior_fingerprints", []))
+    actual_prior = [str(row.get("fingerprint")) for row in payload.get("prior_findings", [])]
+    if len(actual_prior) != len(set(actual_prior)):
+        errors.append("$.prior_findings: duplicate fingerprint rows")
+    if set(actual_prior) != expected_prior:
+        errors.append(
+            "$.prior_findings: disposition mismatch "
+            f"missing={sorted(expected_prior - set(actual_prior))[:6]} "
+            f"extra={sorted(set(actual_prior) - expected_prior)[:6]}"
+        )
+    prior_anchors = {
+        (str(row["file"]), row.get("line")): row["fingerprint"] for row in job.get("prior_anchors", [])
+    }
+    for index, item in enumerate(payload.get("defects", [])):
+        prior = prior_anchors.get((str(item.get("file")), item.get("line")))
+        if prior:
+            errors.append(
+                f"$.defects[{index}]: re-reports prior finding {prior}; disposition it in prior_findings instead"
+            )
     expected_hunks = {
         (str(row["file"]), str(row["hunk"])) for row in job.get("required_hunks", [])
     }
@@ -247,40 +268,28 @@ def job_contract_errors(payload: dict, job: dict) -> list[str]:
             f"missing={sorted(expected_hunks - actual_set)[:6]} "
             f"extra={sorted(actual_set - expected_hunks)[:6]}"
         )
-    coverage_check = str(job.get("coverage_check", lane))
-    for index, row in enumerate(rows):
-        if coverage_check and coverage_check not in row.get("checks", []):
-            errors.append(
-                f"$.coverage.hunks[{index}].checks: missing required check {coverage_check!r}"
-            )
 
     expected_rules = set(job.get("rule_ids", []))
     rule_rows = payload.get("coverage", {}).get("rules", [])
     actual_rules = [str(row.get("rule_id")) for row in rule_rows]
     if len(actual_rules) != len(set(actual_rules)):
         errors.append("$.coverage.rules: duplicate rule_id rows")
-    if set(actual_rules) != expected_rules:
-        errors.append(
-            "$.coverage.rules: assignment mismatch "
-            f"missing={sorted(expected_rules - set(actual_rules))[:6]} "
-            f"extra={sorted(set(actual_rules) - expected_rules)[:6]}"
-        )
 
-    if lane == "defect" and payload.get("advisories"):
-        errors.append("$.advisories: defect jobs must leave advisory discovery to the polish lane")
-    if lane == "polish" and payload.get("defects"):
-        errors.append("$.defects: polish jobs must leave defect discovery to the defect lane")
-    if lane in {"defect", "polish"}:
-        for result_kind in ("defects", "advisories"):
-            for index, item in enumerate(payload.get(result_kind, [])):
-                if item.get("in_diff") and (item.get("file"), item.get("hunk")) not in expected_hunks:
-                    errors.append(
-                        f"$.{result_kind}[{index}]: in-diff anchor is outside job ownership"
-                    )
+    cohort_hunks = {(str(row["file"]), str(row["hunk"])) for row in job.get("cohort_hunks", [])}
+    for result_kind in ("defects", "advisories"):
+        for index, item in enumerate(payload.get(result_kind, [])):
+            if not item.get("in_diff"):
+                continue
+            anchor = (item.get("file"), item.get("hunk"))
+            if lane == "defect" and anchor not in expected_hunks:
+                errors.append(f"$.{result_kind}[{index}]: in-diff anchor is outside job ownership")
+            spread = {ref.rsplit(":", 1)[0] for ref in item.get("also_applies") or []}
+            if lane == "sweep" and anchor in cohort_hunks and len(spread) < 2:
+                errors.append(f"$.{result_kind}[{index}]: single-cohort result belongs to the cohort lane")
     assigned_rules = expected_rules
     for result_kind in ("defects", "advisories", "suppressions"):
         for index, item in enumerate(payload.get(result_kind, [])):
-            unknown = set(item.get("rule_ids", [])) - assigned_rules
+            unknown = set(item.get("rule_ids") or []) - assigned_rules
             if unknown:
                 errors.append(
                     f"$.{result_kind}[{index}].rule_ids: unassigned ids {sorted(unknown)}"

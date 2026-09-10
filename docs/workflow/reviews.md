@@ -21,7 +21,7 @@ Remediation identity, independent counters, and halt behavior follow `REVIEW-ROU
 | **Technical Verifier** | Do the tests actually prove the spec? | Fingerprint-scoped; halt on third failed remediation |
 | **QA Plan** | Which public promises need a walk? | One fresh Verifier session |
 | **QA Execute** | Does this behaviour work through the declared adapter? | One fresh Verifier session |
-| **Deep-review** (resolved groups) | Is the code correct, safe, maintainable? | ≤2 rounds, Blocker/Major only |
+| **Deep-review** (resolved groups) | Is the code correct, safe, maintainable? | Discovery once; remediation checks until no Critical/Major is open or `stall_attempts` halts |
 | **QA session** (feature closing step) | Does the finished feature feel right? | One `qa-plan` and one `qa-execute` session |
 
 A documentation-only slice follows the proportional classifier in [GATES.md](../guidelines/GATES.md):
@@ -35,8 +35,9 @@ distinct author and proof identities; the last implementer supplies a handoff an
 the integrated result.
 
 They do not send work back to each other. A deep-review finding never restarts the Verifier. A
-round-2 blocker is fixed under the approved loop and its scoped gate; the cap does not open round 3.
-Post-cap remediation follows the stall bound: each attempt runs the scoped gate, a smaller failing
+Critical/Major finding is fixed under the approved loop and its scoped gate, then proven by a one-job
+remediation check (incremental deep-review); batch and check repeat until none is open or
+`stall_attempts` halts. Remediation follows the stall bound: each attempt runs the scoped gate, a smaller failing
 test set resets the counter, and an equal-size or larger set increments it. An unavailable gate
 halts immediately; a reached nonzero threshold halts with the normalized signature, attempt count,
 and fixes tried. If a deep-review fix changes user-visible behaviour, re-walk **the affected scenario
@@ -44,15 +45,15 @@ rows only**.
 
 ## What blocks, what files
 
-| Severity | Another round? | Feature delivery |
+| Severity | Remediation check? | Feature delivery |
 | --- | --- | --- |
-| `Blocker` | Yes | Fix now |
+| `Critical` | Yes | Fix now |
 | `Major` | Yes | Fix now |
 | `Minor` | No | Fix in one current-run batch, scoped gate, one commit |
-| `Cosmetic` | No | File an issue |
+| `Trivial` | No | File an issue |
 
 Every deep-review defect is fixed inside the feature run. Minor fixes start no new proof round.
-Filed Cosmetic issues are real backlog, not a disposal bin; they do **not** re-enter Verifier + QA +
+Filed Trivial issues are real backlog, not a disposal bin; they do **not** re-enter Verifier + QA +
 deep-review because that ceremony already happened.
 
 A user-visible fix still flags and walks its scenario. A fix that grows into a design or schema
@@ -73,6 +74,6 @@ and `uiux.md` / `dx.md` field by field. Paraphrase is not parity.
 fresh command. Scope binds — unit tests do not justify “feature complete”. A passing review over a
 red gate is void.
 
-Escalate when the post-cap gate is unavailable or the configured stall threshold is reached. An
-open blocker alone does not halt while remediation is making measurable progress. A halt report is
+Escalate when the scoped gate is unavailable or the configured stall threshold is reached. An
+open Critical alone does not halt while remediation is making measurable progress. A halt report is
 a result.

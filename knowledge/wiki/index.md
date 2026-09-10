@@ -26,6 +26,7 @@ Add a concept when a source earns one.
 
 # Concepts
 
+* [Deep review cadence](decisions/deep-review-cadence.md) - Deep review stays per feature and is gated by size and risk; cost is cut per review, never by batching features.
 * [Workflow runtime ownership](architecture/workflow-runtime-ownership.md) - Keep installer inputs in the package and reusable runtime with its owning skill, preserving product-owned content.
 * [Design reference fidelity](design/design-reference-fidelity.md) - How HTML exports connect visual authority, component reuse, and proportional verification.
 * [Interaction efficiency](design/interaction-efficiency.md) - Connect common completion paths, native form semantics, acceptance criteria, and QA evidence.

@@ -55,6 +55,30 @@ def archive_prior_round(out_dir: Path, round_n: int) -> None:
         print(f"archived round {prior} ({moved} artifacts) -> {archive}")
     marker.write_text(json.dumps({"round": round_n}) + "\n", encoding="utf-8")
 
+
+def archive_stale_outputs(out_dir: Path, round_n: int, snapshot: str) -> None:
+    """A same-round rebuild under a different worktree_snapshot: reviewer
+    outputs anchor to stale lines, so they move aside instead of validating."""
+    manifest_path = out_dir / "manifest.json"
+    if not manifest_path.is_file():
+        return
+    try:
+        prior = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except ValueError:
+        return
+    old = prior.get("worktree_snapshot")
+    if prior.get("round") != round_n or not old or old == snapshot:
+        return
+    outputs = sorted((out_dir / "agents").glob("*.json"))
+    if not outputs:
+        return
+    stale = out_dir / "rounds" / f"round-{round_n}-stale-{old[:12]}"
+    stale.mkdir(parents=True, exist_ok=True)
+    for path in outputs:
+        shutil.move(str(path), str(stale / path.name))
+    print(f"stale outputs archived: {len(outputs)}")
+
+
 DEFAULT_FILTERS = [
     "!.deep-review/**",
     "!**/*.lock", "!**/*.sum", "!**/package-lock.json", "!**/bun.lock", "!**/yarn.lock",
@@ -132,6 +156,17 @@ def parse_concurrency(config_path: Path | None) -> int:
             raise ValueError("concurrency must be an integer from 1 through 6")
         return value
     return DEFAULT_CONCURRENCY
+
+
+def parse_yaml_flag(config_path: Path | None, key: str) -> bool:
+    """Top-level `<key>: true` in the YAML-lite config; anything else is false."""
+    if config_path is None:
+        return False
+    for line in config_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if line.startswith((" ", "\t")) or not re.match(rf"^{re.escape(key)}\s*:", line):
+            continue
+        return line.split(":", 1)[1].split("#", 1)[0].strip() == "true"
+    return False
 
 
 def resolve_concurrency(repo_root: Path, override: int | None) -> tuple[int, str]:
@@ -350,6 +385,8 @@ def main():
                              repo_root, check=False).returncode == 0 and last_head != head:
             mode, effective_base = "incremental", last_head
         diff_command = f"git diff {effective_base[:12]}..{head[:12]} -- <file>"
+    snapshot = freeze_snapshot(repo_root, out_dir.resolve())
+    archive_stale_outputs(out_dir, round_n, snapshot)
     archive_prior_round(out_dir, round_n)
 
     spec = diff_spec(effective_base, head, args.staged, args.worktree)
@@ -414,7 +451,6 @@ def main():
         counts[disposition] += 1
         files.append(rec)
 
-    snapshot = freeze_snapshot(repo_root, out_dir.resolve())
     manifest = {
         "target": target, "mode": "staged" if args.staged else mode, "round": round_n,
         "base": base, "effective_base": effective_base, "head": head,

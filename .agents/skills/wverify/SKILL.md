@@ -163,7 +163,7 @@ Expected: [What should happen - specific and observable]
 
 Wait for the user's response. A confirmation is a pass, an explicit skip is a skip, and anything else is an issue logged verbatim.
 
-**Severity is inferred, never asked.** Rate each issue Blocker / Major / Minor / Cosmetic from what the user described, using the severity scheme in `docs/guidelines/REVIEW-ROUNDS.md`; when the description is too thin to tell, default to Major.
+**Severity is inferred, never asked.** Rate each issue Critical / Major / Minor / Trivial from what the user described, using the severity scheme in `docs/guidelines/REVIEW-ROUNDS.md`; when the description is too thin to tell, default to Major.
 
 ### 8. Generate Fix Plans (if issues found)
 

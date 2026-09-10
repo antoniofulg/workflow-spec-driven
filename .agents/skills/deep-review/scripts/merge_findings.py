@@ -4,8 +4,7 @@
 Mechanically folds every reviewer/sweep output into the canonical ledger —
 no agents involved. Collects defects, advisories, suppressions, and coverage
 from jobs.json outputs (validating each against the schema), merges duplicates
-by union-find (identical fingerprint, or same file + category + overlapping
-line range), and reconciles against any prior state.json ledger: new /
+by identical fingerprint only, and reconciles against any prior state.json ledger: new /
 duplicate (still open from a prior round) / suppressed (dismissed before;
 never re-raised) — plus the resolved sweep for prior findings the fix
 removed. Emits findings.json, the single input render_review.py consumes.
@@ -67,15 +66,10 @@ def anchor(finding: dict) -> str:
     return f"{finding['file']}:{suffix}"
 
 
-def line_span(finding: dict) -> tuple[int, int]:
-    end = finding.get("end_line") or finding["line"]
-    return (min(finding["line"], end), max(finding["line"], end))
-
-
 def collect(repo: Path, out: Path) -> dict[str, list[dict]]:
     results: dict[str, list[dict]] = {
         "defects": [], "advisories": [], "suppressions": [],
-        "hunk_coverage": [], "rule_coverage": [],
+        "hunk_coverage": [], "rule_coverage": [], "dispositions": [],
     }
     for job in load_jobs(out / "jobs.json"):
         try:
@@ -94,7 +88,7 @@ def collect(repo: Path, out: Path) -> dict[str, list[dict]]:
                     "fingerprint": fingerprint(decorated),
                     **decorated,
                 })
-        for item in payload["suppressions"]:
+        for item in payload.get("suppressions", []):
             results["suppressions"].append({
                 "source_job": job["label"], "lane": job["lane"], **item,
             })
@@ -102,15 +96,17 @@ def collect(repo: Path, out: Path) -> dict[str, list[dict]]:
             results["hunk_coverage"].append({
                 "source_job": job["label"], "lane": job["lane"], **item,
             })
-        for item in payload["coverage"]["rules"]:
+        for item in payload["coverage"].get("rules", []):
             results["rule_coverage"].append({
                 "source_job": job["label"], "lane": job["lane"], **item,
             })
+        for item in payload.get("prior_findings", []):
+            results["dispositions"].append({"source_job": job["label"], **item})
     return results
 
 
 def group_duplicates(findings: list[dict]) -> list[list[dict]]:
-    """Union identical fingerprints and same-file/category overlapping ranges."""
+    """Union identical fingerprints only; distinct defects never merge."""
     uf = UnionFind([finding["raw_id"] for finding in findings])
     by_fingerprint: dict[str, list[dict]] = {}
     for finding in findings:
@@ -118,16 +114,6 @@ def group_duplicates(findings: list[dict]) -> list[list[dict]]:
     for members in by_fingerprint.values():
         for member in members[1:]:
             uf.union(members[0]["raw_id"], member["raw_id"])
-    by_bucket: dict[tuple[str, str], list[dict]] = {}
-    for finding in findings:
-        by_bucket.setdefault((finding["file"], finding["category"]), []).append(finding)
-    for members in by_bucket.values():
-        members.sort(key=line_span)
-        reach = None
-        for left, right in zip(members, members[1:]):
-            reach = max(reach or line_span(left)[1], line_span(left)[1])
-            if line_span(right)[0] <= reach:
-                uf.union(left["raw_id"], right["raw_id"])
     grouped: dict[str, list[dict]] = {}
     for finding in findings:
         grouped.setdefault(uf.find(finding["raw_id"]), []).append(finding)
@@ -172,7 +158,7 @@ def raw_ledger_entries(members: list[dict], merged: dict) -> list[dict]:
 
 
 def reconcile(canonical: list[dict], found_fps: set[str], prior_state: dict | None,
-              selected_paths: set[str], manifest_paths: set[str]) -> dict:
+              dispositions: list[dict]) -> dict:
     ledger = (prior_state or {}).get("ledger", {})
     for finding in canonical:
         row = ledger.get(finding["fingerprint"])
@@ -184,17 +170,14 @@ def reconcile(canonical: list[dict], found_fps: set[str], prior_state: dict | No
         else:  # dismissed — overruled before; never re-raise
             finding["round_status"] = "suppressed"
             finding["suppressed_as"] = row["status"]
+    # A prior open finding is resolved only by an explicit reviewer disposition;
+    # absence from the new output never means fixed.
+    resolved_fps = {d["fingerprint"] for d in dispositions if d["status"] == "resolved"}
     resolved, still_open = [], []
     for fp, row in ledger.items():
         if row.get("status") != "open" or fp in found_fps:
             continue
-        # Resolved when the finding's file was re-reviewed (selected) or left the
-        # diff entirely (fix reverted it to base / deleted the change). A file
-        # still in the manifest but not re-reviewed (carried/skipped) stays open.
-        if row.get("file") in selected_paths or row.get("file") not in manifest_paths:
-            resolved.append(fp)
-        else:
-            still_open.append(fp)
+        (resolved if fp in resolved_fps else still_open).append(fp)
     return {
         "resolved": sorted(resolved),
         "still_open_unreviewed": sorted(still_open),
@@ -224,7 +207,7 @@ def coverage_ledger(manifest: dict, collected: dict[str, list[dict]]) -> dict:
             expected += hunk_lines(file["path"], hunk_text(hunk))
 
     lane_stats = {}
-    for lane in ("defect", "polish"):
+    for lane in ("defect",):
         actual = Counter()
         rows = [row for row in collected["hunk_coverage"] if row["lane"] == lane]
         for row in rows:
@@ -280,12 +263,8 @@ def main() -> int:
     canonical_results = [*canonical_by_kind["defects"], *canonical_by_kind["advisories"]]
 
     prior_state = read_json(out / "state.json") if (out / "state.json").is_file() else None
-    selected_paths = {f["path"] for f in manifest["files"] if f["disposition"] == "selected"}
-    manifest_paths = {f["path"] for f in manifest["files"]}
     found_fps = {finding["fingerprint"] for finding in canonical_results}
-    reconciliation = reconcile(
-        canonical_results, found_fps, prior_state, selected_paths, manifest_paths
-    )
+    reconciliation = reconcile(canonical_results, found_fps, prior_state, collected["dispositions"])
 
     raw_count = len(collected["defects"]) + len(collected["advisories"])
     canonical_count = len(canonical_results)
@@ -315,6 +294,7 @@ def main() -> int:
         "findings": canonical_by_kind["defects"],
         "advisories": canonical_by_kind["advisories"],
         "suppressions": collected["suppressions"],
+        "dispositions": collected["dispositions"],
         "coverage": coverage,
         "review_stats": review_stats,
         "raw_ledger": raw_ledger,

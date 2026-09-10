@@ -69,7 +69,7 @@ Copied as orientation; `AGENTS.md` is canonical:
 2. One atomic commit per task.
 3. The Verifier is a different actor than the author.
 4. A round contains only findings not already raised.
-5. Only Blocker and Major trigger another round.
+5. Only Critical and Major trigger a remediation check.
 6. Stages never loop into each other; review caps and post-fix escalation follow `REVIEW-ROUNDS.md`.
 7. Every count or measurement cites the command that produced it.
 

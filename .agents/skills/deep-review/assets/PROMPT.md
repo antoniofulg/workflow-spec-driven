@@ -17,8 +17,6 @@ FILES — you own every listed hunk:
 
 CONTEXT: read `{{context}}` (change intent, knowledge sources, linters, spec contract when present) and `{{taxonomy}}` (defect/advisory grammar and objective suppression rules) in full before judging.
 
-PRODUCT CONTEXT: read `docs/product/AGENT-CONTEXT.md` first. Follow the reviewer/task route and load only cited paths or headings; surface missing required context as a gap.
-
 GRAFT CONTEXT: read `{{graft_context}}` for optional repository map, relevant symbols, and blast-radius orientation. Verify it against the checkout; use plain repository inspection for any fallback paths.
 
 REPO RULES bound to these files — when a result violates one, include its id in `rule_ids` and quote the rule verbatim in `guideline`:
@@ -29,7 +27,9 @@ REVIEW:
 2. INSPECT every owned hunk through the assigned lane. Check every bound repo rule explicitly. When one pattern repeats, search the cohort and enumerate occurrences under one result's `also_applies`.
 3. REFUTE candidates against the checkout. Defects require a named input/state and causal path; their first evidence entry is `Premise: <fact at file:line> → Path: <caller/input/control flow> → Verdict: <failure>`. Advisories require a concrete local benefit and fix; their first entry is `Premise: <fact at file:line> → Improvement: <specific benefit> → Fix: <bounded change>`. Later entries record `command or file:line → what it showed`.
 4. REPORT every survivor in the lane's result array. This review is always assertive: a small advisory survives when it is specific, actionable, and not owned by a formatter or a linter. Assign impact only after refutation. Set `hunk` on every in-diff result; outside-diff results set `in_diff` false and `hunk` null. Fill `suggestion` only with an exact, self-contained replacement.
-5. RECORD every investigated candidate dropped by an objective taxonomy rule in `suppressions`; never silently discard it. Then complete the exact hunk and rule accounting below. A clear hunk still needs a coverage row.
+5. COMPLETE the exact hunk accounting below. A clear hunk still needs a coverage row.
+
+{{prior_findings}}
 
 {{coverage_contract}}
 
@@ -44,13 +44,13 @@ Read `{{context}}`, `{{manifest}}`, and `{{taxonomy}}` in full. Work from the ma
 
 GRAFT CONTEXT: read `{{graft_context}}` for optional repository map, relevant symbols, and blast-radius orientation. Verify it against the checkout; use plain repository inspection for any fallback paths.
 
-REPO RULES applicable across the selected surface — account for every id:
+REPO RULES applicable across the selected surface:
 {{rules_block}}
 
-Find concrete cross-cohort hypotheses through this lens, enumerate every occurrence, then refute each with repository evidence. Put causal failures in `defects` with `Premise → Path → Verdict`; put measurable structural or convention improvements in `advisories` with `Premise → Improvement → Fix`. Record investigated candidates rejected by an objective taxonomy rule in `suppressions`. Cross-cohort results are the point of this sweep — cohort lanes own single-cohort results.{{spec_extra}}
+Find concrete cross-cohort hypotheses through this lens, enumerate every occurrence, then refute each with repository evidence. Put causal failures in `defects` with `Premise → Path → Verdict`; put measurable structural or convention improvements in `advisories` with `Premise → Improvement → Fix`. Record investigated candidates rejected by an objective taxonomy rule in `suppressions`. Cohort lanes own single-cohort results: an in-diff result inside cohort-owned hunks is rejected unless its `also_applies` names anchors in at least two other files.
 
 {{coverage_contract}}
 
 OUTPUT CONTRACT: write ONLY valid JSON matching this schema to `{{output}}` — no other file, nothing to stdout: `{{schema}}`
-Empty result arrays are valid only after the full lens and rule accounting. Validate the JSON before returning; the final response states only that the artifact was written.
+Empty result arrays are valid only after the full lens. Validate the JSON before returning; the final response states only that the artifact was written.
 <!-- /template -->

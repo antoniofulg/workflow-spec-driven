@@ -61,8 +61,8 @@ next one: read the consuming project's product spec against the code that exists
 
 **An issue batch:** read every candidate issue in full with `gh issue view`. Labels here are sparse —
 most issues carry none — so select by reading, not by filtering, and say which issues you selected
-and which you left. Map the human's severity words onto the taxonomy: P0 is `Blocker`, P1 `Major`,
-P2 `Minor`, P3 `Cosmetic`.
+and which you left. Map the human's severity words onto the taxonomy: P0 is `Critical`, P1 `Major`,
+P2 `Minor`, P3 `Trivial`.
 
 Before taking an issue, ask whether we would write it if the ticket did not exist. If not: skip it,
 comment why, and do not dispatch.
@@ -133,7 +133,7 @@ The following conditions prove that a remote delivery would be safe to consider:
 | | |
 | --- | --- |
 | The applicable gate exits 0 | The full gate for feature work, or the scoped gate for a direct correction, on the final tree after the last commit. A cached or partial result is not evidence. `make check` when the project has it |
-| No required findings remain | `Blocker`, `Major`, and `Minor` are fixed in the feature run; `Cosmetic` never blocks |
+| No required findings remain | `Critical`, `Major`, and `Minor` are fixed in the feature run; `Trivial` never blocks |
 | `main` has not moved underneath | If it has: integrate it, re-run the full gate, then re-prove readiness |
 | Every flagged scenario is terminal | See the three cases below. Only when the change is user-visible |
 
@@ -202,7 +202,7 @@ Stop, write up what exists, and do not continue delivery:
   under `docs/guidelines/REVIEW-ROUNDS.md`; an open blocker alone does not halt while attempts are
   establishing new failure-set minima. Count attempts by the same immutable blocker fingerprint,
   persist each failed Verifier result with `review_convergence.py`, and halt at that configured
-  threshold; the final deep-review round has no round 3.
+  threshold; the check repeats until clean or stalled.
 - The work turns out to need a capability that does not exist yet
 - The full gate cannot be made to run
 - A required action is outside the scoped delivery authority and lacks explicit instruction

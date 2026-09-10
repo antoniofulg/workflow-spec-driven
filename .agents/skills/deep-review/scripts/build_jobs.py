@@ -2,8 +2,8 @@
 """Deep-review plan gate (bootstrap helper; writes only under --out).
 
 Validates plan.json cohorts against the manifest (every selected file owned
-exactly once; hunk_scope slices line-exact; size caps), prepares optional Graft
-context, renders every reviewer and sweep prompt from assets/PROMPT.md —
+exactly once; hunk_scope slices line-exact; size caps), prepares Graft context
+only when .deep-review.yaml sets `graft: true`, renders every reviewer and sweep prompt from assets/PROMPT.md —
 injecting only the rules whose scope globs match that cohort's files — and
 materializes jobs.json, the work
 contract every execution engine runs.
@@ -23,6 +23,7 @@ import json
 import re
 import sys
 from collections import Counter, defaultdict
+from math import ceil
 from pathlib import Path
 
 sys.dont_write_bytecode = True  # keep the tracked skill tree free of __pycache__
@@ -39,21 +40,21 @@ from _common import (
     skill_rel,
     write_json,
 )
-from graft_context import prepare_graft_context
+from build_manifest import _config_path, parse_yaml_flag
+from graft_context import FALLBACK_LINE, prepare_graft_context
 
 DEFAULT_MAX_COHORT_FILES = 100
 MAX_COHORT_CHANGED_LINES = 6000
-DEFAULT_MAX_POLISH_FILES = 20
-MAX_POLISH_CHANGED_LINES = 1200
+TARGET_COHORT_CHANGED_LINES = 400
 
 REVIEWER_PLACEHOLDERS = {
     "cohort_name", "risk", "target", "file_list", "scope_instruction", "context",
     "taxonomy", "rules_block", "diff_command", "base", "output", "schema",
-    "lane_instruction", "coverage_contract", "graft_context",
+    "lane_instruction", "coverage_contract", "graft_context", "prior_findings",
 }
 SWEEP_PLACEHOLDERS = {
     "sweep_key", "lens", "target", "context", "manifest", "taxonomy",
-    "diff_command", "spec_extra", "output", "schema", "rules_block",
+    "diff_command", "output", "schema", "rules_block",
     "coverage_contract", "graft_context",
 }
 
@@ -73,10 +74,6 @@ DEFAULT_LENSES = {
         "migrations, ordering, identity, and compatibility windows. REPORT GATE: name the database state and "
         "operation that loses data or breaks a deployed version."
     ),
-    "tests": (
-        "MISSION: find changed behavior with no failing-capable protection. FOCUS: untested branches, mock-only "
-        "assertions, and weakened expectations. REPORT GATE: name the regression the current suite would pass."
-    ),
     "consistency": (
         "MISSION: prove a cross-file change is complete. FOCUS: incomplete renames, sibling paths that share an "
         "invariant, and duplicated fixes. REPORT GATE: connect every missed occurrence to the same changed invariant."
@@ -86,22 +83,9 @@ DEFAULT_LENSES = {
         "dead flags, undocumented public settings, and default mismatches. REPORT GATE: name the runtime path "
         "where the configured value is ignored or misread."
     ),
-    "spec-parity": (
-        "MISSION: prove field-by-field conformance with every artifact in the context pack's Spec contract section. "
-        "FOCUS: names, types, defaults, requiredness, shapes, topology, and behavior. REPORT GATE: cite the exact "
-        "artifact field and contradictory implementation path."
-    ),
 }
 
-SPEC_EXTRA = (
-    " Read EVERY artifact in the context pack's Spec contract section in full and compare the "
-    "implementation to each one FIELD BY FIELD: names, types, defaults, required-vs-optional flags, "
-    "shapes, topologies, command surfaces, behaviors. A deliverable that contradicts a canonical "
-    "artifact is a Critical potential-issue, never a nitpick; never reinterpret the artifact to match "
-    "what was built. When an artifact names a visual reference, require its parity evidence bundle. "
-    "Set guideline to `<artifact path> — <section/field>` on every finding. An empty result asserts "
-    "every listed artifact conforms."
-)
+REMOVED_SWEEPS = {"tests": "test adequacy", "spec-parity": "spec parity"}
 
 PLACEHOLDER_RE = re.compile(r"\{\{([a-z_]+)\}\}")
 
@@ -197,10 +181,22 @@ def validate_registry(registry: dict, knowledge: dict, selected: dict[str, dict]
     return errors
 
 
+def cohort_target(selected: dict[str, dict], concurrency: int) -> tuple[int, int]:
+    """(max cohorts, changed lines): enough ~400-line cohorts to fill the reviewer slots, never more."""
+    total_lines = sum(int(f.get("adds") or 0) + int(f.get("dels") or 0) for f in selected.values())
+    return min(concurrency, max(1, ceil(total_lines / TARGET_COHORT_CHANGED_LINES))), total_lines
+
+
 def validate_cohorts(
-    cohorts: list[dict], selected: dict[str, dict], max_cohort_files: int
+    cohorts: list[dict], selected: dict[str, dict], max_cohort_files: int, concurrency: int
 ) -> list[str]:
     errors: list[str] = []
+    expected, total_lines = cohort_target(selected, concurrency)
+    if len(cohorts) > expected:
+        errors.append(
+            f"plan has {len(cohorts)} cohorts; {total_lines} changed lines at concurrency {concurrency} "
+            f"should use at most {expected} cohorts (~{TARGET_COHORT_CHANGED_LINES} lines each); merge plan.json cohorts"
+        )
     seen_ids: set[str] = set()
     full_owners: dict[str, list[str]] = defaultdict(list)
     scoped_owners: dict[str, list[tuple[str, tuple[int, int, str]]]] = defaultdict(list)
@@ -272,25 +268,29 @@ def validate_cohorts(
     return errors
 
 
-def normalize_sweeps(plan: dict, context_pack: str) -> list[dict]:
+def normalize_sweeps(plan: dict) -> list[dict]:
     sweeps, errors = [], []
     for entry in plan.get("sweeps", []):
-        if isinstance(entry, str):
-            key, lens = entry, DEFAULT_LENSES.get(entry)
-            if lens is None:
-                errors.append(f"sweep {entry!r} has no built-in lens; use {{key, lens}}")
-                continue
-        else:
-            key, lens = entry.get("key"), entry.get("lens")
-            if not key or not lens:
-                errors.append(f"sweep entry {entry!r} needs key and lens")
-                continue
+        key, lens = (entry, DEFAULT_LENSES.get(entry)) if isinstance(entry, str) else (entry.get("key"), entry.get("lens"))
+        if key in REMOVED_SWEEPS:
+            errors.append(f"sweep {key!r} was removed: the Technical Verifier owns {REMOVED_SWEEPS[key]}")
+            continue
+        if isinstance(entry, str) and lens is None:
+            errors.append(f"sweep {entry!r} has no built-in lens; use {{key, lens}}")
+            continue
+        if not key or not lens:
+            errors.append(f"sweep entry {entry!r} needs key and lens")
+            continue
         sweeps.append({"key": key, "lens": lens})
     keys = [sweep["key"] for sweep in sweeps]
     if len(keys) != len(set(keys)):
         errors.append("duplicate sweep keys")
-    if "spec-parity" in keys and not re.search(r"^#{1,2} Spec contract\b", context_pack, re.M):
-        errors.append("spec-parity sweep planned but context-pack.md has no Spec contract section")
+    cohorts = len(plan.get("cohorts", []))
+    if sweeps and cohorts <= 2:
+        errors.append(
+            f"sweeps need at least 3 cohorts ({cohorts} planned); cohort lanes own every finding "
+            "in a small diff — remove sweeps from plan.json"
+        )
     if errors:
         raise RuntimeError("sweep validation failed:\n- " + "\n- ".join(errors))
     return sweeps
@@ -349,80 +349,28 @@ def owned_hunks(cohort: dict, selected: dict[str, dict]) -> list[dict]:
     ]
 
 
-def split_hunk(hunk: dict, limit: int) -> list[dict]:
-    start, remaining = int(hunk["start"]), int(hunk["lines"])
-    side, chunks = str(hunk.get("side", "new")), []
-    while remaining:
-        size = min(limit, remaining)
-        chunks.append({"start": start, "lines": size, "side": side})
-        start += size
-        remaining -= size
-    return chunks
+def prior_findings_block(ledger: dict[str, dict]) -> str:
+    """Remediation-check contract: one disposition row per open prior finding."""
+    rows = sorted((fp, entry) for fp, entry in ledger.items() if entry.get("status") == "open")
+    if not rows:
+        return "PRIOR FINDINGS: No prior findings to disposition — leave `prior_findings` empty."
+    lines = [
+        "PRIOR FINDINGS — return one `prior_findings` row per fingerprint with `status` `resolved` "
+        "or `open` and a one-line `evidence`; re-run the certificate Path before marking resolved. "
+        "A prior finding appears ONLY as a `prior_findings` row. Never list it, or a rewording of it, "
+        "in `defects`; `defects` holds only failures introduced or newly discovered in `reviewed_head..HEAD`:"
+    ]
+    for fp, entry in rows:
+        also = ", ".join(entry.get("also_applies") or []) or "none"
+        lines.append(
+            f"- `{fp}` {entry['severity']} at `{entry['file']}:{entry.get('line', '?')}` — "
+            f"{entry.get('certificate') or entry['title']}; also applies: {also}"
+        )
+    return "\n".join(lines)
 
 
-def polish_cohorts(
-    cohorts: list[dict], selected: dict[str, dict], max_files: int, max_lines: int
-) -> list[dict]:
-    """Create a second, smaller ownership partition for the polish lane."""
-    result: list[dict] = []
-    for cohort in cohorts:
-        units: list[tuple[str, list[dict]]] = []
-        source_scope = cohort.get("hunk_scope") or {}
-        for path in cohort["files"]:
-            hunks = source_scope.get(path) or selected[path]["hunks"]
-            expanded = [piece for hunk in hunks for piece in split_hunk(hunk, max_lines)]
-            current: list[dict] = []
-            current_lines = 0
-            for hunk in expanded:
-                lines = int(hunk["lines"])
-                if current and current_lines + lines > max_lines:
-                    units.append((path, current))
-                    current, current_lines = [], 0
-                current.append(hunk)
-                current_lines += lines
-            if current or not expanded:
-                units.append((path, current))
-
-        batch: dict[str, list[dict]] = {}
-        batch_lines = 0
-
-        def flush() -> None:
-            nonlocal batch, batch_lines
-            if not batch:
-                return
-            index = len([item for item in result if item["parent_id"] == cohort["id"]]) + 1
-            result.append({
-                "id": f"{cohort['id']}-p{index:02d}",
-                "parent_id": cohort["id"],
-                "name": f"{cohort['name']} — polish {index}",
-                "risk": cohort["risk"],
-                "files": list(batch),
-                "hunk_scope": {path: hunks for path, hunks in batch.items()},
-            })
-            batch, batch_lines = {}, 0
-
-        for path, hunks in units:
-            unit_lines = sum(int(hunk["lines"]) for hunk in hunks)
-            adds_file = path not in batch
-            if batch and (
-                batch_lines + unit_lines > max_lines
-                or (adds_file and len(batch) >= max_files)
-                or path in batch
-            ):
-                flush()
-            batch[path] = hunks
-            batch_lines += unit_lines
-        flush()
-    return result
-
-
-def coverage_contract(required_hunks: list[dict], rule_ids: list[str], check: str) -> str:
-    return (
-        "HUNK COVERAGE (one exact row per assignment; include check "
-        f"`{check}`): `{json.dumps(required_hunks, separators=(',', ':'))}`\n"
-        "RULE COVERAGE (one exact row per id, even when compliant or not applicable): "
-        f"`{json.dumps(rule_ids, separators=(',', ':'))}`"
-    )
+def coverage_contract(required_hunks: list[dict]) -> str:
+    return f"HUNK COVERAGE (one exact row per assignment): `{json.dumps(required_hunks, separators=(',', ':'))}`"
 
 
 def main() -> int:
@@ -446,18 +394,36 @@ def main() -> int:
         rules = registry.get("rules")
         if not isinstance(rules, list):
             raise RuntimeError("rules.json: rules must be an array")
-        context_pack = (out / "context-pack.md").read_text(encoding="utf-8")
+        (out / "context-pack.md").read_text(encoding="utf-8")  # required by every prompt
         if "diff_command" not in manifest:
             raise RuntimeError("manifest.json lacks diff_command — rebuild it with the current build_manifest.py")
 
         selected = manifest_selected(manifest)
-        errors = validate_registry(registry, knowledge, selected) + validate_cohorts(
-            plan["cohorts"], selected, args.max_cohort_files
-        )
+        errors = validate_registry(registry, knowledge, selected)
+        incremental = manifest.get("mode") == "incremental"
+        if incremental:
+            # Remediation check: one job over every selected path; plan cohorts and sweeps are ignored.
+            cohorts = [{"id": "rc", "name": "remediation check", "risk": "high", "files": sorted(selected)}]
+            if plan.get("sweeps"):
+                print("sweeps skipped in incremental mode")
+            ledger = read_json(out / "state.json").get("ledger", {})
+            prior_anchors = [
+                {"fingerprint": fp, "file": entry["file"], "line": entry.get("line")}
+                for fp, entry in sorted(ledger.items()) if entry.get("status") == "open"
+            ]
+        else:
+            cohorts = plan["cohorts"]
+            errors += validate_cohorts(cohorts, selected, args.max_cohort_files, manifest["concurrency"])
+            ledger, prior_anchors = {}, []
+        prior_fps = [anchor["fingerprint"] for anchor in prior_anchors]
         if errors:
             raise RuntimeError("plan validation failed:\n- " + "\n- ".join(errors))
-        sweeps = normalize_sweeps(plan, context_pack)
-        graft = prepare_graft_context(repo, out, sorted(selected))
+        sweeps = [] if incremental else normalize_sweeps(plan)
+        if parse_yaml_flag(_config_path(repo), "graft"):
+            graft = prepare_graft_context(repo, out, sorted(selected))
+        else:  # opt-in: no subprocess, one plain-inspection line
+            (out / "graft-context.md").write_text(FALLBACK_LINE + "\n", encoding="utf-8")
+            graft = {"status": "fallback", "path": str(out / "graft-context.md")}
 
         reviewer_template = load_template("reviewer")
         sweep_template = load_template("sweep")
@@ -469,20 +435,22 @@ def main() -> int:
             "diff_command": manifest["diff_command"],
             "schema": schema,
             "graft_context": rel(Path(graft["path"]), repo),
+            "prior_findings": prior_findings_block(ledger) if incremental else "",
         }
         prompts_dir = out / "prompts"
         prompts_dir.mkdir(parents=True, exist_ok=True)
         (out / "agents").mkdir(exist_ok=True)
         (out / "runs").mkdir(exist_ok=True)
 
-        jobs, bound_counts = [], []
-        for cohort in plan["cohorts"]:
+        jobs, bound_counts, cohort_hunks = [], [], []
+        for cohort in cohorts:
             label = f"cohort-{cohort['id'].lower()}"
             output = out / "agents" / f"{label}.json"
             bound_rules = cohort_rules(rules, cohort["files"])
             block, bound = rules_block(rules, cohort["files"])
             rule_ids = [rule["id"] for rule in bound_rules]
             required_hunks = owned_hunks(cohort, selected)
+            cohort_hunks += required_hunks
             bound_counts.append(bound)
             prompt = render_template("reviewer", reviewer_template, REVIEWER_PLACEHOLDERS, {
                 **shared,
@@ -498,52 +466,16 @@ def main() -> int:
                     "reliability, or failing-capable test defects. Put survivors in `defects`; "
                     "leave `advisories` empty."
                 ),
-                "coverage_contract": coverage_contract(required_hunks, rule_ids, "defect"),
+                "coverage_contract": coverage_contract(required_hunks),
             })
             (prompts_dir / f"{label}.md").write_text(prompt, encoding="utf-8")
             jobs.append({
-                "label": label, "kind": "cohort", "lane": "defect",
-                "coverage_check": "defect", "required_hunks": required_hunks,
-                "rule_ids": rule_ids,
+                "label": label, "kind": "cohort", "lane": "defect", "required_hunks": required_hunks,
+                "rule_ids": rule_ids, "prior_fingerprints": prior_fps, "prior_anchors": prior_anchors,
                 "prompt": rel(prompts_dir / f"{label}.md", repo),
                 "output": rel(output, repo),
             })
 
-        polish = polish_cohorts(
-            plan["cohorts"], selected, DEFAULT_MAX_POLISH_FILES, MAX_POLISH_CHANGED_LINES
-        )
-        for cohort in polish:
-            label = f"polish-{cohort['id'].lower()}"
-            output = out / "agents" / f"{label}.json"
-            bound_rules = cohort_rules(rules, cohort["files"])
-            block, bound = rules_block(rules, cohort["files"])
-            rule_ids = [rule["id"] for rule in bound_rules]
-            required_hunks = owned_hunks(cohort, selected)
-            bound_counts.append(bound)
-            prompt = render_template("reviewer", reviewer_template, REVIEWER_PLACEHOLDERS, {
-                **shared,
-                "cohort_name": cohort["name"],
-                "risk": cohort["risk"],
-                "file_list": file_list_block(cohort, selected),
-                "scope_instruction": scope_instruction(cohort),
-                "rules_block": block,
-                "base": manifest["base"],
-                "output": rel(output, repo),
-                "lane_instruction": (
-                    "POLISH LANE: report every specific, actionable maintainability, simplification, "
-                    "clarity, naming, documentation, idiom, and project-rule improvement. A runtime "
-                    "failure is not required. Put survivors in `advisories`; leave `defects` empty."
-                ),
-                "coverage_contract": coverage_contract(required_hunks, rule_ids, "polish"),
-            })
-            (prompts_dir / f"{label}.md").write_text(prompt, encoding="utf-8")
-            jobs.append({
-                "label": label, "kind": "polish", "lane": "polish",
-                "coverage_check": "polish", "required_hunks": required_hunks,
-                "rule_ids": rule_ids,
-                "prompt": rel(prompts_dir / f"{label}.md", repo),
-                "output": rel(output, repo),
-            })
         for sweep in sweeps:
             label = f"sweep-{sweep['key']}"
             output = out / "agents" / f"{label}.json"
@@ -555,16 +487,14 @@ def main() -> int:
                 "sweep_key": sweep["key"],
                 "lens": sweep["lens"],
                 "manifest": rel(out / "manifest.json", repo),
-                "spec_extra": SPEC_EXTRA if sweep["key"] == "spec-parity" else "",
                 "output": rel(output, repo),
                 "rules_block": block,
-                "coverage_contract": coverage_contract([], rule_ids, f"sweep:{sweep['key']}"),
+                "coverage_contract": coverage_contract([]),
             })
             (prompts_dir / f"{label}.md").write_text(prompt, encoding="utf-8")
             jobs.append({
-                "label": label, "kind": "sweep", "lane": "sweep",
-                "coverage_check": f"sweep:{sweep['key']}", "required_hunks": [],
-                "rule_ids": rule_ids,
+                "label": label, "kind": "sweep", "lane": "sweep", "required_hunks": [],
+                "cohort_hunks": cohort_hunks, "rule_ids": rule_ids,
                 "prompt": rel(prompts_dir / f"{label}.md", repo),
                 "output": rel(output, repo),
             })
@@ -574,13 +504,13 @@ def main() -> int:
         return 1
 
     with_rules = sum(1 for count in bound_counts if count)
+    expected, total_lines = cohort_target(selected, manifest["concurrency"])
     print(
-        f"jobs: {len(plan['cohorts'])} defect cohorts + {len(polish)} polish cohorts + "
-        f"{len(sweeps)} sweeps -> {out / 'jobs.json'}\n"
+        f"jobs: {len(cohorts)} defect cohorts + {len(sweeps)} sweeps -> {out / 'jobs.json'}\n"
+        f"cohort target: {expected} for {total_lines} changed lines at concurrency {manifest['concurrency']}\n"
         f"cohort limit: {args.max_cohort_files} files / {MAX_COHORT_CHANGED_LINES} changed lines\n"
-        f"polish limit: {DEFAULT_MAX_POLISH_FILES} files / {MAX_POLISH_CHANGED_LINES} changed lines\n"
-        f"rules: {len(rules)} registered; {with_rules}/{len(bound_counts)} review lanes carry bound rules\n"
-        f"every selected hunk has defect + polish ownership; prompts under {out / 'prompts'}"
+        f"rules: {len(rules)} registered; {with_rules}/{len(bound_counts)} cohorts carry bound rules\n"
+        f"every selected hunk has one defect owner; prompts under {out / 'prompts'}"
     )
     return 0
 

@@ -2,12 +2,12 @@
 
 ## Handoff
 
-- **Feature**: `lean-consumer-installation` (branch `fix/lean-consumer-installation`)
-- **Phase / Task**: Complete locally — T1, review remediation and final package QA at `8f268bae`
-- **Completed**: skill-owned runtime, 28 proven old-copy retirements, consumer preservation, independent technical PASS, R1 with both Minor findings fixed, and final `bun run test:all` exit 0. Public QA: 8/9 passed; see `.specs/features/lean-consumer-installation/review-closeout.md` and the dated QA report.
-- **In-progress** (file:line): none for the installation relocation
-- **Next step**: optional separate QA work to supply the unchanged executor's missing offline adapter; its scenario remains `untested`, and the two live-host scenarios retain `blocked-verify`.
-- **Blockers**: none for the installed-runtime scope. Remote delivery, publication and real-consumer updates remain separately scheduled.
+- **Feature**: `one-round-deep-review` (branch `feat/one-round-deep-review`, worktree `../my-workflow-one-round-deep-review`)
+- **Phase / Task**: Complete locally. Slices T1–T16, corrections C1–C9, G1–G2, L1, R1–R4; feature-level Technical Verifier PASS at `685e5599`; QA session PASS (6 scenarios, 62 fixture checks, 0 bugs) in `docs/qa/reports/2026-09-10-one-round-deep-review.md`.
+- **Completed**: fingerprint-only merge; explicit `prior_findings` dispositions; verdict counts carried open Critical/Major; stale-output archiving; Repair plan in md+html; one-job incremental remediation check that rejects re-reported priors; polish lane and `tests`/`spec-parity` sweeps removed; cohorts sized to concurrency; sweeps only with ≥3 cohorts and never single-cohort findings; knowledge scoped to dispatched or in-diff skills with cross-round reuse; Graft opt-in; provider block from structured error events; invalid artifacts repaired with the validation error; `REVIEW-ROUNDS.md` remediation-check rule; AD-031; knowledge decision `deep-review-cadence`; `skills-lock.json` hash aligned. Gates: contract suite 44, token-metrics 28, `bun run test:python` 0, `bun test` 126/126, `node --test` 190/192 (#39 IT-012, #97 IT-011 fail identically on `origin/main`).
+- **In-progress** (file:line): none
+- **Next step**: remote delivery is human-scheduled; branch is unpushed, no PR. Optional: neutral-diff loop-to-SHIP benchmark against `main` (see knowledge decision). Dry-run tags `dryrun/*` are local and disposable.
+- **Blockers**: none.
 
 ## Decisions
 
@@ -375,6 +375,39 @@
 - **Scope**: npm package identity, installer CLI, adoption planner and transaction, install-time
   provider packet generation, installation tests, adoption documentation, and QA scenarios.
 - **Date**: 2026-09-08
+- **Status**: active
+
+### AD-031
+
+- **Decision**: Deep-review runs one discovery review per implementation group. Remediation is proven
+  by a single incremental job (the remediation check) that reviews `reviewed_head..HEAD` and returns
+  an explicit `prior_findings` disposition for every open prior fingerprint; a prior finding resolves
+  only through a `resolved` row, never by absence. The round cap is deleted; the loop is bounded by
+  `[remediation].stall_attempts`.
+- **Reason**: The second full round re-read the whole change to answer one question — did the fix
+  land — and reviewers silently "resolved" findings that merely stopped being re-reported. One job
+  with explicit dispositions answers that question at fix cost, not feature cost.
+- **Trade-off**: A reviewer can still mark `resolved` on weak evidence; the prompt requires
+  re-running the certificate Path and `evidence` is mandatory, but it is not machine-checked.
+- **Scope**: `build_jobs.py` incremental mode, `merge_findings.py` reconciliation, `render_review.py`
+  Repair plan and ledger fields, `REVIEW-ROUNDS.md` remediation rule and severity vocabulary.
+- **Date**: 2026-09-09
+- **Status**: active
+
+### AD-032
+
+- **Decision**: `one-round-deep-review` is delivered with `bun run test:all` red only on
+  `tests/installer` `IT-011` (frozen canonical packet bytes) and `IT-012` (frozen Python parity
+  fixtures). Both fail identically on `origin/main` at `28e4a6ae` with `node_modules` present; the
+  branch changes no installer code or fixture.
+- **Reason**: The readiness rule wants the full gate at 0 on the final tree; a red caused entirely by
+  frozen fixtures that `main` already breaks is not evidence about this delivery, and hiding it in
+  silence is worse than naming it. Regenerating those fixtures is a `main` correction with its own
+  contract to understand.
+- **Trade-off**: A reader of the merge sees a red gate; this entry and the pull request name the two
+  ids so nobody mistakes them for regressions of this feature.
+- **Scope**: `tests/installer/*.test.js` #39, #97; follow-up correction on `main`.
+- **Date**: 2026-09-10
 - **Status**: active
 
 ### AD-023
