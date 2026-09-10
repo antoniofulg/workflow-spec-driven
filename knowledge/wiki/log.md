@@ -2,6 +2,8 @@
 
 ## 2026-09-10
 
+* **Ingestion**: Added [QA at feature close](/decisions/qa-at-feature-close.md) from the maintainer's delivery-speed decision and PR #98; per-slice QA traced to the initial extraction, never requested.
+* **Lint**: Corrected [Deep review cadence](/decisions/deep-review-cadence.md): the evening decision (`cadence = "skip"`, manual `wreview` over several features) reverses the morning's "never batch"; both records kept and distinguished.
 * **Ingestion**: Added [Deep review cadence](/decisions/deep-review-cadence.md) from the maintainer's delivery-cost observation and the same-day three-build benchmark.
 
 ## 2026-09-09
