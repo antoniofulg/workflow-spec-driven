@@ -133,7 +133,7 @@ only on work that can change the verdict.
 3. WHEN `plan.json` names sweep `tests` or `spec-parity` THEN `build_jobs.py` SHALL exit 1 naming the removed sweep.
 4. WHEN the context pack has a Spec contract section and no `spec-parity` job exists THEN `render_review.py` SHALL derive the verdict from open defects alone and write no `Spec conformance` section.
 5. The rendered reviewer prompt SHALL contain no `RULE COVERAGE` contract, no `PRODUCT CONTEXT` paragraph, and no instruction to record every investigated candidate; `coverage.rules` and `suppressions` SHALL be optional in `findings.schema.json` and, when present, accepted.
-6. WHEN the selected files fit one cohort (≤ `--max-cohort-files` files and ≤ 6,000 changed lines) and `plan.json` has more than one cohort THEN `build_jobs.py` SHALL exit 1 stating the diff fits one cohort.
+6. WHEN `plan.json` has more cohorts than `min(concurrency, ceil(changed_lines / 400))` THEN `build_jobs.py` SHALL exit 1 stating the maximum cohort count.
 7. The knowledge builder `build_knowledge.py` SHALL mark a skill `candidate` only when an instruction file explicitly
    dispatches it; a skill with no dispatch SHALL be `not-applicable` with reason `no explicit
    dispatch`.
@@ -149,7 +149,7 @@ jobs, prompts contain no `RULE COVERAGE`, `graft-context.md` is one line.
 
 - IF an incremental round has zero `open` prior ledger entries THEN `build_jobs.py` SHALL still emit one defect-lane job and the prompt SHALL state `No prior findings to disposition`.
 - IF an incremental round's selected set is empty (fix touched only ignored paths) THEN `build_manifest.py` SHALL report `nothing selected` and prior open findings SHALL stay `open`.
-- IF a remediation-check output reports `open` for a fingerprint and also reports a new defect at the same anchor with a different fingerprint THEN both SHALL appear: the prior as `duplicate`, the new as `new`.
+- IF a remediation-check output lists a defect at the anchor of an open prior finding THEN `run_jobs.py --validate-only` SHALL report the output invalid naming the fingerprint; the prior finding is carried by its `prior_findings` row.
 - WHEN `plan.json` lists a retained sweep in incremental mode THEN `build_jobs.py` SHALL ignore it and print `sweeps skipped in incremental mode`.
 - IF `.deep-review.yaml` sets `graft: true` and the `graft` binary is absent THEN `build_jobs.py` SHALL write the fallback context and continue (unchanged behaviour).
 
@@ -169,7 +169,7 @@ jobs, prompts contain no `RULE COVERAGE`, `graft-context.md` is one line.
 | ORDR-08 | P3: polish lane removed; advisories incidental (AC 1–2) | Execute | Implementing |
 | ORDR-09 | P3: `tests`/`spec-parity` sweeps and Spec conformance removed (AC 3–4) | Execute | Implementing |
 | ORDR-10 | P3: prompt/schema diet (AC 5) | Execute | Implementing |
-| ORDR-11 | P3: cohort floor (AC 6) | Execute | Implementing |
+| ORDR-11 | P3: cohort target = min(concurrency, ceil(lines/400)) (AC 6) | Execute | Implementing |
 | ORDR-12 | P3: knowledge discovery restricted and reused (AC 7–8) | Execute | Implementing |
 | ORDR-13 | P3: Graft opt-in (AC 9) | Execute | Implementing |
 
