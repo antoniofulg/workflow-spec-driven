@@ -235,3 +235,122 @@ Prior gaps (FAIL `f8e9e4b7..c0e05adb`): surviving mutant b; empty-selected edge 
 **Test integrity**: `git diff c0e05adb..c3e7a935 -- tools/test_deep_review_contract.py` is +82/−9: IT-004 helper rescope + Path assert, plus IT-022/IT-023. No pre-existing assertion weakened. Count 26 → 28.
 
 **Ranked gaps**: none.
+
+---
+
+## Slice: diet
+
+**Date**: 2026-09-09
+**Diff range**: `1c4b2dc6..61f0d250` (T10–T16)
+**Verifier**: independent sub-agent (author ≠ verifier)
+**Verdict**: PASS
+
+### Task Completion
+
+| Task | Status | Notes |
+| ---- | ------ | ----- |
+| T10 | ✅ Done | IT-015 rewrite |
+| T11 | ✅ Done | UT-006, IT-011, IT-021 |
+| T12 | ✅ Done | IT-012 |
+| T13 | ✅ Done | IT-013 |
+| T14 | ✅ Done | IT-014 |
+| T15 | ✅ Done | UT-005, IT-016, IT-017 |
+| T16 | ✅ Done | IT-018; `SKILL.md` 14270 ≤ 14720; `REVIEW-ROUNDS.md` unchanged |
+
+### Spec-Anchored Acceptance Criteria (P3 ACs 1–9)
+
+| Criterion (WHEN X THEN Y) | Spec-defined outcome | Behavioral `file:line` assertion | Result |
+| ------------------------- | -------------------- | -------------------------------- | ------ |
+| AC1: no `lane="polish"` jobs; coverage for `defect` only | `jobs.json` has no polish job; `merge_findings.py` requires complete defect hunks only | `tools/test_deep_review_contract.py:876` lanes `== ["defect"]`; `:877` `"polish" not in stdout` — `test_full_mode_emits_no_polish_jobs`. `:815` raises `defect coverage incomplete`; `:831` merge exit 0; `:833` `lanes["defect"]["complete"]`; `:834` `"polish" not in lanes` — `test_coverage_gate_requires_the_defect_lane_only` | ✅ PASS |
+| AC2: defect-lane `advisories` accepted | `--validate-only` `valid` | `:864` returncode 0; `:865` `status=="valid"` — `test_defect_job_output_with_an_advisory_validates` | ✅ PASS |
+| AC3: plan sweep `tests` or `spec-parity` | `build_jobs.py` exit 1 naming the removed sweep | `:887` returncode 1; `:888` `sweep '{sweep}' was removed: the Technical Verifier owns {owner}` — `test_removed_sweeps_are_rejected_by_name` | ✅ PASS |
+| AC4: Spec contract present, no spec-parity job | verdict from open defects; no `Spec conformance` section | `:900` exit 0; `:902` `**Verdict: SHIP**`; `:903` no `## Spec conformance` — `test_spec_contract_without_spec_parity_job_ships_with_no_conformance_section` | ✅ PASS |
+| AC5: prompt/schema diet | no `RULE COVERAGE` / `PRODUCT CONTEXT` / record-every-candidate; `coverage.rules` and `suppressions` optional and accepted | `:918-919` banned strings absent; `:940` both bare and populated variants `valid` — `test_prompt_and_schema_carry_no_reporting_only_obligations` | ✅ PASS |
+| AC6: selection fits one cohort, plan has >1 | `build_jobs.py` exit 1, text `fits one cohort` | `:847` `errors == ["diff fits one cohort (3 files, 42 lines); merge plan.json cohorts"]` — `test_small_selection_split_into_two_cohorts_is_rejected` (`validate_cohorts` is what `build_jobs.py` raises) | ✅ PASS |
+| AC7: skill candidate only on explicit dispatch | undispatched → `candidate: false`, reason `no explicit dispatch` | `:960` dispatched `candidate` true; `:962` beta false; `:963` `candidate_reason=="no explicit dispatch"` — `test_skill_candidacy_requires_explicit_dispatch` | ✅ PASS |
+| AC8: incremental, no applied source changed | copy prior `rules.json`; stdout `rules reused from round <n-1>` | `:980` `rules reused from round 1`; `:981` `rules.json` byte-equal — `test_rules_reused_when_no_applied_source_changed`. Boundary IT-017 `:997` no `rules reused`; `:998` `rules.template.json` present | ✅ PASS |
+| AC9: no `graft: true` | `graft-context.md` is the fallback line; no `graft` subprocess | `:1028` `sentinel.exists()==False` when no config; `:1032` context equals fallback line — `test_graft_runs_only_when_config_opts_in` | ✅ PASS |
+
+**Status**: ✅ All ACs covered
+
+### Edge Cases
+
+- [x] Graft binary absent / unusable with `graft: true`: IT-018 `opt_in=True` plants a failing `node_modules/.bin/graft`; `:1026` build exit 0; `:1030` `status: fallback`. Absent binary is the same `_fallback` writer (`graft_binary` → `None`).
+- Other listed edges belong to earlier slices (already evidenced there).
+
+Impact QA ids `QAS-run-bounded-parallel-deep-review`, `J-run-deep-review`: untested in this technical phase.
+
+### Discrimination Sensor
+
+Scratch: `git worktree add --detach /tmp/ordr-sensor-diet HEAD`. Real-tree porcelain empty before and after `git worktree remove --force`.
+
+| Mutation | File:line | Description | Killed? |
+| -------- | --------- | ----------- | ------- |
+| a | `build_jobs.py:453` | Re-add a `lane="polish"` job per cohort | ✅ `test_full_mode_emits_no_polish_jobs` (`:876` `['defect', 'polish'] != ['defect']`) |
+| b | `build_jobs.py:187` | Remove the cohort-floor error | ✅ `test_small_selection_split_into_two_cohorts_is_rejected` (`:847` `[]` vs expected floor message) |
+| c | `build_jobs.py:86` | Drop `tests` from `REMOVED_SWEEPS` and restore a lens | ✅ `test_removed_sweeps_are_rejected_by_name` (`:887` returncode `0 != 1`) |
+| d | `merge_findings.py:210` | `coverage_ledger` iterates `("defect", "polish")` | ✅ `test_coverage_gate_requires_the_defect_lane_only` (`:831` merge exit 1, `polish coverage incomplete`) |
+| e | `build_knowledge.py:229` | Candidacy true on token overlap with selected paths | ✅ `test_skill_candidacy_requires_explicit_dispatch` (`:962` beta `candidate` True) |
+| f | `build_jobs.py:404` | Call `prepare_graft_context` unconditionally | ✅ `test_graft_runs_only_when_config_opts_in` (`:1028` sentinel True when `opt_in=False`) |
+
+**Sensor depth**: P0-full (≥5 targeted mutations)
+**Result**: 6/6 killed — PASS
+
+### Implementer notes
+
+- **IT-018 vs `graft_binary`**: `graft_context.graft_binary` resolves only `node_modules/.bin/graft` (plus pinned `@nanonets/graft` 0.10.1). IT-018 writes the same failing shim to PATH and `node_modules/.bin/graft`. Without config the node_modules binary exists and is not invoked (`sentinel` absent). With `graft: true` that binary runs (`sentinel` present, fallback context). Discriminates AC9.
+- **`path_instructions` / rg**: `rg -n "path_instructions|polish|RULE COVERAGE|spec-parity" .agents/skills/deep-review` → one hit, `build_jobs.py:86` `REMOVED_SWEEPS` (`spec-parity`) — required rejection table. No `path_instructions`, `polish`, or `RULE COVERAGE` tokens. `build_knowledge.py:205` still says config sources "can define path instructions" — live `candidate_reason` prose for `.deep-review.yaml` candidacy, not the removed `path_instructions` key. Not stale `path_instructions`.
+- **T16 tip recreation**: `git log --oneline 1c4b2dc6..HEAD` is exactly seven commits, subjects match T10–T16; no stray commit.
+
+### Test Integrity
+
+Compared to `git show 1c4b2dc6:tools/test_deep_review_contract.py`: every prior `def test_` remains except `test_incomplete_defect_or_polish_hunk_coverage_is_rejected`, rewritten as `test_coverage_gate_requires_the_defect_lane_only`. The rewrite asserts the spec defect-only contract (incomplete defect raises; complete defect merge exit 0; no `lanes.polish`), not the old polish-required gate and not a mirror of the loop body. Count 28 → 38.
+
+### Size / guideline
+
+- `SKILL.md` bytes at `61f0d250`: 14270 ≤ 14720 at `1c4b2dc6`
+- `git diff 1c4b2dc6..61f0d250 -- docs/guidelines/REVIEW-ROUNDS.md`: empty
+
+### Gate Check
+
+- **Gate command**: `python3 tools/test_deep_review_contract.py`
+- **Result**: `Ran 38 tests in 24.890s` OK (exit 0)
+- **Declared**: `bun run test:python` exit 0
+- **Test count before slice**: 28
+- **Test count after slice**: 38
+- **Delta**: +10
+- **Skipped tests**: none
+- **Failures**: none
+
+### Code Quality
+
+| Principle | Status |
+| --------- | ------ |
+| Minimum code | ✅ polish loop, removed sweeps, token overlap deleted |
+| Surgical changes | ✅ |
+| No scope creep | ✅ |
+| Matches patterns | ✅ |
+| Spec-anchored outcome check | ✅ |
+| Per-layer Coverage Expectation met | ✅ P3 ACs 1–9 1:1 |
+| Every test maps to a spec requirement | ✅ UT-005/006, IT-011–018, IT-021 |
+| Documented guidelines followed | ✅ `docs/guidelines/TEST-CONTRACT.md`; `docs/guidelines/VERIFICATION-EVIDENCE.md` |
+
+### Summary
+
+**Overall**: ✅ Ready (diet slice)
+
+**Spec-anchored check**: 9/9 ACs matched spec outcome
+**Sensor**: 6/6 mutations killed
+**Gate**: `Ran 38 tests in 24.890s`; `bun run test:python` exit 0
+
+**What works**: no polish jobs, defect-only coverage, advisories on defect jobs, removed sweeps rejected, verdict from defects, prompt/schema diet, cohort floor, dispatch-only skills, rules reuse, Graft opt-in.
+
+**Issues found**: none.
+
+**Next steps**: none for this slice.
+
+---
+
+## Feature verdict
+
+PASS
