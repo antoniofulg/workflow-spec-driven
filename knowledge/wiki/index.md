@@ -26,7 +26,8 @@ Add a concept when a source earns one.
 
 # Concepts
 
-* [Deep review cadence](decisions/deep-review-cadence.md) - Deep review stays per feature and is gated by size and risk; cost is cut per review, never by batching features.
+* [Deep review cadence](decisions/deep-review-cadence.md) - Deep review is a merge gate only when the product phase can afford it; `cadence = "skip"` merges without it and the human runs `wreview` over several delivered features on demand.
+* [QA at feature close](decisions/qa-at-feature-close.md) - QA runs once, over the integrated feature, as a real user walks it; no slice runs QA Plan or QA Execute, and the per-slice Technical Verifier stays.
 * [Workflow runtime ownership](architecture/workflow-runtime-ownership.md) - Keep installer inputs in the package and reusable runtime with its owning skill, preserving product-owned content.
 * [Design reference fidelity](design/design-reference-fidelity.md) - How HTML exports connect visual authority, component reuse, and proportional verification.
 * [Interaction efficiency](design/interaction-efficiency.md) - Connect common completion paths, native form semantics, acceptance criteria, and QA evidence.
