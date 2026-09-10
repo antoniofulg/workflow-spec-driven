@@ -370,11 +370,11 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] Full-mode `jobs.json` has no polish lane
-- [ ] Two cohorts over a 3-file/40-line selection fail with `fits one cohort`
-- [ ] A defect output with one advisory validates `valid`
-- [ ] Gate check passes: `python3 tools/test_deep_review_contract.py`
-- [ ] Test count: 30 tests pass
+- [x] Full-mode `jobs.json` has no polish lane
+- [x] Two cohorts over a 3-file/40-line selection fail with `fits one cohort`
+- [x] A defect output with one advisory validates `valid`
+- [x] Gate check passes: `python3 tools/test_deep_review_contract.py`
+- [x] Test count: 30 tests pass — actual: 31
 
 **Tests**: unit + integration — UT-006, IT-011, IT-021
 **Gate**: quick

@@ -28,6 +28,7 @@ PUBLISH_RECIPE = (
 sys.path.insert(0, str(SCRIPTS))
 
 from _common import fingerprint, freeze_snapshot  # noqa: E402
+from build_jobs import validate_cohorts  # noqa: E402
 from merge_findings import coverage_ledger, group_duplicates, merge_group, reconcile  # noqa: E402
 
 
@@ -224,6 +225,24 @@ def incremental_fixture(root: Path, *, sweeps: list[str], prior_status: str = "o
     build = run_script(BUILD_JOBS, root, "--out", str(out))
     assert build.returncode == 0, build.stdout + build.stderr
     return out, {"stdout": build.stdout, "head": git(root, "rev-parse", "HEAD"), "major": major}
+
+
+def full_fixture(root: Path, plan: dict, *, files: int = 3) -> tuple[Path, subprocess.CompletedProcess[str]]:
+    """Full-mode round: <files> new one-line files in one commit, then build_jobs.py on <plan>."""
+    base = git(root, "rev-parse", "HEAD")
+    names = [f"file{i}.txt" for i in range(files)]
+    for name in names:
+        (root / name).write_text("changed\n", encoding="utf-8")
+    git(root, "add", *names)
+    git(root, "commit", "-qm", "feat: three files")
+    out = root / ".deep-review" / "full"
+    manifest = run_script(BUILD_MANIFEST, root, "--out", str(out), "--base", base)
+    assert manifest.returncode == 0, manifest.stdout + manifest.stderr
+    (out / "plan.json").write_text(json.dumps({"sweeps": [], **plan}), encoding="utf-8")
+    (out / "rules.json").write_text(json.dumps({"rules": [], "sources": []}), encoding="utf-8")
+    (out / "knowledge.json").write_text(json.dumps({"selected_paths": names, "sources": []}), encoding="utf-8")
+    (out / "context-pack.md").write_text("# Context\n", encoding="utf-8")
+    return out, run_script(BUILD_JOBS, root, "--out", str(out))
 
 
 def raw_defect(raw_id: str, title: str, line: int, end_line: int, suggestion: str) -> dict:
@@ -789,6 +808,49 @@ class DeepReviewContractTests(unittest.TestCase):
             lanes = json.loads((out / "review-stats.json").read_text(encoding="utf-8"))["coverage"]["lanes"]
             self.assertTrue(lanes["defect"]["complete"])
             self.assertNotIn("polish", lanes)
+
+    def test_small_selection_split_into_two_cohorts_is_rejected(self) -> None:
+        # UT-006 (P3 AC6)
+        selected = {
+            f"file{i}.txt": {"adds": 10, "dels": 3 + i, "hunks": [{"start": 1, "lines": 10, "side": "new"}]}
+            for i in range(3)
+        }
+        cohorts = [
+            {"id": "A", "name": "first", "risk": "normal", "files": ["file0.txt", "file1.txt"]},
+            {"id": "B", "name": "second", "risk": "normal", "files": ["file2.txt"]},
+        ]
+        errors = validate_cohorts(cohorts, selected, 100)
+        self.assertEqual(errors, ["diff fits one cohort (3 files, 42 lines); merge plan.json cohorts"])
+        self.assertEqual(validate_cohorts([{**cohorts[0], "files": list(selected)}], selected, 100), [])
+
+    def test_defect_job_output_with_an_advisory_validates(self) -> None:
+        # IT-011 (P3 AC2)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            advisory = {
+                "file": "source.txt", "line": 1, "end_line": None, "in_diff": False, "hunk": None,
+                "category": "refactor", "severity": "minor", "quick_win": True, "rule_ids": [],
+                "title": "Name the magic constant", "body": "The literal repeats three times.",
+                "evidence": ["Premise: literal at source.txt:1 → Improvement: one named constant → Fix: extract it."],
+            }
+            out = write_job_round(root, payload={**valid_payload(), "advisories": [advisory]}, job={
+                "label": "cohort-a", "kind": "cohort", "lane": "defect", "coverage_check": "defect",
+            })
+            result, row = validate_status(root, out)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(row["status"], "valid")
+
+    def test_full_mode_emits_no_polish_jobs(self) -> None:
+        # IT-021 (P3 AC1)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out, build = full_fixture(root, {"cohorts": [
+                {"id": "A", "name": "all", "risk": "normal", "files": ["file0.txt", "file1.txt", "file2.txt"]},
+            ]})
+            self.assertEqual(build.returncode, 0, build.stdout + build.stderr)
+            jobs = json.loads((out / "jobs.json").read_text(encoding="utf-8"))["jobs"]
+            self.assertEqual([job["lane"] for job in jobs], ["defect"])
+            self.assertNotIn("polish", build.stdout)
 
     def test_validate_only_rejects_source_drift_before_accepting_valid_output(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

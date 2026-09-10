@@ -43,8 +43,6 @@ from graft_context import prepare_graft_context
 
 DEFAULT_MAX_COHORT_FILES = 100
 MAX_COHORT_CHANGED_LINES = 6000
-DEFAULT_MAX_POLISH_FILES = 20
-MAX_POLISH_CHANGED_LINES = 1200
 
 REVIEWER_PLACEHOLDERS = {
     "cohort_name", "risk", "target", "file_list", "scope_instruction", "context",
@@ -201,6 +199,11 @@ def validate_cohorts(
     cohorts: list[dict], selected: dict[str, dict], max_cohort_files: int
 ) -> list[str]:
     errors: list[str] = []
+    total_lines = sum(int(f.get("adds") or 0) + int(f.get("dels") or 0) for f in selected.values())
+    if len(cohorts) > 1 and len(selected) <= max_cohort_files and total_lines <= MAX_COHORT_CHANGED_LINES:
+        errors.append(
+            f"diff fits one cohort ({len(selected)} files, {total_lines} lines); merge plan.json cohorts"
+        )
     seen_ids: set[str] = set()
     full_owners: dict[str, list[str]] = defaultdict(list)
     scoped_owners: dict[str, list[tuple[str, tuple[int, int, str]]]] = defaultdict(list)
@@ -349,73 +352,6 @@ def owned_hunks(cohort: dict, selected: dict[str, dict]) -> list[dict]:
     ]
 
 
-def split_hunk(hunk: dict, limit: int) -> list[dict]:
-    start, remaining = int(hunk["start"]), int(hunk["lines"])
-    side, chunks = str(hunk.get("side", "new")), []
-    while remaining:
-        size = min(limit, remaining)
-        chunks.append({"start": start, "lines": size, "side": side})
-        start += size
-        remaining -= size
-    return chunks
-
-
-def polish_cohorts(
-    cohorts: list[dict], selected: dict[str, dict], max_files: int, max_lines: int
-) -> list[dict]:
-    """Create a second, smaller ownership partition for the polish lane."""
-    result: list[dict] = []
-    for cohort in cohorts:
-        units: list[tuple[str, list[dict]]] = []
-        source_scope = cohort.get("hunk_scope") or {}
-        for path in cohort["files"]:
-            hunks = source_scope.get(path) or selected[path]["hunks"]
-            expanded = [piece for hunk in hunks for piece in split_hunk(hunk, max_lines)]
-            current: list[dict] = []
-            current_lines = 0
-            for hunk in expanded:
-                lines = int(hunk["lines"])
-                if current and current_lines + lines > max_lines:
-                    units.append((path, current))
-                    current, current_lines = [], 0
-                current.append(hunk)
-                current_lines += lines
-            if current or not expanded:
-                units.append((path, current))
-
-        batch: dict[str, list[dict]] = {}
-        batch_lines = 0
-
-        def flush() -> None:
-            nonlocal batch, batch_lines
-            if not batch:
-                return
-            index = len([item for item in result if item["parent_id"] == cohort["id"]]) + 1
-            result.append({
-                "id": f"{cohort['id']}-p{index:02d}",
-                "parent_id": cohort["id"],
-                "name": f"{cohort['name']} — polish {index}",
-                "risk": cohort["risk"],
-                "files": list(batch),
-                "hunk_scope": {path: hunks for path, hunks in batch.items()},
-            })
-            batch, batch_lines = {}, 0
-
-        for path, hunks in units:
-            unit_lines = sum(int(hunk["lines"]) for hunk in hunks)
-            adds_file = path not in batch
-            if batch and (
-                batch_lines + unit_lines > max_lines
-                or (adds_file and len(batch) >= max_files)
-                or path in batch
-            ):
-                flush()
-            batch[path] = hunks
-            batch_lines += unit_lines
-        flush()
-    return result
-
-
 def prior_findings_block(ledger: dict[str, dict]) -> str:
     """Remediation-check contract: one disposition row per open prior finding."""
     rows = sorted((fp, entry) for fp, entry in ledger.items() if entry.get("status") == "open")
@@ -538,41 +474,6 @@ def main() -> int:
                 "output": rel(output, repo),
             })
 
-        polish = [] if incremental else polish_cohorts(
-            cohorts, selected, DEFAULT_MAX_POLISH_FILES, MAX_POLISH_CHANGED_LINES
-        )
-        for cohort in polish:
-            label = f"polish-{cohort['id'].lower()}"
-            output = out / "agents" / f"{label}.json"
-            bound_rules = cohort_rules(rules, cohort["files"])
-            block, bound = rules_block(rules, cohort["files"])
-            rule_ids = [rule["id"] for rule in bound_rules]
-            required_hunks = owned_hunks(cohort, selected)
-            bound_counts.append(bound)
-            prompt = render_template("reviewer", reviewer_template, REVIEWER_PLACEHOLDERS, {
-                **shared,
-                "cohort_name": cohort["name"],
-                "risk": cohort["risk"],
-                "file_list": file_list_block(cohort, selected),
-                "scope_instruction": scope_instruction(cohort),
-                "rules_block": block,
-                "base": manifest["base"],
-                "output": rel(output, repo),
-                "lane_instruction": (
-                    "POLISH LANE: report every specific, actionable maintainability, simplification, "
-                    "clarity, naming, documentation, idiom, and project-rule improvement. A runtime "
-                    "failure is not required. Put survivors in `advisories`; leave `defects` empty."
-                ),
-                "coverage_contract": coverage_contract(required_hunks, rule_ids, "polish"),
-            })
-            (prompts_dir / f"{label}.md").write_text(prompt, encoding="utf-8")
-            jobs.append({
-                "label": label, "kind": "polish", "lane": "polish",
-                "coverage_check": "polish", "required_hunks": required_hunks,
-                "rule_ids": rule_ids,
-                "prompt": rel(prompts_dir / f"{label}.md", repo),
-                "output": rel(output, repo),
-            })
         for sweep in sweeps:
             label = f"sweep-{sweep['key']}"
             output = out / "agents" / f"{label}.json"
@@ -604,12 +505,10 @@ def main() -> int:
 
     with_rules = sum(1 for count in bound_counts if count)
     print(
-        f"jobs: {len(cohorts)} defect cohorts + {len(polish)} polish cohorts + "
-        f"{len(sweeps)} sweeps -> {out / 'jobs.json'}\n"
+        f"jobs: {len(cohorts)} defect cohorts + {len(sweeps)} sweeps -> {out / 'jobs.json'}\n"
         f"cohort limit: {args.max_cohort_files} files / {MAX_COHORT_CHANGED_LINES} changed lines\n"
-        f"polish limit: {DEFAULT_MAX_POLISH_FILES} files / {MAX_POLISH_CHANGED_LINES} changed lines\n"
-        f"rules: {len(rules)} registered; {with_rules}/{len(bound_counts)} review lanes carry bound rules\n"
-        f"every selected hunk has defect + polish ownership; prompts under {out / 'prompts'}"
+        f"rules: {len(rules)} registered; {with_rules}/{len(bound_counts)} cohorts carry bound rules\n"
+        f"every selected hunk has one defect owner; prompts under {out / 'prompts'}"
     )
     return 0
 

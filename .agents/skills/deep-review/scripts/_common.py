@@ -18,7 +18,7 @@ from pathlib import Path
 SKILL_DIR = Path(__file__).resolve().parent.parent
 ASSETS_DIR = SKILL_DIR / "assets"
 SEVERITY_RANK = {"trivial": 0, "minor": 1, "major": 2, "critical": 3}
-KNOWN_KINDS = {"cohort", "polish", "sweep"}
+KNOWN_KINDS = {"cohort", "sweep"}
 
 
 # ---------- paths / IO ----------
@@ -277,11 +277,7 @@ def job_contract_errors(payload: dict, job: dict) -> list[str]:
             f"extra={sorted(set(actual_rules) - expected_rules)[:6]}"
         )
 
-    if lane == "defect" and payload.get("advisories"):
-        errors.append("$.advisories: defect jobs must leave advisory discovery to the polish lane")
-    if lane == "polish" and payload.get("defects"):
-        errors.append("$.defects: polish jobs must leave defect discovery to the defect lane")
-    if lane in {"defect", "polish"}:
+    if lane == "defect":
         for result_kind in ("defects", "advisories"):
             for index, item in enumerate(payload.get(result_kind, [])):
                 if item.get("in_diff") and (item.get("file"), item.get("hunk")) not in expected_hunks:
