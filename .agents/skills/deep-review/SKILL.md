@@ -60,7 +60,7 @@ The manifest builder resolves `path_filters` into manifest.json.
   which overrides the default `3`; valid values are `1` through `6`. The resolved value is frozen in
   `manifest.json`. The legacy no-op `--workers` option is rejected.
 - Every review ends with a **SHIP / FIX_BEFORE_SHIP / REWORK** verdict derived by render_review.py and stated only after that script exits 0.
-- `FIX_BEFORE_SHIP` is actionable, not a prompt for approval: in an approved loop, apply the remediation rule in `docs/guidelines/REVIEW-ROUNDS.md` automatically. Fix every defect from its Repair plan, run the scoped gate, then run the remediation check below; repeat until no Critical/Major is open or `stall_attempts` halts.
+- `FIX_BEFORE_SHIP` is actionable, not a prompt for approval: in an approved loop, follow `docs/guidelines/REVIEW-ROUNDS.md`: fix every defect from its Repair plan, run the scoped gate, then the remediation check below, until no Critical/Major is open or `stall_attempts` halts.
 - Optional metrics snapshot provider totals and cumulative checkpoints without changing dispatch,
   retries, outputs, or exits. The main thread records serialized cumulative checkpoints without
   per-job token attribution; totals finalize only after the full scope completes. Hosts without a
@@ -148,7 +148,7 @@ When ReportFindings is available, report defects first and every advisory afterw
 
 ## Remediation check (incremental mode)
 
-The discovery review runs once per group; every later run over the same `<out>` is a remediation check. With prior state (or fingerprints recovered from the PR thread), Step 1 scopes to commits since the last reviewed head and archives the prior round's artifacts under `<out>/rounds/`. Step 2 then ignores `plan.json` cohorts and sweeps and builds exactly one defect-lane job over the selected paths; its prompt lists every `open` prior finding (fingerprint, severity, anchor, certificate, `also_applies`) and requires one `prior_findings` row per fingerprint with `status` `resolved` or `open` and one-line `evidence`. A prior finding resolves only through a `resolved` disposition — absence from the output never resolves it; undispositioned entries stay under Duplicates and count in the verdict. Dismissed fingerprints stay suppressed; resolved ones receive the ✅ edit in publish mode. `--full` reviews the whole diff again. Each run's Step 4 regenerates `<out>/review.html`, so a browser tab left open on it tracks the rounds by itself.
+The discovery review runs once per group; every later run over the same `<out>` is a remediation check. With prior state (or fingerprints recovered from the PR thread), Step 1 scopes to commits since the last reviewed head and archives the prior round's artifacts under `<out>/rounds/`. Step 2 builds one defect-lane job over the selected paths whose prompt demands a `prior_findings` disposition per `open` prior finding (contract in `references/orchestration.md`). A prior finding resolves only through a `resolved` disposition — absence never resolves it; undispositioned entries stay under Duplicates and count in the verdict. Dismissed fingerprints stay suppressed; resolved ones receive the ✅ edit in publish mode. `--full` reviews the whole diff again. Each run's Step 4 regenerates `<out>/review.html`, so a browser tab left open on it tracks the rounds by itself.
 
 ## Error handling
 
