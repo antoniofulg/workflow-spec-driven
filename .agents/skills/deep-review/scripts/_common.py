@@ -258,12 +258,6 @@ def job_contract_errors(payload: dict, job: dict) -> list[str]:
             f"missing={sorted(expected_hunks - actual_set)[:6]} "
             f"extra={sorted(actual_set - expected_hunks)[:6]}"
         )
-    coverage_check = str(job.get("coverage_check", lane))
-    for index, row in enumerate(rows):
-        if coverage_check and coverage_check not in row.get("checks", []):
-            errors.append(
-                f"$.coverage.hunks[{index}].checks: missing required check {coverage_check!r}"
-            )
 
     expected_rules = set(job.get("rule_ids", []))
     rule_rows = payload.get("coverage", {}).get("rules", [])
@@ -281,7 +275,7 @@ def job_contract_errors(payload: dict, job: dict) -> list[str]:
     assigned_rules = expected_rules
     for result_kind in ("defects", "advisories", "suppressions"):
         for index, item in enumerate(payload.get(result_kind, [])):
-            unknown = set(item.get("rule_ids", [])) - assigned_rules
+            unknown = set(item.get("rule_ids") or []) - assigned_rules
             if unknown:
                 errors.append(
                     f"$.{result_kind}[{index}].rule_ids: unassigned ids {sorted(unknown)}"

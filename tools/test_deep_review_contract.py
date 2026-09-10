@@ -110,7 +110,6 @@ def write_job_round(root: Path, *, payload: dict | None = None, job: dict | None
                         "label": "sweep-tests",
                         "kind": "sweep",
                         "lane": "sweep",
-                        "coverage_check": "sweep:tests",
                         "prompt": str(prompt.relative_to(root)),
                         "output": str(output.relative_to(root)),
                         "required_hunks": [],
@@ -825,8 +824,7 @@ class DeepReviewContractTests(unittest.TestCase):
                 "hunks": [{**row, "checks": ["defect"], "outcome": "clear"} for row in hunks], "rules": [],
             }}
             out = write_job_round(root, payload=payload, job={
-                "label": "cohort-a", "kind": "cohort", "lane": "defect",
-                "coverage_check": "defect", "required_hunks": hunks,
+                "label": "cohort-a", "kind": "cohort", "lane": "defect", "required_hunks": hunks,
             })
             manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
             (out / "manifest.json").write_text(json.dumps({**manifest, "files": files}), encoding="utf-8")
@@ -876,7 +874,7 @@ class DeepReviewContractTests(unittest.TestCase):
                 "evidence": ["Premise: literal at source.txt:1 → Improvement: one named constant → Fix: extract it."],
             }
             out = write_job_round(root, payload={**valid_payload(), "advisories": [advisory]}, job={
-                "label": "cohort-a", "kind": "cohort", "lane": "defect", "coverage_check": "defect",
+                "label": "cohort-a", "kind": "cohort", "lane": "defect",
             })
             result, row = validate_status(root, out)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -956,7 +954,13 @@ class DeepReviewContractTests(unittest.TestCase):
                 self.assertIn("HUNK COVERAGE", text)
 
             jobs = json.loads((out / "jobs.json").read_text(encoding="utf-8"))["jobs"]
-            bare = {"defects": [], "advisories": []}
+            unruled = {  # C7: rule_ids is optional; lane and rule bookkeeping never invalidate a review
+                "file": "file0.txt", "line": 1, "end_line": None, "in_diff": False, "hunk": None,
+                "category": "potential-issue", "severity": "minor", "quick_win": False,
+                "title": "Placeholder line ships", "body": "The file only says changed.",
+                "evidence": ["Premise: file0.txt:1 is a placeholder → Path: shipped as-is → Verdict: blocked."],
+            }
+            bare = {"defects": [unruled], "advisories": []}
             full = {
                 "defects": [], "advisories": [],
                 "suppressions": [{"file": "file0.txt", "line": 1, "hunk": "new:1-1", "candidate": "trailing newline",
@@ -965,7 +969,7 @@ class DeepReviewContractTests(unittest.TestCase):
             for variant, extra in (("bare", bare), ("full", full)):
                 with self.subTest(variant=variant):
                     for job in jobs:
-                        hunks = [{**row, "checks": [job["coverage_check"]], "outcome": "clear"} for row in job["required_hunks"]]
+                        hunks = [{**row, "checks": ["read callers", "traced input"], "outcome": "clear"} for row in job["required_hunks"]]
                         coverage = {"hunks": hunks}
                         if variant == "full":
                             coverage["rules"] = [{"rule_id": "R1", "status": "not-applicable", "note": "no match"}]
@@ -978,6 +982,10 @@ class DeepReviewContractTests(unittest.TestCase):
                     self.assertEqual(merged.returncode, 0, merged.stdout + merged.stderr)
                     html = run_script(RENDER_HTML, root, "--out", str(out))
                     self.assertEqual(html.returncode, 0, html.stdout + html.stderr)
+                    if variant == "bare":
+                        merged_rows = json.loads((out / "findings.json").read_text(encoding="utf-8"))["findings"]
+                        self.assertEqual([row["rule_ids"] for row in merged_rows if row["title"] == unruled["title"]], [[]])
+                        self.assertIn(unruled["title"], (out / "review.html").read_text(encoding="utf-8"))
 
     def test_skill_candidacy_requires_explicit_dispatch(self) -> None:
         # UT-005 (P3 AC7; a skill whose own files are in the diff is a knowledge source)

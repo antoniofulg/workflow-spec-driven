@@ -367,11 +367,8 @@ def prior_findings_block(ledger: dict[str, dict]) -> str:
     return "\n".join(lines)
 
 
-def coverage_contract(required_hunks: list[dict], check: str) -> str:
-    return (
-        "HUNK COVERAGE (one exact row per assignment; include check "
-        f"`{check}`): `{json.dumps(required_hunks, separators=(',', ':'))}`"
-    )
+def coverage_contract(required_hunks: list[dict]) -> str:
+    return f"HUNK COVERAGE (one exact row per assignment): `{json.dumps(required_hunks, separators=(',', ':'))}`"
 
 
 def main() -> int:
@@ -462,12 +459,11 @@ def main() -> int:
                     "reliability, or failing-capable test defects. Put survivors in `defects`; "
                     "leave `advisories` empty."
                 ),
-                "coverage_contract": coverage_contract(required_hunks, "defect"),
+                "coverage_contract": coverage_contract(required_hunks),
             })
             (prompts_dir / f"{label}.md").write_text(prompt, encoding="utf-8")
             jobs.append({
-                "label": label, "kind": "cohort", "lane": "defect",
-                "coverage_check": "defect", "required_hunks": required_hunks,
+                "label": label, "kind": "cohort", "lane": "defect", "required_hunks": required_hunks,
                 "rule_ids": rule_ids, "prior_fingerprints": prior_fps,
                 "prompt": rel(prompts_dir / f"{label}.md", repo),
                 "output": rel(output, repo),
@@ -486,12 +482,11 @@ def main() -> int:
                 "manifest": rel(out / "manifest.json", repo),
                 "output": rel(output, repo),
                 "rules_block": block,
-                "coverage_contract": coverage_contract([], f"sweep:{sweep['key']}"),
+                "coverage_contract": coverage_contract([]),
             })
             (prompts_dir / f"{label}.md").write_text(prompt, encoding="utf-8")
             jobs.append({
-                "label": label, "kind": "sweep", "lane": "sweep",
-                "coverage_check": f"sweep:{sweep['key']}", "required_hunks": [],
+                "label": label, "kind": "sweep", "lane": "sweep", "required_hunks": [],
                 "rule_ids": rule_ids,
                 "prompt": rel(prompts_dir / f"{label}.md", repo),
                 "output": rel(output, repo),
