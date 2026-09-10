@@ -887,18 +887,32 @@ class TokenMetricsTests(unittest.TestCase):
                 "cohorts": [{"id": "c01", "name": "fixture", "risk": "normal", "files": [manifest["files"][0]["path"]]}],
                 "sweeps": [],
             }), encoding="utf-8")
-            old_argv = sys.argv
-            try:
-                sys.argv = ["build_jobs.py", "--out", str(out)]
-                self.assertEqual(build_jobs.main(), 0)
-            finally:
-                sys.argv = old_argv
-            prompt = (out / "prompts/cohort-c01.md").read_text(encoding="utf-8")
-            self.assertIn("GRAFT CONTEXT", prompt)
-            graft_path = out / "graft-context.md"
-            self.assertIn("graft-context.md", prompt)
+            def build(config: Path | None) -> str:
+                old_argv = sys.argv
+                try:
+                    sys.argv = ["build_jobs.py", "--out", str(out)]
+                    with patch.object(build_jobs, "_config_path", return_value=config):
+                        self.assertEqual(build_jobs.main(), 0)
+                finally:
+                    sys.argv = old_argv
+                prompt = (out / "prompts/cohort-c01.md").read_text(encoding="utf-8")
+                self.assertIn("GRAFT CONTEXT", prompt)
+                self.assertIn("graft-context.md", prompt)
+                return (out / "graft-context.md").read_text(encoding="utf-8")
+
+            # P3 AC9: without `graft: true` no Graft subprocess runs and the context is the single fallback line
+            sentinel, stub = out / "graft-invoked", out / "stub-graft"
+            stub.write_text(f"#!/bin/sh\ntouch '{sentinel}'\nexit 1\n", encoding="utf-8")
+            stub.chmod(0o700)
+            with patch.object(graft_context, "graft_binary", return_value=str(stub)):
+                self.assertEqual(build(None), graft_context.FALLBACK_LINE + "\n")
+            self.assertFalse(sentinel.exists())
+
+            config = out / ".deep-review.yaml"
+            config.write_text("graft: true\n", encoding="utf-8")
+            opted_in = build(config)
             if graft_binary(REPO):
-                self.assertIn("Repository map", graft_path.read_text(encoding="utf-8"))
+                self.assertIn("Repository map", opted_in)
 
             dot_context = prepare_graft_context(REPO, out / "dot", [".agents/skills/deep-review/SKILL.md"])
             self.assertEqual(dot_context["status"], "ready-with-fallback" if graft_binary(REPO) else "fallback")
