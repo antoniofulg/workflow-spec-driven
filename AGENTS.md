@@ -50,7 +50,7 @@ its direct-correction path; credential-free declarative agent-tool configuration
 `docs/guidelines/GATES.md`; only features use the hierarchy below. At the start of workflow work, activate `ponytail`
 at `full` and keep it active for the entire session; for direct corrections, this means through
 inspect, implement, validation, and commit. For feature work, it includes Specify, Design, Tasks, Execute, every
-subagent prompt, fix, and review, until the human explicitly says `stop ponytail` or `normal mode`.
+subagent prompt, fix, and review, until the human explicitly says `stop ponytail` or `normal mode`. After each coherent edit batch, run the project’s existing formatter once, only on changed files, then run validation in the same tool call when practical. Keep successful formatter output silent. On failure, show concise diagnostics and resolve the failure before validation.
 
 **Public hierarchy is `Feature -> Vertical Slice -> Task`.** A vertical slice is one observable
 end-to-end behaviour; its tasks are the smallest implementation units plus their tests. e2e only
