@@ -830,6 +830,16 @@ describe("configurable review policy", () => {
       "The feature-closing QA session runs after the final implementation deep-review group";
     expect(qaScenarios).toContain(closingQa);
     expect(qaScenarios).not.toContain("The feature's last slice runs");
+    expect(qaScenarios).not.toContain("A slice walks what it flags");
+    for (const source of [
+      readRepositoryFile("docs/guidelines/QA-EXECUTION.md"),
+      readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md"),
+      readRepositoryFile("docs/workflow/loop.md"),
+      readRepositoryFile("docs/workflow/reviews.md"),
+    ]) {
+      expect(source).toContain("no slice runs QA");
+      expect(source).not.toMatch(/public slices?|per-slice QA/i);
+    }
     expect(gates).toContain(
       "| Closing a task with a browser surface | The consuming project's browser scoped gate, filtered by `@feature:<slug>` |",
     );

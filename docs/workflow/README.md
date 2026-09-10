@@ -35,7 +35,7 @@ artifacts, and explicit handoff prompts remain the durable semantic context.
 
 ```
 per slice    implement → scoped gate → atomic commit
-             Verifier fingerprint cap  →  QA walk if user-visible
+             Verifier fingerprint cap
 resolved     deep-review groups from workflow config, before QA
 
 feature      selected QA session (no product code)

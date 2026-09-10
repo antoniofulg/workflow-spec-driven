@@ -19,10 +19,8 @@ Remediation identity, independent counters, and halt behavior follow `REVIEW-ROU
 | Reviewer | Question only it can answer | Cap |
 | --- | --- | --- |
 | **Technical Verifier** | Do the tests actually prove the spec? | Fingerprint-scoped; halt on third failed remediation |
-| **QA Plan** | Which public promises need a walk? | One fresh Verifier session |
-| **QA Execute** | Does this behaviour work through the declared adapter? | One fresh Verifier session |
 | **Deep-review** (resolved groups) | Is the code correct, safe, maintainable? | Discovery once; remediation checks until no Critical/Major is open or `stall_attempts` halts |
-| **QA session** (feature closing step) | Does the finished feature feel right? | One `qa-plan` and one `qa-execute` session |
+| **QA session** (feature closing step) | Does the finished feature feel right, through the declared adapter? | One `qa-plan` and one `qa-execute` session; no slice runs QA |
 
 A documentation-only slice follows the proportional classifier in [GATES.md](../guidelines/GATES.md):
 accuracy and affected-link checks close pure maintenance, while mixed changes run canonical tests for
@@ -30,7 +28,7 @@ changed executable behavior. Deep-review and QA require named concrete risk or c
 file count and the word "feature" do not escalate them.
 
 Technical Verifier reads the slice's private writer checkpoint. Deep-review reads the integrated
-commit range, and fresh QA Plan/Execute read the integrated final tree. The coordinator records
+commit range, and the closing session's fresh QA Plan/Execute packets read the integrated final tree. The coordinator records
 distinct author and proof identities; the last implementer supplies a handoff and never certifies
 the integrated result.
 
