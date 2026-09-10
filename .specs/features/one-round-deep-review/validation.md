@@ -354,3 +354,151 @@ Compared to `git show 1c4b2dc6:tools/test_deep_review_contract.py`: every prior 
 ## Feature verdict
 
 PASS
+
+---
+
+## Feature-level verification (430ddc15)
+
+**Date**: 2026-09-10
+**Diff range**: `origin/main..430ddc15`
+**Verifier**: independent sub-agent (author ≠ verifier)
+**Scratch**: `/tmp/orr-sensor-c` (HEAD 430ddc15); `/tmp/orr-verify` (`origin/main`, `node_modules` symlink). Real-tree porcelain empty before sensor; only this file written after.
+
+### Spec-anchored ACs (confirmed live at 430ddc15)
+
+Prior slice citations reused only where the same method still asserts the same outcome.
+
+| Criterion | Spec outcome | Live assertion | Result |
+| --- | --- | --- | --- |
+| P1 AC1 | two canonical; own evidence/suggestion/also_applies | `tools/test_deep_review_contract.py:289` `len==2`; `:292-294` fields equal raw | ✅ |
+| P1 AC2 | one canonical; also_applies has non-canonical | `:301-302` `len==1`; `"booking.py:40" in also_applies` | ✅ |
+| P1 AC3 | stay open; `still_open_unreviewed` | `:370-371` `["fp-major"]`; `resolved==[]` | ✅ |
+| P1 AC4 | resolved + `resolved_in=head` | `:378` `resolved==["fp-major"]`; `:719-720` `status=="resolved"` and `resolved_in==head` | ✅ |
+| P1 AC5 | `FIX_BEFORE_SHIP` | `:328` first verdict line | ✅ |
+| P1 AC6 | archive to `round-1-stale-<12>` | `:345-350` stdout + empty `agents/` + pending | ✅ |
+| P1 AC7 | outputs stay; `valid` | `:360-364` file present; status `valid` | ✅ |
+| P2 AC1 | Repair plan = Premise and Path, anchors, grep, fail-on-Premise, suggestion | `:635-644` `guard missing` + Path clause in root-cause line; `Verdict` absent; anchors in plan; `grep`; `fails on the Premise`; `Suggested change: add_guard()` | ✅ |
+| P2 AC2 | open ledger has certificate/also_applies/line | `:657-660` | ✅ |
+| P2 AC3 | one defect job; no polish; sweeps skipped | `:668-672` | ✅ |
+| P2 AC4 | prompt lists prior + disposition contract | `:682-689` | ✅ |
+| P2 AC5 | missing row → invalid naming fp | `:387-389` | ✅ |
+| P2 AC6 | full mode rejects non-empty prior_findings | `:410-411` | ✅ |
+| P2 AC7–8 | guideline has remediation check + stall_attempts; no round 3 / Blocker / Cosmetic / ≤2 rounds | `:839-842` | ✅ |
+| P3 AC1 | no polish jobs; defect-only coverage | `:876` lanes `["defect"]`; `:848-866` incomplete defect raises; no `lanes.polish` | ✅ |
+| P3 AC2 | defect advisories `valid` | `:911-912` | ✅ |
+| P3 AC3 | removed sweep named, exit 1 | `:934-935` | ✅ |
+| P3 AC4 | verdict from defects; no Spec conformance | `:949-950` | ✅ |
+| P3 AC5 | no RULE COVERAGE / PRODUCT CONTEXT / record-every; rules/suppressions optional | `:1011-1012`; `:1037-1039` | ✅ |
+| P3 AC6 | exit 1 stating the diff fits one cohort | `:880` asserts `"should use at most 1 cohorts"` (C2) — not the spec phrase | ❌ |
+| P3 AC7 | candidate only on explicit dispatch; else `no explicit dispatch` | `:1076-1077` beta; C1 adds gamma-under-skill `:1079-1081` | ⚠️ C1 extra path |
+| P3 AC8 | copy prior rules; `rules reused from round 1` | `:1098-1099` | ✅ |
+| P3 AC9 | fallback line; no graft subprocess | `:1146-1150` | ✅ |
+
+**Edges**: zero-open `:830-833`; empty selected `:739-745`; incremental sweeps `:672`; graft fallback `:1148`. Spec same-anchor-both-appear: **no evidence** — C8 rejects it (`:818-820`); IT-023 (`:747`) now same-file different line.
+
+Impact QA ids `QAS-run-bounded-parallel-deep-review`, `J-run-deep-review`: untested (technical phase).
+
+### C1–C9 sensor (scratch `/tmp/orr-sensor-c`; each revert `git checkout --`; porcelain empty after)
+
+| Id | Discriminating test | Mutation | Killed? |
+| --- | --- | --- | --- |
+| C1 `79f6bc63` | `:1049` `test_skill_candidacy_requires_explicit_dispatch` | drop `elif under_skill` in `build_knowledge.py:235` | ✅ `:1079` gamma `False` |
+| C2 `fa7350aa` | `:883` `test_cohort_count_is_capped_by_concurrency_and_line_target` | skip `len(cohorts) > expected` in `build_jobs.py:195` | ✅ `:894` `0 != 1` |
+| C3 `96d282ff` | `:1204` `test_provider_block_detected_from_error_events_not_tool_output` | A: always `hit(line)` at `run_jobs.py:82` | ❌ SURVIVED — valid artifact path `run_jobs.py:157-159` still PASS, no `run-blocker.json` |
+| C3 | same | B: never match structured events at `:82` | ✅ `:1228` `1 != 2` |
+| C4 `e5b60154` | `:956` `test_sweeps_require_three_or_more_cohorts` | skip `cohorts <= 2` in `build_jobs.py:289` | ✅ `:963` `0 != 1` |
+| C5 `4b571443` | `:615` `test_repair_plan_rendered_for_every_defect_severity` | `root_cause` returns whole certificate | ✅ `:638` `Verdict` in root-cause |
+| C6 `dd2ed2cd` | `:1237` `test_invalid_artifact_is_repaired_not_re_reviewed` | skip `repair_prompt` | ✅ `:1256` no REPAIR |
+| C7 `26b23417` | `:1001` `test_prompt_and_schema_carry_no_reporting_only_obligations` | require `rule_ids` on defects | ✅ `:1037` missing `rule_ids` |
+| C8 `93f7ad8b` | `:793` `test_defect_at_prior_anchor_is_rejected_as_re_report` | skip prior-anchor reject in `_common.py:253` | ✅ `:819` `valid != invalid` |
+| C9 `68b07846` | `:973` `test_sweep_may_not_re_report_a_single_cohort_result` | skip sweep single-cohort reject in `_common.py:287` | ✅ `:996` `valid != invalid` |
+
+**Sensor**: 9/10 killed (9 required kills + 1 surviving C3 tool-output rematch).
+
+### Gates (fresh)
+
+- `python3 tools/test_deep_review_contract.py` → `Ran 44 tests in 44.104s` OK
+- `python3 tools/test_deep_review_token_metrics.py` → `Ran 28 tests in 18.296s` OK
+- `bun run test:python` → exit 0
+- `bun test` → 126 pass, 0 fail
+- `node --test tests/installer/*.test.js` → 190 pass, 2 fail: `#39` IT-012 frozen Python fixtures; `#97` IT-011 frozen packet bytes
+- Same two IDs fail on `origin/main` (`/tmp/orr-verify`). Not identical diffs: HEAD IT-012 actual plan `0e0ab046…` vs main `c5c740ed…`; HEAD IT-011 first miss `.cursor/agents/deep-reviewer.md` vs main `.claude/agents/implementer.md`. Same stale expected hashes.
+- `validate_state.py one-round-deep-review` → 0 errors (pre-FAIL write)
+- `ad-index.py --check` → up to date
+- `bun run knowledge` → `0 error(s), 65 warning(s)`
+
+### Consistency sweep
+
+Specified `rg` hits:
+- `build_jobs.py:88` `REMOVED_SWEEPS` — required rejection table
+- `README.md:57,87,93` “Visual polish” — required product-route wording, not the removed lane
+
+No hits in `docs/guidelines`, `docs/workflow`, `autonomous`, `wverify` for banned review terms.
+
+`render_html.py:44-57` still builds the old AI-agents prompt; `assets/REVIEW_UI.html:921` still renders `Prompt for AI agents`. Fixture `render_html.py` on IT-004 findings: `review.md` has Repair plan; `review.html` has the widget and **no** `Repair plan` string.
+
+### Guideline budget (`wc -c` origin/main → 430ddc15)
+
+| File | main | HEAD |
+| --- | --- | --- |
+| `docs/guidelines/REVIEW-ROUNDS.md` | 12675 | 12622 |
+| `.agents/skills/deep-review/SKILL.md` | 14058 | **14255 grew** |
+| `.agents/skills/autonomous/SKILL.md` | 12788 | 12786 |
+| `.agents/skills/wverify/SKILL.md` | 14747 | 14747 |
+
+### Test integrity
+
+`git diff origin/main..430ddc15 --stat -- tools/ tests/`: +905/−57; no test file deleted. Contract `def test_` 10→44. One rename: `test_incomplete_defect_or_polish_hunk_coverage_is_rejected` → `test_coverage_gate_requires_the_defect_lane_only` (IT-015; asserts spec defect-only gate).
+
+Re-pointed assertions:
+- IT-004 — spec P2 AC1 (C5 Premise/Path). Spec-defined.
+- IT-014 — P3 AC5 + C7 optional `rule_ids`. Spec-defined.
+- IT-015 — P3 AC1 defect-only. Spec-defined.
+- IT-023 — no longer same-anchor; mirrors C8. Not the spec edge.
+- UT-005 — beta path is P3 AC7; gamma path is C1, not in spec.
+- UT-006 — asserts C2 cap string, not spec “fits one cohort”. Mirrors C2.
+- DRM-06 `:903-908` — P3 AC9 opt-in. Spec-defined.
+- PAR-004 — `430ddc15` only fixes `\\n`→`\n` split; companion excludes branch-changed py. Unrelated-bytes invariant held.
+- `qa-skills.test.ts:624-639` — guideline remediation-check anchors (same class as IT-020). Spec P2 AC7.
+
+### Ranked gaps
+
+1. C3 tool-output rematch survives — `run_jobs.py:82` + `:157-159`; test `:1223-1226`
+2. `SKILL.md` grew 14058→14255 vs `origin/main`
+3. P3 AC6 asserted value ≠ spec — `:880` vs spec “fits one cohort”
+4. Spec same-anchor edge untested / contradicted by C8 — `_common.py:253-256`; IT-023 `:747`
+5. `review.html` leftover AI-agents widget, no Repair plan — `REVIEW_UI.html:921`; `render_html.py:44`
+
+### Post-fix re-verification (685e5599)
+
+**Date**: 2026-09-10
+**Diff range**: `430ddc15..685e5599` (`d85e51d6` R1, `aabe7a53` R2, `16439ab3` R3, `685e5599` R4)
+**Verifier**: independent sub-agent (author ≠ verifier)
+**Verdict**: PASS
+
+Prior gaps (FAIL at `430ddc15`) closed:
+
+| Prior gap | Close | Result |
+| --- | --- | --- |
+| R1 C3 tool-output rematch | `:1234-1239` no-artifact `item.completed`/`aggregated_output` only: `returncode==1`, `FAIL sweep-tests`, not `BLOCKED`, `run-blocker.json` absent. Mutant (whole-stream substring in scratch `/tmp/ordr-sensor-r1` `run_jobs.py:71`) killed at `:1236` `2 != 1` (`BLOCKED … usageLimitExceeded`). Worktree removed; porcelain unchanged. | ✅ |
+| R2 SKILL.md grew | `git show 685e5599:.agents/skills/deep-review/SKILL.md` **14037** ≤ `origin/main` **14058**. Removed sentences: spec-conformance / polish / rule-coverage / always-on Graft / round-3 — now P3 AC1/4/5/9 + remediation paragraph + `REVIEW-ROUNDS.md`. `path_instructions` deleted with the key. Suppressions/`linter-overlap` remain in `PROMPT.md:50`, `taxonomy.md:55-57`, `findings.schema.json:65-75`. No live rule lost. | ✅ |
+| R3 P3 AC6 ≠ spec | Spec AC6 (`spec.md:136`) = `min(concurrency, ceil(changed_lines / 400))` + maximum count. `build_jobs.py:184-198` `cohort_target`/`validate_cohorts`. UT-006 `:880` `should use at most 1 cohorts`; `:895` `should use at most 3 cohorts`. `validate_spec.py one-round-deep-review` exit 0. | ✅ |
+| R3 same-anchor edge | Spec edge (`spec.md:152`) = invalid naming fp. `_common.py:248-255`. C8 `:818-820` `status=="invalid"` + `re-reports prior finding fp-major`. IT-023 `:747-791` same-file different line, both `open`. | ✅ |
+| R4 review.html | Fixture `render_html.py` exit 0. `review.html` has `Repair plan` + Path `critical caller skips the guard`; no `Prompt for AI`. Shared `repair_plan` (`render_review.py:95`) at `render_review.py:88` and `render_html.py:140` (`from render_review import repair_plan` `:30`). | ✅ |
+
+**Sensor**: 1/1 killed (R1 whole-stream rematch). Scratch gone.
+
+**Test integrity**: `430ddc15..685e5599` — no test file deleted; contract `def test_` 44→44, none removed.
+
+**Gates (fresh at 685e5599)**:
+- `python3 tools/test_deep_review_contract.py` → `Ran 44 tests in 25.344s` OK
+- `python3 tools/test_deep_review_token_metrics.py` → `Ran 28 tests in 11.918s` OK
+- `bun run test:python` → exit 0
+- `bun test` → 126 pass, 0 fail
+- `node --test tests/installer/*.test.js` → 190 pass, 2 fail: `#39` IT-012 frozen Python fixtures; `#97` IT-011 frozen packet bytes (known on `origin/main`)
+- `bun test tools/shared/tests/deep-review-installation.test.ts` → 1 pass (`hashSkillTree` == `skills-lock.json` `deep-review.computedHash`)
+- `validate_spec.py one-round-deep-review` → 0 errors
+- `ad-index.py --check` → up to date
+- `bun run knowledge` → `0 error(s), 65 warning(s)`
+
+**Ranked gaps**: none.
