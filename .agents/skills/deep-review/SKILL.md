@@ -85,7 +85,7 @@ The manifest builder resolves `path_filters` into manifest.json.
 
 *Done when:* `<out>/manifest.json` exists, every changed file is accounted for as selected, ignored(reason), or skipped(reason), and every selected file carries its hunk list (the units of judgment and the publish anchors).
 
-**Step 2: Knowledge + plan — project rules, cohorts, walkthrough**
+**Step 2: Knowledge + plan — project rules, cohorts**
 
 1. STOP. Read `<skill-dir>/references/context-pack.md` and `<skill-dir>/references/taxonomy.md` in full before extracting rules or defining reviewer lanes. Run the bootstrap helper (reads the repo, writes only under `<out>`):
 
@@ -94,7 +94,7 @@ The manifest builder resolves `path_filters` into manifest.json.
    ```
 
    Read every source left pending in `<out>/rules.template.json` in full, including direct references of selected project skills. Write `<out>/rules.json` with every source marked applied or not-applicable (reason required), then extract verdict-bearing rules verbatim with scope globs. Assemble `<out>/context-pack.md` and run/fold the detected linter lanes.
-2. Read `<skill-dir>/references/orchestration.md` (cohort rules, sweep triggers) and `<skill-dir>/references/output-contracts.md` (walkthrough anatomy, effort scale) in full. Write `<out>/plan.json` — cohorts of up to `<max-cohort-files>` files (default 100) / ~6,000 changed lines plus any sweep whose trigger fires — and `<out>/walkthrough.md`.
+2. Read `<skill-dir>/references/orchestration.md` (cohort rules, sweep triggers) and `<skill-dir>/references/output-contracts.md` in full. Write `<out>/plan.json` — cohorts of up to `<max-cohort-files>` files (default 100) / ~6,000 changed lines plus any sweep whose trigger fires.
 3. Run the bootstrap plan gate (reads repo artifacts, writes only under `<out>`):
 
    ```bash
@@ -104,7 +104,7 @@ The manifest builder resolves `path_filters` into manifest.json.
 
    It rejects incomplete source accounting and over-split plans, proves defect ownership, injects bound rules into every cohort and sweep, and materializes `<out>/jobs.json`.
 
-*Done when:* build_jobs.py exits 0, every discovered source has an audited decision in rules.json, context-pack.md lists applied source/rule and linter outcomes without copying the full registry, and walkthrough.md satisfies its contract.
+*Done when:* build_jobs.py exits 0, every discovered source has an audited decision in rules.json, and context-pack.md lists applied source/rule and linter outcomes without copying the full registry.
 
 **Step 3: Review — bounded concurrent jobs**
 
@@ -127,7 +127,7 @@ python3 <skill-dir>/scripts/merge_findings.py --out <out>
 python3 <skill-dir>/scripts/render_review.py --out <out> [--rework "<structural rationale>"]
 ```
 
-merge_findings.py emits `<out>/findings.json` plus `<out>/review-stats.json`, deduplicates both result classes, reconciles rounds, and fails unless every selected hunk line has defect coverage. render_review.py derives the verdict from defects only.
+merge_findings.py emits `<out>/findings.json` plus `<out>/review-stats.json`, deduplicates both result classes, reconciles rounds, and fails unless every selected hunk line has defect coverage. render_review.py derives the verdict from defects only and generates `## Review details` from the round's artifacts.
 
 When ReportFindings is available, report defects first and every advisory afterward. The user-facing summary states the verdict, defect/advisory counts, every Critical/Major defect, coverage status, and artifact paths.
 
@@ -135,7 +135,7 @@ When ReportFindings is available, report defects first and every advisory afterw
 
 **Step 5: Publish (only with `--publish`)**
 
-1. Read `<skill-dir>/references/publish-github.md` in full and execute its recipes: upsert the walkthrough, publish every anchorable in-diff defect and advisory inline, keep only unanchorable/outside-diff results in the body, and edit resolved prior-round comments.
+1. Read `<skill-dir>/references/publish-github.md` in full. Write `<out>/walkthrough.md` per `publish-github.md` (marker + Changes table), then execute its recipes: upsert the walkthrough, publish every anchorable in-diff defect and advisory inline, keep only unanchorable/outside-diff results in the body, and edit resolved prior-round comments.
 
 *Done when:* the PR shows the updated walkthrough and the new review, and both URLs are cited in the final message.
 
@@ -152,7 +152,7 @@ The discovery review runs once per group; every later run over the same `<out>` 
 ## Error handling
 
 - `--pr` or `--publish` without a passing `gh auth status` → stop and name the gap; publishing by any other transport is out of scope.
-- Workflow tool unavailable → automatic Agent fallback; record the mode in walkthrough.md's Review details.
+- Workflow tool unavailable → automatic Agent fallback; record the mode in context-pack.md.
 - External `--subagent` failure (model not available, missing/invalid output file, non-zero exit) → apply the failure handling loaded in Step 3.
 - Empty selection after the funnel → report "nothing reviewable" with the manifest counts; write no findings.
 - A linter lane unavailable → proceed and state in review.md that overlap suppression did not run for that lane.

@@ -59,7 +59,7 @@ Append-only entries, one per correction:
 
 ## Storage conventions
 
-- `<out>` holds manifest.json, knowledge.json, rules.json, context-pack.md, plan.json, prompts/, jobs.json, agents/, runs/, walkthrough.md, findings.json, review-stats.json, review.md, state.json, and round.json.
+- `<out>` holds manifest.json, knowledge.json, rules.json, context-pack.md, plan.json, prompts/, jobs.json, agents/, runs/, findings.json, review-stats.json, review.md, state.json, and round.json.
 - When build_manifest.py starts a new round it archives everything except state.json/round.json/rounds/ into `<out>/rounds/round-<n>/` — the per-round audit trail; only state.json carries memory forward.
 - `.deep-review/learnings.md` is shared across targets and worth committing — it is team review doctrine.
 - Recommend adding `.deep-review/` to `.gitignore` with `!.deep-review/learnings.md` — suggest it once when the directory is first created; the decision belongs to the user.

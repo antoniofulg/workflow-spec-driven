@@ -511,12 +511,6 @@ class TokenMetricsTests(unittest.TestCase):
                 write_jobs(jobs, str(out.relative_to(REPO)), count=4)
                 (out / "rules.json").write_text(json.dumps({"rules": []}), encoding="utf-8")
                 (out / "context-pack.md").write_text("# Context\n", encoding="utf-8")
-                (out / "walkthrough.md").write_text(
-                    "<!-- deep-review:walkthrough -->\n"
-                    "## Walkthrough\n\n## Changes\n\n"
-                    "## Estimated code review effort\n\n## Review details\n",
-                    encoding="utf-8",
-                )
                 calls = root / "calls"
                 helper = root / "ordered.py"
                 report_helper_script(helper)

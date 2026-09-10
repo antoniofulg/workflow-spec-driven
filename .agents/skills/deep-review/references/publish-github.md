@@ -14,6 +14,21 @@ Same login means `event=COMMENT`. For a bot/machine user, `request_changes_workf
 
 ## 1. Upsert the walkthrough comment
 
+Author `$OUT/walkthrough.md` here — publish is the only step that needs it:
+
+```markdown
+<!-- deep-review:walkthrough -->
+## Changes
+
+| Cohort / File(s) | Summary |
+| --- | --- |
+| **<cohort name>** <br> `<path>`, `<path>` | <what changed there, 1–2 sentences> |
+
+## Review details
+
+<the `## Review details` list copied from review.md>
+```
+
 One comment per PR, edited in place through its marker:
 
 ```bash

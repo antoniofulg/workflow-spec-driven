@@ -148,14 +148,6 @@ def render_fixture(root: Path, findings: list[dict]) -> Path:
     )
     (out / "rules.json").write_text(json.dumps({"rules": []}), encoding="utf-8")
     (out / "context-pack.md").write_text("# Context\n", encoding="utf-8")
-    (out / "walkthrough.md").write_text(
-        "<!-- deep-review:walkthrough -->\n"
-        "## Walkthrough\n\n"
-        "## Changes\n\n"
-        "## Estimated code review effort\n\n"
-        "## Review details\n",
-        encoding="utf-8",
-    )
     (out / "findings.json").write_text(
         json.dumps(
             {
@@ -714,6 +706,11 @@ class DeepReviewContractTests(unittest.TestCase):
             self.assertEqual(rendered.returncode, 0, rendered.stdout + rendered.stderr)
             review = (out / "review.md").read_text(encoding="utf-8")
             self.assertIn("**Verdict: SHIP**", review)
+            details = review.split("## Review details", 1)[1].split("## Findings", 1)[0]  # script-derived, never a walkthrough
+            self.assertIn("(incremental, round 2)", details)
+            self.assertIn("**Files**: 1 selected", details)
+            self.assertIn("**Jobs**: 1 (1 cohort)", details)
+            self.assertNotIn("## Walkthrough", review)
             state = json.loads((out / "state.json").read_text(encoding="utf-8"))
             self.assertEqual(state["ledger"]["fp-major"]["status"], "resolved")
             self.assertEqual(state["ledger"]["fp-major"]["resolved_in"], info["head"])

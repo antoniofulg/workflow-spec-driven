@@ -55,7 +55,7 @@ Sweeps are **opt-in and rare** — default to none. Each sweep is one extra agen
 
 ## Engines
 
-The jobs contract makes engines interchangeable — pick one per run, record it in walkthrough.md's Review details (`Mode: workflow | agent-fallback | subagent:<runtime>`), and always close the loop with `run_jobs.py --validate-only`. Validation rejects missing coverage rows, in-diff anchors outside job ownership, and unassigned rule ids.
+The jobs contract makes engines interchangeable — pick one per run, record it in context-pack.md (`Mode: workflow | agent-fallback | subagent:<runtime>`), and always close the loop with `run_jobs.py --validate-only`. Validation rejects missing coverage rows, in-diff anchors outside job ownership, and unassigned rule ids.
 
 **Named native dispatch (default when host supports it).** Dispatch up to the manifest concurrency
 bound to the custom `deep-reviewer` agent, refill slots as jobs complete, and keep retries inside
@@ -70,7 +70,7 @@ the host's real selector:
 Metrics are optional provider-neutral hooks. An adapter may call `start_metrics`,
 `checkpoint_metrics`, and `finalize_metrics` around the bounded dispatch; the main thread records
 serialized cumulative snapshots only and never assigns overlapping deltas to jobs or changes exits.
-Record `Mode: native` in walkthrough.md, then run the validate-only gate. Provider-specific
+Record `Mode: native` in context-pack.md, then run the validate-only gate. Provider-specific
 telemetry setup belongs in the runtime adapter guidance, not in this orchestration contract.
 
 Before prompts are materialized, `build_jobs.py` runs the pinned Graft CLI only when

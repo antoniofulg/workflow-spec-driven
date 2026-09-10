@@ -9,16 +9,16 @@ defects (advisories never affect it); otherwise FIX_BEFORE_SHIP. REWORK is the
 orchestrator's structural judgment — pass --rework "<rationale>"; the script
 refuses REWORK without open Critical/Major and refuses SHIP with them.
 
-Requires an orchestrator-authored walkthrough.md with the contract sections.
-Exit codes: 0 ok, 1 contract violation (drifted source, missing sections,
-illegal verdict).
+The `## Review details` block is generated from manifest.json, jobs.json, and
+rules.json; walkthrough.md is a publish-only artifact and is never inlined.
+Exit codes: 0 ok, 1 contract violation (drifted source, illegal verdict).
 """
 
 from __future__ import annotations
 
 import argparse
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -35,10 +35,22 @@ CATEGORY_BADGE = {
     "refactor": "🛠️ Refactor suggestion",
     "nitpick": "🧹 Nitpick",
 }
-WALKTHROUGH_SECTIONS = [
-    "<!-- deep-review:walkthrough -->", "## Walkthrough", "## Changes",
-    "## Estimated code review effort", "## Review details",
-]
+def review_details(out: Path, manifest: dict) -> list[str]:
+    """Script-derived facts about the round — no prose, no estimate."""
+    files = Counter(item.get("disposition") for item in manifest.get("files", []))
+    jobs = read_json(out / "jobs.json")["jobs"] if (out / "jobs.json").is_file() else []
+    kinds = ", ".join(f"{count} {kind}" for kind, count in sorted(Counter(job["kind"] for job in jobs).items()))
+    registry = read_json(out / "rules.json")
+    applied = sum(1 for row in registry.get("sources", []) if row.get("status") == "applied")
+    return [
+        "## Review details", "",
+        f"- **Scope**: {manifest['base'][:12]} → {manifest['head'][:12]} ({manifest.get('mode', 'full')}, round {manifest['round']})",
+        f"- **Files**: {files['selected']} selected · {files['ignored']} ignored · {files['skipped']} skipped · {files['carried']} carried",
+        f"- **Jobs**: {len(jobs)}" + (f" ({kinds})" if kinds else ""),
+        f"- **Concurrency**: {manifest.get('concurrency', 'unset')}",
+        f"- **Rules**: {applied} sources → {len(registry.get('rules', []))} rules",
+        "",
+    ]
 
 
 def one_line(value: str) -> str:
@@ -141,10 +153,7 @@ def main() -> int:
         manifest = read_json(out / "manifest.json")
         ledger = read_json(out / "findings.json")
         rules_by_id = {rule["id"]: rule for rule in read_json(out / "rules.json")["rules"]}
-        walkthrough = (out / "walkthrough.md").read_text(encoding="utf-8")
-        missing = [s for s in WALKTHROUGH_SECTIONS if s not in walkthrough]
-        if missing:
-            raise RuntimeError(f"walkthrough.md lacks contract sections: {missing}")
+        details = review_details(out, manifest)
 
         findings = ledger["findings"]
         advisories = ledger.get("advisories", [])
@@ -196,8 +205,7 @@ def main() -> int:
         f"advisories: {len(new_advisories)} · duplicates: {len(duplicates) + len(duplicate_advisories) + len(reconciliation.get('still_open_unreviewed', []))} · "
         f"resolved since last round: {len(resolved)} · merged duplicate reports: {ledger['summary']['merged_raw']}",
         "",
-        walkthrough.rstrip(),
-        "",
+        *details,
         "## Findings",
         "",
         *by_file_sections([f for f in new if f["in_diff"]], rules_by_id),

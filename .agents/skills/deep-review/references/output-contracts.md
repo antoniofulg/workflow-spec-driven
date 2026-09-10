@@ -1,56 +1,13 @@
 # Output Contracts
 
-Exact templates for every artifact. Placeholders in `<angle brackets>`; keep section order and marker strings byte-stable — fingerprints and upserts depend on them. walkthrough.md is orchestrator-authored; review.md and state.json are rendered from findings.json by `scripts/render_review.py`, which implements these templates and the verdict rule — this file is the contract it must keep.
+Exact templates for every artifact. Placeholders in `<angle brackets>`; keep section order and marker strings byte-stable — fingerprints and upserts depend on them. review.md and state.json are rendered from findings.json by `scripts/render_review.py`, which implements these templates and the verdict rule — this file is the contract it must keep.
 
 ## Contents
 
-- walkthrough.md
 - Finding block
 - review.md
 - ReportFindings mapping
 - Verdict rule
-
-## walkthrough.md
-
-```markdown
-<!-- deep-review:walkthrough -->
-## Walkthrough
-
-<one dense paragraph: what the change does across the stack, in prose>
-
-## Changes
-
-| Cohort / File(s) | Summary |
-| --- | --- |
-| **<cohort name>** <br> `<path>`, `<path>`, `<dir>/{a,b}.go` | <what changed there, 1–2 sentences> |
-
-## Sequence Diagram(s)
-
-<only when the change alters a multi-actor flow (request path, event flow, lifecycle);
-one mermaid sequenceDiagram per flow, actors = real components>
-
-## Estimated code review effort
-
-🎯 <1-5> (<label>) | ⏱️ ~<minutes> minutes
-
-## Review details
-
-- **Scope**: <base sha short> → <head sha short> (<incremental round N | full review>)
-- **Files**: <n> selected · <n> ignored by filters · <n> skipped (trivial/similar)
-- **Posture**: assertive · **Mode**: <workflow|agent-fallback|subagent:runtime>
-- **Rubric**: <sources consulted, comma-separated paths>
-- **Linters**: <lane: ran/unavailable, ...>
-```
-
-Effort scale (calibrate on *reviewable surface* — selected source, not raw file count):
-
-| 🎯 | Label | ⏱️ | When |
-| --- | --- | --- | --- |
-| 1 | Trivial | ~5 min | mechanical or config-only |
-| 2 | Simple | ~12 min | small localized change |
-| 3 | Moderate | ~25 min | one subsystem, some cross-file reasoning |
-| 4 | Complex | ~60 min | multiple subsystems or a contract change |
-| 5 | Critical | ~120 min | core invariants, storage, security, or wide blast radius |
 
 ## Finding block (used in review.md and PR comments)
 
@@ -98,7 +55,13 @@ Bracketed lines appear only when they apply. Every result has the certificate fo
 **Verdict: <SHIP | FIX_BEFORE_SHIP | REWORK>** — <one-line rationale>
 **Defects: <n>** (🔴 <n> · 🟠 <n> · 🟡 <n>) · advisories: <n> · duplicates: <n> · resolved since last round: <n> · merged duplicate reports: <n>
 
-<walkthrough.md content, inlined>
+## Review details
+
+- **Scope**: <base12> → <head12> (<full|incremental>, round <N>)
+- **Files**: <n> selected · <n> ignored · <n> skipped · <n> carried
+- **Jobs**: <n> (<n> cohort, <n> sweep)
+- **Concurrency**: <manifest.concurrency>
+- **Rules**: <applied sources> sources → <rules> rules
 
 ## Findings
 
@@ -130,7 +93,7 @@ Bracketed lines appear only when they apply. Every result has the certificate fo
 <candidate, suppression, and complete defect hunk coverage counts>
 ```
 
-`review.md` orders files by max severity, then path.
+`review.md` orders files by max severity, then path. `## Review details` is script-derived from manifest.json, jobs.json, and rules.json; walkthrough.md (publish-only, `publish-github.md`) is never inlined.
 
 ## ReportFindings mapping
 
