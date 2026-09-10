@@ -25,6 +25,7 @@ PROVIDERS = ("claude", "codex", "cursor")
 AGENT_NAMES = {"deep_reviewer": "deep-reviewer"}
 EFFORTS = ("low", "medium", "high", "xhigh", "max", "ultra")
 CADENCE_DEFAULT = "grouped.3"
+CADENCES = ("slice", "feature", "skip")
 CADENCE_RE = re.compile(r"^grouped\.(\d+)$")
 SLUG_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
 CONFIG_VERSION = 3
@@ -78,21 +79,30 @@ def _error(message: str) -> ConfigError:
     return ConfigError(f"workflow-config: {message}")
 
 
+def _grouped_maximum(cadence: str) -> int | None:
+    """Validate a cadence; return N for grouped.N, None for a literal cadence."""
+    if cadence in CADENCES:
+        return None
+    match = CADENCE_RE.fullmatch(cadence)
+    if not match:
+        raise _error("cadence must be 'slice', 'feature', 'skip', or 'grouped.N'")
+    maximum = int(match.group(1))
+    if maximum < 1:
+        raise _error("grouped.N requires N to be at least 1")
+    return maximum
+
+
 def balanced_groups(slice_count: int, cadence: str) -> list[list[int]]:
-    """Return consecutive, balanced 1-based slice groups for a cadence."""
+    """Return consecutive, balanced 1-based slice groups for a cadence; `skip` has none."""
     if slice_count < 1:
         raise _error("slice count must be at least 1")
+    maximum = _grouped_maximum(cadence)
+    if cadence == "skip":
+        return []
     if cadence == "slice":
         return [[index] for index in range(1, slice_count + 1)]
     if cadence == "feature":
         return [list(range(1, slice_count + 1))]
-
-    match = CADENCE_RE.fullmatch(cadence)
-    if not match:
-        raise _error("cadence must be 'slice', 'feature', or 'grouped.N'")
-    maximum = int(match.group(1))
-    if maximum < 1:
-        raise _error("grouped.N requires N to be at least 1")
 
     group_count = (slice_count + maximum - 1) // maximum
     base, remainder = divmod(slice_count, group_count)
@@ -218,6 +228,7 @@ def _validate_config_schema(config: dict[str, Any]) -> None:
     cadence = deep_review.get("cadence", CADENCE_DEFAULT)
     if not isinstance(cadence, str):
         raise _error("deep_review.cadence must be a string")
+    _grouped_maximum(cadence)
 
     parallelization = config.get("parallelization", {})
     if parallelization is None:
@@ -723,17 +734,17 @@ def _validate_snapshot(root: Path, feature: str, snapshot: Any) -> dict[str, Any
     if not isinstance(cadence, str):
         raise _error("existing snapshot deep_review.cadence must be a string")
     groups = deep_review["groups"]
-    if not isinstance(groups, list) or not groups or any(
+    if not isinstance(groups, list) or any(
         not isinstance(group, list)
         or not group
         or any(type(index) is not int or index < 1 for index in group)
         for group in groups
     ):
-        raise _error("existing snapshot deep_review.groups must be non-empty integer lists")
+        raise _error("existing snapshot deep_review.groups must be a list of non-empty integer lists")
     flattened = [index for group in groups for index in group]
     if flattened != list(range(1, len(flattened) + 1)):
         raise _error("existing snapshot deep_review.groups must be consecutive")
-    if balanced_groups(len(flattened), cadence) != groups:
+    if balanced_groups(max(len(flattened), 1), cadence) != groups:
         raise _error("existing snapshot deep_review.groups do not match cadence")
 
     parallelization = snapshot["parallelization"]

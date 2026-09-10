@@ -1,14 +1,14 @@
 # QA Execution
 
-**Read when:** a diff changes public, user-observable behaviour or the feature reaches its final QA
-session.
+**Read when:** a feature reaches its closing QA session.
 
-`qa-plan` and `qa-execute` own the procedures. This guideline only decides when QA runs, dispatches
+`qa-plan` and `qa-execute` own the procedures. This guideline only decides whether QA runs, dispatches
 the existing Verifier, and points to the authorities that keep the contract stable.
 
 ## Trigger
 
-Run QA when a feature diff changes an observable UI, API, CLI, mobile surface, public configuration,
+QA runs once per feature, at feature close over the integrated tree; no slice runs QA. Run it when
+the feature diff changes an observable UI, API, CLI, mobile surface, public configuration,
 adoption flow, docs-as-interface, or user-facing copy, unless the proportional classifier in
 `GATES.md` selects a narrower route. A behavior-preserving `direct correction` or `UI-only correction`
 is the exception: its targeted integration validation covers the consuming project and it receives no QA Plan/Execute cycle,
@@ -18,7 +18,8 @@ technical verification only. Record `no user-visible change` when no public prom
 
 ## Dispatch
 
-Use the provider's existing `verifier` with one phase per packet:
+After the final implementation deep-review group, use the provider's existing `verifier` with one
+phase per packet:
 
 1. Send a fresh `phase: qa-plan` packet to invoke `qa-plan`, create or refresh durable journeys and
    scenarios, and create a new dated charter for this cycle. Never edit an existing charter.

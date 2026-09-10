@@ -1425,6 +1425,7 @@ def test_cadence_modes_and_balancing() -> None:
             5: [[1, 2, 3], [4, 5]], 6: [[1, 2, 3], [4, 5, 6]],
             7: [[1, 2, 3], [4, 5], [6, 7]], 8: [[1, 2, 3], [4, 5, 6], [7, 8]],
         },
+        "skip": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: []},
     }
     for cadence, cases in expected.items():
         for slice_count, groups in cases.items():
@@ -1438,13 +1439,57 @@ def test_cadence_modes_and_balancing() -> None:
         assert "at least 1" in str(exc)
     else:
         raise AssertionError("expected invalid slice count")
-    for cadence in ("grouped", "grouped.0", "grouped.x", "other"):
+    for cadence in ("grouped", "grouped.0", "grouped.x", "other", "Skip", "none"):
         try:
             workflow_config.balanced_groups(2, cadence)
         except workflow_config.ConfigError:
             pass
         else:
             raise AssertionError(f"expected invalid cadence: {cadence}")
+
+
+def test_config_load_rejects_unknown_cadence_before_resolution() -> None:
+    root = make_repo()
+    try:
+        write_derived_tasks(root, "bad-cadence", 2)
+        write_config(root, cadence="none")
+        try:
+            workflow_config.resolve(root=root, feature="bad-cadence", native_provider="codex")
+        except workflow_config.ConfigError as exc:
+            assert "'skip'" in str(exc)
+        else:
+            raise AssertionError("expected invalid cadence at config load")
+        assert not (root / ".specs/features/bad-cadence/workflow.json").exists()
+    finally:
+        shutil.rmtree(root)
+
+
+def test_skip_cadence_freezes_empty_groups_and_validates_snapshot() -> None:
+    root = make_repo()
+    try:
+        write_derived_tasks(root, "skip", 3)
+        write_config(root, cadence="skip")
+        first = workflow_config.resolve(root=root, feature="skip", native_provider="codex")
+        assert first["deep_review"] == {"cadence": "skip", "groups": []}
+        snapshot_path = root / ".specs/features/skip/workflow.json"
+        snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+        assert snapshot["deep_review"] == {"cadence": "skip", "groups": []}
+        write_config(root, cadence="grouped.3")
+        assert workflow_config.resolve(root=root, feature="skip", native_provider="cursor") == first
+
+        for cadence, groups in (("grouped.3", []), ("skip", [[1]]), ("skip", [[1, 2, 3]])):
+            snapshot["deep_review"] = {"cadence": cadence, "groups": groups}
+            snapshot_path.write_text(json.dumps(snapshot), encoding="utf-8")
+            before = snapshot_path.read_bytes()
+            try:
+                workflow_config.resolve(root=root, feature="skip", native_provider="codex")
+            except workflow_config.ConfigError as exc:
+                assert "deep_review.groups do not match cadence" in str(exc)
+            else:
+                raise AssertionError(f"expected invalid snapshot: {cadence} {groups}")
+            assert snapshot_path.read_bytes() == before
+    finally:
+        shutil.rmtree(root)
 
 
 def test_profile_precedence_and_partial_defaults() -> None:
@@ -1576,6 +1621,7 @@ def test_cli_loads_configured_cadence_into_json_and_snapshot() -> None:
             ("feature", 4, [[1, 2, 3, 4]], "\n[remediation]\nstall_attempts = 5\n", 5),
             ("grouped.2", 6, [[1, 2], [3, 4], [5, 6]], "\n[remediation]\nstall_attempts = 0\n", 0),
             ("grouped.4", 8, [[1, 2, 3, 4], [5, 6, 7, 8]], "", 3),
+            ("skip", 5, [], "", 3),
         )
         for index, (cadence, slice_count, groups, remediation_extra, stall_attempts) in enumerate(cases):
             write_config(root, cadence=cadence, extra=remediation_extra)

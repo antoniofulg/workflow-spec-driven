@@ -146,7 +146,7 @@ The normal evidence contract remains intact:
 
 - one atomic commit and scoped gate per task;
 - one technical Verifier per code-changing slice;
-- deep-review at the frozen groups;
+- deep-review at the frozen groups (none when the frozen cadence is `skip`; nothing waits for it);
 - final QA;
 - one full gate on the final tree.
 

@@ -11,15 +11,12 @@ and filed Trivials make review end.
 | Stage | Asks | Cap |
 | --- | --- | --- |
 | **Technical Verifier** (every slice that changes code) | Do the tests actually prove the acceptance criteria? | Same-fingerprint live threshold |
-| **QA Plan** (public slices) | Which public promises need a walk? | One fresh Verifier session |
-| **QA Execute** (public slices) | Does this behaviour work through the declared adapter? | One fresh Verifier session |
 | **deep-review** (resolved implementation groups) | Is the code correct, safe and maintainable? | Discovery once; one remediation check per batch until no Critical/Major is open or `stall_attempts` halts |
 | **QA session** (feature closing step) | Does the finished feature work for a real user? | One `qa-plan` and one `qa-execute` session |
 The provider `verifier` executes exactly one phase per packet: `technical`, `qa-plan`, or
-`qa-execute`. The orchestrator dispatches a technical packet, then fresh QA Plan and QA Execute
-packets for a public slice. Deep-review is a separate orchestrator stage, not a Verifier phase;
-internal-only changes skip the QA packets. All QA stages read `docs/guidelines/QA-SCENARIOS.md`; it owns
-fields and statuses. Each stage answers a question the others cannot, so none is redundant. Direct corrections follow `.agents/skills/workflow-spec-driven/SKILL.md`: scoped validation closes them, with no fresh Verifier, deep-review, or QA.
+`qa-execute`. The orchestrator dispatches a technical packet per code-changing slice and the QA
+packets once, at feature close; no slice runs QA. Deep-review is a separate orchestrator stage, not a Verifier phase.
+The QA session reads `docs/guidelines/QA-SCENARIOS.md`; it owns fields and statuses. Each stage answers a question the others cannot, so none is redundant. Direct corrections follow `.agents/skills/workflow-spec-driven/SKILL.md`: scoped validation closes them, with no fresh Verifier, deep-review, or QA.
 
 Intent vocabulary is routing input, not a keyword bypass: `feature` starts at Small, `cross-feature change` at Medium, `direct correction`/`UI-only correction` use the fast path only when the repository predicate passes, and `issue` is neutral. State tier, facts, and validation before dispatch; escalation requires newly discovered named evidence, not file count or UI presence.
 
@@ -36,16 +33,15 @@ Technical Verifier. A clean remediation check or the stall bound ends the loop; 
 approval for local remediation already in progress. The post-fix gate and escalation rule below
 decide whether the slice is done.
 
-Before final QA, complete the final pending implementation deep-review group. For QA code remediation, review only `reviewed_head..HEAD`, then re-walk affected scenario rows.
+Before final QA, complete the final pending implementation deep-review group; cadence `skip` resolves no groups, so nothing waits for deep-review. For QA code remediation, review only `reviewed_head..HEAD`, then re-walk affected scenario rows.
 
 ## The feature closing step
 
 A feature's closing step is the **QA session**, after the final implementation review group. It
 needs the whole feature and cannot run on part of one. The `qa-plan` and `qa-execute` skills own it.
 
-It writes no product code, so it gets no technical Verifier or deep-review. It still receives distinct
-fresh packets, `qa-plan` and `qa-execute`. Per-slice QA answers *"does this behaviour work?"*; the
-final session answers *"does the finished thing feel right?"* after all implementation groups close.
+It writes no product code, so it gets no technical Verifier or deep-review. It receives distinct
+fresh packets, `qa-plan` and `qa-execute`, and walks every scenario the feature flagged.
 
 ## Hard rules
 

@@ -169,26 +169,42 @@ describe("autonomous parallel slice dispatch contract", () => {
       { id: "S1", ref: "a1" },
       { id: "S2", ref: "b1" },
     ];
-    const trace = route.flatMap((row) => {
-      if (row.cardinality === "per-slice") {
-        return slices.map((slice) => ({
-          phase: row.stage,
-          actor: `${row.owner}-${slice.id}`,
-          tree: treeFor(row, slice),
-        }));
-      }
-      if (row.cardinality === "per-group") {
-        return [{ phase: row.stage, actor: `${row.owner}-G1`, tree: treeFor(row, undefined) }];
-      }
-      if (row.cardinality === "last-implementer") {
-        return [{
-          phase: row.stage,
-          actor: `${row.owner}-${slices.at(-1)?.id}`,
-          tree: treeFor(row, slices.at(-1)),
-        }];
-      }
-      return [{ phase: row.stage, actor: row.owner, tree: treeFor(row, undefined) }];
-    });
+    const traceFor = (groups: number[][]) =>
+      route.flatMap((row) => {
+        if (row.cardinality === "per-slice") {
+          return slices.map((slice) => ({
+            phase: row.stage,
+            actor: `${row.owner}-${slice.id}`,
+            tree: treeFor(row, slice),
+          }));
+        }
+        if (row.cardinality === "per-group") {
+          return groups.map((_, index) => ({
+            phase: row.stage,
+            actor: `${row.owner}-G${index + 1}`,
+            tree: treeFor(row, undefined),
+          }));
+        }
+        if (row.cardinality === "last-implementer") {
+          return [{
+            phase: row.stage,
+            actor: `${row.owner}-${slices.at(-1)?.id}`,
+            tree: treeFor(row, slices.at(-1)),
+          }];
+        }
+        return [{ phase: row.stage, actor: row.owner, tree: treeFor(row, undefined) }];
+      });
+    const trace = traceFor([[1, 2]]);
+
+    const skipTrace = traceFor([]);
+    expect(skipTrace.some(({ phase }) => phase === "deep-review")).toBe(false);
+    expect(skipTrace.map(({ phase }) => phase).filter((phase) => phase !== "implement" && phase !== "technical")).toEqual([
+      "integrate",
+      "qa-plan",
+      "qa-execute",
+      "handoff",
+    ]);
+    expect(policy).toContain("none when the frozen cadence is `skip`; nothing waits for it");
 
     const authors = new Set(
       trace.filter(({ phase }) => phase === "implement").map(({ actor }) => actor),

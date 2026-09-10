@@ -772,7 +772,9 @@ describe("configurable review policy", () => {
     expect(reviewRounds).toContain("deep-review** (resolved implementation groups)");
     expect(reviewRounds).not.toContain("deep-review** (every slice)");
     const finalGroupInstruction =
-      "Before final QA, complete the final pending implementation deep-review group.";
+      "Before final QA, complete the final pending implementation deep-review group; cadence `skip` resolves no groups, so nothing waits for deep-review.";
+    expect(readme).toContain("- `skip`: no groups (`[]`)");
+    expect(readRepositoryFile(".my-workflow.toml.example")).toMatch(/^cadence = "grouped\.3".*\bskip\b/m);
     const qaHeading = "## The feature closing step";
     const remediationInstruction =
       "For QA code remediation, review only `reviewed_head..HEAD`, then re-walk affected scenario rows.";
@@ -830,6 +832,16 @@ describe("configurable review policy", () => {
       "The feature-closing QA session runs after the final implementation deep-review group";
     expect(qaScenarios).toContain(closingQa);
     expect(qaScenarios).not.toContain("The feature's last slice runs");
+    expect(qaScenarios).not.toContain("A slice walks what it flags");
+    for (const source of [
+      readRepositoryFile("docs/guidelines/QA-EXECUTION.md"),
+      readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md"),
+      readRepositoryFile("docs/workflow/loop.md"),
+      readRepositoryFile("docs/workflow/reviews.md"),
+    ]) {
+      expect(source).toContain("no slice runs QA");
+      expect(source).not.toMatch(/public slices?|per-slice QA/i);
+    }
     expect(gates).toContain(
       "| Closing a task with a browser surface | The consuming project's browser scoped gate, filtered by `@feature:<slug>` |",
     );

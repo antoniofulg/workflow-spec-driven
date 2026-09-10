@@ -133,16 +133,12 @@ Named visual-reference work follows `GATES.md`: use `UI-UX.md#verifying-the-buil
 validation, and create or reset a QA scenario only when the product promise changes or QA is selected.
 When QA runs, point the report at the feature `uiux.md` reference rows and retain behavioral evidence.
 
-Then walk them before the feature's pull request, per `docs/guidelines/QA-EXECUTION.md`. A flag
-without a walk is `untested` debt that no cycle is guaranteed to clear.
-
-**A slice walks what it flags.** A slice that puts something in front of a user flags its scenarios
-and walks them before it is done — the behaviour is complete by definition, so the verdict is real
-rather than provisional. A slice with no user-visible surface flags nothing and walks nothing.
+Then walk them in the feature-closing QA session, per `docs/guidelines/QA-EXECUTION.md`. A flag
+without a walk is `untested` debt that no cycle is guaranteed to clear. A slice flags; it never walks.
 
 The feature-closing QA session runs after the final implementation deep-review group, per
-`docs/guidelines/QA-EXECUTION.md` and `docs/guidelines/REVIEW-ROUNDS.md`. It covers everything; a
-scenario already walked and passing is confirmed there, not re-litigated.
+`docs/guidelines/QA-EXECUTION.md` and `docs/guidelines/REVIEW-ROUNDS.md`. It walks every scenario
+the feature's slices flagged.
 
 ## Merge behaviour
 

@@ -233,6 +233,8 @@ The `cadence` controls the deep-review groups:
 - `feature`: one group for the whole feature (`1, 2, 3, 4` → `[1, 2, 3, 4]`).
 - `grouped.N`: consecutive, balanced groups with at most `N` slices (`grouped.3` with four
   slices → `[1, 2] [3, 4]`).
+- `skip`: no groups (`[]`); final QA, readiness, and merge do not wait for deep-review, and the
+  human runs `wreview` later.
 
 Post-cap remediation is bounded by `[remediation] stall_attempts`. It defaults to `3`; `0` means
 unbounded. The threshold is read from the current local config on every attempt and is not stored
