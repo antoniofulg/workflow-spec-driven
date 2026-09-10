@@ -3,10 +3,10 @@
 ## Handoff
 
 - **Feature**: `one-round-deep-review` (branch `feat/one-round-deep-review`, worktree `../my-workflow-one-round-deep-review`)
-- **Phase / Task**: Implementation complete locally — slices `integrity`, `remediation-check`, `diet` (T1–T16) each Technical Verifier PASS; content-test alignment batch at `923be1c2`
-- **Completed**: fingerprint-only merge, explicit `prior_findings` dispositions, verdict counts carried open Critical/Major, stale-output archiving, Repair plan block, one-job incremental remediation check, polish lane and `tests`/`spec-parity` sweeps removed, rule matrix and suppressions optional, cohort floor, dispatched-skill knowledge scoping with cross-round reuse, Graft opt-in, `REVIEW-ROUNDS.md` remediation-check rule, AD-031. `tools/test_deep_review_contract.py` 38 tests; `bun run test` 124/126 (two failures pre-exist on `origin/main`: skills-lock hash, Bun no-install boundary).
+- **Phase / Task**: Implementation complete locally — slices `integrity`, `remediation-check`, `diet` (T1–T16) each Technical Verifier PASS; content-test batch `923be1c2`; benchmark-driven direct corrections C1–C5 at `79f6bc63..3aebfbf5` (skill-in-diff rule binding, concurrency-sized cohorts, event-based block detection, sweeps ≥3 cohorts, repair-plan root cause)
+- **Completed**: fingerprint-only merge, explicit `prior_findings` dispositions, verdict counts carried open Critical/Major, stale-output archiving, Repair plan block, one-job incremental remediation check, polish lane and `tests`/`spec-parity` sweeps removed, rule matrix and suppressions optional, cohort floor, dispatched-skill knowledge scoping with cross-round reuse, Graft opt-in, `REVIEW-ROUNDS.md` remediation-check rule, AD-031. `tools/test_deep_review_contract.py` 41 tests; `bun run test` 124/126 (two failures pre-exist on `origin/main`: skills-lock hash, Bun no-install boundary).
 - **In-progress** (file:line): none
-- **Next step**: deep-review of this branch with the new pipeline (`/wreview --base origin/main` in the worktree) doubles as the human's dry run; then QA session; delivery is human-scheduled and unpushed.
+- **Next step**: re-run benchmark phase A+B on `dryrun/base..dryrun/head-r1..dryrun/head-r2` with `--out .deep-review/dryrun-codex-v2` (baseline in `dryrun-codex/`); expected: 3 cohorts, 0 sweeps, the two `<out>`-scope Majors found, no false BLOCKED. Then deep-review of the branch, QA session; delivery human-scheduled, unpushed.
 - **Blockers**: none. Not pushed; no PR.
 
 ## Decisions
