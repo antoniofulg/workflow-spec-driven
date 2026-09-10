@@ -863,6 +863,22 @@ class DeepReviewContractTests(unittest.TestCase):
                 self.assertEqual(build.returncode, 1, build.stdout + build.stderr)
                 self.assertIn(f"sweep '{sweep}' was removed: the Technical Verifier owns {owner}", build.stderr)
 
+    def test_spec_contract_without_spec_parity_job_ships_with_no_conformance_section(self) -> None:
+        # IT-013 (P3 AC4)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out = render_fixture(root, [])
+            (out / "context-pack.md").write_text(
+                "# Context\n\n## Spec contract\n\n- `docs/spec.md` → the contract\n", encoding="utf-8"
+            )
+            (out / "jobs.json").write_text(json.dumps({"jobs": []}), encoding="utf-8")
+            result = run_script(RENDER_REVIEW, root, "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            review = (out / "review.md").read_text(encoding="utf-8")
+            self.assertIn("**Verdict: SHIP**", review)
+            self.assertNotIn("## Spec conformance", review)
+            self.assertNotIn("spec-parity", review)
+
     def test_validate_only_rejects_source_drift_before_accepting_valid_output(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)

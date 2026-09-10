@@ -5,20 +5,18 @@ Renders review.md from findings.json per references/output-contracts.md and
 appends the round to state.json (fingerprint ledger: open/resolved/dismissed).
 Refuses to render on a drifted checkout (--no-freeze-check to skip). The
 verdict is derived, never asserted: SHIP requires zero open Critical/Major
-defects (advisories never affect it) and, when a Spec contract section exists, a
-completed spec-parity assessment; otherwise FIX_BEFORE_SHIP. REWORK is the
+defects (advisories never affect it); otherwise FIX_BEFORE_SHIP. REWORK is the
 orchestrator's structural judgment — pass --rework "<rationale>"; the script
 refuses REWORK without open Critical/Major and refuses SHIP with them.
 
 Requires an orchestrator-authored walkthrough.md with the contract sections.
 Exit codes: 0 ok, 1 contract violation (drifted source, missing sections,
-unmapped spec findings, illegal verdict).
+illegal verdict).
 """
 
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -119,36 +117,6 @@ def by_file_sections(findings: list[dict], rules_by_id: dict[str, dict]) -> list
     return lines
 
 
-def spec_artifacts(context_pack: str) -> list[str]:
-    match = re.search(r"^#{1,2} Spec contract\b.*?$", context_pack, re.M)
-    if match is None:
-        return []
-    section = context_pack[match.end():]
-    next_heading = re.search(r"^#{1,2} ", section, re.M)
-    if next_heading:
-        section = section[: next_heading.start()]
-    return re.findall(r"^- `([^`]+)`", section, re.M)
-
-
-def map_spec_violations(open_findings: list[dict], artifacts: list[str]) -> dict[str, list[str]]:
-    mapping: dict[str, list[str]] = defaultdict(list)
-    unmapped = []
-    spec_findings = [f for f in open_findings if "sweep-spec-parity" in (f.get("source_jobs") or [])]
-    for finding in spec_findings:
-        haystack = (finding.get("guideline") or "") + " " + " ".join(finding.get("evidence", []))
-        matched = [a for a in artifacts if a in haystack]
-        if not matched:
-            unmapped.append(finding["fingerprint"])
-            continue
-        for artifact in matched:
-            mapping[artifact].append(claim(finding["title"]))
-    if unmapped:
-        raise RuntimeError(
-            f"spec-parity findings name no known artifact in guideline/evidence: {unmapped[:4]}"
-        )
-    return {artifact: list(dict.fromkeys(titles)) for artifact, titles in mapping.items()}
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", required=True)
@@ -170,7 +138,6 @@ def main() -> int:
         missing = [s for s in WALKTHROUGH_SECTIONS if s not in walkthrough]
         if missing:
             raise RuntimeError(f"walkthrough.md lacks contract sections: {missing}")
-        context_pack = (out / "context-pack.md").read_text(encoding="utf-8")
 
         findings = ledger["findings"]
         advisories = ledger.get("advisories", [])
@@ -185,8 +152,6 @@ def main() -> int:
         # Prior open entries without a disposition stay open and count in the verdict.
         carried = [prior_ledger[fp] for fp in reconciliation.get("still_open_unreviewed", []) if fp in prior_ledger]
         open_cm = [f for f in [*open_findings, *carried] if f["severity"] in {"critical", "major"}]
-        artifacts = spec_artifacts(context_pack)
-        spec_mapping = map_spec_violations(open_findings, artifacts) if artifacts else {}
 
         if args.rework is not None:
             if not open_cm:
@@ -194,7 +159,7 @@ def main() -> int:
             if not args.rework.strip():
                 raise RuntimeError("--rework requires a non-empty rationale")
             verdict, rationale = "REWORK", args.rework.strip()
-        elif open_cm or spec_mapping:
+        elif open_cm:
             verdict = "FIX_BEFORE_SHIP"
             counts = defaultdict(int)
             for finding in open_cm:
@@ -202,17 +167,8 @@ def main() -> int:
             rationale = (
                 f"{counts['critical']} Critical and {counts['major']} Major findings "
                 "remain open; each names a bounded fix"
-                if open_cm
-                else "open spec-parity violations block SHIP"
             )
         else:
-            if artifacts:
-                jobs = read_json(out / "jobs.json")["jobs"]
-                if not any(job["label"] == "sweep-spec-parity" for job in jobs):
-                    raise RuntimeError(
-                        "SHIP refused: a Spec contract section exists but no spec-parity sweep "
-                        "assessed it — add the sweep to plan.json and re-run the round"
-                    )
             verdict = "SHIP"
             rationale = "no Critical or Major finding remains open"
     except RuntimeError as error:
@@ -244,17 +200,6 @@ def main() -> int:
     outside = [f for f in new if not f["in_diff"]]
     review += by_file_sections(outside, rules_by_id) if outside else ["None.", ""]
 
-    if artifacts:
-        review += ["## Spec conformance", "", "| Artifact | Assessment |", "| --- | --- |"]
-        for artifact in artifacts:
-            titles = spec_mapping.get(artifact, [])
-            assessment = (
-                f"{len(titles)} violation(s): {'; '.join(titles)}" if titles
-                else "conforms — no divergence found"
-            )
-            review.append(f"| `{artifact}` | {assessment} |")
-        review.append("")
-
     review += [f"## Duplicates (unresolved from round {round_n - 1})", ""]
     duplicate_lines = [
         f"- _{SEVERITY_BADGE[f['severity']]}_ · {claim(f['title'])} — first raised round "
@@ -277,7 +222,7 @@ def main() -> int:
         f"- Candidates investigated: {stats.get('candidates', 0)}",
         f"- Reported before deduplication: {stats.get('reported', 0)}",
         f"- Suppressed with recorded reason: {stats.get('suppressed', 0)}",
-        f"- Selected hunk lines covered by both lanes: {coverage.get('selected_hunk_lines', 0)}",
+        f"- Selected hunk lines covered by the defect lane: {coverage.get('selected_hunk_lines', 0)}",
         "",
     ]
     (out / "review.md").write_text("\n".join(review), encoding="utf-8")

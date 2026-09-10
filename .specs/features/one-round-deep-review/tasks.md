@@ -426,9 +426,9 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] Context pack with `## Spec contract` and zero defects renders `SHIP` with no `## Spec conformance`
-- [ ] Gate check passes: `python3 tools/test_deep_review_contract.py`
-- [ ] Test count: 32 tests pass
+- [x] Context pack with `## Spec contract` and zero defects renders `SHIP` with no `## Spec conformance`
+- [x] Gate check passes: `python3 tools/test_deep_review_contract.py`
+- [x] Test count: 32 tests pass — actual: 33
 
 **Tests**: integration — IT-013
 **Gate**: quick
