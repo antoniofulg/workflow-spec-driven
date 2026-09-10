@@ -1167,6 +1167,38 @@ class DeepReviewContractTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
         self.assertIn("BLOCKED sweep-tests", result.stdout)
 
+    def test_invalid_artifact_is_repaired_not_re_reviewed(self) -> None:
+        # C6: an invalid artifact is kept and the next attempt runs a repair prompt naming the errors.
+        invalid = {"defects": [], "advisories": [],
+                   "coverage": {"hunks": [{"file": "source.txt", "hunk": "new:1-1", "checks": ["defect"]}]}}
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out = write_job_round(root)
+            log, stub = out / "prompts.log", out / "stub.py"
+            stub.write_text(
+                "import json, sys\n"
+                f"open({str(log)!r}, 'a').write(sys.argv[1] + '\\n')\n"
+                f"payload = {valid_payload()!r} if 'repair-' in sys.argv[1] else {invalid!r}\n"
+                "open(sys.argv[2], 'w').write(json.dumps(payload))\n",
+                encoding="utf-8",
+            )
+            result = run_script(
+                RUN_JOBS, root, "--out", str(out), "--command",
+                f"{sys.executable} {stub} {{prompt}} {{output}} {{label}}",
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("REPAIR sweep-tests attempt=2", result.stdout)
+            self.assertIn("PASS sweep-tests attempt=2", result.stdout)
+            prompts = log.read_text(encoding="utf-8").splitlines()
+            self.assertEqual(len(prompts), 2)
+            self.assertIn("repair-2", prompts[1])
+            kept = out / "agents" / "job.json.attempt-1-invalid.json"
+            self.assertEqual(json.loads(kept.read_text(encoding="utf-8")), invalid)
+            repair = (root / prompts[1]).read_text(encoding="utf-8")
+            self.assertIn("missing required key 'outcome'", repair)
+            self.assertIn(str(kept.relative_to(root)), repair)
+            self.assertIn("Do not re-review", repair)
+
 
 if __name__ == "__main__":
     unittest.main()
