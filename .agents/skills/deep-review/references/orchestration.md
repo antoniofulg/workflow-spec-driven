@@ -19,7 +19,7 @@ Both job kinds (`cohort`, `sweep`) return the same schema: defects, advisories, 
 ## Cohort rules (Step 2)
 
 1. Group selected files by package/directory and domain: a source file, its tests, and its types travel together; a file pulled apart from its test loses its reviewer the cheapest evidence.
-2. Size: ≤ `--max-cohort-files` files (default `100`) **and** ≤ ~6,000 changed lines per cohort, whichever binds first. Pass the same value to `build_jobs.py`; a single oversized file becomes its own cohort.
+2. Size: target ~400 changed lines per cohort, so at most `min(concurrency, ceil(changed_lines / 400))` cohorts (fewer is allowed), each ≤ `--max-cohort-files` files (default `100`) **and** ≤ ~6,000 changed lines. Pass the same value to `build_jobs.py`; a single oversized file becomes its own cohort.
 3. **Oversized-file split** — when one file alone exceeds ~6,000 changed lines, divide the search across sibling reviewers: same file, disjoint slices of its manifest hunks (`hunk_scope`), one cohort per slice. Every slice reviewer reads the whole file for context but judges only its slice; build_jobs.py proves the merged slices cover every hunk line exactly once.
 4. Tag each cohort `risk: high|normal|low` — high when it touches storage/migrations, security/auth, public contracts, or concurrency; low for docs/config-only. Risk feeds reviewer emphasis, not selection.
 5. Every selected file in exactly one cohort (or, when sliced, every hunk line in exactly one slice) — build_jobs.py rejects any other shape. `plan.json`:
@@ -39,7 +39,7 @@ Sweeps are bare keys from the table below (built-in lens text) or `{key, lens}` 
 
 When `manifest.mode` is `incremental` (a remediation check), `build_jobs.py` ignores `cohorts` and `sweeps` (printing `sweeps skipped in incremental mode` when any were planned) and emits one defect-lane job `cohort-rc` over every selected path, carrying `prior_fingerprints` for every `open` ledger entry in `state.json`; the prompt's PRIOR FINDINGS block demands one `prior_findings` disposition row per fingerprint. Write `plan.json` as usual; its cohorts are not consulted.
 
-`build_jobs.py` rejects a plan with more than one cohort when the whole selection fits one (≤ `--max-cohort-files` files and ≤ 6,000 changed lines): merge the cohorts.
+`build_jobs.py` rejects a plan with more cohorts than the rule-2 target and prints `cohort target: E for L changed lines at concurrency C`: merge the cohorts.
 
 ## Sweep triggers
 

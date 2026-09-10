@@ -834,7 +834,7 @@ class DeepReviewContractTests(unittest.TestCase):
             self.assertNotIn("polish", lanes)
 
     def test_small_selection_split_into_two_cohorts_is_rejected(self) -> None:
-        # UT-006 (P3 AC6)
+        # UT-006 (P3 AC6): ~400 changed lines per cohort, capped by reviewer concurrency
         selected = {
             f"file{i}.txt": {"adds": 10, "dels": 3 + i, "hunks": [{"start": 1, "lines": 10, "side": "new"}]}
             for i in range(3)
@@ -843,9 +843,24 @@ class DeepReviewContractTests(unittest.TestCase):
             {"id": "A", "name": "first", "risk": "normal", "files": ["file0.txt", "file1.txt"]},
             {"id": "B", "name": "second", "risk": "normal", "files": ["file2.txt"]},
         ]
-        errors = validate_cohorts(cohorts, selected, 100)
-        self.assertEqual(errors, ["diff fits one cohort (3 files, 42 lines); merge plan.json cohorts"])
-        self.assertEqual(validate_cohorts([{**cohorts[0], "files": list(selected)}], selected, 100), [])
+        errors = validate_cohorts(cohorts, selected, 100, 3)
+        self.assertEqual(len(errors), 1, errors)
+        self.assertIn("should use at most 1 cohorts", errors[0])
+        self.assertEqual(validate_cohorts([{**cohorts[0], "files": list(selected)}], selected, 100, 3), [])
+
+    def test_cohort_count_is_capped_by_concurrency_and_line_target(self) -> None:
+        # UT-006 companion: 939 lines at concurrency 3 -> at most 3 cohorts
+        adds = (235, 235, 235, 234)
+        selected = {
+            f"file{i}.txt": {"adds": n, "dels": 0, "hunks": [{"start": 1, "lines": n, "side": "new"}]}
+            for i, n in enumerate(adds)
+        }
+        one_each = [{"id": f"C{i}", "name": f"c{i}", "risk": "normal", "files": [f"file{i}.txt"]} for i in range(4)]
+        three = [{**one_each[0], "files": ["file0.txt", "file1.txt"]}, one_each[2], one_each[3]]
+        self.assertEqual(validate_cohorts(three, selected, 100, 3), [])
+        errors = validate_cohorts(one_each, selected, 100, 3)
+        self.assertEqual(len(errors), 1, errors)
+        self.assertIn("plan has 4 cohorts; 939 changed lines at concurrency 3 should use at most 3 cohorts", errors[0])
 
     def test_defect_job_output_with_an_advisory_validates(self) -> None:
         # IT-011 (P3 AC2)

@@ -23,6 +23,7 @@ import json
 import re
 import sys
 from collections import Counter, defaultdict
+from math import ceil
 from pathlib import Path
 
 sys.dont_write_bytecode = True  # keep the tracked skill tree free of __pycache__
@@ -44,6 +45,7 @@ from graft_context import FALLBACK_LINE, prepare_graft_context
 
 DEFAULT_MAX_COHORT_FILES = 100
 MAX_COHORT_CHANGED_LINES = 6000
+TARGET_COHORT_CHANGED_LINES = 400
 
 REVIEWER_PLACEHOLDERS = {
     "cohort_name", "risk", "target", "file_list", "scope_instruction", "context",
@@ -179,14 +181,21 @@ def validate_registry(registry: dict, knowledge: dict, selected: dict[str, dict]
     return errors
 
 
+def cohort_target(selected: dict[str, dict], concurrency: int) -> tuple[int, int]:
+    """(max cohorts, changed lines): enough ~400-line cohorts to fill the reviewer slots, never more."""
+    total_lines = sum(int(f.get("adds") or 0) + int(f.get("dels") or 0) for f in selected.values())
+    return min(concurrency, max(1, ceil(total_lines / TARGET_COHORT_CHANGED_LINES))), total_lines
+
+
 def validate_cohorts(
-    cohorts: list[dict], selected: dict[str, dict], max_cohort_files: int
+    cohorts: list[dict], selected: dict[str, dict], max_cohort_files: int, concurrency: int
 ) -> list[str]:
     errors: list[str] = []
-    total_lines = sum(int(f.get("adds") or 0) + int(f.get("dels") or 0) for f in selected.values())
-    if len(cohorts) > 1 and len(selected) <= max_cohort_files and total_lines <= MAX_COHORT_CHANGED_LINES:
+    expected, total_lines = cohort_target(selected, concurrency)
+    if len(cohorts) > expected:
         errors.append(
-            f"diff fits one cohort ({len(selected)} files, {total_lines} lines); merge plan.json cohorts"
+            f"plan has {len(cohorts)} cohorts; {total_lines} changed lines at concurrency {concurrency} "
+            f"should use at most {expected} cohorts (~{TARGET_COHORT_CHANGED_LINES} lines each); merge plan.json cohorts"
         )
     seen_ids: set[str] = set()
     full_owners: dict[str, list[str]] = defaultdict(list)
@@ -396,7 +405,7 @@ def main() -> int:
             prior_fps = sorted(fp for fp, entry in ledger.items() if entry.get("status") == "open")
         else:
             cohorts = plan["cohorts"]
-            errors += validate_cohorts(cohorts, selected, args.max_cohort_files)
+            errors += validate_cohorts(cohorts, selected, args.max_cohort_files, manifest["concurrency"])
             ledger, prior_fps = {}, []
         if errors:
             raise RuntimeError("plan validation failed:\n- " + "\n- ".join(errors))
@@ -487,8 +496,10 @@ def main() -> int:
         return 1
 
     with_rules = sum(1 for count in bound_counts if count)
+    expected, total_lines = cohort_target(selected, manifest["concurrency"])
     print(
         f"jobs: {len(cohorts)} defect cohorts + {len(sweeps)} sweeps -> {out / 'jobs.json'}\n"
+        f"cohort target: {expected} for {total_lines} changed lines at concurrency {manifest['concurrency']}\n"
         f"cohort limit: {args.max_cohort_files} files / {MAX_COHORT_CHANGED_LINES} changed lines\n"
         f"rules: {len(rules)} registered; {with_rules}/{len(bound_counts)} cohorts carry bound rules\n"
         f"every selected hunk has one defect owner; prompts under {out / 'prompts'}"

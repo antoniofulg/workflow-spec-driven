@@ -102,7 +102,7 @@ The manifest builder resolves `path_filters` into manifest.json.
      [--max-cohort-files N]
    ```
 
-   It rejects incomplete source accounting and split plans that fit one cohort, proves defect ownership, injects bound rules into every cohort and sweep, and materializes `<out>/jobs.json`.
+   It rejects incomplete source accounting and over-split plans, proves defect ownership, injects bound rules into every cohort and sweep, and materializes `<out>/jobs.json`.
 
 *Done when:* build_jobs.py exits 0, every discovered source has an audited decision in rules.json, context-pack.md lists applied source/rule and linter outcomes without copying the full registry, and walkthrough.md satisfies its contract.
 
