@@ -55,11 +55,11 @@ def line_range(finding: dict) -> str:
     return f"{finding['line']}-{end}" if end != finding["line"] else str(finding["line"])
 
 
-def path_clause(certificate: str) -> str:
-    """The `Path:` clause of a `Premise → Path → Verdict` certificate."""
-    for part in certificate.split("→"):
-        if part.strip().startswith("Path:"):
-            return one_line(part.strip()[5:])
+def root_cause(certificate: str) -> str:
+    """`<Premise> → <Path>` of a `Premise → Path → Verdict` certificate; the whole certificate when either is missing."""
+    clauses = dict(part.strip().split(":", 1) for part in certificate.split("→") if ":" in part)
+    if "Premise" in clauses and "Path" in clauses:
+        return f"{one_line(clauses['Premise'])} → {one_line(clauses['Path'])}"
     return one_line(certificate)
 
 
@@ -89,7 +89,7 @@ def render_finding(finding: dict, rules_by_id: dict[str, dict]) -> str:
         anchor = f"{finding['file']}:{finding['line']}"
         lines += [
             "", "<details>", "<summary>🛠️ Repair plan</summary>", "",
-            f"1. Root cause: {path_clause(evidence[0]) if evidence else 'see the finding body'}",
+            f"1. Root cause: {root_cause(evidence[0]) if evidence else 'see the finding body'}",
             f"2. Fix every site: {', '.join([anchor, *(finding.get('also_applies') or [])])}",
             f"3. Before editing, grep every caller of the symbol at {anchor}; fix at the owning layer.",
             "4. Extend the nearest test so it fails on the Premise, then fix until it passes.",

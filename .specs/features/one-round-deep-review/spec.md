@@ -46,7 +46,7 @@ reviewer jobs in every run (the polish lane) cannot affect the verdict.
 | Prior-finding disposition | Remediation-check reviewers return one `prior_findings` row per open prior fingerprint with `resolved` or `open` | Absence from new output must never mean fixed (DR-2) | y |
 | Stale-output handling on restart | `build_manifest.py` archives `agents/*.json` when the same round rebuilds under a different `worktree_snapshot` | No reviewer cooperation needed; valid same-snapshot resume is preserved (DR-4) | y |
 | Sweeps retained | `contracts`, `security`, `migrations`, `consistency`, `config` stay opt-in; `tests` and `spec-parity` are removed | The Technical Verifier owns test adequacy and spec parity (`REVIEW-ROUNDS.md`) | y |
-| Repair plan shape | Derived from existing finding fields (certificate Path, `also_applies`, `suggestion`, anchor); no new required schema fields | Reviewers already produce these; the renderer assembles them | y |
+| Repair plan shape | Derived from existing finding fields (certificate Premise and Path, `also_applies`, `suggestion`, anchor); no new required schema fields | Reviewers already produce these; the renderer assembles them | y |
 | Knowledge discovery | Skills are candidates only when explicitly dispatched by an instruction file; token-overlap matching is removed | Token overlap pulled 35+ skills and their references into every round | y |
 | Graft | Off unless `.deep-review.yaml` sets `graft: true` | 17 KB of map per job on a 22-line diff | y |
 | Severity vocabulary | `Critical / Major / Minor / Trivial` everywhere; `Blocker` and `Cosmetic` are renamed in guidelines | The scripts emit this vocabulary; the guideline claims "one vocabulary" | y |
@@ -100,7 +100,7 @@ one-job check of the fix, so that a second review round is never needed and no f
 
 **Acceptance Criteria**:
 
-1. WHEN `render_review.py` renders a defect of severity Critical, Major, or Minor THEN the finding block SHALL contain a `Repair plan` section listing: root cause (the certificate `Path`), every `also_applies` anchor, the instruction to grep callers of the anchored symbol before editing, the instruction to extend the nearest test so it fails on the Premise before fixing, and the `suggestion` when present.
+1. WHEN `render_review.py` renders a defect of severity Critical, Major, or Minor THEN the finding block SHALL contain a `Repair plan` section listing: root cause (the certificate `Premise` and `Path`), every `also_applies` anchor, the instruction to grep callers of the anchored symbol before editing, the instruction to extend the nearest test so it fails on the Premise before fixing, and the `suggestion` when present.
 2. WHEN `render_review.py` writes `state.json` THEN each `open` ledger entry SHALL carry `certificate`, `also_applies`, and `line` so a later round can render it without the archived `findings.json`.
 3. WHEN `manifest.mode` is `incremental` THEN `build_jobs.py` SHALL emit exactly one defect-lane job whose files are every selected path, zero polish jobs, and zero sweeps regardless of `plan.json` sweeps.
 4. WHILE `manifest.mode` is `incremental`, the single job's prompt SHALL list every `open` prior ledger entry (fingerprint, severity, anchor, certificate, `also_applies`) and require one `prior_findings` row per fingerprint with `status` `resolved` or `open` and a one-line `evidence`.

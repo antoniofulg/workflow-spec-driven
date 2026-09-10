@@ -80,7 +80,7 @@ Certificate: <defect: Premise → Path → Verdict | advisory: Premise → Impro
 <details>
 <summary>🛠️ Repair plan</summary>
 
-1. Root cause: <Path clause of the certificate>
+1. Root cause: <Premise clause of the certificate> → <Path clause of the certificate>
 2. Fix every site: <path:line>, <also_applies anchors...>
 3. Before editing, grep every caller of the symbol at <path:line>; fix at the owning layer.
 4. Extend the nearest test so it fails on the Premise, then fix until it passes.

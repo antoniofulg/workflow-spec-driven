@@ -633,7 +633,10 @@ class DeepReviewContractTests(unittest.TestCase):
 
             for item in findings:
                 plan = repair_plan(item)
-                self.assertIn(f"{item['severity']} caller skips the guard", plan)
+                root_cause = next(line for line in plan.splitlines() if line.startswith("1. Root cause:"))
+                self.assertIn("guard missing", root_cause)
+                self.assertIn(f"{item['severity']} caller skips the guard", root_cause)
+                self.assertNotIn("Verdict", root_cause)
                 for anchor in item["also_applies"]:
                     self.assertIn(anchor, plan)
                 self.assertIn(f"{item['file']}:{item['line']}", plan)
