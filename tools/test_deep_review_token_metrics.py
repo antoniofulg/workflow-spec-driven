@@ -871,6 +871,7 @@ class TokenMetricsTests(unittest.TestCase):
             manifest = {
                 "target": "fixture",
                 "base": "base",
+                "concurrency": 3,
                 "diff_command": "git diff base..HEAD -- <file>",
                 "files": [{
                     "path": "tools/test_deep_review_token_metrics.py", "status": "M",
