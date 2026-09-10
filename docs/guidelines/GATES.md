@@ -68,7 +68,8 @@ or scopes, permissions, authentication behaviour, and sensitive product data req
 
 **Intermediate tasks close on the scoped gate.** Claim *"task implemented, affected lanes green,
 full gate deferred to feature close"*. Run the full gate once after the last mutation, before the
-pull request.
+pull request. Once is one attempt: a failure only outside the diff is classified, not re-run —
+`docs/guidelines/VERIFICATION-EVIDENCE.md` `## Scoped PASS`.
 
 Escalate a feature task to the full gate when its diff touches something the selector cannot scope:
 migrations and schema, runtime orchestration, dependency or build tooling, architecture boundary
@@ -102,6 +103,6 @@ one checkout could silently test a sibling's application.
 
 ## Never
 
-- Never weaken, skip or delete a test to make a gate pass.
+- Never weaken, skip or delete a test to make a gate pass, and never fix one outside the diff for it.
 - Never claim a gate passed without its output.
 - Never treat a warning as acceptable in a gate that reports zero-tolerance.

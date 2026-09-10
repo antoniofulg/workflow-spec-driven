@@ -64,7 +64,7 @@ describe("deep-review installation", { timeout: 30_000 }, () => {
       packageManager?: string;
       devDependencies?: Record<string, string>;
     };
-    expect(packageManifest.version).toBe("0.10.1");
+    expect(packageManifest.version).toBe("0.11.0");
     expect(packageManifest.packageManager).toBe("bun@1.4.0");
     expect(existsSync(join(repositoryRoot, "bun.lock"))).toBe(true);
     expect(existsSync(join(repositoryRoot, "package-lock.json"))).toBe(false);

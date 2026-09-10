@@ -43,6 +43,9 @@ needs the whole feature and cannot run on part of one. The `qa-plan` and `qa-exe
 It writes no product code, so it gets no technical Verifier or deep-review. It receives distinct
 fresh packets, `qa-plan` and `qa-execute`, and walks every scenario the feature flagged.
 
+A human close order after a `SCOPED PASS` (`docs/guidelines/VERIFICATION-EVIDENCE.md`) waives the QA
+session and any deep-review group not yet started; the same `AD-NNN` records the waiver.
+
 ## Hard rules
 
 1. **A review contains only findings not raised before.** Before writing a finding, read the prior

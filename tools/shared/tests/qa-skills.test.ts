@@ -811,6 +811,38 @@ describe("configurable review policy", () => {
     expect(implement).toContain("docs/guidelines/REVIEW-ROUNDS.md");
   });
 
+  it("closes an accepted external full-gate failure as SCOPED PASS instead of a remediation loop", () => {
+    const evidence = readRepositoryFile("docs/guidelines/VERIFICATION-EVIDENCE.md");
+    const gates = readRepositoryFile("docs/guidelines/GATES.md");
+    const reviewRounds = readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md");
+    const autonomous = readRepositoryFile(".agents/skills/autonomous/SKILL.md");
+    const home = "## Scoped PASS";
+    const rule = evidence.slice(evidence.indexOf(home), evidence.indexOf("## Stop and hand it back"));
+
+    expect(evidence).toContain("Verdict:      PASS | SCOPED PASS | FAIL");
+    expect(rule).toContain("One targeted re-run, untouched, read-only");
+    expect(rule).toContain("\"It appeared in the full gate\" is not a causal path");
+    expect(rule).toContain("Causal → remediation as usual");
+    expect(rule).toContain("Do not edit the external test, its fixtures, or the code it covers");
+    expect(rule).toContain("do not run the full gate again in this delivery");
+    expect(rule).toContain("`Warnings` states that the\n  repository-wide gate is red");
+    expect(rule).toContain("never \"the full gate passed\"");
+    expect(rule).toContain("Stages the order names as waived (deep-review, QA) do not start");
+    expect(rule).toContain("Without acceptance or a named expansion the verdict stays `FAIL`");
+
+    // Pointers only; the rule has one home.
+    for (const pointer of [gates, reviewRounds, autonomous]) {
+      expect(pointer).toContain("docs/guidelines/VERIFICATION-EVIDENCE.md");
+      expect(pointer).not.toContain("One targeted re-run");
+    }
+    expect(gates).toContain("Once is one attempt");
+    expect(gates).toContain("never fix one outside the diff for it");
+    expect(reviewRounds).toContain("waives the QA\nsession and any deep-review group not yet started");
+    expect(autonomous).toContain("merge waits for the acceptance to name merge");
+    expect(autonomous).not.toContain("integrate it, re-run the full gate, then re-prove readiness");
+    expect(autonomous).toContain("Re-run the full gate only when the integration conflicted");
+  });
+
   it("bridges workflow resolution and feature-closing QA ordering", () => {
     const specDriven = readRepositoryFile(".agents/skills/workflow-spec-driven/SKILL.md");
     const qaScenarios = readRepositoryFile("docs/guidelines/QA-SCENARIOS.md");
@@ -1136,21 +1168,21 @@ describe("adoption and public setup", () => {
       changelog.indexOf("## [0.9.1]"),
     );
 
-    expect(manifest.version).toBe("0.10.1");
+    expect(manifest.version).toBe("0.11.0");
     expect(manifest.name).toBe("workflow-spec-driven");
     expect(manifest.private).toBe(false);
     expect(manifest.packageManager).toBe("bun@1.4.0");
     expect(manifest.scripts?.test).toBe("bun test && node --test tests/installer/*.test.js");
     expect(readRepositoryFile("bun.lock")).toContain('"name": "workflow-spec-driven"');
     expect(existsSync(join(repositoryRoot, "package-lock.json"))).toBe(false);
-    expect(latestHeading).toBe("0.10.1");
+    expect(latestHeading).toBe("0.11.0");
     expect(latestHeading).toBe(manifest.version);
     expect(currentScenarioVersion).toBe(manifest.version);
     expect(releaseScenario.match(/^expected: .*$/m)?.[0]).toBe(
       "expected: The newest changelog release matches the package manifest, while Bun 1.4's lockfile identifies the root package and dependency graph; the documented install, knowledge, scoped-validation, frozen-lockfile, and package commands expose the current source pack without checkout residue.",
     );
-    expect(latestRelease).toContain("consumer-owned");
-    expect(latestRelease).toContain("proportional validation");
+    expect(latestRelease).toContain("`SCOPED PASS`");
+    expect(latestRelease).toContain("QA runs once, at feature close");
     expect(historicalRelease).toContain("deep-review defect");
     expect(historicalRelease).toContain("Minor");
     expect(historicalRelease).toContain("originating feature run");

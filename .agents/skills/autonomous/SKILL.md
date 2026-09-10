@@ -133,9 +133,9 @@ The following conditions prove that a remote delivery would be safe to consider:
 
 | | |
 | --- | --- |
-| The applicable gate exits 0 | The full gate for feature work, or the scoped gate for a direct correction, on the final tree after the last commit. A cached or partial result is not evidence. `make check` when the project has it |
+| The applicable gate exits 0 | The full gate for feature work, or the scoped gate for a direct correction, on the final tree after the last commit. A cached or partial result is not evidence. `make check` when the project has it. A `SCOPED PASS` under `docs/guidelines/VERIFICATION-EVIDENCE.md` may push and open the pull request, whose body names the red test; merge waits for the acceptance to name merge |
 | No required findings remain | `Critical`, `Major`, and `Minor` are fixed in the feature run; `Trivial` never blocks |
-| `main` has not moved underneath | If it has: integrate it, re-run the full gate, then re-prove readiness |
+| `main` has not moved underneath | If it has: integrate it and re-run the scoped gate. Re-run the full gate only when the integration conflicted or changed a file the diff touches; otherwise the feature's full-gate run stands and `main` carries its own |
 | Every flagged scenario is terminal | See the three cases below. Only when the change is user-visible |
 
 What each verdict does to readiness:
@@ -206,6 +206,8 @@ Stop, write up what exists, and do not continue delivery:
   threshold; the check repeats until clean or stalled.
 - The work turns out to need a capability that does not exist yet
 - The full gate cannot be made to run
+- The full gate fails only outside the diff and the human has neither accepted the limitation nor
+  named a scope expansion (`docs/guidelines/VERIFICATION-EVIDENCE.md` `## Scoped PASS`)
 - A required action is outside the scoped delivery authority and lacks explicit instruction
 
 A halt report naming what stopped the run is a result. Shipping past a blocker to have something

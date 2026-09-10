@@ -4,6 +4,38 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-09-10
+
+### Changed
+
+- QA runs once, at feature close, never per slice; deep-review cadence `skip` resolves no groups
+  and nothing waits for it.
+- A full gate that fails only outside the diff is classified, not remediated:
+  `docs/guidelines/VERIFICATION-EVIDENCE.md` `## Scoped PASS` allows one read-only targeted re-run,
+  requires causal evidence before any fix, forbids editing the external test or re-running the full
+  gate, and closes the feature as `SCOPED PASS` only on explicit human acceptance recorded as an
+  `AD-NNN` with a filed follow-up issue. The report names the red repository gate.
+- A human close order after a `SCOPED PASS` waives the QA session and deep-review groups not yet
+  started.
+- `autonomous` readiness: when `main` moved, integrate and re-run the scoped gate; the full gate
+  re-runs only when the integration conflicted or touched a file in the diff. An external full-gate
+  failure without acceptance or a named scope expansion halts the run.
+
+### Migration
+
+- Re-read `docs/guidelines/VERIFICATION-EVIDENCE.md` `## Scoped PASS` and the readiness table in
+  `.agents/skills/autonomous/SKILL.md`. Consumer tests that pin pack text or hashes may need their
+  expected values refreshed.
+- Upgrading from 0.10.0 also applies the 0.10.1 runtime move, which that release did not list. The
+  installer retires the old paths; repoint consumer references before running it:
+  - `tools/knowledge/src/cli.ts`, `tools/knowledge/src/check.ts`, `tools/shared/src/frontmatter.ts`
+    → `.agents/skills/knowledge-check/scripts/`. The `knowledge` script becomes
+    `bun .agents/skills/knowledge-check/scripts/cli.ts`.
+  - `tools/resource_lock.py`, `tools/orca_assisted_probe.py`, `tools/qa_parallel_pilot.py`
+    → `.agents/skills/autonomous/scripts/`.
+  - `.agents/skills/deep-review/scripts/render_html.py` and `assets/REVIEW_UI.html` are removed;
+    `templates/adoption/agents/*` is no longer installed.
+
 ## [0.10.1] - 2026-09-08
 
 ### Fixed

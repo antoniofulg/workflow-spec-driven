@@ -23,6 +23,9 @@ imports it; Cursor does not expand `@`, so a symlink that duplicates the contrac
    later in the same file, no summary section repeating what the sections said.
 6. **Delete on sight.** A rule that no longer describes how the project works is worse than no rule,
    because agents follow it.
+7. **Managed files are edited upstream.** In a consuming project, every path recorded as `managed` in
+   `.my-workflow/adoption.json` belongs to the workflow package; a local edit is a `modified` conflict
+   at the next install and is lost. Change the package, release, and update instead.
 
 ## Size targets
 
