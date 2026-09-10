@@ -33,7 +33,7 @@ Technical Verifier. A clean remediation check or the stall bound ends the loop; 
 approval for local remediation already in progress. The post-fix gate and escalation rule below
 decide whether the slice is done.
 
-Before final QA, complete the final pending implementation deep-review group. For QA code remediation, review only `reviewed_head..HEAD`, then re-walk affected scenario rows.
+Before final QA, complete the final pending implementation deep-review group; cadence `skip` resolves no groups, so nothing waits for deep-review. For QA code remediation, review only `reviewed_head..HEAD`, then re-walk affected scenario rows.
 
 ## The feature closing step
 

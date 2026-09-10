@@ -103,7 +103,8 @@ slices.
   checkpoint** — implement, scoped gate, commit, and a fresh Verifier on the private writer
   checkpoint. A single ready slice runs serially in the clean integration checkout; only two or
   more compatible ready slices may open concurrent writer worktrees. Deep-review runs at the resolved
-  groups on the integrated tree, before fresh final QA. Author and proof identities stay distinct.
+  groups on the integrated tree, before fresh final QA; cadence `skip` resolves none, and neither
+  QA nor readiness waits for it. Author and proof identities stay distinct.
 - **One pull request for the feature**, with the slices as atomic commits inside it.
 - **The feature-closing step is the QA session** and writes no product code, so it takes no Verifier
   and no deep-review.

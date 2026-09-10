@@ -19,7 +19,7 @@ Remediation identity, independent counters, and halt behavior follow `REVIEW-ROU
 | Reviewer | Question only it can answer | Cap |
 | --- | --- | --- |
 | **Technical Verifier** | Do the tests actually prove the spec? | Fingerprint-scoped; halt on third failed remediation |
-| **Deep-review** (resolved groups) | Is the code correct, safe, maintainable? | Discovery once; remediation checks until no Critical/Major is open or `stall_attempts` halts |
+| **Deep-review** (resolved groups; none under cadence `skip`) | Is the code correct, safe, maintainable? | Discovery once; remediation checks until no Critical/Major is open or `stall_attempts` halts |
 | **QA session** (feature closing step) | Does the finished feature feel right, through the declared adapter? | One `qa-plan` and one `qa-execute` session; no slice runs QA |
 
 A documentation-only slice follows the proportional classifier in [GATES.md](../guidelines/GATES.md):

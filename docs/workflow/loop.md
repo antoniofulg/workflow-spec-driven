@@ -24,7 +24,7 @@ last column.
 | 4 | **Scoped gate** | Prove *this* diff, not the whole product | Escalate if the selector cannot scope it | [GATES.md](../guidelines/GATES.md) |
 | 5 | **Atomic commit** | One Conventional Commit; update `tasks.md` when present, or the inline execution plan when Tasks is skipped, first | — | `AGENTS.md` |
 | 6 | **Technical Verifier** | Do the tests prove the acceptance criteria? Mutants must die | Filed-issue path; no code in final QA session | [REVIEW-ROUNDS.md](../guidelines/REVIEW-ROUNDS.md) |
-| 7 | **Deep-review** | Correct, safe, maintainable — resolved groups, blocking findings only | Proportional classifier selects scoped validation | [REVIEW-ROUNDS.md](../guidelines/REVIEW-ROUNDS.md) |
+| 7 | **Deep-review** | Correct, safe, maintainable — resolved groups, blocking findings only | Cadence `skip` (no groups; human runs `wreview` later), or proportional classifier selects scoped validation | [REVIEW-ROUNDS.md](../guidelines/REVIEW-ROUNDS.md) |
 | 8 | **QA session** | The finished feature, as a person meets it: one `qa-plan` and one `qa-execute` packet | Feature has no user-visible change | [QA-EXECUTION.md](../guidelines/QA-EXECUTION.md) |
 | 9 | **Full gate** | The product gate, once, when the proportional classifier selects it | Scoped gate is sufficient | [GATES.md](../guidelines/GATES.md) |
 | 10 | **Remote delivery** | `autonomous` authorizes the feature-branch push, one pull request, and merge after readiness is rechecked | Readiness is evidence, not authorization for deploy/release, production mutations, force-push, direct `main` push, and unrelated remote actions; those need explicit instruction | [VERIFICATION-EVIDENCE.md](../guidelines/VERIFICATION-EVIDENCE.md) |

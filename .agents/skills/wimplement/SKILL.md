@@ -179,7 +179,7 @@ Dispatch a fresh sub-agent following the **Verifier** role described in [sub-age
 
 If the Verifier returns FAIL, record the fingerprinted result with the stdlib convergence script, route the ranked gaps back to an implementer, and re-dispatch the Verifier using the accounting in `docs/guidelines/REVIEW-ROUNDS.md`; count the failed Verifier result in cumulative history even when the scoped build gate is green, and halt only when the live consecutive-stall threshold is reached.
 
-The final integrated tree still receives the separately routed Deep Review and fresh QA sessions.
+The final integrated tree still receives the separately routed Deep Review (none under cadence `skip`) and fresh QA sessions.
 The last Implementer writes only a compact handoff and never certifies the integrated result.
 
 ## Tips

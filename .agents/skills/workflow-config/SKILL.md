@@ -53,7 +53,8 @@ assertion for initial resolution and refresh; it never owns the count. Normal re
 frozen snapshot without reading current Tasks.
 
 Treat the snapshot as the persisted route and cadence; the current JSON output additionally reports
-the live remediation threshold. The resolver owns config parsing, validation, balanced groups, role
+the live remediation threshold. Cadence `skip` freezes `groups: []`: the route has no deep-review
+stage and nothing downstream waits for one; the human runs `wreview` later. The resolver owns config parsing, validation, balanced groups, role
 precedence, agent-file lookup, and atomic persistence. Keep those rules in the resolver instead of
 restating them here.
 

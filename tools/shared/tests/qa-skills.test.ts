@@ -772,7 +772,9 @@ describe("configurable review policy", () => {
     expect(reviewRounds).toContain("deep-review** (resolved implementation groups)");
     expect(reviewRounds).not.toContain("deep-review** (every slice)");
     const finalGroupInstruction =
-      "Before final QA, complete the final pending implementation deep-review group.";
+      "Before final QA, complete the final pending implementation deep-review group; cadence `skip` resolves no groups, so nothing waits for deep-review.";
+    expect(readme).toContain("- `skip`: no groups (`[]`)");
+    expect(readRepositoryFile(".my-workflow.toml.example")).toMatch(/^cadence = "grouped\.3".*\bskip\b/m);
     const qaHeading = "## The feature closing step";
     const remediationInstruction =
       "For QA code remediation, review only `reviewed_head..HEAD`, then re-walk affected scenario rows.";
