@@ -1225,6 +1225,13 @@ class DeepReviewContractTests(unittest.TestCase):
         self.assertIn("PASS sweep-tests", result.stdout)
         self.assertFalse(blocker)
 
+        # Same tool output, no artifact: a plain failure, never a provider block (no valid output to mask detection)
+        result, blocker = run_stub(tool_output.split("\n", 1)[1])
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("FAIL sweep-tests", result.stdout)
+        self.assertNotIn("BLOCKED", result.stdout)
+        self.assertFalse(blocker)
+
         result, blocker = run_stub("print(json.dumps({'type': 'error', 'message': 'usageLimitExceeded'}))\n")
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
         self.assertIn("BLOCKED sweep-tests", result.stdout)
