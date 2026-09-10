@@ -93,7 +93,7 @@ def render_finding(finding: dict, rules_by_id: dict[str, dict]) -> str:
 
 
 def repair_plan(finding: dict) -> list[str]:
-    """The five repair-plan steps review.md and review.html both show; empty for trivial results."""
+    """The five repair-plan steps review.md shows; empty for trivial results."""
     if finding["severity"] not in {"critical", "major", "minor"}:
         return []
     evidence, suggestion = finding.get("evidence") or [], (finding.get("suggestion") or "").strip()

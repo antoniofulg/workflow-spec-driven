@@ -120,19 +120,18 @@ Add optional metrics adapter flags only when compatible telemetry is configured.
 
 **Step 4: Merge + report**
 
-Run the bootstrap merger, mutating state/report renderer, and bootstrap HTML hydrator:
+Run the bootstrap merger and the mutating state/report renderer:
 
 ```bash
 python3 <skill-dir>/scripts/merge_findings.py --out <out>
 python3 <skill-dir>/scripts/render_review.py --out <out> [--rework "<structural rationale>"]
-python3 <skill-dir>/scripts/render_html.py --out <out>
 ```
 
-merge_findings.py emits `<out>/findings.json` plus `<out>/review-stats.json`, deduplicates both result classes, reconciles rounds, and fails unless every selected hunk line has defect coverage. render_review.py derives the verdict from defects only. render_html.py shows defects, advisories, suppressions, and coverage separately in `<out>/review.html`.
+merge_findings.py emits `<out>/findings.json` plus `<out>/review-stats.json`, deduplicates both result classes, reconciles rounds, and fails unless every selected hunk line has defect coverage. render_review.py derives the verdict from defects only.
 
 When ReportFindings is available, report defects first and every advisory afterward. The user-facing summary states the verdict, defect/advisory counts, every Critical/Major defect, coverage status, and artifact paths.
 
-*Done when:* render_review.py and render_html.py exit 0 and the final message states the verdict, every Critical and Major defect, and the review.html path.
+*Done when:* render_review.py exits 0 and the final message states the verdict, every Critical and Major defect, and the review.md path.
 
 **Step 5: Publish (only with `--publish`)**
 
@@ -148,7 +147,7 @@ When ReportFindings is available, report defects first and every advisory afterw
 
 ## Remediation check (incremental mode)
 
-The discovery review runs once per group; every later run over the same `<out>` is a remediation check. With prior state (or fingerprints recovered from the PR thread), Step 1 scopes to commits since the last reviewed head and archives the prior round's artifacts under `<out>/rounds/`. Step 2 builds one defect-lane job over the selected paths whose prompt demands a `prior_findings` disposition per `open` prior finding (contract in `references/orchestration.md`). A prior finding resolves only through a `resolved` disposition — absence never resolves it; undispositioned entries stay under Duplicates and count in the verdict. Dismissed fingerprints stay suppressed; resolved ones receive the ✅ edit in publish mode. `--full` reviews the whole diff again. Each run's Step 4 regenerates `<out>/review.html`, so a browser tab left open on it tracks the rounds by itself.
+The discovery review runs once per group; every later run over the same `<out>` is a remediation check. With prior state (or fingerprints recovered from the PR thread), Step 1 scopes to commits since the last reviewed head and archives the prior round's artifacts under `<out>/rounds/`. Step 2 builds one defect-lane job over the selected paths whose prompt demands a `prior_findings` disposition per `open` prior finding (contract in `references/orchestration.md`). A prior finding resolves only through a `resolved` disposition — absence never resolves it; undispositioned entries stay under Duplicates and count in the verdict. Dismissed fingerprints stay suppressed; resolved ones receive the ✅ edit in publish mode. `--full` reviews the whole diff again.
 
 ## Error handling
 
@@ -164,4 +163,4 @@ The discovery review runs once per group; every later run over the same `<out>` 
 
 ## Bundled implementation
 
-`assets/PROMPT.md`, `assets/findings.schema.json`, and `assets/REVIEW_UI.html` are author-tooling sources consumed by the bundled scripts; agents use their rendered prompt/schema/report artifacts rather than loading these assets directly. `<skill-dir>/scripts/_common.py` is a read-only library imported by the CLIs and is never invoked directly.
+`assets/PROMPT.md` and `assets/findings.schema.json` are author-tooling sources consumed by the bundled scripts; agents use their rendered prompt/schema artifacts rather than loading these assets directly. `<skill-dir>/scripts/_common.py` is a read-only library imported by the CLIs and is never invoked directly.

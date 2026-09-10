@@ -7,7 +7,6 @@ Exact templates for every artifact. Placeholders in `<angle brackets>`; keep sec
 - walkthrough.md
 - Finding block
 - review.md
-- review.html
 - ReportFindings mapping
 - Verdict rule
 
@@ -132,10 +131,6 @@ Bracketed lines appear only when they apply. Every result has the certificate fo
 ```
 
 `review.md` orders files by max severity, then path.
-
-## review.html
-
-The human-facing dashboard, emitted by `scripts/render_html.py`, hydrates `assets/REVIEW_UI.html` with defects and advisories in separate sections plus suppression and coverage observability. The fixed template is self-contained (inline CSS/JS, no network) and `review.html` is never hand-edited. Before render_review.py writes the state entry, the verdict remains a neutral "round in progress" state.
 
 ## ReportFindings mapping
 

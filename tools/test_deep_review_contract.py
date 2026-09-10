@@ -22,7 +22,6 @@ BUILD_JOBS = SCRIPTS / "build_jobs.py"
 MERGE_FINDINGS = SCRIPTS / "merge_findings.py"
 RUN_JOBS = SCRIPTS / "run_jobs.py"
 RENDER_REVIEW = SCRIPTS / "render_review.py"
-RENDER_HTML = SCRIPTS / "render_html.py"
 BUILD_KNOWLEDGE = SCRIPTS / "build_knowledge.py"
 PUBLISH_RECIPE = (
     Path(__file__).resolve().parents[1]
@@ -1039,18 +1038,9 @@ class DeepReviewContractTests(unittest.TestCase):
                     self.assertEqual({row["status"] for row in status["jobs"]}, {"valid"})
                     merged = run_script(MERGE_FINDINGS, root, "--out", str(out))
                     self.assertEqual(merged.returncode, 0, merged.stdout + merged.stderr)
-                    html = run_script(RENDER_HTML, root, "--out", str(out))
-                    self.assertEqual(html.returncode, 0, html.stdout + html.stderr)
                     if variant == "bare":
                         merged_rows = json.loads((out / "findings.json").read_text(encoding="utf-8"))["findings"]
                         self.assertEqual([row["rule_ids"] for row in merged_rows if row["title"] == unruled["title"]], [[]])
-                        page = (out / "review.html").read_text(encoding="utf-8")
-                        self.assertIn(unruled["title"], page)
-                        self.assertIn("Repair plan", page)  # P2 AC1 surface in review.html, same text as review.md
-                        self.assertIn("1. Root cause: file0.txt:1 is a placeholder → shipped as-is", page)
-                        self.assertIn("grep every caller of the symbol at file0.txt:1", page)
-                        self.assertNotIn("Prompt for AI", page)
-                        self.assertNotIn("ai_prompt", page)
 
     def test_skill_candidacy_requires_explicit_dispatch(self) -> None:
         # UT-005 (P3 AC7; a skill whose own files are in the diff is a knowledge source)

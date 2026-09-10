@@ -13,7 +13,7 @@
    number of active reviewers.
 3. Inspect manifest-ordered status, validation, merge, and report output after reviewers finish in a
    different order; confirm every Critical, Major, and Minor defect renders a `🛠️ Repair plan` in
-   `review.md` and `review.html`.
+   `review.md`.
 4. Trigger retry and provider-block paths from structured error events, not tool output; repair an
    invalid artifact with the validation error; allow active attempts to finish; resume only
    unfinished jobs while preserving valid outputs.
