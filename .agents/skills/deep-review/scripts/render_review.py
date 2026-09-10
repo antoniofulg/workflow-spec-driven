@@ -44,10 +44,10 @@ def review_details(out: Path, manifest: dict) -> list[str]:
     applied = sum(1 for row in registry.get("sources", []) if row.get("status") == "applied")
     return [
         "## Review details", "",
-        f"- **Scope**: {manifest['base'][:12]} → {manifest['head'][:12]} ({manifest.get('mode', 'full')}, round {manifest['round']})",
+        f"- **Scope**: {manifest['base'][:12]} → {manifest['head'][:12]} ({manifest['mode']}, round {manifest['round']})",
         f"- **Files**: {files['selected']} selected · {files['ignored']} ignored · {files['skipped']} skipped · {files['carried']} carried",
         f"- **Jobs**: {len(jobs)}" + (f" ({kinds})" if kinds else ""),
-        f"- **Concurrency**: {manifest.get('concurrency', 'unset')}",
+        f"- **Concurrency**: {manifest['concurrency']}",
         f"- **Rules**: {applied} sources → {len(registry.get('rules', []))} rules",
         "",
     ]
@@ -189,6 +189,9 @@ def main() -> int:
             rationale = "no Critical or Major finding remains open"
     except RuntimeError as error:
         sys.stderr.write(f"{error}\n")
+        return 1
+    except KeyError as error:
+        sys.stderr.write(f"manifest.json lacks key {error}\n")
         return 1
 
     sev_counts = defaultdict(int)

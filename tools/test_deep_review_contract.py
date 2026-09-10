@@ -85,6 +85,7 @@ def write_job_round(root: Path, *, payload: dict | None = None, job: dict | None
                 "target": "test",
                 "mode": "full",
                 "round": 1,
+                "concurrency": 3,
                 "base": head,
                 "effective_base": head,
                 "head": head,
@@ -137,7 +138,9 @@ def render_fixture(root: Path, findings: list[dict]) -> Path:
         json.dumps(
             {
                 "target": "test",
+                "mode": "full",
                 "round": 1,
+                "concurrency": 3,
                 "base": head,
                 "head": head,
                 "worktree_snapshot": freeze_snapshot(root, out),
@@ -1151,6 +1154,18 @@ class DeepReviewContractTests(unittest.TestCase):
             result = run_script(RUN_JOBS, root, "--out", str(out), "--validate-only")
             self.assertEqual(result.returncode, 3, result.stdout + result.stderr)
             self.assertIn("source drifted", result.stderr)
+
+    def test_render_requires_manifest_concurrency(self) -> None:
+        # Review details read manifest keys build_manifest.py always emits; a missing key is an error, not a default
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out = render_fixture(root, [])
+            manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+            del manifest["concurrency"]
+            (out / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+            result = run_script(RENDER_REVIEW, root, "--out", str(out), "--no-freeze-check")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("concurrency", result.stderr)
 
     def test_render_rejects_source_drift(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
