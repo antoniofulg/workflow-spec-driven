@@ -20,7 +20,7 @@ The verification must be at least as broad as the claim.
 | --- | --- |
 | "this test passes" | That test, run |
 | "task complete" | The task's own tests and validation commands, plus the scoped gate |
-| "feature complete" / "ready for a pull request" | The full gate |
+| "feature complete" / "ready for a pull request" | The full gate, or `SCOPED PASS` below when it fails only outside the diff |
 | bounded documentation or instruction update | The proportional scoped checks selected by `GATES.md` |
 | visual-reference completion | Fresh paired reference/implementation captures at the declared states and viewports, with environment, fonts/assets, and expected differences recorded in the `UI-UX.md` contract |
 | "bug fixed" | The original symptom reproduced failing, then passing |
@@ -66,12 +66,12 @@ Output:       <pass count, failure count, build result>
 Warnings:     <any, or none>
 Contract:     <artifacts compared, PASS or the mismatch; or n/a>
 QA impact:    <scenario ids flagged or walked with verdicts; or "no user-visible change">
-Verdict:      PASS | FAIL
+Verdict:      PASS | SCOPED PASS | FAIL
 ```
 
 On `FAIL`, do not use completion language. State what failed and what remains.
 
-On `PASS`, only the specific claim the evidence supports may proceed.
+On `PASS`, only the specific claim the evidence supports may proceed. `SCOPED PASS` is defined below.
 
 ## Before a commit
 
@@ -93,7 +93,8 @@ batch of failures. It never closes one.
    line, then cluster by cause — several failures usually have one.
 2. **Re-run them untouched.** Passing with nothing changed means the defect is isolation, order or
    load, not the assertion. Fix that instead.
-3. **Fix the cause, not the symptom.** One fix per cluster.
+3. **Fix the cause, not the symptom.** One fix per cluster. A cluster in files the diff never
+   touched is classified under `## Scoped PASS` below, not fixed.
 4. **Climb back to the gate that closes the claim.** The failing tests while iterating, then the
    scoped gate for the surface touched, then the declared gate for the level being claimed — whole
    and unfiltered, never a subset assembled by hand. `docs/guidelines/GATES.md` names which is which.
@@ -101,18 +102,39 @@ batch of failures. It never closes one.
    build file; a scope picked to match what failed is the one that quietly drops a stage.
 5. **Report that command, its exit code and its numbers**, in the shape above.
 
-Some failures exist only in the whole run: a hook that fits its budget alone and times out on a busy
-machine, a suite that mutates state another suite reads, a test that passes because an earlier one
-left the right state. All three go green in isolation, so stopping at the subset ships them and
-reports success — and the report is what everyone downstream trusts.
-
-Between steps 1 and 4 the tree is known-red and the results are partial. That is deliberate: four
-failures in a 500-test end-to-end suite at twenty minutes a run is eighty minutes to learn what one
-run at the end tells you, and a fix is not more correct for having been measured alone. The
-guarantee is not that every intermediate state was green — it is that **no claim rests on a subset.**
+Some failures exist only in the whole run — a hook that times out under load, a suite that mutates
+state another reads, a test that depends on an earlier one — and all go green in isolation. Between
+steps 1 and 4 the tree is known-red by design; the guarantee is not that every intermediate state was
+green but that **no claim rests on a subset.**
 
 Never claim partial success, never blame the tooling without evidence of a false positive, and never
 move to the next task while verification is failing.
+
+## Scoped PASS — the full gate fails outside the diff
+
+At feature close the full gate may fail in a file the diff never touched. Classify before fixing:
+
+1. **One targeted re-run, untouched, read-only.** Run the failing test alone, once, editing nothing.
+   That is the only extra run the classification gets.
+2. **Causal needs evidence.** The failing file imports, renders, or reads something the diff changed,
+   or the feature's own tests fail the same way. "It appeared in the full gate" is not a causal path.
+3. **Causal → remediation as usual.** Fix in the feature, climb back to the full gate.
+4. **External → stop the gate.** Do not edit the external test, its fixtures, or the code it covers;
+   do not run the full gate again in this delivery. Hand the human the command, the counts, and the
+   test id, and ask for one of: expand scope (naming the file), or accept the limitation.
+
+An explicit acceptance closes the feature as `SCOPED PASS`:
+
+- `Verdict: SCOPED PASS`; `Output` names the external test and the counts; `Warnings` states that the
+  repository-wide gate is red.
+- The acceptance is an `AD-NNN` naming the test and who accepted; the external failure gets its own
+  issue, filed before the commit.
+- Stages the order names as waived (deep-review, QA) do not start; completed stages keep their evidence.
+- The claim is "feature verified against its acceptance criteria; repository gate red on `<test>`,
+  accepted by `<who>`" — never "the full gate passed".
+
+Without acceptance or a named expansion the verdict stays `FAIL`; without evidence of no causal path
+the failure stays remediation.
 
 ## Stop and hand it back
 
