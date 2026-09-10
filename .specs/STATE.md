@@ -3,11 +3,11 @@
 ## Handoff
 
 - **Feature**: `one-round-deep-review` (branch `feat/one-round-deep-review`, worktree `../my-workflow-one-round-deep-review`)
-- **Phase / Task**: Implementation complete locally — slices `integrity`, `remediation-check`, `diet` (T1–T16) each Technical Verifier PASS; content-test batch `923be1c2`; benchmark-driven direct corrections C1–C5 at `79f6bc63..3aebfbf5` (skill-in-diff rule binding, concurrency-sized cohorts, event-based block detection, sweeps ≥3 cohorts, repair-plan root cause)
-- **Completed**: fingerprint-only merge, explicit `prior_findings` dispositions, verdict counts carried open Critical/Major, stale-output archiving, Repair plan block, one-job incremental remediation check, polish lane and `tests`/`spec-parity` sweeps removed, rule matrix and suppressions optional, cohort floor, dispatched-skill knowledge scoping with cross-round reuse, Graft opt-in, `REVIEW-ROUNDS.md` remediation-check rule, AD-031. `tools/test_deep_review_contract.py` 41 tests; `bun run test` 124/126 (two failures pre-exist on `origin/main`: skills-lock hash, Bun no-install boundary).
+- **Phase / Task**: Complete locally. Slices T1–T16, corrections C1–C9, G1–G2, L1, R1–R4; feature-level Technical Verifier PASS at `685e5599`; QA session PASS (6 scenarios, 62 fixture checks, 0 bugs) in `docs/qa/reports/2026-09-10-one-round-deep-review.md`.
+- **Completed**: fingerprint-only merge; explicit `prior_findings` dispositions; verdict counts carried open Critical/Major; stale-output archiving; Repair plan in md+html; one-job incremental remediation check that rejects re-reported priors; polish lane and `tests`/`spec-parity` sweeps removed; cohorts sized to concurrency; sweeps only with ≥3 cohorts and never single-cohort findings; knowledge scoped to dispatched or in-diff skills with cross-round reuse; Graft opt-in; provider block from structured error events; invalid artifacts repaired with the validation error; `REVIEW-ROUNDS.md` remediation-check rule; AD-031; knowledge decision `deep-review-cadence`; `skills-lock.json` hash aligned. Gates: contract suite 44, token-metrics 28, `bun run test:python` 0, `bun test` 126/126, `node --test` 190/192 (#39 IT-012, #97 IT-011 fail identically on `origin/main`).
 - **In-progress** (file:line): none
-- **Next step**: re-run benchmark phase A+B on `dryrun/base..dryrun/head-r1..dryrun/head-r2` with `--out .deep-review/dryrun-codex-v2` (baseline in `dryrun-codex/`); expected: 3 cohorts, 0 sweeps, the two `<out>`-scope Majors found, no false BLOCKED. Then deep-review of the branch, QA session; delivery human-scheduled, unpushed.
-- **Blockers**: none. Not pushed; no PR.
+- **Next step**: remote delivery is human-scheduled; branch is unpushed, no PR. Optional: neutral-diff loop-to-SHIP benchmark against `main` (see knowledge decision). Dry-run tags `dryrun/*` are local and disposable.
+- **Blockers**: none.
 
 ## Decisions
 
