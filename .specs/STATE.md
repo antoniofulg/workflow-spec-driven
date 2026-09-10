@@ -377,6 +377,23 @@
 - **Date**: 2026-09-08
 - **Status**: active
 
+### AD-031
+
+- **Decision**: Deep-review runs one discovery review per implementation group. Remediation is proven
+  by a single incremental job (the remediation check) that reviews `reviewed_head..HEAD` and returns
+  an explicit `prior_findings` disposition for every open prior fingerprint; a prior finding resolves
+  only through a `resolved` row, never by absence. The round cap is deleted; the loop is bounded by
+  `[remediation].stall_attempts`.
+- **Reason**: The second full round re-read the whole change to answer one question — did the fix
+  land — and reviewers silently "resolved" findings that merely stopped being re-reported. One job
+  with explicit dispositions answers that question at fix cost, not feature cost.
+- **Trade-off**: A reviewer can still mark `resolved` on weak evidence; the prompt requires
+  re-running the certificate Path and `evidence` is mandatory, but it is not machine-checked.
+- **Scope**: `build_jobs.py` incremental mode, `merge_findings.py` reconciliation, `render_review.py`
+  Repair plan and ledger fields, `REVIEW-ROUNDS.md` remediation rule and severity vocabulary.
+- **Date**: 2026-09-09
+- **Status**: active
+
 ### AD-023
 
 - **Decision**: `assisted` is the default inter-slice execution mode whenever the frozen task DAG

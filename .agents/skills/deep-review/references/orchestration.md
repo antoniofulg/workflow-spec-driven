@@ -37,6 +37,8 @@ All job kinds (`cohort`, `polish`, `sweep`) return the same schema: defects, adv
 
 Sweeps are bare keys from the table below (built-in lens text) or `{key, lens}` objects for a custom lens.
 
+When `manifest.mode` is `incremental` (a remediation check), `build_jobs.py` ignores `cohorts` and `sweeps` (printing `sweeps skipped in incremental mode` when any were planned) and emits one defect-lane job `cohort-rc` over every selected path, carrying `prior_fingerprints` for every `open` ledger entry in `state.json`; the prompt's PRIOR FINDINGS block demands one `prior_findings` disposition row per fingerprint. Write `plan.json` as usual; its cohorts are not consulted.
+
 `build_jobs.py` derives a second polish partition automatically: ≤20 files and ≤1,200 changed lines, splitting oversized hunks when needed. Every selected hunk line therefore has one defect owner and one polish owner without complicating plan.json.
 
 ## Sweep triggers

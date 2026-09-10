@@ -316,9 +316,9 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] No reference mentions `round 3`, the two-round cap, or the AI-agents prompt block
-- [ ] `python3 .agents/skills/workflow-spec-driven/scripts/ad-index.py --check` exits 0
-- [ ] Gate check passes: `bun run test:python`
+- [x] No reference mentions `round 3`, the two-round cap, or the AI-agents prompt block
+- [x] `python3 .agents/skills/workflow-spec-driven/scripts/ad-index.py --check` exits 0
+- [x] Gate check passes: `bun run test:python`
 
 **Tests**: none
 **Gate**: declared

@@ -22,13 +22,14 @@ printf '%s' "defect|internal/store/queue.go|potential-issue|dont hard fail prefe
   "target": "pr:312",
   "rounds": [{ "n": 2, "base": "<sha>", "head": "<sha>", "verdict": "FIX_BEFORE_SHIP", "reviewed_at": "<ISO-8601>" }],
   "ledger": {
-    "<fp>": { "file": "...", "title": "...", "severity": "major", "result_kind": "defect", "status": "open",
+    "<fp>": { "file": "...", "line": 42, "title": "...", "severity": "major", "result_kind": "defect", "status": "open",
+              "certificate": "Premise: ... → Path: ... → Verdict: ...", "also_applies": ["<path:line>"],
               "round": 1, "comment_id": 123456, "resolved_in": null }
   }
 }
 ```
 
-`status`: `open` → `resolved` (fix observed) | `dismissed` (user rejected — capture a learning; never re-raised). `comment_id` only when published.
+`status`: `open` → `resolved` (a remediation-check `prior_findings` row said so) | `dismissed` (user rejected — capture a learning; never re-raised). `comment_id` only when published. `line`, `certificate`, and `also_applies` let a remediation check render the prior finding without the archived findings.json.
 
 ## Round reconciliation (Step 4)
 
@@ -38,7 +39,7 @@ Implemented by merge_findings.py (round status) and render_review.py (ledger upd
 - **present, `open`** → `duplicate`; render once in the Duplicates section, keep ledger row.
 - **present, `dismissed`** → keep suppressed from the active results and expose it in the dismissed/suppression audit trail.
 
-Then sweep the ledger's `open` rows *not* re-found this round: if the row's file was re-reviewed (selected) or left the diff entirely, mark `resolved` (`resolved_in` = head; publish mode adds the ✅ edit); if the file sits in the manifest un-re-reviewed (carried/skipped), keep `open` and list it under Duplicates.
+Then sweep the ledger's `open` rows *not* re-found this round: a row whose `prior_findings` disposition says `resolved` becomes `resolved` (`resolved_in` = head; publish mode adds the ✅ edit); every other row — disposition `open` or no disposition at all — stays `open`, is listed under Duplicates, and counts in the verdict. Absence from the new output never resolves a finding.
 
 ## learnings.md (at `.deep-review/learnings.md`, repo-committable)
 

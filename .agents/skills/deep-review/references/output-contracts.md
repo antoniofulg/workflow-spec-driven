@@ -78,18 +78,18 @@ Certificate: <defect: Premise → Path → Verdict | advisory: Premise → Impro
 </details>
 
 <details>
-<summary>🤖 Prompt for AI Agents</summary>
+<summary>🛠️ Repair plan</summary>
 
-```
-Verify this finding against the current code and fix it only if still valid.
-In <path> around lines <X>-<Y>, <imperative remediation steps naming exact
-symbols and the target behavior>. Reference symbols: <sym1>, <sym2>.
-```
+1. Root cause: <Path clause of the certificate>
+2. Fix every site: <path:line>, <also_applies anchors...>
+3. Before editing, grep every caller of the symbol at <path:line>; fix at the owning layer.
+4. Extend the nearest test so it fails on the Premise, then fix until it passes.
+5. Suggested change: <suggestion | none>
 </details>
 <!-- deep-review:fp:<fingerprint> -->
 ```
 
-Bracketed lines appear only when they apply. Every result has the certificate for its class. The committable `suggestion` block appears only when the replacement is exact and self-contained; the AI-agents prompt appears only on **Critical and Major defects**.
+Bracketed lines appear only when they apply. Every result has the certificate for its class. The committable `suggestion` block appears only when the replacement is exact and self-contained; the Repair plan appears on **Critical, Major, and Minor defects**.
 
 ## review.md
 
@@ -145,8 +145,8 @@ When the harness exposes the ReportFindings tool, call it once after review.md i
 
 Derive after Step 4's merge from open **defects only**; advisories never change the verdict:
 
-- **SHIP** — no Critical or Major defect is open; Minor defects enter the mandatory current-feature closeout batch without another review round, while advisories ship as follow-ups. With `--spec`, the Spec conformance section must also be complete with zero open parity violations.
+- **SHIP** — no Critical or Major defect is open; Minor defects enter the mandatory current-feature closeout batch without a remediation check, while advisories ship as follow-ups. With `--spec`, the Spec conformance section must also be complete with zero open parity violations.
 - **FIX_BEFORE_SHIP** — at least one Critical/Major defect is open, and remediation is local: the change's shape is right and each defect names a bounded fix.
 - **REWORK** — defects show structural failure needing redesign: a parity violation the implementation approach cannot express, one root cause across ≥3 cohorts, or a Critical whose fix rewrites the change's core. REWORK always carries a named rationale; otherwise FIX_BEFORE_SHIP is the ceiling.
 
-The verdict lands in review.md, state.json, and the final message. render_review.py derives SHIP / FIX_BEFORE_SHIP from defects with round status new or duplicate and accepts REWORK only through `--rework "<rationale>"` backed by structural defects.
+The verdict lands in review.md, state.json, and the final message. render_review.py derives SHIP / FIX_BEFORE_SHIP from defects with round status new or duplicate plus prior `open` ledger entries no `prior_findings` row dispositioned, and accepts REWORK only through `--rework "<rationale>"` backed by structural defects. A `FIX_BEFORE_SHIP` is followed by one remediation batch and one remediation check (`SKILL.md` — Remediation check), never by a second discovery review.
