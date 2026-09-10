@@ -394,6 +394,22 @@
 - **Date**: 2026-09-09
 - **Status**: active
 
+### AD-032
+
+- **Decision**: `one-round-deep-review` is delivered with `bun run test:all` red only on
+  `tests/installer` `IT-011` (frozen canonical packet bytes) and `IT-012` (frozen Python parity
+  fixtures). Both fail identically on `origin/main` at `28e4a6ae` with `node_modules` present; the
+  branch changes no installer code or fixture.
+- **Reason**: The readiness rule wants the full gate at 0 on the final tree; a red caused entirely by
+  frozen fixtures that `main` already breaks is not evidence about this delivery, and hiding it in
+  silence is worse than naming it. Regenerating those fixtures is a `main` correction with its own
+  contract to understand.
+- **Trade-off**: A reader of the merge sees a red gate; this entry and the pull request name the two
+  ids so nobody mistakes them for regressions of this feature.
+- **Scope**: `tests/installer/*.test.js` #39, #97; follow-up correction on `main`.
+- **Date**: 2026-09-10
+- **Status**: active
+
 ### AD-023
 
 - **Decision**: `assisted` is the default inter-slice execution mode whenever the frozen task DAG
