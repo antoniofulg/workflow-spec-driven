@@ -852,6 +852,17 @@ class DeepReviewContractTests(unittest.TestCase):
             self.assertEqual([job["lane"] for job in jobs], ["defect"])
             self.assertNotIn("polish", build.stdout)
 
+    def test_removed_sweeps_are_rejected_by_name(self) -> None:
+        # IT-012 (P3 AC3)
+        for sweep, owner in (("tests", "test adequacy"), ("spec-parity", "spec parity")):
+            with self.subTest(sweep=sweep), tempfile.TemporaryDirectory() as raw:
+                root = init_repo(raw)
+                _, build = full_fixture(root, {"sweeps": [sweep], "cohorts": [
+                    {"id": "A", "name": "all", "risk": "normal", "files": ["file0.txt", "file1.txt", "file2.txt"]},
+                ]})
+                self.assertEqual(build.returncode, 1, build.stdout + build.stderr)
+                self.assertIn(f"sweep '{sweep}' was removed: the Technical Verifier owns {owner}", build.stderr)
+
     def test_validate_only_rejects_source_drift_before_accepting_valid_output(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)

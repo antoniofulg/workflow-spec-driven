@@ -399,9 +399,9 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] `plan.json` naming either sweep exits 1 with the removal message
-- [ ] Gate check passes: `python3 tools/test_deep_review_contract.py`
-- [ ] Test count: 31 tests pass
+- [x] `plan.json` naming either sweep exits 1 with the removal message
+- [x] Gate check passes: `python3 tools/test_deep_review_contract.py`
+- [x] Test count: 31 tests pass — actual: 32
 
 **Tests**: integration — IT-012
 **Gate**: quick

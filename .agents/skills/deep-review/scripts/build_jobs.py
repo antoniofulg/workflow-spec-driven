@@ -51,7 +51,7 @@ REVIEWER_PLACEHOLDERS = {
 }
 SWEEP_PLACEHOLDERS = {
     "sweep_key", "lens", "target", "context", "manifest", "taxonomy",
-    "diff_command", "spec_extra", "output", "schema", "rules_block",
+    "diff_command", "output", "schema", "rules_block",
     "coverage_contract", "graft_context",
 }
 
@@ -71,10 +71,6 @@ DEFAULT_LENSES = {
         "migrations, ordering, identity, and compatibility windows. REPORT GATE: name the database state and "
         "operation that loses data or breaks a deployed version."
     ),
-    "tests": (
-        "MISSION: find changed behavior with no failing-capable protection. FOCUS: untested branches, mock-only "
-        "assertions, and weakened expectations. REPORT GATE: name the regression the current suite would pass."
-    ),
     "consistency": (
         "MISSION: prove a cross-file change is complete. FOCUS: incomplete renames, sibling paths that share an "
         "invariant, and duplicated fixes. REPORT GATE: connect every missed occurrence to the same changed invariant."
@@ -84,22 +80,9 @@ DEFAULT_LENSES = {
         "dead flags, undocumented public settings, and default mismatches. REPORT GATE: name the runtime path "
         "where the configured value is ignored or misread."
     ),
-    "spec-parity": (
-        "MISSION: prove field-by-field conformance with every artifact in the context pack's Spec contract section. "
-        "FOCUS: names, types, defaults, requiredness, shapes, topology, and behavior. REPORT GATE: cite the exact "
-        "artifact field and contradictory implementation path."
-    ),
 }
 
-SPEC_EXTRA = (
-    " Read EVERY artifact in the context pack's Spec contract section in full and compare the "
-    "implementation to each one FIELD BY FIELD: names, types, defaults, required-vs-optional flags, "
-    "shapes, topologies, command surfaces, behaviors. A deliverable that contradicts a canonical "
-    "artifact is a Critical potential-issue, never a nitpick; never reinterpret the artifact to match "
-    "what was built. When an artifact names a visual reference, require its parity evidence bundle. "
-    "Set guideline to `<artifact path> — <section/field>` on every finding. An empty result asserts "
-    "every listed artifact conforms."
-)
+REMOVED_SWEEPS = {"tests": "test adequacy", "spec-parity": "spec parity"}
 
 PLACEHOLDER_RE = re.compile(r"\{\{([a-z_]+)\}\}")
 
@@ -275,25 +258,23 @@ def validate_cohorts(
     return errors
 
 
-def normalize_sweeps(plan: dict, context_pack: str) -> list[dict]:
+def normalize_sweeps(plan: dict) -> list[dict]:
     sweeps, errors = [], []
     for entry in plan.get("sweeps", []):
-        if isinstance(entry, str):
-            key, lens = entry, DEFAULT_LENSES.get(entry)
-            if lens is None:
-                errors.append(f"sweep {entry!r} has no built-in lens; use {{key, lens}}")
-                continue
-        else:
-            key, lens = entry.get("key"), entry.get("lens")
-            if not key or not lens:
-                errors.append(f"sweep entry {entry!r} needs key and lens")
-                continue
+        key, lens = (entry, DEFAULT_LENSES.get(entry)) if isinstance(entry, str) else (entry.get("key"), entry.get("lens"))
+        if key in REMOVED_SWEEPS:
+            errors.append(f"sweep {key!r} was removed: the Technical Verifier owns {REMOVED_SWEEPS[key]}")
+            continue
+        if isinstance(entry, str) and lens is None:
+            errors.append(f"sweep {entry!r} has no built-in lens; use {{key, lens}}")
+            continue
+        if not key or not lens:
+            errors.append(f"sweep entry {entry!r} needs key and lens")
+            continue
         sweeps.append({"key": key, "lens": lens})
     keys = [sweep["key"] for sweep in sweeps]
     if len(keys) != len(set(keys)):
         errors.append("duplicate sweep keys")
-    if "spec-parity" in keys and not re.search(r"^#{1,2} Spec contract\b", context_pack, re.M):
-        errors.append("spec-parity sweep planned but context-pack.md has no Spec contract section")
     if errors:
         raise RuntimeError("sweep validation failed:\n- " + "\n- ".join(errors))
     return sweeps
@@ -400,7 +381,7 @@ def main() -> int:
         rules = registry.get("rules")
         if not isinstance(rules, list):
             raise RuntimeError("rules.json: rules must be an array")
-        context_pack = (out / "context-pack.md").read_text(encoding="utf-8")
+        (out / "context-pack.md").read_text(encoding="utf-8")  # required by every prompt
         if "diff_command" not in manifest:
             raise RuntimeError("manifest.json lacks diff_command — rebuild it with the current build_manifest.py")
 
@@ -420,7 +401,7 @@ def main() -> int:
             ledger, prior_fps = {}, []
         if errors:
             raise RuntimeError("plan validation failed:\n- " + "\n- ".join(errors))
-        sweeps = [] if incremental else normalize_sweeps(plan, context_pack)
+        sweeps = [] if incremental else normalize_sweeps(plan)
         graft = prepare_graft_context(repo, out, sorted(selected))
 
         reviewer_template = load_template("reviewer")
@@ -485,7 +466,6 @@ def main() -> int:
                 "sweep_key": sweep["key"],
                 "lens": sweep["lens"],
                 "manifest": rel(out / "manifest.json", repo),
-                "spec_extra": SPEC_EXTRA if sweep["key"] == "spec-parity" else "",
                 "output": rel(output, repo),
                 "rules_block": block,
                 "coverage_contract": coverage_contract([], rule_ids, f"sweep:{sweep['key']}"),
