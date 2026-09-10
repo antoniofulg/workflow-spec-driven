@@ -2,12 +2,12 @@
 
 ## Handoff
 
-- **Feature**: `lean-consumer-installation` (branch `fix/lean-consumer-installation`)
-- **Phase / Task**: Complete locally — T1, review remediation and final package QA at `8f268bae`
-- **Completed**: skill-owned runtime, 28 proven old-copy retirements, consumer preservation, independent technical PASS, R1 with both Minor findings fixed, and final `bun run test:all` exit 0. Public QA: 8/9 passed; see `.specs/features/lean-consumer-installation/review-closeout.md` and the dated QA report.
-- **In-progress** (file:line): none for the installation relocation
-- **Next step**: optional separate QA work to supply the unchanged executor's missing offline adapter; its scenario remains `untested`, and the two live-host scenarios retain `blocked-verify`.
-- **Blockers**: none for the installed-runtime scope. Remote delivery, publication and real-consumer updates remain separately scheduled.
+- **Feature**: `one-round-deep-review` (branch `feat/one-round-deep-review`, worktree `../my-workflow-one-round-deep-review`)
+- **Phase / Task**: Implementation complete locally — slices `integrity`, `remediation-check`, `diet` (T1–T16) each Technical Verifier PASS; content-test alignment batch at `923be1c2`
+- **Completed**: fingerprint-only merge, explicit `prior_findings` dispositions, verdict counts carried open Critical/Major, stale-output archiving, Repair plan block, one-job incremental remediation check, polish lane and `tests`/`spec-parity` sweeps removed, rule matrix and suppressions optional, cohort floor, dispatched-skill knowledge scoping with cross-round reuse, Graft opt-in, `REVIEW-ROUNDS.md` remediation-check rule, AD-031. `tools/test_deep_review_contract.py` 38 tests; `bun run test` 124/126 (two failures pre-exist on `origin/main`: skills-lock hash, Bun no-install boundary).
+- **In-progress** (file:line): none
+- **Next step**: deep-review of this branch with the new pipeline (`/wreview --base origin/main` in the worktree) doubles as the human's dry run; then QA session; delivery is human-scheduled and unpushed.
+- **Blockers**: none. Not pushed; no PR.
 
 ## Decisions
 
