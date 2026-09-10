@@ -27,7 +27,7 @@ from pathlib import Path
 sys.dont_write_bytecode = True  # keep the tracked skill tree free of __pycache__
 
 from _common import ASSETS_DIR, read_json, rel, repo_root
-from render_review import line_range, one_line
+from render_review import repair_plan
 
 TEMPLATE = ASSETS_DIR / "REVIEW_UI.html"
 PLACEHOLDER = "__DEEP_REVIEW_DATA__"
@@ -39,22 +39,6 @@ def read_optional_json(path: Path):
 
 def read_optional_text(path: Path) -> str | None:
     return path.read_text(encoding="utf-8") if path.is_file() else None
-
-
-def ai_prompt(finding: dict) -> str | None:
-    """The same prompt render_review.py embeds in review.md, as copyable text."""
-    if finding.get("result_kind") != "defect" or finding["severity"] not in {"critical", "major"}:
-        return None
-    suggestion = one_line(finding.get("suggestion") or "")
-    remediation = suggestion or (
-        "correct the failure mode described in the finding at the owning layer"
-    )
-    rule_ids = ", ".join(finding.get("rule_ids") or []) or "review evidence"
-    return "\n".join([
-        "Verify this finding against the current code and fix it only if still valid.",
-        f"In {finding['file']} around lines {line_range(finding)}, {remediation}",
-        f"Reference anchor: {finding['file']}:{finding['line']}; rules: {rule_ids}.",
-    ])
 
 
 def verdict_for(state: dict | None, round_n: int, review_md: str | None) -> tuple[str, str | None]:
@@ -153,7 +137,7 @@ def build_payload(repo: Path, out: Path) -> dict:
              "guideline": rules_by_id[rid]["guideline"]}
             for rid in (finding.get("rule_ids") or []) if rid in rules_by_id
         ]
-        findings.append({**finding, "rules": resolved_rules, "ai_prompt": ai_prompt(finding)})
+        findings.append({**finding, "rules": resolved_rules, "repair_plan": "\n".join(repair_plan(finding))})
 
     reconciliation = ledger.get("reconciliation", {})
     return {

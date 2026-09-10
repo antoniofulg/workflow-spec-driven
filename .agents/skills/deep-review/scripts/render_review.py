@@ -85,19 +85,26 @@ def render_finding(finding: dict, rules_by_id: dict[str, dict]) -> str:
             f"> ‼️ **IMPORTANT**: review before committing — generated against lines {line_range(finding)}.",
             "", "```suggestion", *safe.splitlines(), "```", "</details>",
         ]
-    if finding["severity"] in {"critical", "major", "minor"}:
-        anchor = f"{finding['file']}:{finding['line']}"
-        lines += [
-            "", "<details>", "<summary>🛠️ Repair plan</summary>", "",
-            f"1. Root cause: {root_cause(evidence[0]) if evidence else 'see the finding body'}",
-            f"2. Fix every site: {', '.join([anchor, *(finding.get('also_applies') or [])])}",
-            f"3. Before editing, grep every caller of the symbol at {anchor}; fix at the owning layer.",
-            "4. Extend the nearest test so it fails on the Premise, then fix until it passes.",
-            f"5. Suggested change: {one_line(suggestion) if suggestion else 'none'}",
-            "</details>",
-        ]
+    plan = repair_plan(finding)
+    if plan:
+        lines += ["", "<details>", "<summary>🛠️ Repair plan</summary>", "", *plan, "</details>"]
     lines.append(f"<!-- deep-review:fp:{finding['fingerprint']} -->")
     return "\n".join(lines)
+
+
+def repair_plan(finding: dict) -> list[str]:
+    """The five repair-plan steps review.md and review.html both show; empty for trivial results."""
+    if finding["severity"] not in {"critical", "major", "minor"}:
+        return []
+    evidence, suggestion = finding.get("evidence") or [], (finding.get("suggestion") or "").strip()
+    anchor = f"{finding['file']}:{finding['line']}"
+    return [
+        f"1. Root cause: {root_cause(evidence[0]) if evidence else 'see the finding body'}",
+        f"2. Fix every site: {', '.join([anchor, *(finding.get('also_applies') or [])])}",
+        f"3. Before editing, grep every caller of the symbol at {anchor}; fix at the owning layer.",
+        "4. Extend the nearest test so it fails on the Premise, then fix until it passes.",
+        f"5. Suggested change: {one_line(suggestion) if suggestion else 'none'}",
+    ]
 
 
 def by_file_sections(findings: list[dict], rules_by_id: dict[str, dict]) -> list[str]:

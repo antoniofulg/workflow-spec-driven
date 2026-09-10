@@ -1044,7 +1044,13 @@ class DeepReviewContractTests(unittest.TestCase):
                     if variant == "bare":
                         merged_rows = json.loads((out / "findings.json").read_text(encoding="utf-8"))["findings"]
                         self.assertEqual([row["rule_ids"] for row in merged_rows if row["title"] == unruled["title"]], [[]])
-                        self.assertIn(unruled["title"], (out / "review.html").read_text(encoding="utf-8"))
+                        page = (out / "review.html").read_text(encoding="utf-8")
+                        self.assertIn(unruled["title"], page)
+                        self.assertIn("Repair plan", page)  # P2 AC1 surface in review.html, same text as review.md
+                        self.assertIn("1. Root cause: file0.txt:1 is a placeholder → shipped as-is", page)
+                        self.assertIn("grep every caller of the symbol at file0.txt:1", page)
+                        self.assertNotIn("Prompt for AI", page)
+                        self.assertNotIn("ai_prompt", page)
 
     def test_skill_candidacy_requires_explicit_dispatch(self) -> None:
         # UT-005 (P3 AC7; a skill whose own files are in the diff is a knowledge source)

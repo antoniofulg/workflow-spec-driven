@@ -862,7 +862,6 @@
   const open = (DATA.findings || []).filter((f) => f.round_status === "new" || f.round_status === "duplicate");
   const openBySev = Object.fromEntries(SEV.map((s) => [s, open.filter((f) => f.severity === s).length]));
   const advisories = open.filter((f) => f.result_kind === "advisory");
-  const aiPrompts = open.filter((f) => f.ai_prompt);
   document.title = `Deep Review — ${DATA.target} · round ${DATA.round}`;
 
   /* ---------- filtering ---------- */
@@ -917,8 +916,8 @@
       ? `<p class="kv"><span class="k">Also applies to</span> <span class="mono">${f.also_applies.map(esc).join(", ")}</span></p>` : "";
     const suggestion = f.suggestion
       ? `<div class="codebox"><div class="codebox-head"><span>&#128221; Committable suggestion</span><span class="note">replaces lines ${esc(String(f.line))}&ndash;${esc(String(f.end_line || f.line))} &mdash; review before committing</span>${copyBtn(f.suggestion)}</div><pre><code>${esc(f.suggestion)}</code></pre></div>` : "";
-    const prompt = f.ai_prompt
-      ? `<div class="codebox"><div class="codebox-head"><span>&#129302; Prompt for AI agents</span>${copyBtn(f.ai_prompt, "Copy prompt")}</div><pre><code>${esc(f.ai_prompt)}</code></pre></div>` : "";
+    const repair = f.repair_plan
+      ? `<div class="codebox"><div class="codebox-head"><span>&#128736;&#65039; Repair plan</span>${copyBtn(f.repair_plan, "Copy plan")}</div><pre><code>${esc(f.repair_plan)}</code></pre></div>` : "";
     const meta = [
       `<span>${esc(CAT_LABEL[f.category] || f.category)}</span>`,
       `<span>${esc(f.result_kind || "defect")}</span>`,
@@ -940,7 +939,7 @@
           ${copyBtn(anchorOf(f), "Copy anchor")}
         </div>
         <div class="prose">${renderMd(f.body)}</div>
-        ${also}${rules}${evidence}${suggestion}${prompt}
+        ${also}${rules}${evidence}${suggestion}${repair}
         <div class="f-meta">${meta}</div>
       </div>
     </details>`;
@@ -1049,7 +1048,6 @@
           <option value="file" ${ui.sort === "file" ? "selected" : ""}>file</option>
         </select>
       </label>
-      ${aiPrompts.length ? `<button type="button" class="icon-btn" id="copy-all" title="Copy every open Critical/Major AI fix prompt">${ICONS.copy}Fix prompts <span class="count">${aiPrompts.length}</span></button>` : ""}
     </div>`;
   }
 
@@ -1258,11 +1256,6 @@
         else { ui.closed[fp] = 1; delete ui.open[fp]; }
       });
       save(); return;
-    }
-    if (e.target.closest("#copy-all")) {
-      const text = aiPrompts.map((f) => f.ai_prompt).join("\n\n---\n\n");
-      copyText(text, e.target.closest("#copy-all"));
-      return;
     }
     if (e.target.closest("#auto-refresh")) {
       ui.refresh = !ui.refresh;
