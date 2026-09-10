@@ -207,7 +207,10 @@ def coverage_ledger(manifest: dict, collected: dict[str, list[dict]]) -> dict:
             expected += hunk_lines(file["path"], hunk_text(hunk))
 
     lane_stats = {}
-    for lane in ("defect", "polish"):
+    # SPEC_DEVIATION: merge_findings.py is outside T7's file list.
+    # Reason: P2 AC3 makes the incremental round defect-lane only; T10 removes the polish lane everywhere.
+    lanes = ("defect",) if manifest.get("mode") == "incremental" else ("defect", "polish")
+    for lane in lanes:
         actual = Counter()
         rows = [row for row in collected["hunk_coverage"] if row["lane"] == lane]
         for row in rows:

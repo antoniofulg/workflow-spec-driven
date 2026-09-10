@@ -31,6 +31,8 @@ REVIEW:
 4. REPORT every survivor in the lane's result array. This review is always assertive: a small advisory survives when it is specific, actionable, and not owned by a formatter or a linter. Assign impact only after refutation. Set `hunk` on every in-diff result; outside-diff results set `in_diff` false and `hunk` null. Fill `suggestion` only with an exact, self-contained replacement.
 5. RECORD every investigated candidate dropped by an objective taxonomy rule in `suppressions`; never silently discard it. Then complete the exact hunk and rule accounting below. A clear hunk still needs a coverage row.
 
+{{prior_findings}}
+
 {{coverage_contract}}
 
 OUTPUT CONTRACT: write ONLY valid JSON matching this schema to `{{output}}` — no other file, nothing to stdout: `{{schema}}`

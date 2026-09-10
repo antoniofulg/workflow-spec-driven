@@ -257,12 +257,12 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] Incremental fixture → `jobs.json` has exactly one job, lane `defect`, no polish, no sweeps
-- [ ] Prompt lists fingerprint, anchor, certificate, `also_applies`, and the `prior_findings` contract
-- [ ] Ledger of only resolved entries → one job whose prompt says `No prior findings to disposition`
-- [ ] A `resolved` disposition with no new defects renders `SHIP` and `resolved_in == head`
-- [ ] Gate check passes: `python3 tools/test_deep_review_contract.py`
-- [ ] Test count: 25 tests pass
+- [x] Incremental fixture → `jobs.json` has exactly one job, lane `defect`, no polish, no sweeps
+- [x] Prompt lists fingerprint, anchor, certificate, `also_applies`, and the `prior_findings` contract
+- [x] Ledger of only resolved entries → one job whose prompt says `No prior findings to disposition`
+- [x] A `resolved` disposition with no new defects renders `SHIP` and `resolved_in == head`
+- [x] Gate check passes: `python3 tools/test_deep_review_contract.py`
+- [x] Test count: 25 tests pass
 
 **Tests**: integration — IT-006, IT-007, IT-010, IT-019
 **Gate**: quick

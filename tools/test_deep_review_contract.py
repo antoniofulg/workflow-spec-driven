@@ -17,6 +17,8 @@ sys.dont_write_bytecode = True
 
 SCRIPTS = Path(__file__).resolve().parents[1] / ".agents/skills/deep-review/scripts"
 BUILD_MANIFEST = SCRIPTS / "build_manifest.py"
+BUILD_JOBS = SCRIPTS / "build_jobs.py"
+MERGE_FINDINGS = SCRIPTS / "merge_findings.py"
 RUN_JOBS = SCRIPTS / "run_jobs.py"
 RENDER_REVIEW = SCRIPTS / "render_review.py"
 PUBLISH_RECIPE = (
@@ -185,6 +187,43 @@ def finding(severity: str) -> dict:
         "rule_ids": [],
         "evidence": ["Premise: contract fails → Path: source.txt:1 → Verdict: blocked."],
     }
+
+
+def incremental_fixture(root: Path, *, sweeps: list[str], prior_status: str = "open") -> tuple[Path, dict]:
+    """Round 1 with one open Major, a fix commit, then an incremental manifest and jobs."""
+    base = git(root, "rev-parse", "HEAD")
+    major = {
+        **finding("major"),
+        "also_applies": ["source.txt:7"],
+        "evidence": ["Premise: guard missing → Path: the caller skips the guard → Verdict: blocked."],
+    }
+    out = render_fixture(root, [major])
+    first = run_script(RENDER_REVIEW, root, "--out", str(out))
+    assert first.returncode == 0, first.stdout + first.stderr
+    state = json.loads((out / "state.json").read_text(encoding="utf-8"))
+    state["ledger"]["fp-major"]["status"] = prior_status
+    (out / "state.json").write_text(json.dumps(state), encoding="utf-8")
+
+    (root / "source.txt").write_text("a\nguarded\n", encoding="utf-8")
+    git(root, "add", "source.txt")
+    git(root, "commit", "-qm", "fix: add the guard")
+    manifest = run_script(BUILD_MANIFEST, root, "--out", str(out), "--base", base)
+    assert manifest.returncode == 0, manifest.stdout + manifest.stderr
+    assert json.loads((out / "manifest.json").read_text(encoding="utf-8"))["mode"] == "incremental"
+    (out / "plan.json").write_text(json.dumps({
+        "cohorts": [
+            {"id": "A", "name": "first", "risk": "normal", "files": ["source.txt"]},
+            {"id": "B", "name": "second", "risk": "low", "files": ["missing.txt"]},
+        ],
+        "sweeps": sweeps,
+    }), encoding="utf-8")
+    (out / "rules.json").write_text(json.dumps({"rules": [], "sources": []}), encoding="utf-8")
+    (out / "knowledge.json").write_text(
+        json.dumps({"selected_paths": ["source.txt"], "sources": []}), encoding="utf-8"
+    )
+    build = run_script(BUILD_JOBS, root, "--out", str(out))
+    assert build.returncode == 0, build.stdout + build.stderr
+    return out, {"stdout": build.stdout, "head": git(root, "rev-parse", "HEAD"), "major": major}
 
 
 def raw_defect(raw_id: str, title: str, line: int, end_line: int, suggestion: str) -> dict:
@@ -571,6 +610,79 @@ class DeepReviewContractTests(unittest.TestCase):
                 self.assertEqual(entry["certificate"], item["evidence"][0])
                 self.assertEqual(entry["also_applies"], item["also_applies"])
                 self.assertEqual(entry["line"], item["line"])
+
+    def test_incremental_mode_emits_one_defect_job_without_polish_or_sweeps(self) -> None:
+        # IT-006 (P2 AC3; edge: retained sweep is skipped)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out, info = incremental_fixture(root, sweeps=["consistency"])
+            jobs = json.loads((out / "jobs.json").read_text(encoding="utf-8"))["jobs"]
+            self.assertEqual(len(jobs), 1, jobs)
+            self.assertEqual(jobs[0]["lane"], "defect")
+            self.assertEqual({row["file"] for row in jobs[0]["required_hunks"]}, {"source.txt"})
+            self.assertEqual(jobs[0]["prior_fingerprints"], ["fp-major"])
+            self.assertIn("sweeps skipped in incremental mode", info["stdout"])
+            self.assertEqual(sorted(p.name for p in (out / "prompts").iterdir()), ["cohort-rc.md"])
+
+    def test_remediation_prompt_lists_prior_findings(self) -> None:
+        # IT-007 (P2 AC4)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out, info = incremental_fixture(root, sweeps=[])
+            job = json.loads((out / "jobs.json").read_text(encoding="utf-8"))["jobs"][0]
+            prompt = (root / job["prompt"]).read_text(encoding="utf-8")
+            self.assertIn("fp-major", prompt)
+            self.assertIn("major", prompt)
+            self.assertIn("source.txt:1", prompt)
+            self.assertIn(info["major"]["evidence"][0], prompt)
+            self.assertIn("source.txt:7", prompt)
+            self.assertIn("prior_findings", prompt)
+            self.assertIn("resolved", prompt)
+            self.assertIn("evidence", prompt)
+            self.assertNotIn("No prior findings to disposition", prompt)
+
+    def test_resolved_disposition_without_new_defects_ships(self) -> None:
+        # IT-010 (P2 independent test)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out, info = incremental_fixture(root, sweeps=[])
+            job = json.loads((out / "jobs.json").read_text(encoding="utf-8"))["jobs"][0]
+            payload = {
+                **valid_payload(),
+                "coverage": {
+                    "hunks": [{**row, "checks": ["defect"], "outcome": "clear"} for row in job["required_hunks"]],
+                    "rules": [],
+                },
+                "prior_findings": [
+                    {"fingerprint": "fp-major", "status": "resolved", "evidence": "source.txt:2 → guard present"}
+                ],
+            }
+            (root / job["output"]).write_text(json.dumps(payload), encoding="utf-8")
+            result, row = validate_status(root, out)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(row["status"], "valid")
+            merged = run_script(MERGE_FINDINGS, root, "--out", str(out))
+            self.assertEqual(merged.returncode, 0, merged.stdout + merged.stderr)
+            rendered = run_script(RENDER_REVIEW, root, "--out", str(out))
+            self.assertEqual(rendered.returncode, 0, rendered.stdout + rendered.stderr)
+            review = (out / "review.md").read_text(encoding="utf-8")
+            self.assertIn("**Verdict: SHIP**", review)
+            state = json.loads((out / "state.json").read_text(encoding="utf-8"))
+            self.assertEqual(state["ledger"]["fp-major"]["status"], "resolved")
+            self.assertEqual(state["ledger"]["fp-major"]["resolved_in"], info["head"])
+            self.assertEqual(state["rounds"][-1]["verdict"], "SHIP")
+
+    def test_incremental_mode_with_no_open_prior_findings_still_emits_one_job(self) -> None:
+        # IT-019 (edge: empty prior set)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out, _ = incremental_fixture(root, sweeps=[], prior_status="resolved")
+            jobs = json.loads((out / "jobs.json").read_text(encoding="utf-8"))["jobs"]
+            self.assertEqual(len(jobs), 1, jobs)
+            self.assertEqual(jobs[0]["prior_fingerprints"], [])
+            prompt = (root / jobs[0]["prompt"]).read_text(encoding="utf-8")
+            self.assertIn("No prior findings to disposition", prompt)
+            self.assertNotIn("fp-major", prompt)
 
     def test_incomplete_defect_or_polish_hunk_coverage_is_rejected(self) -> None:
         manifest = {

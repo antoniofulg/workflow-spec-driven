@@ -49,7 +49,7 @@ MAX_POLISH_CHANGED_LINES = 1200
 REVIEWER_PLACEHOLDERS = {
     "cohort_name", "risk", "target", "file_list", "scope_instruction", "context",
     "taxonomy", "rules_block", "diff_command", "base", "output", "schema",
-    "lane_instruction", "coverage_contract", "graft_context",
+    "lane_instruction", "coverage_contract", "graft_context", "prior_findings",
 }
 SWEEP_PLACEHOLDERS = {
     "sweep_key", "lens", "target", "context", "manifest", "taxonomy",
@@ -416,6 +416,24 @@ def polish_cohorts(
     return result
 
 
+def prior_findings_block(ledger: dict[str, dict]) -> str:
+    """Remediation-check contract: one disposition row per open prior finding."""
+    rows = sorted((fp, entry) for fp, entry in ledger.items() if entry.get("status") == "open")
+    if not rows:
+        return "PRIOR FINDINGS: No prior findings to disposition — leave `prior_findings` empty."
+    lines = [
+        "PRIOR FINDINGS — return one `prior_findings` row per fingerprint with `status` `resolved` "
+        "or `open` and a one-line `evidence`; re-run the certificate Path before marking resolved:"
+    ]
+    for fp, entry in rows:
+        also = ", ".join(entry.get("also_applies") or []) or "none"
+        lines.append(
+            f"- `{fp}` {entry['severity']} at `{entry['file']}:{entry.get('line', '?')}` — "
+            f"{entry.get('certificate') or entry['title']}; also applies: {also}"
+        )
+    return "\n".join(lines)
+
+
 def coverage_contract(required_hunks: list[dict], rule_ids: list[str], check: str) -> str:
     return (
         "HUNK COVERAGE (one exact row per assignment; include check "
@@ -451,12 +469,22 @@ def main() -> int:
             raise RuntimeError("manifest.json lacks diff_command — rebuild it with the current build_manifest.py")
 
         selected = manifest_selected(manifest)
-        errors = validate_registry(registry, knowledge, selected) + validate_cohorts(
-            plan["cohorts"], selected, args.max_cohort_files
-        )
+        errors = validate_registry(registry, knowledge, selected)
+        incremental = manifest.get("mode") == "incremental"
+        if incremental:
+            # Remediation check: one job over every selected path; plan cohorts and sweeps are ignored.
+            cohorts = [{"id": "rc", "name": "remediation check", "risk": "high", "files": sorted(selected)}]
+            if plan.get("sweeps"):
+                print("sweeps skipped in incremental mode")
+            ledger = read_json(out / "state.json").get("ledger", {})
+            prior_fps = sorted(fp for fp, entry in ledger.items() if entry.get("status") == "open")
+        else:
+            cohorts = plan["cohorts"]
+            errors += validate_cohorts(cohorts, selected, args.max_cohort_files)
+            ledger, prior_fps = {}, []
         if errors:
             raise RuntimeError("plan validation failed:\n- " + "\n- ".join(errors))
-        sweeps = normalize_sweeps(plan, context_pack)
+        sweeps = [] if incremental else normalize_sweeps(plan, context_pack)
         graft = prepare_graft_context(repo, out, sorted(selected))
 
         reviewer_template = load_template("reviewer")
@@ -469,6 +497,7 @@ def main() -> int:
             "diff_command": manifest["diff_command"],
             "schema": schema,
             "graft_context": rel(Path(graft["path"]), repo),
+            "prior_findings": prior_findings_block(ledger) if incremental else "",
         }
         prompts_dir = out / "prompts"
         prompts_dir.mkdir(parents=True, exist_ok=True)
@@ -476,7 +505,7 @@ def main() -> int:
         (out / "runs").mkdir(exist_ok=True)
 
         jobs, bound_counts = [], []
-        for cohort in plan["cohorts"]:
+        for cohort in cohorts:
             label = f"cohort-{cohort['id'].lower()}"
             output = out / "agents" / f"{label}.json"
             bound_rules = cohort_rules(rules, cohort["files"])
@@ -504,13 +533,13 @@ def main() -> int:
             jobs.append({
                 "label": label, "kind": "cohort", "lane": "defect",
                 "coverage_check": "defect", "required_hunks": required_hunks,
-                "rule_ids": rule_ids,
+                "rule_ids": rule_ids, "prior_fingerprints": prior_fps,
                 "prompt": rel(prompts_dir / f"{label}.md", repo),
                 "output": rel(output, repo),
             })
 
-        polish = polish_cohorts(
-            plan["cohorts"], selected, DEFAULT_MAX_POLISH_FILES, MAX_POLISH_CHANGED_LINES
+        polish = [] if incremental else polish_cohorts(
+            cohorts, selected, DEFAULT_MAX_POLISH_FILES, MAX_POLISH_CHANGED_LINES
         )
         for cohort in polish:
             label = f"polish-{cohort['id'].lower()}"
@@ -575,7 +604,7 @@ def main() -> int:
 
     with_rules = sum(1 for count in bound_counts if count)
     print(
-        f"jobs: {len(plan['cohorts'])} defect cohorts + {len(polish)} polish cohorts + "
+        f"jobs: {len(cohorts)} defect cohorts + {len(polish)} polish cohorts + "
         f"{len(sweeps)} sweeps -> {out / 'jobs.json'}\n"
         f"cohort limit: {args.max_cohort_files} files / {MAX_COHORT_CHANGED_LINES} changed lines\n"
         f"polish limit: {DEFAULT_MAX_POLISH_FILES} files / {MAX_POLISH_CHANGED_LINES} changed lines\n"
