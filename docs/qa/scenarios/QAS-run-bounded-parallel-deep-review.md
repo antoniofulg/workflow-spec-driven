@@ -6,13 +6,13 @@ persona: Workflow operator
 journey: J-run-deep-review
 expected: Default, repository, and CLI concurrency resolve within one through six, discovery emits only defect-lane cohorts that overlap without exceeding the bound, deterministic artifacts survive out-of-order completion, and blocked runs resume only unfinished work.
 entry_points: .agents/skills/deep-review/SKILL.md; .deep-review.yaml; .agents/skills/deep-review/scripts/build_manifest.py; .agents/skills/deep-review/scripts/run_jobs.py; .agents/skills/deep-review/references/orchestration.md; .agents/skills/deep-review/references/subagent-runtimes.md
-qa_status: untested
+qa_status: pass
 bug_ids: BUG-20260826-deep-review-peak-bound-gate-flakes
 fix_status: fixed
 retest_status: pass
 fix_commits: ae1b7d0; cd1886f
-evidence: docs/qa/evidence/2026-08-25-parallel-deep-review/qa-summary.json; docs/qa/evidence/2026-08-25-parallel-deep-review/deterministic-render-test.log; docs/qa/evidence/2026-08-26-host-adapter-compatibility/retest-after-cd1886f/results.json; docs/qa/evidence/2026-08-26-host-adapter-compatibility/retest-after-cd1886f/session.md
-last_report: docs/qa/reports/2026-08-26-host-adapter-compatibility.md
+evidence: docs/qa/evidence/2026-09-10-one-round-deep-review/qa-summary.json; docs/qa/evidence/2026-09-10-one-round-deep-review/overlap-run.log; docs/qa/evidence/2026-09-10-one-round-deep-review/overlap-status.json; docs/qa/evidence/2026-09-10-one-round-deep-review/resume-run.log
+last_report: docs/qa/reports/2026-09-10-one-round-deep-review.md
 overlaps: QAS-size-discovery-to-defect-cohorts; QAS-repair-invalid-artifact-from-error-events
 ---
 

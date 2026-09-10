@@ -11,8 +11,8 @@ bug_ids: BUG-20260822-adoption-omits-graft-ignores; BUG-20260822-feature-specs-i
 fix_status: fixed
 retest_status: pass
 fix_commits: b509b10; a7397d2; 43e9910; a3fc718; 5b5474e
-evidence: docs/qa/evidence/2026-08-24-agent-model-routing-local-state/summary.json
-last_report: docs/qa/reports/2026-08-24-agent-model-routing-local-state.md
+evidence: docs/qa/evidence/2026-08-24-agent-model-routing-local-state/summary.json; docs/qa/evidence/2026-09-10-one-round-deep-review/canary-gitignore.log
+last_report: docs/qa/reports/2026-09-10-one-round-deep-review.md
 overlaps:
 ---
 
