@@ -1068,7 +1068,7 @@
       const defects = vis.filter((f) => f.result_kind === "defect");
       const advice = vis.filter((f) => f.result_kind === "advisory");
       body = `${defects.length ? `<section class="section"><h3>Defects <span class="n">${defects.length}</span></h3>${fileGroups(defects)}</section>` : ""}
-        ${advice.length ? `<section class="section"><h3>Advisories <span class="n">${advice.length}</span></h3><p class="hint">Actionable polish and project-rule guidance; excluded from the verdict.</p>${fileGroups(advice)}</section>` : ""}`;
+        ${advice.length ? `<section class="section"><h3>Advisories <span class="n">${advice.length}</span></h3><p class="hint">Actionable improvements and project-rule guidance; excluded from the verdict.</p>${fileGroups(advice)}</section>` : ""}`;
     }
     const line = open.length
       ? `<div class="result-line"><span>Showing ${vis.length} of ${open.length} open findings</span>${active ? `<button type="button" class="link-btn" id="clear-filters">Clear filters</button>` : ""}
@@ -1093,7 +1093,7 @@
     const laneCoverage = coverage.lanes || {};
     parts.push(`<section class="section"><h3>Review observability</h3>
       <p class="hint">${stats.candidates ?? 0} candidates investigated · ${stats.reported ?? 0} reported before deduplication · ${stats.suppressed ?? 0} suppressions recorded.</p>
-      <p class="hint">${coverage.selected_hunk_lines ?? 0} selected hunk lines · defect coverage ${laneCoverage.defect?.complete ? "complete" : "incomplete"} · polish coverage ${laneCoverage.polish?.complete ? "complete" : "incomplete"}.</p>
+      <p class="hint">${coverage.selected_hunk_lines ?? 0} selected hunk lines · defect coverage ${laneCoverage.defect?.complete ? "complete" : "incomplete"}.</p>
     </section>`);
     const suppressions = DATA.suppressions || [];
     if (suppressions.length) {

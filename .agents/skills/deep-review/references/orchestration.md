@@ -10,11 +10,11 @@ Every stage materializes jobs with lane ownership (`{label, kind, lane, prompt, 
 | --- | --- | --- | --- |
 | Knowledge | `build_knowledge.py` → knowledge.json + rules.template.json | — | source discovery |
 | Plan | `build_jobs.py` → prompts + jobs.json | — | source accounting + ownership |
-| Review | — | jobs.json (defect + polish + sweeps) | `run_jobs.py --validate-only` |
-| Merge | `merge_findings.py` → findings.json + review-stats.json | — | complete two-lane coverage |
+| Review | — | jobs.json (defect cohorts + sweeps) | `run_jobs.py --validate-only` |
+| Merge | `merge_findings.py` → findings.json + review-stats.json | — | complete defect-lane coverage |
 | Report | `render_review.py` → review.md + state.json; `render_html.py` → review.html | — | `render_review.py` |
 
-All job kinds (`cohort`, `polish`, `sweep`) return the same schema: defects, advisories, objective suppressions, hunk coverage, and rule coverage. `hunk` is the assigned canonical range (`<side>:<start>-<end>`), null outside the diff. Defects use the causal certificate; advisories use the improvement certificate.
+Both job kinds (`cohort`, `sweep`) return the same schema: defects, advisories, hunk coverage, and optional suppressions and rule notes. `hunk` is the assigned canonical range (`<side>:<start>-<end>`), null outside the diff. Defects use the causal certificate; advisories use the improvement certificate.
 
 ## Cohort rules (Step 2)
 
@@ -39,7 +39,7 @@ Sweeps are bare keys from the table below (built-in lens text) or `{key, lens}` 
 
 When `manifest.mode` is `incremental` (a remediation check), `build_jobs.py` ignores `cohorts` and `sweeps` (printing `sweeps skipped in incremental mode` when any were planned) and emits one defect-lane job `cohort-rc` over every selected path, carrying `prior_fingerprints` for every `open` ledger entry in `state.json`; the prompt's PRIOR FINDINGS block demands one `prior_findings` disposition row per fingerprint. Write `plan.json` as usual; its cohorts are not consulted.
 
-`build_jobs.py` derives a second polish partition automatically: ≤20 files and ≤1,200 changed lines, splitting oversized hunks when needed. Every selected hunk line therefore has one defect owner and one polish owner without complicating plan.json.
+`build_jobs.py` rejects a plan with more than one cohort when the whole selection fits one (≤ `--max-cohort-files` files and ≤ 6,000 changed lines): merge the cohorts.
 
 ## Sweep triggers
 
@@ -50,14 +50,12 @@ Sweeps are **opt-in and rare** — default to none. Each sweep is one extra agen
 | `contracts` | exported/wire/API symbol changed contract | breaking changes, drift between spec/impl/clients, missing codegen co-ship |
 | `security` | new endpoint/input path/authz surface/secret handling | injection, missing authn/authz, secret leakage, cross-tenant access |
 | `migrations` | schema/migration files in diff | destructive ops, missing migration for model change, ordering/identity hazards |
-| `tests` | any behavior change | new behavior without a failing-capable test, tests asserting mocks, weakened assertions |
 | `consistency` | renames or repeated patterns in diff | incomplete renames, sibling paths not mirroring a fix, duplicated logic |
 | `config` | config keys/flags/env vars changed | unwired or undocumented keys, dead flags, default mismatches |
-| `spec-parity` | `--spec` provided (always included then) | field-by-field conformance with every artifact in the context pack's Spec contract section |
 
 ## Engines
 
-The jobs contract makes engines interchangeable — pick one per run, record it in walkthrough.md's Review details (`Mode: workflow | agent-fallback | subagent:<runtime>`), and always close the loop with `run_jobs.py --validate-only`. Validation rejects missing coverage rows, unaccounted rules, wrong-lane results, and silent suppressions.
+The jobs contract makes engines interchangeable — pick one per run, record it in walkthrough.md's Review details (`Mode: workflow | agent-fallback | subagent:<runtime>`), and always close the loop with `run_jobs.py --validate-only`. Validation rejects missing coverage rows, in-diff anchors outside job ownership, and unassigned rule ids.
 
 **Named native dispatch (default when host supports it).** Dispatch up to the manifest concurrency
 bound to the custom `deep-reviewer` agent, refill slots as jobs complete, and keep retries inside
@@ -75,9 +73,10 @@ serialized cumulative snapshots only and never assigns overlapping deltas to job
 Record `Mode: native` in walkthrough.md, then run the validate-only gate. Provider-specific
 telemetry setup belongs in the runtime adapter guidance, not in this orchestration contract.
 
-Before prompts are materialized, `build_jobs.py` automatically attempts the pinned Graft CLI:
-`graft build`, repository-map lookup, blast-radius tracing, and symbol lookup are written to the
-prompt's context artifact. Graft is optional inspection aid: a missing binary, stale map, or failed
+Before prompts are materialized, `build_jobs.py` runs the pinned Graft CLI only when
+`.deep-review.yaml` sets `graft: true`: `graft build`, repository-map lookup, blast-radius tracing,
+and symbol lookup are written to the prompt's context artifact; without the flag that artifact is
+the single plain-inspection line and no subprocess runs. Graft is an optional inspection aid: a missing binary, stale map, or failed
 command falls back to plain repository inspection and does not block review. Graft does not index
 dot-directories, so selected `.agents` paths always carry an explicit plain-inspection fallback.
 

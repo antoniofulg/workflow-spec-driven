@@ -2,8 +2,8 @@
 """Deep-review plan gate (bootstrap helper; writes only under --out).
 
 Validates plan.json cohorts against the manifest (every selected file owned
-exactly once; hunk_scope slices line-exact; size caps), prepares optional Graft
-context, renders every reviewer and sweep prompt from assets/PROMPT.md —
+exactly once; hunk_scope slices line-exact; size caps), prepares Graft context
+only when .deep-review.yaml sets `graft: true`, renders every reviewer and sweep prompt from assets/PROMPT.md —
 injecting only the rules whose scope globs match that cohort's files — and
 materializes jobs.json, the work
 contract every execution engine runs.
@@ -39,7 +39,8 @@ from _common import (
     skill_rel,
     write_json,
 )
-from graft_context import prepare_graft_context
+from build_manifest import _config_path, parse_yaml_flag
+from graft_context import FALLBACK_LINE, prepare_graft_context
 
 DEFAULT_MAX_COHORT_FILES = 100
 MAX_COHORT_CHANGED_LINES = 6000
@@ -400,7 +401,11 @@ def main() -> int:
         if errors:
             raise RuntimeError("plan validation failed:\n- " + "\n- ".join(errors))
         sweeps = [] if incremental else normalize_sweeps(plan)
-        graft = prepare_graft_context(repo, out, sorted(selected))
+        if parse_yaml_flag(_config_path(repo), "graft"):
+            graft = prepare_graft_context(repo, out, sorted(selected))
+        else:  # opt-in: no subprocess, one plain-inspection line
+            (out / "graft-context.md").write_text(FALLBACK_LINE + "\n", encoding="utf-8")
+            graft = {"status": "fallback", "path": str(out / "graft-context.md")}
 
         reviewer_template = load_template("reviewer")
         sweep_template = load_template("sweep")

@@ -128,7 +128,7 @@ Bracketed lines appear only when they apply. Every result has the certificate fo
 
 ## Review observability
 
-<candidate, suppression, and complete defect/polish hunk coverage counts>
+<candidate, suppression, and complete defect hunk coverage counts>
 ```
 
 `review.md` orders files by max severity, then path.

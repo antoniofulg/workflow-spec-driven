@@ -7,6 +7,7 @@ import subprocess
 from pathlib import Path
 
 GRAFT_VERSION = "0.10.1"
+FALLBACK_LINE = "Graft context is unavailable; use plain repository inspection."
 
 
 def graft_binary(repo: Path) -> str | None:
@@ -44,7 +45,7 @@ def _fallback(path: Path, reason: str, dot_paths: list[str]) -> dict[str, str]:
         "status: fallback",
         f"reason: {reason}",
         "",
-        "Graft context is unavailable; use plain repository inspection.",
+        FALLBACK_LINE,
     ]
     if dot_paths:
         lines.extend(["", "Graft does not index dot-directories; inspect these paths plainly:", *[f"- `{item}`" for item in dot_paths]])

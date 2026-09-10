@@ -158,6 +158,17 @@ def parse_concurrency(config_path: Path | None) -> int:
     return DEFAULT_CONCURRENCY
 
 
+def parse_yaml_flag(config_path: Path | None, key: str) -> bool:
+    """Top-level `<key>: true` in the YAML-lite config; anything else is false."""
+    if config_path is None:
+        return False
+    for line in config_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if line.startswith((" ", "\t")) or not re.match(rf"^{re.escape(key)}\s*:", line):
+            continue
+        return line.split(":", 1)[1].split("#", 1)[0].strip() == "true"
+    return False
+
+
 def resolve_concurrency(repo_root: Path, override: int | None) -> tuple[int, str]:
     if override is not None:
         if not 1 <= override <= MAX_CONCURRENCY:

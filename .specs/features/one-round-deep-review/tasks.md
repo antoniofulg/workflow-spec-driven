@@ -510,11 +510,11 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] No config → `graft-context.md` is the single fallback line and a failing `graft` shim on `PATH` is never invoked
-- [ ] `rg -n "polish|RULE COVERAGE|spec-parity|path_instructions" .agents/skills/deep-review` returns nothing outside `rounds/` fixtures
-- [ ] `SKILL.md` byte size does not grow
-- [ ] Gate check passes: `bun run test:python`
-- [ ] Test count: 37 tests pass in `tools/test_deep_review_contract.py`
+- [x] No config → `graft-context.md` is the single fallback line and a failing `graft` shim on `PATH` is never invoked
+- [x] `rg -n "polish|RULE COVERAGE|spec-parity|path_instructions" .agents/skills/deep-review` returns nothing outside `rounds/` fixtures — sole hit is the `REMOVED_SWEEPS` key in `build_jobs.py` that T12's rejection message requires
+- [x] `SKILL.md` byte size does not grow (14720 → 14270)
+- [x] Gate check passes: `bun run test:python`
+- [x] Test count: 37 tests pass in `tools/test_deep_review_contract.py` — actual: 38
 
 **Tests**: integration — IT-018
 **Gate**: declared

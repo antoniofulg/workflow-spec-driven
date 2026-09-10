@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 sys.dont_write_bytecode = True
@@ -996,6 +997,39 @@ class DeepReviewContractTests(unittest.TestCase):
             self.assertNotIn("rules reused", result.stdout)
             self.assertTrue((out / "rules.template.json").is_file())
             self.assertFalse((out / "rules.json").exists())
+
+    def test_graft_runs_only_when_config_opts_in(self) -> None:
+        # IT-018 (P3 AC9; edge: graft: true with a failing binary still falls back)
+        plan = {"cohorts": [{"id": "A", "name": "all", "risk": "normal", "files": ["file0.txt", "file1.txt", "file2.txt"]}]}
+        for opt_in in (False, True):
+            with self.subTest(opt_in=opt_in), tempfile.TemporaryDirectory() as raw:
+                root = init_repo(raw)
+                sentinel = root / "graft-invoked"
+                shim = "#!/bin/sh\n" f"touch '{sentinel}'\n" "exit 1\n"
+                shim_dir = root / "shim"
+                shim_dir.mkdir()
+                for path in (shim_dir / "graft", root / "node_modules" / ".bin" / "graft"):
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_text(shim, encoding="utf-8")
+                    path.chmod(0o700)
+                package = root / "node_modules" / "@nanonets" / "graft" / "package.json"
+                package.parent.mkdir(parents=True)
+                package.write_text(json.dumps({"version": "0.10.1"}), encoding="utf-8")
+                (root / ".gitignore").write_text("node_modules/\nshim/\ngraft-invoked\n", encoding="utf-8")
+                if opt_in:
+                    (root / ".deep-review.yaml").write_text("graft: true\n", encoding="utf-8")
+                git(root, "add", "-A")
+                git(root, "commit", "-qm", "chore: shim")
+                env = {**os.environ, "PATH": f"{shim_dir}:{os.environ['PATH']}"}
+                with unittest.mock.patch.dict(os.environ, env):
+                    out, build = full_fixture(root, plan)
+                self.assertEqual(build.returncode, 0, build.stdout + build.stderr)
+                context = (out / "graft-context.md").read_text(encoding="utf-8")
+                self.assertEqual(sentinel.exists(), opt_in)
+                if opt_in:
+                    self.assertIn("status: fallback", context)
+                else:
+                    self.assertEqual(context, "Graft context is unavailable; use plain repository inspection.\n")
 
     def test_validate_only_rejects_source_drift_before_accepting_valid_output(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
