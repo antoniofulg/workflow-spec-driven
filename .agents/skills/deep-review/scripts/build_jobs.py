@@ -356,7 +356,9 @@ def prior_findings_block(ledger: dict[str, dict]) -> str:
         return "PRIOR FINDINGS: No prior findings to disposition — leave `prior_findings` empty."
     lines = [
         "PRIOR FINDINGS — return one `prior_findings` row per fingerprint with `status` `resolved` "
-        "or `open` and a one-line `evidence`; re-run the certificate Path before marking resolved:"
+        "or `open` and a one-line `evidence`; re-run the certificate Path before marking resolved. "
+        "A prior finding appears ONLY as a `prior_findings` row. Never list it, or a rewording of it, "
+        "in `defects`; `defects` holds only failures introduced or newly discovered in `reviewed_head..HEAD`:"
     ]
     for fp, entry in rows:
         also = ", ".join(entry.get("also_applies") or []) or "none"
@@ -405,11 +407,15 @@ def main() -> int:
             if plan.get("sweeps"):
                 print("sweeps skipped in incremental mode")
             ledger = read_json(out / "state.json").get("ledger", {})
-            prior_fps = sorted(fp for fp, entry in ledger.items() if entry.get("status") == "open")
+            prior_anchors = [
+                {"fingerprint": fp, "file": entry["file"], "line": entry.get("line")}
+                for fp, entry in sorted(ledger.items()) if entry.get("status") == "open"
+            ]
         else:
             cohorts = plan["cohorts"]
             errors += validate_cohorts(cohorts, selected, args.max_cohort_files, manifest["concurrency"])
-            ledger, prior_fps = {}, []
+            ledger, prior_anchors = {}, []
+        prior_fps = [anchor["fingerprint"] for anchor in prior_anchors]
         if errors:
             raise RuntimeError("plan validation failed:\n- " + "\n- ".join(errors))
         sweeps = [] if incremental else normalize_sweeps(plan)
@@ -464,7 +470,7 @@ def main() -> int:
             (prompts_dir / f"{label}.md").write_text(prompt, encoding="utf-8")
             jobs.append({
                 "label": label, "kind": "cohort", "lane": "defect", "required_hunks": required_hunks,
-                "rule_ids": rule_ids, "prior_fingerprints": prior_fps,
+                "rule_ids": rule_ids, "prior_fingerprints": prior_fps, "prior_anchors": prior_anchors,
                 "prompt": rel(prompts_dir / f"{label}.md", repo),
                 "output": rel(output, repo),
             })

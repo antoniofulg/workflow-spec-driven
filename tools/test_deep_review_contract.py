@@ -744,14 +744,14 @@ class DeepReviewContractTests(unittest.TestCase):
             self.assertEqual(after, before)
             self.assertEqual(after["fp-major"]["status"], "open")
 
-    def test_open_disposition_and_new_defect_at_same_anchor_both_appear(self) -> None:
-        # IT-023 (edge: prior stays visible next to a distinct new defect at the same anchor)
+    def test_open_disposition_and_new_defect_in_same_file_both_appear(self) -> None:
+        # IT-023 (edge: prior stays visible next to a distinct new defect in the same file; C8 rejects the same anchor)
         with tempfile.TemporaryDirectory() as raw:
             root = init_repo(raw)
             out, info = incremental_fixture(root, sweeps=[])
             job = json.loads((out / "jobs.json").read_text(encoding="utf-8"))["jobs"][0]
             new_defect = {
-                "file": "source.txt", "line": 1, "end_line": None, "in_diff": False, "hunk": None,
+                "file": "source.txt", "line": 2, "end_line": None, "in_diff": True, "hunk": "new:2-2",
                 "category": "potential-issue", "severity": "major", "quick_win": False, "rule_ids": [],
                 "title": "Guard rejects the wrong account",
                 "body": "The new guard compares the wrong identifier.",
@@ -789,6 +789,37 @@ class DeepReviewContractTests(unittest.TestCase):
             state = json.loads((out / "state.json").read_text(encoding="utf-8"))["ledger"]
             self.assertEqual(state["fp-major"]["status"], "open")
             self.assertEqual(state[new[0]["fingerprint"]]["status"], "open")
+
+    def test_defect_at_prior_anchor_is_rejected_as_re_report(self) -> None:
+        # C8: a prior finding is dispositioned, never re-listed in defects
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out, _ = incremental_fixture(root, sweeps=[])
+            job = json.loads((out / "jobs.json").read_text(encoding="utf-8"))["jobs"][0]
+            self.assertEqual(job["prior_anchors"], [{"fingerprint": "fp-major", "file": "source.txt", "line": 1}])
+            self.assertIn("Never list it, or a rewording of it, in `defects`", (root / job["prompt"]).read_text(encoding="utf-8"))
+
+            def defect(line: int) -> dict:
+                return {
+                    "file": "source.txt", "line": line, "end_line": None, "in_diff": line == 2,
+                    "hunk": "new:2-2" if line == 2 else None, "category": "potential-issue", "severity": "major",
+                    "quick_win": False, "rule_ids": [], "title": f"Guard still skipped at {line}", "body": "Reworded prior.",
+                    "evidence": ["Premise: guard missing → Path: the caller skips the guard → Verdict: blocked."],
+                }
+
+            def status_for(defects: list[dict]) -> dict:
+                (root / job["output"]).write_text(json.dumps({
+                    **valid_payload(), "defects": defects,
+                    "coverage": {"hunks": [{**row, "checks": ["defect"], "outcome": "reported"} for row in job["required_hunks"]], "rules": []},
+                    "prior_findings": [{"fingerprint": "fp-major", "status": "open", "evidence": "source.txt:1 → still skipped"}],
+                }), encoding="utf-8")
+                return validate_status(root, out)[1]
+
+            row = status_for([defect(1)])
+            self.assertEqual(row["status"], "invalid")
+            self.assertIn("$.defects[0]: re-reports prior finding fp-major", row["reason"])
+            self.assertEqual(status_for([])["status"], "valid")
+            self.assertEqual(status_for([defect(2)])["status"], "valid")
 
     def test_incremental_mode_with_no_open_prior_findings_still_emits_one_job(self) -> None:
         # IT-019 (edge: empty prior set)

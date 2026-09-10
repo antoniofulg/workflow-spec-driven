@@ -37,7 +37,7 @@ Both job kinds (`cohort`, `sweep`) return the same schema: defects, advisories, 
 
 Sweeps are bare keys from the table below (built-in lens text) or `{key, lens}` objects for a custom lens.
 
-When `manifest.mode` is `incremental` (a remediation check), `build_jobs.py` ignores `cohorts` and `sweeps` (printing `sweeps skipped in incremental mode` when any were planned) and emits one defect-lane job `cohort-rc` over every selected path, carrying `prior_fingerprints` for every `open` ledger entry in `state.json`; the prompt's PRIOR FINDINGS block demands one `prior_findings` disposition row per fingerprint. Write `plan.json` as usual; its cohorts are not consulted.
+When `manifest.mode` is `incremental` (a remediation check), `build_jobs.py` ignores `cohorts` and `sweeps` (printing `sweeps skipped in incremental mode` when any were planned) and emits one defect-lane job `cohort-rc` over every selected path, carrying `prior_fingerprints` and `prior_anchors` for every `open` ledger entry in `state.json`; the gate demands one `prior_findings` row per fingerprint and rejects a defect at a prior anchor. Write `plan.json` as usual.
 
 `build_jobs.py` rejects a plan with more cohorts than the rule-2 target and prints `cohort target: E for L changed lines at concurrency C`: merge the cohorts.
 

@@ -231,7 +231,8 @@ def findings_contract_errors(payload: dict) -> list[str]:
 
 def job_contract_errors(payload: dict, job: dict) -> list[str]:
     """Validate lane ownership, hunk coverage, rule-id sanity, and
-    prior-finding dispositions (exactly one row per job.prior_fingerprints)."""
+    prior-finding dispositions (exactly one row per job.prior_fingerprints,
+    never a defect re-reported at a prior anchor)."""
     errors: list[str] = []
     lane = str(job.get("lane", ""))
     expected_prior = set(job.get("prior_fingerprints", []))
@@ -244,6 +245,15 @@ def job_contract_errors(payload: dict, job: dict) -> list[str]:
             f"missing={sorted(expected_prior - set(actual_prior))[:6]} "
             f"extra={sorted(set(actual_prior) - expected_prior)[:6]}"
         )
+    prior_anchors = {
+        (str(row["file"]), row.get("line")): row["fingerprint"] for row in job.get("prior_anchors", [])
+    }
+    for index, item in enumerate(payload.get("defects", [])):
+        prior = prior_anchors.get((str(item.get("file")), item.get("line")))
+        if prior:
+            errors.append(
+                f"$.defects[{index}]: re-reports prior finding {prior}; disposition it in prior_findings instead"
+            )
     expected_hunks = {
         (str(row["file"]), str(row["hunk"])) for row in job.get("required_hunks", [])
     }
