@@ -43,7 +43,7 @@ When `manifest.mode` is `incremental` (a remediation check), `build_jobs.py` ign
 
 ## Sweep triggers
 
-Sweeps are **opt-in and rare** — default to none. Each sweep is one extra agent that sees the manifest, not one cohort; include it only when its trigger clearly fires, and prefer at most one or two per round:
+Sweeps are **opt-in and rare** — default to none. Each sweep is one extra agent that sees the manifest, not one cohort; include it only when its trigger clearly fires and the plan has three or more cohorts (`build_jobs.py` rejects sweeps on smaller plans), and prefer at most one or two per round:
 
 | Key | Trigger | Looks for |
 | --- | --- | --- |

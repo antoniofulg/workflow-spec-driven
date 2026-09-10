@@ -285,6 +285,12 @@ def normalize_sweeps(plan: dict) -> list[dict]:
     keys = [sweep["key"] for sweep in sweeps]
     if len(keys) != len(set(keys)):
         errors.append("duplicate sweep keys")
+    cohorts = len(plan.get("cohorts", []))
+    if sweeps and cohorts <= 2:
+        errors.append(
+            f"sweeps need at least 3 cohorts ({cohorts} planned); cohort lanes own every finding "
+            "in a small diff — remove sweeps from plan.json"
+        )
     if errors:
         raise RuntimeError("sweep validation failed:\n- " + "\n- ".join(errors))
     return sweeps

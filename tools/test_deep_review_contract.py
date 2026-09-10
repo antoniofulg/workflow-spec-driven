@@ -230,12 +230,12 @@ def incremental_fixture(root: Path, *, sweeps: list[str], prior_status: str = "o
     return out, {"stdout": build.stdout, "head": git(root, "rev-parse", "HEAD"), "major": major}
 
 
-def full_fixture(root: Path, plan: dict, *, files: int = 3) -> tuple[Path, subprocess.CompletedProcess[str]]:
-    """Full-mode round: <files> new one-line files in one commit, then build_jobs.py on <plan>."""
+def full_fixture(root: Path, plan: dict, *, files: int = 3, lines: int = 1) -> tuple[Path, subprocess.CompletedProcess[str]]:
+    """Full-mode round: <files> new <lines>-line files in one commit, then build_jobs.py on <plan>."""
     base = git(root, "rev-parse", "HEAD")
     names = [f"file{i}.txt" for i in range(files)]
     for name in names:
-        (root / name).write_text("changed\n", encoding="utf-8")
+        (root / name).write_text("changed\n" * lines, encoding="utf-8")
     git(root, "add", *names)
     git(root, "commit", "-qm", "feat: three files")
     out = root / ".deep-review" / "full"
@@ -918,16 +918,34 @@ class DeepReviewContractTests(unittest.TestCase):
             self.assertNotIn("## Spec conformance", review)
             self.assertNotIn("spec-parity", review)
 
+    def one_cohort_per_file(self, files: int = 3) -> list[dict]:
+        return [{"id": f"C{i}", "name": f"file {i}", "risk": "normal", "files": [f"file{i}.txt"]} for i in range(files)]
+
+    def test_sweeps_require_three_or_more_cohorts(self) -> None:
+        # Sweeps duplicate cohort findings on small diffs; three 300-line files make room for 3 cohorts at concurrency 3.
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            cohorts = self.one_cohort_per_file()
+            two = [{**cohorts[0], "files": ["file0.txt", "file1.txt"]}, cohorts[2]]
+            _, build = full_fixture(root, {"sweeps": ["consistency"], "cohorts": two}, lines=300)
+            self.assertEqual(build.returncode, 1, build.stdout + build.stderr)
+            self.assertIn("sweeps need at least 3 cohorts (2 planned)", build.stderr)
+            self.assertIn("remove sweeps from plan.json", build.stderr)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out, build = full_fixture(root, {"sweeps": ["consistency"], "cohorts": self.one_cohort_per_file()}, lines=300)
+            self.assertEqual(build.returncode, 0, build.stdout + build.stderr)
+            jobs = json.loads((out / "jobs.json").read_text(encoding="utf-8"))["jobs"]
+            self.assertEqual([job["kind"] for job in jobs], ["cohort", "cohort", "cohort", "sweep"])
+
     def test_prompt_and_schema_carry_no_reporting_only_obligations(self) -> None:
         # IT-014 (P3 AC5)
         with tempfile.TemporaryDirectory() as raw:
             root = init_repo(raw)
-            out, build = full_fixture(root, {"sweeps": ["consistency"], "cohorts": [
-                {"id": "A", "name": "all", "risk": "normal", "files": ["file0.txt", "file1.txt", "file2.txt"]},
-            ]})
+            out, build = full_fixture(root, {"sweeps": ["consistency"], "cohorts": self.one_cohort_per_file()}, lines=300)
             self.assertEqual(build.returncode, 0, build.stdout + build.stderr)
             prompts = sorted((out / "prompts").iterdir())
-            self.assertEqual(len(prompts), 2)
+            self.assertEqual(len(prompts), 4)
             for prompt in prompts:
                 text = prompt.read_text(encoding="utf-8")
                 for banned in ("RULE COVERAGE", "PRODUCT CONTEXT", "RECORD every investigated"):
