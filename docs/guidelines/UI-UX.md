@@ -60,6 +60,18 @@ Screens and components this feature deliberately does not touch.
    and the conflict is recorded.
 5. **Freeze the surface before internals.** Reopen this document explicitly when the surface changes.
 6. Its existence marks the feature UI-bearing for QA when the proportional classifier selects QA.
+7. **Trace the common completion path.** Walk from user intent to completion for each changed
+   interaction. Remove avoidable clicks, repeated input, navigation, and keyboard-pointer switches with
+   platform conventions while preserving clear choices, validation, and feedback. Record start,
+   completion, recovery, and next-action behavior in acceptance criteria, then verify that path.
+8. **Use native form submission.** For web workflows with an explicit submission, use native `<form>`
+   semantics and a primary submit action. Enter in a plain single-line input and activating the submit
+   button must use the same submission path; preserve expected Enter behavior for multiline fields,
+   selection controls, and active input composition.
+
+   **Example:** Given a valid tag name and selected color, pressing Enter creates exactly one tag with
+   those values; an error keeps the input. If repeated creation is intended, leave the next entry ready
+   without reopening or restoring focus manually.
 
 ## Optional design tooling
 
