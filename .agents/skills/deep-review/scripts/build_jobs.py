@@ -442,7 +442,7 @@ def main() -> int:
         (out / "agents").mkdir(exist_ok=True)
         (out / "runs").mkdir(exist_ok=True)
 
-        jobs, bound_counts = [], []
+        jobs, bound_counts, cohort_hunks = [], [], []
         for cohort in cohorts:
             label = f"cohort-{cohort['id'].lower()}"
             output = out / "agents" / f"{label}.json"
@@ -450,6 +450,7 @@ def main() -> int:
             block, bound = rules_block(rules, cohort["files"])
             rule_ids = [rule["id"] for rule in bound_rules]
             required_hunks = owned_hunks(cohort, selected)
+            cohort_hunks += required_hunks
             bound_counts.append(bound)
             prompt = render_template("reviewer", reviewer_template, REVIEWER_PLACEHOLDERS, {
                 **shared,
@@ -493,7 +494,7 @@ def main() -> int:
             (prompts_dir / f"{label}.md").write_text(prompt, encoding="utf-8")
             jobs.append({
                 "label": label, "kind": "sweep", "lane": "sweep", "required_hunks": [],
-                "rule_ids": rule_ids,
+                "cohort_hunks": cohort_hunks, "rule_ids": rule_ids,
                 "prompt": rel(prompts_dir / f"{label}.md", repo),
                 "output": rel(output, repo),
             })

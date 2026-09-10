@@ -275,13 +275,17 @@ def job_contract_errors(payload: dict, job: dict) -> list[str]:
     if len(actual_rules) != len(set(actual_rules)):
         errors.append("$.coverage.rules: duplicate rule_id rows")
 
-    if lane == "defect":
-        for result_kind in ("defects", "advisories"):
-            for index, item in enumerate(payload.get(result_kind, [])):
-                if item.get("in_diff") and (item.get("file"), item.get("hunk")) not in expected_hunks:
-                    errors.append(
-                        f"$.{result_kind}[{index}]: in-diff anchor is outside job ownership"
-                    )
+    cohort_hunks = {(str(row["file"]), str(row["hunk"])) for row in job.get("cohort_hunks", [])}
+    for result_kind in ("defects", "advisories"):
+        for index, item in enumerate(payload.get(result_kind, [])):
+            if not item.get("in_diff"):
+                continue
+            anchor = (item.get("file"), item.get("hunk"))
+            if lane == "defect" and anchor not in expected_hunks:
+                errors.append(f"$.{result_kind}[{index}]: in-diff anchor is outside job ownership")
+            spread = {ref.rsplit(":", 1)[0] for ref in item.get("also_applies") or []}
+            if lane == "sweep" and anchor in cohort_hunks and len(spread) < 2:
+                errors.append(f"$.{result_kind}[{index}]: single-cohort result belongs to the cohort lane")
     assigned_rules = expected_rules
     for result_kind in ("defects", "advisories", "suppressions"):
         for index, item in enumerate(payload.get(result_kind, [])):

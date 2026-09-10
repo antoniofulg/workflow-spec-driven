@@ -970,6 +970,34 @@ class DeepReviewContractTests(unittest.TestCase):
             jobs = json.loads((out / "jobs.json").read_text(encoding="utf-8"))["jobs"]
             self.assertEqual([job["kind"] for job in jobs], ["cohort", "cohort", "cohort", "sweep"])
 
+    def test_sweep_may_not_re_report_a_single_cohort_result(self) -> None:
+        # C9: a sweep result inside cohort-owned hunks needs also_applies across two other files
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out, build = full_fixture(root, {"sweeps": ["consistency"], "cohorts": self.one_cohort_per_file()}, lines=300)
+            self.assertEqual(build.returncode, 0, build.stdout + build.stderr)
+            sweep = next(job for job in json.loads((out / "jobs.json").read_text(encoding="utf-8"))["jobs"] if job["kind"] == "sweep")
+            self.assertEqual(sorted(row["file"] for row in sweep["cohort_hunks"]), ["file0.txt", "file1.txt", "file2.txt"])
+            self.assertIn("rejected unless its `also_applies` names anchors in at least two other files",
+                          (root / sweep["prompt"]).read_text(encoding="utf-8"))
+            base = {
+                "file": "file0.txt", "line": 1, "end_line": None, "category": "potential-issue", "severity": "major",
+                "quick_win": False, "rule_ids": [], "title": "Rename missed a sibling", "body": "The sibling keeps the old name.",
+                "evidence": ["Premise: file0.txt:1 renamed → Path: sibling still calls the old name → Verdict: blocked."],
+            }
+            inside = {**base, "in_diff": True, "hunk": "new:1-300"}
+
+            def status_for(defect: dict) -> dict:
+                (root / sweep["output"]).write_text(json.dumps({**valid_payload(), "defects": [defect]}), encoding="utf-8")
+                result = run_script(RUN_JOBS, root, "--out", str(out), "--validate-only", "--only", sweep["label"])
+                return json.loads((out / "runs/jobs-status.json").read_text(encoding="utf-8"))["jobs"][0]
+
+            row = status_for(inside)
+            self.assertEqual(row["status"], "invalid")
+            self.assertIn("$.defects[0]: single-cohort result belongs to the cohort lane", row["reason"])
+            self.assertEqual(status_for({**inside, "also_applies": ["file1.txt:1", "file2.txt:1"]})["status"], "valid")
+            self.assertEqual(status_for({**base, "in_diff": False, "hunk": None})["status"], "valid")
+
     def test_prompt_and_schema_carry_no_reporting_only_obligations(self) -> None:
         # IT-014 (P3 AC5)
         with tempfile.TemporaryDirectory() as raw:
