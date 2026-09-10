@@ -22,6 +22,7 @@ MERGE_FINDINGS = SCRIPTS / "merge_findings.py"
 RUN_JOBS = SCRIPTS / "run_jobs.py"
 RENDER_REVIEW = SCRIPTS / "render_review.py"
 RENDER_HTML = SCRIPTS / "render_html.py"
+BUILD_KNOWLEDGE = SCRIPTS / "build_knowledge.py"
 PUBLISH_RECIPE = (
     Path(__file__).resolve().parents[1]
     / ".agents/skills/deep-review/references/publish-github.md"
@@ -244,6 +245,27 @@ def full_fixture(root: Path, plan: dict, *, files: int = 3) -> tuple[Path, subpr
     (out / "knowledge.json").write_text(json.dumps({"selected_paths": names, "sources": []}), encoding="utf-8")
     (out / "context-pack.md").write_text("# Context\n", encoding="utf-8")
     return out, run_script(BUILD_JOBS, root, "--out", str(out))
+
+
+def knowledge_round_one(root: Path) -> tuple[Path, str]:
+    """AGENTS.md at the base, a round-1 full manifest with rules.json marking it applied."""
+    (root / "AGENTS.md").write_text("# Agents\n\nUse the alpha skill.\n", encoding="utf-8")
+    git(root, "add", "AGENTS.md")
+    git(root, "commit", "-qm", "docs: agents")
+    base = git(root, "rev-parse", "HEAD")
+    (root / "source.txt").write_text("a\nb\n", encoding="utf-8")
+    git(root, "add", "source.txt")
+    git(root, "commit", "-qm", "feat: change")
+    out = root / ".deep-review" / "out"
+    result = run_script(BUILD_MANIFEST, root, "--out", str(out), "--base", base)
+    assert result.returncode == 0, result.stdout + result.stderr
+    (out / "rules.json").write_text(json.dumps({
+        "sources": [{"source": "AGENTS.md", "kind": "instruction", "status": "applied", "reason": "root rules"}],
+        "rules": [{"id": "R1", "source": "AGENTS.md", "guideline": "Use the alpha skill.", "scope": ["**/*"]}],
+    }), encoding="utf-8")
+    (out / "knowledge.json").write_text(json.dumps({"selected_paths": ["source.txt"], "sources": []}), encoding="utf-8")
+    (out / "state.json").write_text(json.dumps({"rounds": [{"n": 1, "head": git(root, "rev-parse", "HEAD")}]}), encoding="utf-8")
+    return out, base
 
 
 def raw_defect(raw_id: str, title: str, line: int, end_line: int, suggestion: str) -> dict:
@@ -919,6 +941,61 @@ class DeepReviewContractTests(unittest.TestCase):
                     self.assertEqual(merged.returncode, 0, merged.stdout + merged.stderr)
                     html = run_script(RENDER_HTML, root, "--out", str(out))
                     self.assertEqual(html.returncode, 0, html.stdout + html.stderr)
+
+    def test_skill_candidacy_requires_explicit_dispatch(self) -> None:
+        # UT-005 (P3 AC7)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            for name, description in (("alpha", "Alpha helper."), ("beta", "Review source.txt source files.")):
+                skill = root / ".agents" / "skills" / name / "SKILL.md"
+                skill.parent.mkdir(parents=True)
+                skill.write_text(f"---\nname: {name}\ndescription: {description}\n---\n# {name}\n", encoding="utf-8")
+            git(root, "add", ".agents")
+            git(root, "commit", "-qm", "chore: skills")
+            out, _ = knowledge_round_one(root)
+            result = run_script(BUILD_KNOWLEDGE, root, "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            sources = {s["path"]: s for s in json.loads((out / "knowledge.json").read_text(encoding="utf-8"))["sources"]}
+            self.assertTrue(sources[".agents/skills/alpha/SKILL.md"]["candidate"])
+            beta = sources[".agents/skills/beta/SKILL.md"]
+            self.assertFalse(beta["candidate"])
+            self.assertEqual(beta["candidate_reason"], "no explicit dispatch")
+
+    def test_rules_reused_when_no_applied_source_changed(self) -> None:
+        # IT-016 (P3 AC8)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out, base = knowledge_round_one(root)
+            prior_rules = (out / "rules.json").read_bytes()
+            prior_knowledge = (out / "knowledge.json").read_bytes()
+            (root / "source.txt").write_text("a\nb\nc\n", encoding="utf-8")
+            git(root, "add", "source.txt")
+            git(root, "commit", "-qm", "fix: guard")
+            manifest = run_script(BUILD_MANIFEST, root, "--out", str(out), "--base", base)
+            self.assertEqual(manifest.returncode, 0, manifest.stdout + manifest.stderr)
+            self.assertEqual(json.loads((out / "manifest.json").read_text(encoding="utf-8"))["mode"], "incremental")
+            result = run_script(BUILD_KNOWLEDGE, root, "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("rules reused from round 1", result.stdout)
+            self.assertEqual((out / "rules.json").read_bytes(), prior_rules)
+            self.assertEqual((out / "knowledge.json").read_bytes(), prior_knowledge)
+            self.assertFalse((out / "rules.template.json").exists())
+
+    def test_rules_rebuilt_when_an_applied_source_changed(self) -> None:
+        # IT-017 (P3 AC8 boundary)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out, base = knowledge_round_one(root)
+            (root / "AGENTS.md").write_text("# Agents\n\nUse the beta skill.\n", encoding="utf-8")
+            git(root, "add", "AGENTS.md")
+            git(root, "commit", "-qm", "docs: switch skill")
+            manifest = run_script(BUILD_MANIFEST, root, "--out", str(out), "--base", base)
+            self.assertEqual(manifest.returncode, 0, manifest.stdout + manifest.stderr)
+            result = run_script(BUILD_KNOWLEDGE, root, "--out", str(out))
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertNotIn("rules reused", result.stdout)
+            self.assertTrue((out / "rules.template.json").is_file())
+            self.assertFalse((out / "rules.json").exists())
 
     def test_validate_only_rejects_source_drift_before_accepting_valid_output(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

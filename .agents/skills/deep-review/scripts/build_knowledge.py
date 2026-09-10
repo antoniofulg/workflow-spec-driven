@@ -3,10 +3,13 @@
 
 Builds knowledge.json from the selected manifest paths and creates a
 rules.template.json accounting skeleton. Root/nested AGENTS.md and CLAUDE.md
-are directory-scoped. Repo-local SKILL.md files are candidates when an
-applicable instruction explicitly dispatches them or their metadata matches
-the changed paths/repository technology signals. Direct markdown references
+are directory-scoped. Repo-local SKILL.md files are candidates only when an
+applicable instruction explicitly dispatches them. Direct markdown references
 of candidate skills are included so their load decision is also auditable.
+
+In incremental mode, when no source marked applied in the prior round's
+rules.json changed between effective_base and head, the prior rules.json and
+knowledge.json are copied forward and no template is written.
 
 The orchestrator reads every pending source, copies rules.template.json to
 rules.json, extracts only verdict-bearing rules verbatim, and changes every
@@ -21,6 +24,8 @@ import argparse
 import json
 import os
 import re
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -31,18 +36,9 @@ from _common import manifest_selected, read_json, rel, repo_root, write_json
 INSTRUCTION_NAMES = {"AGENTS.md", "CLAUDE.md"}
 CONFIG_SOURCES = (".deep-review.yaml", ".deep-review.yml", ".coderabbit.yaml", ".coderabbit.yml")
 SKILL_ROOTS = (".agents/skills", ".claude/skills", ".codex/skills", "skills")
-REPO_SIGNAL_FILES = (
-    "package.json", "go.mod", "Cargo.toml", "pyproject.toml", "requirements.txt",
-    "bun.lock", "pnpm-lock.yaml", "yarn.lock", "package-lock.json",
-)
 IGNORED_DIRS = {
     ".git", ".deep-review", "node_modules", "vendor", "dist", "build",
     ".next", "target", "__pycache__",
-}
-STOPWORDS = {
-    "about", "after", "agent", "agents", "best", "build", "building", "code",
-    "comprehensive", "create", "creating", "development", "expert", "files",
-    "guide", "implement", "project", "skill", "skills", "using", "when", "with",
 }
 REFERENCE_RE = re.compile(
     r"(?P<path>(?:references|assets)/[A-Za-z0-9_./-]+\.md)", re.I
@@ -79,13 +75,6 @@ def scope_for(repo: Path, source: Path) -> list[str]:
 def path_in_scope(path: str, source: Path, repo: Path) -> bool:
     parent = rel(source.parent, repo)
     return parent == "." or path == parent or path.startswith(parent + "/")
-
-
-def tokens(value: str) -> set[str]:
-    return {
-        token for token in re.findall(r"[a-z0-9][a-z0-9+#.-]+", value.lower())
-        if len(token) >= 3 and token not in STOPWORDS
-    }
 
 
 def frontmatter(text: str) -> dict[str, str]:
@@ -130,15 +119,6 @@ def direct_references(skill: Path, repo: Path, text: str) -> list[str]:
     return sorted(refs)
 
 
-def repository_tokens(repo: Path, selected: list[str]) -> set[str]:
-    signal = tokens(" ".join(selected))
-    for name in REPO_SIGNAL_FILES:
-        path = repo / name
-        if path.is_file():
-            signal |= tokens(path.read_text(encoding="utf-8", errors="replace")[:200_000])
-    return signal
-
-
 def explicit_dispatches(
     name: str, skill_path: str, instructions: list[dict], instruction_text: dict[str, str]
 ) -> tuple[list[str], list[str]]:
@@ -154,6 +134,33 @@ def explicit_dispatches(
     return sorted(set(sources)), sorted(set(paths))
 
 
+def reuse_prior_rules(repo: Path, out: Path, manifest: dict) -> bool:
+    """Incremental round: carry the prior round's rules forward when none of its applied sources changed."""
+    if manifest.get("mode") != "incremental":
+        return False
+    prior_n = int(manifest["round"]) - 1
+    archive = out / "rounds" / f"round-{prior_n}"
+    if not (archive / "rules.json").is_file():
+        return False
+    try:
+        applied = {
+            row["source"] for row in read_json(archive / "rules.json")["sources"] if row.get("status") == "applied"
+        }
+        changed = subprocess.run(
+            ["git", "diff", "--name-only", f"{manifest['effective_base']}..{manifest['head']}"],
+            cwd=repo, capture_output=True, text=True, check=True,
+        ).stdout.split()
+        if applied & set(changed):
+            return False
+        for name in ("rules.json", "knowledge.json"):
+            shutil.copyfile(archive / name, out / name)
+    except (OSError, KeyError, TypeError, RuntimeError, subprocess.CalledProcessError) as error:
+        print(f"warn: prior rules not reused ({error}); building knowledge afresh")
+        return False
+    print(f"rules reused from round {prior_n}")
+    return True
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", required=True)
@@ -163,7 +170,8 @@ def main() -> int:
     try:
         manifest = read_json(out / "manifest.json")
         selected = sorted(manifest_selected(manifest))
-        signal_tokens = repository_tokens(repo, selected)
+        if reuse_prior_rules(repo, out, manifest):
+            return 0
 
         instruction_text: dict[str, str] = {}
         instructions: list[dict] = []
@@ -218,17 +226,9 @@ def main() -> int:
             dispatch_sources, dispatched_paths = explicit_dispatches(
                 name, path, instructions, instruction_text
             )
-            overlap = sorted(tokens(f"{name} {description}") & signal_tokens)
-            candidate = bool(dispatch_sources or overlap)
-            if dispatch_sources:
-                reason = f"explicitly dispatched by {', '.join(dispatch_sources)}"
-                applies_to = dispatched_paths
-            elif overlap:
-                reason = f"metadata matches repository/change signals: {', '.join(overlap[:8])}"
-                applies_to = selected
-            else:
-                reason = "no explicit dispatch or metadata match for this change"
-                applies_to = []
+            candidate = bool(dispatch_sources)
+            reason = f"explicitly dispatched by {', '.join(dispatch_sources)}" if candidate else "no explicit dispatch"
+            applies_to = dispatched_paths if candidate else []
             ref_paths = direct_references(skill, repo, text)
             skills.append({
                 "path": path,

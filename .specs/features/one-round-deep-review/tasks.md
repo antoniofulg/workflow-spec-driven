@@ -481,11 +481,11 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] Undispatched skill sharing diff tokens is `not-applicable` with reason `no explicit dispatch`
-- [ ] Unchanged sources → `rules.json` byte-equal to prior and the reuse line printed
-- [ ] Changed `AGENTS.md` → fresh `rules.template.json`, no reuse line
-- [ ] Gate check passes: `python3 tools/test_deep_review_contract.py`
-- [ ] Test count: 36 tests pass
+- [x] Undispatched skill sharing diff tokens is `not-applicable` with reason `no explicit dispatch`
+- [x] Unchanged sources → `rules.json` byte-equal to prior and the reuse line printed
+- [x] Changed `AGENTS.md` → fresh `rules.template.json`, no reuse line
+- [x] Gate check passes: `python3 tools/test_deep_review_contract.py`
+- [x] Test count: 36 tests pass — actual: 37
 
 **Tests**: unit + integration — UT-005, IT-016, IT-017
 **Gate**: quick
