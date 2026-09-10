@@ -684,6 +684,14 @@ class DeepReviewContractTests(unittest.TestCase):
             self.assertIn("No prior findings to disposition", prompt)
             self.assertNotIn("fp-major", prompt)
 
+    def test_review_rounds_guideline_states_remediation_check_rule(self) -> None:
+        # IT-020 (P2 AC7–8)
+        guideline = (Path(__file__).resolve().parents[1] / "docs/guidelines/REVIEW-ROUNDS.md").read_text(encoding="utf-8")
+        self.assertIn("remediation check", guideline)
+        self.assertIn("stall_attempts", guideline)
+        for banned in ("round 3", "Blocker", "Cosmetic", "≤2 rounds"):
+            self.assertNotIn(banned, guideline)
+
     def test_incomplete_defect_or_polish_hunk_coverage_is_rejected(self) -> None:
         manifest = {
             "files": [

@@ -287,11 +287,11 @@ T10 → T11 → T12 → T13 → T14 → T15 → T16
 
 **Done when**:
 
-- [ ] IT-020 assertions hold
-- [ ] `rg -n "round 3|Blocker|Cosmetic|≤2 rounds" docs/guidelines/REVIEW-ROUNDS.md docs/workflow/reviews.md` returns nothing
-- [ ] Byte size of `REVIEW-ROUNDS.md` does not grow (`CONTEXT-BUDGET.md`)
-- [ ] Gate check passes: `python3 tools/test_deep_review_contract.py`
-- [ ] Test count: 26 tests pass
+- [x] IT-020 assertions hold
+- [x] `rg -n "round 3|Blocker|Cosmetic|≤2 rounds" docs/guidelines/REVIEW-ROUNDS.md docs/workflow/reviews.md` returns nothing
+- [x] Byte size of `REVIEW-ROUNDS.md` does not grow (`CONTEXT-BUDGET.md`)
+- [x] Gate check passes: `python3 tools/test_deep_review_contract.py`
+- [x] Test count: 26 tests pass
 
 **Tests**: integration — IT-020
 **Gate**: quick

@@ -165,7 +165,7 @@ jobs, prompts contain no `RULE COVERAGE`, `graft-context.md` is one line.
 | ORDR-04 | P1: stale outputs archived on snapshot change (AC 6–7) | Execute | Implementing |
 | ORDR-05 | P2: repair plan rendered; ledger carries certificate (AC 1–2) | Execute | Implementing |
 | ORDR-06 | P2: incremental mode = one remediation-check job with prior findings (AC 3–6) | Execute | Implementing |
-| ORDR-07 | P2: guideline rule and vocabulary (AC 7–8) | Design | Pending |
+| ORDR-07 | P2: guideline rule and vocabulary (AC 7–8) | Execute | Implementing |
 | ORDR-08 | P3: polish lane removed; advisories incidental (AC 1–2) | Design | Pending |
 | ORDR-09 | P3: `tests`/`spec-parity` sweeps and Spec conformance removed (AC 3–4) | Design | Pending |
 | ORDR-10 | P3: prompt/schema diet (AC 5) | Design | Pending |
