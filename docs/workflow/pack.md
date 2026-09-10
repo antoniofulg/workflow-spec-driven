@@ -56,7 +56,7 @@ Empty on purpose. Machinery only: operating schema, `raw/` README, stub indexes,
 
 ## Guided installation
 
-The package `workflow-spec-driven@0.10.1` exposes the single canonical command:
+The package `workflow-spec-driven@0.11.0` exposes the single canonical command:
 
 ```bash
 npx workflow-spec-driven install

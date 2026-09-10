@@ -1168,21 +1168,21 @@ describe("adoption and public setup", () => {
       changelog.indexOf("## [0.9.1]"),
     );
 
-    expect(manifest.version).toBe("0.10.1");
+    expect(manifest.version).toBe("0.11.0");
     expect(manifest.name).toBe("workflow-spec-driven");
     expect(manifest.private).toBe(false);
     expect(manifest.packageManager).toBe("bun@1.4.0");
     expect(manifest.scripts?.test).toBe("bun test && node --test tests/installer/*.test.js");
     expect(readRepositoryFile("bun.lock")).toContain('"name": "workflow-spec-driven"');
     expect(existsSync(join(repositoryRoot, "package-lock.json"))).toBe(false);
-    expect(latestHeading).toBe("0.10.1");
+    expect(latestHeading).toBe("0.11.0");
     expect(latestHeading).toBe(manifest.version);
     expect(currentScenarioVersion).toBe(manifest.version);
     expect(releaseScenario.match(/^expected: .*$/m)?.[0]).toBe(
       "expected: The newest changelog release matches the package manifest, while Bun 1.4's lockfile identifies the root package and dependency graph; the documented install, knowledge, scoped-validation, frozen-lockfile, and package commands expose the current source pack without checkout residue.",
     );
-    expect(latestRelease).toContain("consumer-owned");
-    expect(latestRelease).toContain("proportional validation");
+    expect(latestRelease).toContain("`SCOPED PASS`");
+    expect(latestRelease).toContain("QA runs once, at feature close");
     expect(historicalRelease).toContain("deep-review defect");
     expect(historicalRelease).toContain("Minor");
     expect(historicalRelease).toContain("originating feature run");

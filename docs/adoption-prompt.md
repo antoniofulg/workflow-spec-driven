@@ -4,7 +4,7 @@ Paste this once to an agent, replacing the exact package and target paths. It ru
 review that must precede the guided install, then the diff review.
 
 ```
-Adopt selected layers of the agent OS from /path/to/antoniofulg-workflow-spec-driven-0.10.1.tgz into /path/to/target-project.
+Adopt selected layers of the agent OS from /path/to/antoniofulg-workflow-spec-driven-0.11.0.tgz into /path/to/target-project.
 
 First check `git status --short`; do not stash, reset, clean, or hide unrelated changes. Read the
 pack's README.md, AGENTS.md, and public package contract. Inspect the target read-only: package and build
