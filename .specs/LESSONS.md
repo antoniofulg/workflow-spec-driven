@@ -638,6 +638,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: .specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#M6 (deep-review)
 - last seen: 2026-09-11T05:21:51Z
 
+### L-105 - Assert that every installed documentation link resolves inside the staged consumer tree.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `installer` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation-RI-ADOPTION.md:11 (installer)
+- last seen: 2026-09-11T05:49:40Z
+
+### L-106 - Refresh canonical package hashes after every change to installer-owned source bytes.
+- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `installer` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation-RI-ADOPTION.md:12 (installer)
+- last seen: 2026-09-11T05:49:40Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

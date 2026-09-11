@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 105,
+  "next_id": 107,
   "lessons": [
     {
       "id": "L-001",
@@ -1887,6 +1887,42 @@
       ],
       "created": "2026-09-11T05:21:51Z",
       "last_seen": "2026-09-11T05:21:51Z"
+    },
+    {
+      "id": "L-105",
+      "key": "ac_gap::assert that every installed documentation link resolves inside the staged consumer tree",
+      "text": "Assert that every installed documentation link resolves inside the staged consumer tree.",
+      "signal": "ac_gap",
+      "scope": "installer",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-ADOPTION.md:11 (installer)"
+      ],
+      "created": "2026-09-11T05:49:40Z",
+      "last_seen": "2026-09-11T05:49:40Z"
+    },
+    {
+      "id": "L-106",
+      "key": "gate_fail::refresh canonical package hashes after every change to installer owned source bytes",
+      "text": "Refresh canonical package hashes after every change to installer-owned source bytes.",
+      "signal": "gate_fail",
+      "scope": "installer",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-ADOPTION.md:12 (installer)"
+      ],
+      "created": "2026-09-11T05:49:40Z",
+      "last_seen": "2026-09-11T05:49:40Z"
     }
   ]
 }
