@@ -83,10 +83,10 @@ T6 → T7
 
 **Done when**:
 
-- [ ] `status`, `graft`, `graphify`, `graphify-setup`, and `benchmark-report` implement the `dx.md` contract.
-- [ ] Every exact tool/version, freshness, failure, partial-result, security, benchmark-control, and checkout-isolation case is discriminated.
-- [ ] No shell string or credential-bearing artifact is produced.
-- [ ] Gate passes with at least 19 repository-intelligence cases and zero failures.
+- [x] `status`, `graft`, `graphify`, `graphify-setup`, and `benchmark-report` implement the `dx.md` contract.
+- [x] Every exact tool/version, freshness, failure, partial-result, security, benchmark-control, and checkout-isolation case is discriminated.
+- [x] No shell string or credential-bearing artifact is produced.
+- [x] Gate passes with 29 repository-intelligence cases and zero failures (`python3 tools/test_repository_intelligence.py`).
 
 **Tests**: `UT-001`–`UT-011`, `IT-001`–`IT-004`, `IT-008`, `IT-012`, `IT-014`–`IT-016`, `IT-019`, `SEC-001`, `SEC-003`–`SEC-006` in `tools/test_repository_intelligence.py`
 **Gate**: Adapter scoped
@@ -270,7 +270,7 @@ Execution may run T2→T3, T4, and T5 as compatible lanes after T1. Tasks within
 
 | Task | Scope | Status |
 | --- | --- | --- |
-| T1 | One repository-intelligence CLI plus its canonical tests | ✅ Granular |
+| T1 | One repository-intelligence CLI plus its canonical tests | ✅ Complete |
 | T2 | One routing reference replacement | ✅ Granular |
 | T3 | One generated packet contract across providers | ✅ Granular |
 | T4 | One Deep Review context-preparation boundary | ✅ Granular |
