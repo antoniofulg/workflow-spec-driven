@@ -7,7 +7,7 @@ Implement these tasks with the `wimplement` skill and verify them with `wverify`
 ---
 
 **Design**: `.specs/features/repository-intelligence-routing/design.md`
-**Status**: Approved
+**Status**: Done
 
 ---
 

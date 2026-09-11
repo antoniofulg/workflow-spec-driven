@@ -180,17 +180,17 @@ The local-artifact hygiene journey SHALL continue to keep generated repository-i
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| RIR-01 | P1: Graft-first code discovery | Tasks | In Tasks |
-| RIR-02 | P1: Graphify-guided planning | Tasks | In Tasks |
-| RIR-03 | P1: Routed Deep Review | Tasks | In Tasks |
-| RIR-04 | P1: Fresh isolated state | Tasks | In Tasks |
-| RIR-05 | P2: Evidence-led retention | Tasks | In Tasks |
-| SEC-001 | Tool version validation | Tasks | In Tasks |
-| SEC-002 | Generated artifact hygiene | Tasks | In Tasks |
-| SEC-003 | Safe process execution | Tasks | In Tasks |
-| SEC-004 | Credential redaction | Tasks | In Tasks |
-| SEC-005 | Semantic backend disclosure | Tasks | In Tasks |
-| SEC-006 | Checkout isolation | Tasks | In Tasks |
+| RIR-01 | P1: Graft-first code discovery | Verify | Verified |
+| RIR-02 | P1: Graphify-guided planning | Verify | Verified |
+| RIR-03 | P1: Routed Deep Review | Verify | Verified |
+| RIR-04 | P1: Fresh isolated state | Verify | Verified |
+| RIR-05 | P2: Evidence-led retention | Verify | Verified |
+| SEC-001 | Tool version validation | Verify | Verified |
+| SEC-002 | Generated artifact hygiene | Verify | Verified |
+| SEC-003 | Safe process execution | Verify | Verified |
+| SEC-004 | Credential redaction | Verify | Verified |
+| SEC-005 | Semantic backend disclosure | Verify | Verified |
+| SEC-006 | Checkout isolation | Verify | Verified |
 
 **Coverage:** 11 total, 11 mapped to tasks, 0 unmapped.
 
@@ -198,9 +198,9 @@ The local-artifact hygiene journey SHALL continue to keep generated repository-i
 
 ## Success Criteria
 
-- [ ] Agents use Graft before broad native search whenever code discovery is required.
-- [ ] Large and Complex architectural work uses Graphify before implementation planning.
-- [ ] Deep Review uses Graft by default and Graphify only for a recorded architectural trigger.
-- [ ] Stale, cross-checkout, failed, and unsupported representations never silently guide work.
-- [ ] Application runtime and committed product artifacts remain independent of both tools.
+- [x] Agents use Graft before broad native search whenever code discovery is required.
+- [x] Large and Complex architectural work uses Graphify before implementation planning.
+- [x] Deep Review uses Graft by default and Graphify only for a recorded architectural trigger.
+- [x] Stale, cross-checkout, failed, and unsupported representations never silently guide work.
+- [x] Application runtime and committed product artifacts remain independent of both tools.
 - [ ] A controlled 10–20 task pilot produces enough evidence for an explicit retention or removal decision.
