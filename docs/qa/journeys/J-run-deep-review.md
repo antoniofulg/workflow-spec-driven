@@ -21,8 +21,10 @@
    scope, without per-job token attribution.
 6. Repeat without compatible telemetry and confirm the review result is unchanged and usage is
    reported as unavailable.
-7. Leave Graft off unless `.deep-review.yaml` sets `graft: true`; confirm the default context is the
-   plain-inspection line, then opt in only to prove orientation and the same fallback.
+7. Confirm selected Deep Review prepares fresh Graft context by default. Without an architectural
+   question, Graphify does not run; with `--graphify-question`, exactly one bounded Graphify context
+   is prepared before prompts. Tool failures preserve explicit degraded inspection and the frozen
+   review contract.
 8. After `FIX_BEFORE_SHIP`, run one incremental remediation-check job that dispositions every open
    prior finding; confirm silent absence does not resolve, a re-report at a prior anchor is rejected,
    and the verdict counts every open Critical or Major. There is no round cap.
@@ -37,9 +39,11 @@
 - [`QAS-repair-invalid-artifact-from-error-events`](../scenarios/QAS-repair-invalid-artifact-from-error-events.md)
 - [`QAS-observe-serialized-deep-review-metrics`](../scenarios/QAS-observe-serialized-deep-review-metrics.md)
 - [`QAS-use-graft-context-with-plain-fallback`](../scenarios/QAS-use-graft-context-with-plain-fallback.md)
+- [`QAS-retain-routed-repository-intelligence`](../scenarios/QAS-retain-routed-repository-intelligence.md)
 - [`QAS-upsert-deep-review-walkthrough`](../scenarios/QAS-upsert-deep-review-walkthrough.md)
 
 ## Adjacent canary
 
 Inspect [`CFG-keep-local-artifacts-out-of-git`](../scenarios/CFG-keep-local-artifacts-out-of-git.md)
-to confirm generated Deep Review and Graft data remain local and source files remain searchable.
+to confirm generated Deep Review, Graphify, Graft, and benchmark data remain local and source files
+remain searchable.

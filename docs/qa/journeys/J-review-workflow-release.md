@@ -1,7 +1,8 @@
 # J-review-workflow-release
 
 **Persona:** Repository reader
-**Goal:** Understand the workflow's provenance, neutral scope, optional capability boundaries,
+**Goal:** Understand the workflow's provenance, neutral scope, standard repository-intelligence route,
+optional visual capability boundary,
 remote-delivery authority, published capability version, and honestly bounded parallel execution.
 **Entry point:** `README.md`
 **Tags:** w-entry-points
@@ -12,9 +13,11 @@ remote-delivery authority, published capability version, and honestly bounded pa
    and out-of-scope text.
 2. Follow the Tech Leads Club and Pedro Nauck source links and compare them with the local authorship
    statements.
-3. Confirm Graft and OpenDesign are optional recommendations, adoption installs neither, repository
-   artifacts remain the fallback and approved handoff, and external filesystem writers are bounded
-   and non-destructive.
+3. Confirm Graphify and Graft are standard checkout-local development tools: Graphify handles named
+   architectural triggers, Graft handles unknown code discovery, degraded results name one fallback
+   reason, and specs/current checkout remain authoritative. Confirm OpenDesign remains optional,
+   adoption reports but does not execute tool setup, and external filesystem writers are bounded and
+   non-destructive.
 4. Confirm invoking `autonomous` authorizes only its scoped feature-branch push, one pull request,
    and merge after readiness; release, deploy, production mutation, force-push, direct `main` push,
    and unrelated remote actions remain separately authorized.
@@ -32,6 +35,7 @@ remote-delivery authority, published capability version, and honestly bounded pa
 
 - [`DOC-read-explicit-workflow-provenance`](../scenarios/DOC-read-explicit-workflow-provenance.md)
 - [`DOC-use-optional-tools-with-repository-authority`](../scenarios/DOC-use-optional-tools-with-repository-authority.md)
+- [`QAS-retain-routed-repository-intelligence`](../scenarios/QAS-retain-routed-repository-intelligence.md)
 - [`DOC-require-explicit-remote-action-approval`](../scenarios/DOC-require-explicit-remote-action-approval.md)
 - [`REL-report-current-workflow-release`](../scenarios/REL-report-current-workflow-release.md)
 

@@ -851,19 +851,32 @@ describe("configurable review policy", () => {
   });
 });
 
-describe("optional integration policy", () => {
-  it("IT-023 keeps optional tools stack-agnostic, repository-authoritative, and non-destructive", () => {
+describe("repository intelligence policy", () => {
+  it("IT-023 keeps routed tools standard, source-authoritative, and OpenDesign optional", () => {
     const readme = readRepositoryFile("README.md");
     const uiux = readRepositoryFile("docs/guidelines/UI-UX.md");
     const security = readRepositoryFile("docs/guidelines/SECURITY.md");
     const state = readRepositoryFile(".specs/STATE.md");
+    const releaseJourney = readRepositoryFile("docs/qa/journeys/J-review-workflow-release.md");
+    const reviewJourney = readRepositoryFile("docs/qa/journeys/J-run-deep-review.md");
+    const adoptionJourney = readRepositoryFile("docs/qa/journeys/J-adopt-workflow.md");
+    const reviewScenario = readRepositoryFile("docs/qa/scenarios/QAS-use-graft-context-with-plain-fallback.md");
+    const retentionScenario = readRepositoryFile("docs/qa/scenarios/QAS-retain-routed-repository-intelligence.md");
+    const artifactScenario = readRepositoryFile("docs/qa/scenarios/CFG-keep-local-artifacts-out-of-git.md");
     const normalizedUiux = uiux.replace(/\s+/g, " ");
     const normalizedSecurity = security.replace(/\s+/g, " ");
 
-    expect(readme).toContain("The workflow stays stack- and tool-agnostic");
-    expect(readme).toContain("Graft");
-    expect(readme).toContain("OpenDesign");
-    expect(readme).toContain("No integration is mandatory or installed by adoption");
+    expect(readme).toContain("Graphify and Graft are the standard, checkout-local development tools");
+    expect(readme).toContain("one explicit degraded reason for the phase");
+    expect(readme).toContain("10–20 terminal tasks");
+    expect(readme).toContain("OpenDesign** remains an optional visual capability");
+    expect(readme).toContain("No integration is mandatory or installed by adoption for visual iteration");
+    expect(readme).not.toContain("Graft can enrich deep-review context");
+    expect(readme).not.toContain("Graft and OpenDesign are optional recommendations");
+    const repositoryIntelligence = readRepositoryFile("docs/workflow/repository-intelligence.md");
+    expect(repositoryIntelligence).toContain("Graphify and Graft are standard development tools");
+    expect(repositoryIntelligence).toContain("Deep Review always prepares fresh Graft context");
+    expect(repositoryIntelligence).toContain("10–20 distinct terminal tasks");
     expect(normalizedUiux).toContain("repository stores only the approved handoff");
     expect(normalizedUiux).toContain("`spec.md` → `uiux.md` → approved design");
     expect(normalizedUiux).toContain("tool or plugin output, then legacy mockup");
@@ -871,10 +884,20 @@ describe("optional integration policy", () => {
     expect(normalizedSecurity).toContain("isolated environment or with explicitly allowed directories");
     expect(normalizedSecurity).toContain("Validate destination paths and symlinks before the first write");
     expect(normalizedSecurity).toContain("never delete them automatically");
-    expect(state).toContain("### AD-006");
-    expect(state).toContain("stack- and tool-agnostic");
+    expect(state).toContain("### AD-033");
+    expect(state).toContain("This supersedes AD-005 and AD-006");
+    expect(state).toContain("OpenDesign remains an");
     expect(state).toContain("Graft");
     expect(state).toContain("OpenDesign");
+    expect(releaseJourney).toContain("Graphify and Graft are standard checkout-local development tools");
+    expect(reviewJourney).toContain("selected Deep Review prepares fresh Graft context by default");
+    expect(adoptionJourney).toContain("exact Graphify/Graft development-tool setup commands");
+    expect(reviewScenario).toContain("Graft is the selected Deep Review default");
+    expect(reviewScenario).toContain("`--graphify-question`");
+    expect(artifactScenario).toContain("graphify-out/");
+    expect(artifactScenario).toContain(".repository-intelligence/");
+    expect(retentionScenario).toContain("10–20 distinct terminal tasks");
+    expect(retentionScenario).toContain("explicit project decision");
   });
 });
 

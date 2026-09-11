@@ -449,10 +449,10 @@ T6 → T7
 
 **Done when**:
 
-- [ ] `J-run-deep-review`, `J-review-workflow-release`, and `J-adopt-workflow` describe the new standard route.
-- [ ] Existing optional-tool scenarios are rewritten to require default routing and explicit fallback.
-- [ ] A retention scenario rejects incomplete samples and requires an explicit keep/remove decision after 10–20 terminal tasks.
-- [ ] Documentation scoped gate passes with zero failures.
+- [x] `J-run-deep-review`, `J-review-workflow-release`, and `J-adopt-workflow` describe the new standard route.
+- [x] Existing optional-tool scenarios are rewritten to require default routing and explicit fallback.
+- [x] A retention scenario rejects incomplete samples and requires an explicit keep/remove decision after 10–20 terminal tasks.
+- [x] Documentation scoped gate passes with zero failures.
 
 **Tests**: `E2E-001` and affected QA-contract assertions in `tools/shared/tests/qa-skills.test.ts`
 **Gate**: Documentation scoped
