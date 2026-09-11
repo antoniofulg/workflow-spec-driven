@@ -444,6 +444,49 @@ class AdapterTests(RepositoryFixture):
         self.assertNotIn("--full-rebuild", " ".join(command for command in extract))
         self.assertNotIn("src/app.py", ri.read_state(self.root, "graphify")["indexed_source_manifest"])
 
+    def test_r14_code_only_setup_uses_mode_without_backend(self) -> None:
+        graphify = self.root / "bin" / "graphify"
+        graphify.parent.mkdir(exist_ok=True)
+        calls = self.root / ri.STATE_DIR / "graphify-calls"
+        checkout = str(self.root.resolve())
+        graphify.write_text(
+            "#!/usr/bin/env python3\nimport json, pathlib, sys\n"
+            f"log = pathlib.Path({str(calls)!r})\n"
+            "log.parent.mkdir(parents=True, exist_ok=True)\n"
+            "with log.open('a') as stream: stream.write(json.dumps(sys.argv[1:]) + '\\n')\n"
+            "if '--version' in sys.argv: print('0.9.14'); raise SystemExit(0)\n"
+            f"if sys.argv[1:] == ['extract', {checkout!r}, '--code-only', '--out', {checkout!r}]: pass\n"
+            "elif sys.argv[1] == 'extract' and '--backend' in sys.argv and 'code-only' not in sys.argv: pass\n"
+            "else: raise SystemExit(2)\n"
+            "print('domain -> src/app.py:1')\n",
+            encoding="utf-8",
+        )
+        graphify.chmod(graphify.stat().st_mode | stat.S_IXUSR)
+        environment = {**os.environ, **self.env_path(graphify)}
+        setup = subprocess.run(
+            [sys.executable, str(SCRIPT), "graphify-setup", "--root", checkout, "--backend", "code-only", "--mode", "code-only"],
+            text=True, capture_output=True, env=environment,
+        )
+        self.assertEqual(setup.returncode, 0, setup.stderr)
+        setup_payload = json.loads(setup.stdout.splitlines()[-1])
+        self.assertEqual(setup_payload["status"], "partial")
+        self.assertEqual(setup_payload["backend"], "code-only")
+
+        status = subprocess.run(
+            [sys.executable, str(SCRIPT), "status", "--root", checkout, "--json"],
+            text=True, capture_output=True, env=environment,
+        )
+        self.assertEqual(status.returncode, 0, status.stderr)
+        status_payload = json.loads(status.stdout)
+        self.assertEqual(status_payload["tools"]["graphify"]["status"], "partial")
+        self.assertEqual(status_payload["tools"]["graphify"]["backend"], "code-only")
+
+        with mock.patch.dict(os.environ, environment, clear=False):
+            ri.graphify_setup(self.root.resolve(), "claude-cli", "deep", announce=False)
+        commands = [json.loads(line) for line in calls.read_text(encoding="utf-8").splitlines()]
+        self.assertIn(["extract", checkout, "--code-only", "--out", checkout], commands)
+        self.assertIn(["extract", checkout, "--mode", "deep", "--backend", "claude-cli", "--out", checkout], commands)
+
     def test_r3_query_timeout_is_degraded(self) -> None:
         graft = self.fake_tool("graft", ri.GRAFT_VERSION)
         original_run = ri._run

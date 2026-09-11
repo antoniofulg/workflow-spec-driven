@@ -604,6 +604,28 @@ T6 → T7
 
 **Commit**: `test(intelligence): prove Graphify update path`
 
+### R14: Treat Graphify code-only as a mode, not a backend argument
+
+**Slice:** RI-ADOPTION
+**What**: Omit `--backend code-only` while retaining `--code-only`, explicit source path, and checkout output root.
+**Where**: `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py`
+**Depends on**: R13
+**Reuses**: Existing Graphify setup argv fixture and real CLI smoke
+**Requirement**: RIR-02.5, RIR-04.1
+
+**Done when**:
+
+- [x] Code-only setup invokes `graphify extract <source> --code-only --out <checkout>` without `--backend`.
+- [x] Semantic setup still requires and passes its explicit backend.
+- [x] Removing the mode/backend distinction fails the canonical adapter suite.
+- [x] Real code-only setup exits 0 and status reports Graphify `partial` with backend `code-only`.
+- [x] Adapter gate and `bun run test:all` pass with zero failures.
+
+**Tests**: Real Graphify `code-only` argv regression
+**Gate**: Full
+
+**Commit**: `fix(intelligence): run Graphify code-only correctly`
+
 ---
 
 ## Dependency Execution Map

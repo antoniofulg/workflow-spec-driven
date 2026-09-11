@@ -450,8 +450,8 @@ def graphify_setup(root: Path, backend: str, mode: str, source_root: str | None 
         if mode == "code-only":
             command.append("--code-only")
         else:
-            command.extend(["--mode", mode])
-        command.extend(["--backend", backend, "--out", str(root)])
+            command.extend(["--mode", mode, "--backend", backend])
+        command.extend(["--out", str(root)])
         result = _run(command, root)
         if result.returncode != 0:
             _invalidate_state(root, "graphify", "Graphify extraction failed", backend=backend)
