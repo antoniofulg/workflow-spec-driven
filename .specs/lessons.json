@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 102,
+  "next_id": 104,
   "lessons": [
     {
       "id": "L-001",
@@ -1833,6 +1833,42 @@
       ],
       "created": "2026-09-11T04:42:20Z",
       "last_seen": "2026-09-11T04:42:20Z"
+    },
+    {
+      "id": "L-102",
+      "key": "surviving_mutant::exercise every declared degraded result class at the review context boundary",
+      "text": "Exercise every declared degraded-result class at the review context boundary.",
+      "signal": "surviving_mutant",
+      "scope": "deep-review",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#M7 (deep-review)"
+      ],
+      "created": "2026-09-11T05:07:51Z",
+      "last_seen": "2026-09-11T05:07:51Z"
+    },
+    {
+      "id": "L-103",
+      "key": "ac_gap::assert removed configuration semantics across markdown formatting not one contiguous spelling",
+      "text": "Assert removed configuration semantics across Markdown formatting, not one contiguous spelling.",
+      "signal": "ac_gap",
+      "scope": "skill-text-tests",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#gap-2 (skill-text-tests)"
+      ],
+      "created": "2026-09-11T05:07:51Z",
+      "last_seen": "2026-09-11T05:07:51Z"
     }
   ]
 }

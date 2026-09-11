@@ -620,6 +620,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: .specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#M3 (tests)
 - last seen: 2026-09-11T04:42:20Z
 
+### L-102 - Exercise every declared degraded-result class at the review context boundary.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `deep-review` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#M7 (deep-review)
+- last seen: 2026-09-11T05:07:51Z
+
+### L-103 - Assert removed configuration semantics across Markdown formatting, not one contiguous spelling.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `skill-text-tests` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#gap-2 (skill-text-tests)
+- last seen: 2026-09-11T05:07:51Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

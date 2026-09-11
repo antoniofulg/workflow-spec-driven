@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import hashlib
 import os
+import re
 import sqlite3
 import stat
 import shutil
@@ -855,7 +856,8 @@ class TokenMetricsTests(unittest.TestCase):
         self.assertIn("always prepares", graft)
         self.assertIn("plain repository inspection", graft)
         self.assertIn("does not block review", graft)
-        self.assertNotIn("graft: true", skill.lower() + orchestration.lower())
+        markdown_free = re.sub(r"[^a-z0-9]+", " ", skill.lower() + orchestration.lower())
+        self.assertNotRegex(markdown_free, r"\bgraft\s+(?:true|false)\b")
         manifest = json.loads((REPO / "package.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["devDependencies"]["@nanonets/graft"], "0.10.1")
         self.assertEqual(manifest["scripts"]["review:graft:build"], "graft build")
@@ -1061,6 +1063,21 @@ class TokenMetricsTests(unittest.TestCase):
                 degraded = prepare_graphify_context(root, root / "failed", question)
             self.assertEqual(degraded["status"], "degraded")
             self.assertIn("Graphify timed out", (root / "failed/graphify-context.md").read_text(encoding="utf-8"))
+
+    def test_drm06_graphify_wrong_version_stays_degraded(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            mismatch = graphify_context.ri.IntelligenceError(
+                "Graphify version mismatch", actual="0.9.13", expected="0.9.14"
+            )
+            with patch.object(graphify_context.ri, "_run_context", side_effect=mismatch):
+                result = prepare_graphify_context(root, root / "out", "architecture question")
+            artifact = (root / "out/graphify-context.md").read_text(encoding="utf-8")
+            self.assertEqual(result["status"], "degraded")
+            self.assertEqual(result["reason"], "Graphify version mismatch")
+            self.assertIn("status: degraded", artifact)
+            self.assertIn("Graphify version mismatch", artifact)
+            self.assertNotIn("status: ready", artifact)
 
     def test_drm01_metrics_hooks_are_cumulative_without_job_attribution(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

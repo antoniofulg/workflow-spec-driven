@@ -335,6 +335,28 @@ T6 → T7
 
 **Commit**: `fix(review): close repository intelligence gaps`
 
+### R6: Close Graphify wrong-version degradation
+
+**Slice:** RI-REVIEW
+**What**: Prove wrong-version Graphify remains degraded and remove the final stale Graft opt-in wording.
+**Where**: `tools/test_deep_review_token_metrics.py`
+**Depends on**: R5
+**Reuses**: Existing Graphify degraded-matrix fixture and Deep Review help contract
+**Requirement**: RIR-03, SEC-001
+
+**Open blocker fingerprint**: `5954e7609d5f53992c4cfacffe73ddf376d11ef39648b24a9cb127c3af27ce9c`
+
+**Done when**:
+
+- [x] Mutating wrong-version Graphify to `ready` fails the canonical Review gate.
+- [x] Current Deep Review skill contains no `graft: true` opt-in instruction.
+- [x] Review scoped gate passes with 47 contract + 32 token-metrics cases and zero failures.
+
+**Tests**: Remaining gaps in `validation-RI-REVIEW.md`
+**Gate**: Review scoped
+
+**Commit**: `fix(review): prove Graphify version fallback`
+
 ### T5: Adopt tooling and generated-state hygiene
 
 **Slice:** RI-ADOPTION

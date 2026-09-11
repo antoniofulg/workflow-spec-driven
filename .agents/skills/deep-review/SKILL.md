@@ -42,7 +42,6 @@ Optional repo-root file, the skill-native config standard. Any key absent there 
 | --- | --- |
 | `concurrency` | Maximum simultaneous reviewer jobs, an integer from `1` through `6`; defaults to `3` and is pinned in `manifest.json` |
 | `path_filters` | Globs over repo-relative paths: `!pat` excludes; bare patterns, when present, restrict review to their matches and beat any exclude; built-in excludes (locks, vendor, generated, testdata, snapshots) always append |
-| `graft` | `true` runs the pinned Graft CLI before prompts are materialized; otherwise `graft-context.md` is the single plain-inspection line |
 | `request_changes_workflow` | publish-mode review-event gate |
 
 The manifest builder resolves `path_filters` into manifest.json.
