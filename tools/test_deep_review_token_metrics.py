@@ -950,7 +950,7 @@ class TokenMetricsTests(unittest.TestCase):
             failing = out / "failing-graft"
             failing.write_text("#!/bin/sh\nexit 1\n", encoding="utf-8")
             failing.chmod(0o700)
-            with patch.object(graft_context, "graft_binary", return_value=str(failing)):
+            with patch.object(graft_context.ri, "_run_context", side_effect=RuntimeError("graft failed")):
                 failed_context = prepare_graft_context(REPO, out / "failed", ["tools/test_deep_review_token_metrics.py"])
             self.assertEqual(failed_context["status"], "fallback")
             self.assertIn("plain repository inspection", (out / "failed/graft-context.md").read_text(encoding="utf-8"))

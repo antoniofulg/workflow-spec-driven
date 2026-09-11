@@ -238,6 +238,36 @@ class AdapterTests(RepositoryFixture):
         self.assertNotEqual(first["tree"], second["tree"])
         self.assertIn("notes.md", ri.read_state(self.root, "graft")["indexed_source_manifest"])
 
+    def test_r11_real_graft_command_handles_tracked_directory_symlink(self) -> None:
+        target = self.root / ".agents/skills/autonomous"
+        target.mkdir(parents=True)
+        (target / "SKILL.md").write_text("skill\n", encoding="utf-8")
+        link = self.root / ".claude/skills/autonomous"
+        link.parent.mkdir(parents=True)
+        link.symlink_to(Path("../../.agents/skills/autonomous"), target_is_directory=True)
+        subprocess.run(["git", "add", "."], cwd=self.root, check=True)
+        graft = self.fake_tool("graft", ri.GRAFT_VERSION)
+
+        with mock.patch.dict(os.environ, self.env_path(graft), clear=False):
+            result = subprocess.run(
+                [sys.executable, str(SCRIPT), "graft", "--root", str(self.root), "map"],
+                text=True,
+                capture_output=True,
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout)["status"], "ready")
+        state = ri.read_state(self.root, "graft")
+        self.assertIn(".claude/skills/autonomous", state["indexed_source_manifest"])
+
+        before = state["source_fingerprint"]
+        other_target = self.root / ".agents/skills/other"
+        other_target.mkdir()
+        link.unlink()
+        link.symlink_to(Path("../../.agents/skills/other"), target_is_directory=True)
+        subprocess.run(["git", "add", "."], cwd=self.root, check=True)
+        self.assertNotEqual(before, ri._source_fingerprint(self.root))
+
     def test_r1_interrupted_publication_preserves_last_state(self) -> None:
         graft = self.fake_tool("graft", ri.GRAFT_VERSION)
         with mock.patch.dict(os.environ, self.env_path(graft), clear=False):

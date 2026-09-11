@@ -267,7 +267,12 @@ def _source_fingerprint(root: Path) -> str:
     for path in _source_manifest(root):
         digest.update(path.encode("utf-8"))
         digest.update(b"\0")
-        digest.update((root / path).read_bytes())
+        source = root / path
+        if stat.S_ISLNK(os.lstat(source).st_mode):
+            content = os.readlink(source).encode("utf-8", "surrogateescape")
+        else:
+            content = source.read_bytes()
+        digest.update(content)
         digest.update(b"\0")
     return digest.hexdigest()
 

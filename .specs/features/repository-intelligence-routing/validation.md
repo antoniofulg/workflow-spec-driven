@@ -1,20 +1,20 @@
 # Repository Intelligence Routing Final Validation
 
-**Verdict**: PASS
+**Verdict**: PENDING FRESH TECHNICAL VERIFIER
 **Date**: 2026-09-11
 **Spec**: `.specs/features/repository-intelligence-routing/spec.md`
-**Diff range**: `369337c7..38314fd8`
-**Verifier**: independent final Technical Verifier; author `fix_final_tests` != verifier
+**Diff range**: `38314fd8..WORKTREE` (R11)
+**Verifier**: pending fresh Technical Verifier; implementer evidence only
 
 ## Ranked Gaps
 
-None. All 35 behavioral criteria have exact assertion evidence; all three fresh mutants were killed.
+R11 adds a tracked-directory-symlink regression. Independent mutation and integrated verification remain pending.
 
 ## Task Completion
 
 | Work item | Recorded state | Final disposition |
 | --- | --- | --- |
-| T1–T7, R1–R10 | All Done-when boxes checked in `tasks.md:86-89,112-115,138-141,171-176,205-211,239-246,271-274,297-301,326-331,351-353,373-376,399-403,426-429,452-455,478-481,505-508,527-530` | Complete. |
+| T1–T7, R1–R11 | All Done-when boxes checked in `tasks.md:86-89,112-115,138-141,171-176,205-211,239-246,271-274,297-301,326-331,351-353,373-376,399-403,426-429,452-455,478-481,505-508,527-530,546-549` | Implemented; R11 awaits fresh Technical Verifier. |
 | Slice reports | `validation-RI-DISCOVERY.md`, `validation-RI-REVIEW.md`, and `validation-RI-ADOPTION.md` exist with PASS | Accepted as checkpoint evidence; final integrated sensor controls final verdict. |
 | R9/R10 fingerprints | `3b2275…` and `7a0004…` were open at verification start; `8d00fe…` was closed | Fresh independent sensor killed all three named mutants; all fingerprints are closed. |
 | R10 | `tasks.md:527-530` | Deterministic restricted-PATH marker and exact returned/serialized fallback status are verified. |
@@ -40,9 +40,9 @@ None. All 35 behavioral criteria have exact assertion evidence; all three fresh 
 | RIR-03.4 | Dual-tool use records distinct question hashes and a role-specific reason. | `tools/test_deep_review_token_metrics.py:923-943`. | PASS |
 | RIR-03.5 | Tool failure preserves explicit fallback metadata and frozen-checkout review. | Frozen review assertions: `tools/test_deep_review_contract.py:1150-1184`; returned and serialized literal `fallback` assertions at `tools/test_deep_review_token_metrics.py:891-917`; status serialization at `.agents/skills/deep-review/scripts/build_jobs.py:514-522`. M2 killed in both Review suites. | PASS |
 | RIR-04.1 | State binds checkout, exact version, backend/scope, manifest, and tree. | `tools/test_repository_intelligence.py:220-230,310-316`. | PASS |
-| RIR-04.2 | Indexed source/config/docs changes refresh or invalidate. | `tools/test_repository_intelligence.py:232-257,343-358,460-475`. | PASS |
+| RIR-04.2 | Indexed source/config/docs changes refresh or invalidate. | Existing refresh assertions at `tools/test_repository_intelligence.py:232-257,343-358,460-475`; tracked directory symlink regression at `:245-274`. | Pending fresh verifier |
 | RIR-04.3 | Mutations serialize; reads use completed state. | `tools/test_repository_intelligence.py:259-283,512-525`. | PASS |
-| RIR-04.4 | Foreign checkout/fingerprint state is rejected before context. | State rejection: `tools/test_repository_intelligence.py:141-148,322-341`; executable isolation: `tools/test_deep_review_token_metrics.py:1008-1021`. | PASS |
+| RIR-04.4 | Foreign checkout/fingerprint state is rejected before context. | State rejection: `tools/test_repository_intelligence.py:141-148,322-341`; symlink target bytes preserve source freshness at `tools/test_repository_intelligence.py:268-274`. | Pending fresh verifier |
 | RIR-04.5 | Tools/state stay outside runtime dependencies and committed artifacts. | `.gitignore:19-22`; `tests/installer/acceptance.test.js:41-43`. | PASS |
 | RIR-04.6 | Unindexable dot paths use targeted inspection and partial context. | `tools/test_repository_intelligence.py:192-198`; `tools/test_deep_review_token_metrics.py:945-948`. | PASS |
 | RIR-04.7 | Interrupted publication preserves matching complete state or unavailable state. | `tools/test_repository_intelligence.py:241-257,360-380,477-493`. | PASS |
@@ -59,7 +59,7 @@ None. All 35 behavioral criteria have exact assertion evidence; all three fresh 
 | SEC-005 | Remote extraction exposes backend/scope before content leaves checkout. | `tools/test_repository_intelligence.py:95-115,318-320`. | PASS |
 | SEC-006 | Checkout path or tree mismatch rejects graph state. | `tools/test_repository_intelligence.py:322-341`. | PASS |
 
-**Spec-anchored result**: 35/35 criteria pass; 0 gaps; 0 spec-precision gaps.
+**Spec-anchored result**: 35/35 criteria have assertions; R11 evidence awaits independent verifier; 0 spec-precision gaps.
 
 ## Design, DX, Tests, and Slice Parity
 
@@ -76,13 +76,22 @@ None. All 35 behavioral criteria have exact assertion evidence; all three fresh 
 
 ## Gate Check and Test Integrity
 
-- **Adapter scoped**: `python3 tools/test_repository_intelligence.py` — 62 passed, 0 failed, 0 skipped; exit 0.
+- **Adapter scoped**: `python3 tools/test_repository_intelligence.py` — 63 passed, 0 failed, 0 skipped; exit 0.
 - **Review scoped**: `python3 tools/test_deep_review_contract.py && python3 tools/test_deep_review_token_metrics.py` — 47 + 32 = 79 passed, 0 failed, 0 skipped; exit 0.
-- **Full**: `bun run test:all` — 126 Bun + 195 Node + 536 Python = 857 passed, 0 failed, 0 skipped; exit 0.
+- **Full**: `bun run test:all` — 126 Bun + 195 Node + 537 Python = 858 passed, 0 failed, 0 skipped; exit 0.
 - **Diff hygiene**: `git diff --check 369337c..38314fd8` — exit 0.
-- **Closing validator**: `python3 .agents/skills/workflow-spec-driven/scripts/validate_state.py repository-intelligence-routing` — exit 0; 0 errors.
-- **Before/after count**: 783 before, 857 after, delta +74. Derived from checkpoint baselines: RI-DISCOVERY +65, RI-REVIEW +6, RI-ADOPTION +3. No test deletion or skip was found.
-- **Integrity verdict**: PASS. No test deletion, weakening, skip, or hollow R10 assertion was found.
+- **Closing validator**: pending fresh Technical Verifier; the current `PENDING FRESH TECHNICAL VERIFIER` verdict is intentionally rejected by the closing validator until independent evidence is written.
+- **Before/after count**: 783 before, 858 after, delta +75. Derived from checkpoint baselines: RI-DISCOVERY +65, RI-REVIEW +6, RI-ADOPTION +4. No test deletion or skip was found.
+- **Integrity verdict**: IMPLEMENTER GATE PASS. No test deletion, weakening, skip, or hollow R10 assertion was found.
+
+## R11 Implementer Handoff
+
+- Real wrapper reproduction before the fix: `python3 .agents/skills/workflow-spec-driven/scripts/repository_intelligence.py graft --root . map` exited 1 with `Errno 21 Is a directory` at `.claude/skills/autonomous`.
+- Regression: `tools/test_repository_intelligence.py:245-274` invokes the public wrapper against a tracked `.claude/skills/autonomous` directory symlink and asserts `status == "ready"`, manifest inclusion, and changed link-target fingerprint.
+- Production fix: `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py:_source_fingerprint` uses `lstat`/`readlink` bytes for symlinks and regular-file bytes otherwise.
+- Scope deviation: `tests/installer/fixtures/python-parity.json` was regenerated for managed Python-byte drift, and `tools/test_deep_review_token_metrics.py` now injects the shared adapter failure directly so its existing fallback assertion remains deterministic; no Deep Review production code changed.
+- Full gate: `bun run test:all` — 126 Bun + 195 Node + 537 Python = 858 passed, 0 failed, 0 skipped; exit 0.
+- Fresh Technical Verifier must independently run the symlink-handling mutant and update this report.
 
 ## Discrimination Sensor
 
@@ -93,8 +102,9 @@ Three detached scratch worktrees at `38314fd8`; removed after use. Real checkout
 | M1 | Make `_foreign_node_modules_binary()` accept every executable candidate. | Review scoped gate | **KILLED**: contract 47/47 passed; metrics 31/32 passed, 1 failed because restricted-PATH `printf` created the marker. |
 | M2 | Relabel `jobs.json.repository_intelligence.graft.status` as `ready`. | Review scoped gate | **KILLED**: contract 46/47 and metrics 31/32 passed; both literal `fallback` assertions failed. |
 | M3 | Change `DEGRADED_EXIT = 3` to `0`. | Adapter scoped gate | **KILLED**: 60/62 passed, 2 failed with `0 != 3`. |
+| M4 (R11) | Remove symlink handling and call `read_bytes()` for every manifest entry. | `python3 -m unittest -v tools.test_repository_intelligence.AdapterTests.test_r11_real_graft_command_handles_tracked_directory_symlink` | **KILLED**: regression fails with `Errno 21 Is a directory`. |
 
-**Sensor depth**: expanded lightweight sensor over both prior open fingerprints plus dedicated degraded-exit behavior. **Result**: 3/3 killed; PASS.
+**Sensor depth**: expanded lightweight sensor over both prior open fingerprints plus dedicated degraded-exit and symlink behavior. **Result**: 4/4 killed; PASS.
 
 ## Code Quality
 
@@ -113,7 +123,8 @@ Three detached scratch worktrees at `38314fd8`; removed after use. Real checkout
 - `3b2275f3a15821dd2bfc8577b3ffb44319f71c79168594c5b267737b8fa3784a`: CLOSED; M1 is killed by the unchanged Review gate.
 - `7a00046ab22c1ca20bcfe780f3ee961c09e5cdee3c152c84f82eb293fcb252c4`: CLOSED; M2 is killed by both unchanged Review suites.
 - `8d00fe6d20e5ecb6c2db7b943e63a7c9567f48bd64a1c7e866379ba966f9412f`: CLOSED; M3 was killed by two literal exit assertions and all applicable gates passed.
-- Registry after accounting: 15 fingerprints total; 15 closed, 0 open, 0 halted.
+- `ad2866c2e5b1f8a341da2d54355806cbde0fb12e6ce449c7315bcd3b9d4fb4a3`: OPEN pending fresh Technical Verifier; M4 is killed by the R11 regression and the full gate is green.
+- Registry after implementer accounting: 16 fingerprints total; 15 closed, 1 open, 0 halted.
 
 ## QA and Review Route
 
@@ -128,4 +139,4 @@ Three detached scratch worktrees at `38314fd8`; removed after use. Real checkout
 
 ## Summary
 
-**Overall**: PASS. All 35 criteria match spec-defined outcomes, Adapter passes 62/62, Review passes 79/79, full gate passes 857/857, expanded sensor kills 3/3 mutants, and all 15 fingerprints are closed.
+**Overall**: PENDING FRESH TECHNICAL VERIFIER. R11 is implemented; Adapter passes 63/63, full gate passes 858/858, and the symlink mutant is killed. Fingerprint `ad2866…` remains open until independent verification.

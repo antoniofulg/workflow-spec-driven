@@ -538,6 +538,27 @@ T6 → T7
 
 **Commit**: `test(intelligence): prove integrated Graft fallback`
 
+### R11: Support tracked directory symlinks in source fingerprints
+
+**Slice:** RI-ADOPTION
+**What**: Hash tracked symlink entries without following directory targets so real adopted checkouts can execute repository-intelligence commands.
+**Where**: `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py`
+**Depends on**: R10
+**Reuses**: Git tree semantics and existing source-fingerprint tests
+**Requirement**: RIR-04.2, RIR-04.4
+
+**Done when**:
+
+- [x] A tracked symlink to a directory contributes its link target bytes without opening the target as a file.
+- [x] Repository-intelligence status/Graft commands work in a fixture matching `.claude/skills/*` symlinks.
+- [x] Removing symlink handling fails the canonical adapter suite.
+- [x] Adapter gate and `bun run test:all` pass with zero failures.
+
+**Tests**: Real-checkout regression for `IsADirectoryError` on tracked skill symlinks
+**Gate**: Full
+
+**Commit**: `fix(intelligence): fingerprint tracked skill symlinks`
+
 ---
 
 ## Dependency Execution Map
