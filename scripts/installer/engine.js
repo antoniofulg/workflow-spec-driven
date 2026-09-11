@@ -8,9 +8,9 @@ export const WORKFLOW_VERSION = '0.10.1';
 export const LAYERS = ['core', 'parallel', 'quality', 'extras'];
 export const DEPENDENCIES = { core: [], parallel: ['core'], quality: ['core'], extras: ['core'] };
 export const BLOCK_LAYERS = ['core', 'parallel', 'quality'];
-export const WORKFLOW_GITIGNORE_ENTRIES = ['.my-workflow.toml', '.claude/agents/', '.codex/agents/', '.cursor/agents/', '!.deep-review/', '.deep-review/*', '!.deep-review/learnings.md', 'graft/'];
+export const WORKFLOW_GITIGNORE_ENTRIES = ['.my-workflow.toml', '.claude/agents/', '.codex/agents/', '.cursor/agents/', '!.deep-review/', '.deep-review/*', '!.deep-review/learnings.md', 'graft/', 'graphify-out/', '.repository-intelligence/'];
 export const LEGACY_WORKFLOW_GITIGNORE_ENTRIES = ['.specs/features/'];
-export const WORKFLOW_SEARCHIGNORE_ENTRIES = ['!graft/', 'graft/.cache/', 'graft/.graph/'];
+export const WORKFLOW_SEARCHIGNORE_ENTRIES = ['!graft/', 'graft/.cache/', 'graft/.graph/', 'graphify-out/', '.repository-intelligence/'];
 export const RUNTIME_PATHS = ['claude', 'codex', 'cursor'].flatMap((provider) => ['planner', 'implementer', 'verifier', 'explorer', 'deep-reviewer', 'designer'].map((role) => `.${provider}/agents/${role}.${provider === 'codex' ? 'toml' : 'md'}`));
 export const KNOWLEDGE_DESTINATIONS = {
   'AGENTS.md': { destination: 'docs/product/AGENT-CONTEXT.md', reason: 'Consumer-authored instructions require manual review.' },

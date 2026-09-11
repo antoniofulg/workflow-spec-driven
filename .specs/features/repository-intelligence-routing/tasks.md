@@ -396,11 +396,11 @@ T6 → T7
 
 **Done when**:
 
-- [ ] Core adoption includes the intelligence CLI and routing reference.
-- [ ] `graphify-out/` and `.repository-intelligence/` follow the same regenerable-artifact hygiene as `graft/`.
-- [ ] Summary names `@nanonets/graft@0.10.1` and `graphifyy==0.9.14` commands without changing application dependencies.
-- [ ] Existing zero-write, conflict, cancellation, recovery and re-adoption tests remain green.
-- [ ] Adoption scoped gate passes with zero failures.
+- [x] Core adoption includes the intelligence CLI and routing reference.
+- [x] `graphify-out/` and `.repository-intelligence/` follow the same regenerable-artifact hygiene as `graft/`.
+- [x] Summary names `@nanonets/graft@0.10.1` and `graphifyy==0.9.14` commands without changing application dependencies.
+- [x] Existing zero-write, conflict, cancellation, recovery and re-adoption tests remain green.
+- [x] Adoption scoped gate passes with zero failures.
 
 **Tests**: `IT-009`, `IT-011`, `SEC-002` in canonical installer and installation suites
 **Gate**: Adoption scoped
