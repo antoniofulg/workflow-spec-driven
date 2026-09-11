@@ -415,6 +415,28 @@ class AdapterTests(RepositoryFixture):
                 ri._run_context(self.root, "graft", "map", [])
         self.assertEqual(ri.read_state(self.root, "graft")["status"], "unavailable")
 
+    def test_r4_public_query_timeout_converts_subprocess_exception(self) -> None:
+        graft = self.fake_tool("graft", ri.GRAFT_VERSION)
+        original_run = subprocess.run
+
+        def run(command, *args, **kwargs):
+            if Path(command[0]).name == "graft" and len(command) > 1 and command[1] == "map":
+                raise subprocess.TimeoutExpired(command, kwargs.get("timeout", 0))
+            return original_run(command, *args, **kwargs)
+
+        stdout = StringIO()
+        stderr = StringIO()
+        with mock.patch.dict(os.environ, self.env_path(graft), clear=False), mock.patch.object(subprocess, "run", side_effect=run), mock.patch("sys.stdout", stdout), mock.patch("sys.stderr", stderr):
+            exit_code = ri.main(["graft", "--root", str(self.root), "map"])
+
+        self.assertEqual(exit_code, ri.DEGRADED_EXIT)
+        payload = json.loads(stdout.getvalue())
+        self.assertEqual(payload["status"], "degraded")
+        self.assertEqual(payload["reason"], "graft timed out")
+        self.assertEqual(payload["fallback"], ri.DEGRADED_FALLBACK)
+        self.assertEqual(stderr.getvalue().strip(), "graft timed out")
+        self.assertEqual(ri.read_state(self.root, "graft")["status"], "unavailable")
+
     def test_r3_query_failure_is_degraded(self) -> None:
         graft = self.fake_tool("graft", ri.GRAFT_VERSION)
         original_run = ri._run

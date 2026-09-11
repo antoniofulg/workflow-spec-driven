@@ -250,6 +250,34 @@ T6 → T7
 
 **Commit**: `fix(intelligence): close freshness and benchmark blockers`
 
+### R4: Prove real subprocess timeout conversion
+
+**Slice:** RI-DISCOVERY
+**What**: Add a behavior-level test that raises the real `subprocess.TimeoutExpired` from the execution boundary and proves it becomes the specified degraded timeout result.
+**Where**: `tools/test_repository_intelligence.py`
+**Depends on**: R3
+**Reuses**: Existing timeout conversion and degraded-result assertions
+**Requirement**: RIR-01.4, RIR-02.5, RIR-04
+
+**Authorization**: `.specs/features/repository-intelligence-routing/context.md#authorized-verifier-resume-2026-09-11`
+
+**Tools**:
+
+- CLI: Graft for locating the execution boundary
+- Skill: `ponytail`, `wimplement`
+
+**Done when**:
+
+- [x] The test injects an actual `subprocess.TimeoutExpired`, not a pre-converted domain error.
+- [x] Removing the conversion at the production boundary makes the canonical adapter suite fail.
+- [x] The public result is degraded with the exact timeout reason and no raw exception escapes.
+- [x] Full RI-DISCOVERY gate passes with zero failures and updated exact count.
+
+**Tests**: Resumed generation 2 case for fingerprint `193996f899eedf7e0a2c94d26fa2d028706097be461036f3298d3c2d0da1b2b0`
+**Gate**: Adapter scoped plus Instruction scoped
+
+**Commit**: `test(intelligence): prove subprocess timeout degradation`
+
 ### T4: Route repository intelligence into Deep Review
 
 **Slice:** RI-REVIEW
