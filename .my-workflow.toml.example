@@ -7,7 +7,7 @@ max_workers = "auto" # auto starts at 2 and scales to 4 when healthy
 # resource_provider = "tools/workflow_resources"
 
 [deep_review]
-cadence = "grouped.3" # slice, feature, grouped.N, or skip (no deep-review; run wreview by hand)
+cadence = "skip" # deep-review is on demand; choose slice, feature, or grouped.N to schedule it
 
 # Post-cap remediation halts after this many consecutive non-progress attempts.
 # Default 3. 0 means unbounded: never halt for a stall.

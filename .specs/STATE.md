@@ -69,7 +69,7 @@
 - **Scope**: `.my-workflow.toml`, `.agents/skills/workflow-config/`, `AGENTS.md`, review guidance,
   workflow docs, and adoption.
 - **Date**: 2026-08-21
-- **Status**: active
+- **Status**: superseded by AD-034
 
 ### AD-005
 
@@ -552,4 +552,20 @@
 - **Scope**: Repository-intelligence routing, phase skills and role packets, Deep Review, adoption,
   local graph hygiene, QA scenarios, benchmark evidence, package metadata, and workflow docs.
 - **Date**: 2026-09-10
+- **Status**: active
+
+### AD-034
+
+- **Decision**: Deep Review defaults to on demand. Absent cadence and the tracked example resolve to
+  `skip` with no review groups; an operator explicitly selects `slice`, `feature`, or `grouped.N` to
+  schedule Deep Review. Technical Verifier behavior and remediation limits remain unchanged. This
+  supersedes AD-004's `grouped.3` default while preserving its configurable routing and frozen feature
+  snapshot contract.
+- **Reason**: Technical verification already owns normal feature correctness. Deep Review is an
+  additional inspection requested for the changes that warrant its cost.
+- **Trade-off**: Features receive no Deep Review unless the operator requests or schedules it; the
+  frozen route makes that absence explicit and leaves `wreview` available on demand.
+- **Scope**: Workflow configuration defaults, tracked/local config, public documentation, QA scenario,
+  tests, and future feature snapshots.
+- **Date**: 2026-09-11
 - **Status**: active

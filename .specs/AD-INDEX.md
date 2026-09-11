@@ -10,7 +10,7 @@ When recording an `AD-NNN`, run the bundled workflow-spec-driven ad-index.py in 
 | `AD-001` | active | Agent always-on is a thin `AGENTS.md` (contract + pointers). |
 | `AD-002` | active | QA planning and QA execution are separate provider-neutral skills dispatched in fresh sessions by the existing Verifier. |
 | `AD-003` | superseded by AD-007 | `.specs/features/` is ignored local state. |
-| `AD-004` | active | Workflow routing is consumer-configurable in `.my-workflow.toml`. |
+| `AD-004` | superseded by AD-034 | Workflow routing is consumer-configurable in `.my-workflow.toml`. |
 | `AD-005` | superseded by AD-033 | Keep the optional, checkout-local Graft `0.10.1` integration as the deep-review context aid. |
 | `AD-006` | superseded by AD-033 | Keep the workflow stack- and tool-agnostic while allowing optional capability integrations. |
 | `AD-007` | active | `.specs/features/` is versioned, durable workflow state. |
@@ -40,3 +40,4 @@ When recording an `AD-NNN`, run the bundled workflow-spec-driven ad-index.py in 
 | `AD-031` | active | Deep-review runs one discovery review per implementation group. |
 | `AD-032` | active | `one-round-deep-review` is delivered with `bun run test:all` red only on `tests/installer` `IT-011` (frozen canonical packet bytes) and `IT… |
 | `AD-033` | active | Graphify Labs `graphifyy` `0.9.14` and Nanonets Graft `0.10.1` are the workflow's standard repository-intelligence tools. |
+| `AD-034` | active | Deep Review defaults to on demand. |

@@ -229,6 +229,9 @@ changing instruction bodies.
 
 The `cadence` controls the deep-review groups:
 
+The default is `skip`: Deep Review runs only when the operator requests it or explicitly selects a
+scheduled cadence.
+
 - `slice`: one group per slice (`1, 2, 3, 4` → `[1] [2] [3] [4]`).
 - `feature`: one group for the whole feature (`1, 2, 3, 4` → `[1, 2, 3, 4]`).
 - `grouped.N`: consecutive, balanced groups with at most `N` slices (`grouped.3` with four
