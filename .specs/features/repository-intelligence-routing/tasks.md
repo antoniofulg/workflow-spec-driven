@@ -485,6 +485,33 @@ T6 → T7
 
 **Commit**: `fix(installer): close repository intelligence adoption gaps`
 
+### R9: Close final integrated verifier gaps
+
+**Slice:** RI-ADOPTION
+**What**: Isolate executable discovery to the active checkout, make review fallback tests deterministic, and prove degraded CLI exit remains non-zero.
+**Where**: `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py`
+**Depends on**: R8
+**Reuses**: Existing checkout-bound binary validation, Deep Review fixtures, and public CLI timeout/version cases
+**Requirement**: RIR-01.4, RIR-03.1, RIR-03.5
+
+**Blocker fingerprints**:
+
+- `3b2275f3a15821dd2bfc8577b3ffb44319f71c79168594c5b267737b8fa3784a` — Bun PATH leaks foreign Graft into fixture repositories.
+- `7a00046ab22c1ca20bcfe780f3ee961c09e5cdee3c152c84f82eb293fcb252c4` — Review test infers ready from binary presence.
+- `8d00fe6d20e5ecb6c2db7b943e63a7c9567f48bd64a1c7e866379ba966f9412f` — degraded exit test mirrors implementation constant.
+
+**Done when**:
+
+- [x] Tool resolution cannot borrow another checkout's Graft through Bun-modified `PATH`.
+- [x] Deep Review fallback test controls preparation outcome and accepts spec-defined degradation independently of installed binary presence.
+- [x] Timeout and wrong-version public CLI tests assert literal exit `3`; changing it to `0` fails.
+- [x] Review scoped gate and `bun run test:all` pass with zero failures.
+
+**Tests**: Three final gaps in `validation.md`
+**Gate**: Full
+
+**Commit**: `fix(intelligence): close integrated verification gaps`
+
 ---
 
 ## Dependency Execution Map

@@ -938,8 +938,9 @@ class TokenMetricsTests(unittest.TestCase):
             self.assertIn("architecture relationships", intelligence["dual_use_reason"])
             self.assertIn("code callers", intelligence["dual_use_reason"])
 
-            dot_context = prepare_graft_context(REPO, out / "dot", [".agents/skills/deep-review/SKILL.md"])
-            self.assertEqual(dot_context["status"], "ready-with-fallback" if graft_binary(REPO) else "fallback")
+            with patch.object(graft_context.ri, "_run_context", return_value={"status": "ready", "context": "src/app.py:1"}):
+                dot_context = prepare_graft_context(REPO, out / "dot", [".agents/skills/deep-review/SKILL.md"])
+            self.assertEqual(dot_context["status"], "ready-with-fallback")
             self.assertIn("plain repository inspection", (out / "dot/graft-context.md").read_text(encoding="utf-8"))
 
             failing = out / "failing-graft"
@@ -1000,12 +1001,12 @@ class TokenMetricsTests(unittest.TestCase):
             self.assertNotIn(second_digest, artifact)
             self.assertLessEqual(len(bounded), 12000)
 
-    def test_drm06_graft_never_uses_global_path_binary(self) -> None:
+    def test_drm06_graft_never_uses_foreign_checkout_path_binary(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
-            fake_repo, fake_bin, marker = root / "repo", root / "bin", root / "invoked"
+            fake_repo, fake_bin, marker = root / "repo", root / "foreign/node_modules/.bin", root / "invoked"
             fake_repo.mkdir()
-            fake_bin.mkdir()
+            fake_bin.mkdir(parents=True)
             attacker = fake_bin / "graft"
             attacker.write_text(f"#!/bin/sh\ntouch {marker}\n", encoding="utf-8")
             attacker.chmod(0o700)

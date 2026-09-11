@@ -650,6 +650,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: .specs/features/repository-intelligence-routing/validation-RI-ADOPTION.md:12 (installer)
 - last seen: 2026-09-11T05:49:40Z
 
+### L-107 - Exercise executable discovery under the package-script PATH that exposes project-local binaries.
+- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `deep-review` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation.md#gate-check (deep-review)
+- last seen: 2026-09-11T06:25:12Z
+
+### L-108 - Assert public CLI exit codes as literal contract values, not implementation constants.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation.md#discrimination-sensor-M2 (repository-intelligence)
+- last seen: 2026-09-11T06:25:12Z
+
+### L-109 - Bind development-tool resolution to the active checkout before invoking it.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation.md#RIR-03.1 (repository-intelligence)
+- last seen: 2026-09-11T06:25:12Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

@@ -184,14 +184,37 @@ def read_lock(root: Path) -> Iterator[None]:
 
 def _tool_path(root: Path, tool: str) -> str | None:
     local = root / "node_modules" / ".bin" / tool
-    if local.is_file() and os.access(local, os.X_OK):
+    if local.is_file() and os.access(local, os.X_OK) and not _foreign_node_modules_binary(root, local, tool):
         return str(local)
     candidates = (tool, "graphifyy") if tool == "graphify" else (tool,)
     for candidate in candidates:
         found = shutil.which(candidate)
-        if found:
+        if found and not _foreign_node_modules_binary(root, found, tool):
             return found
     return None
+
+
+def _foreign_node_modules_binary(root: Path, value: str | Path, tool: str) -> bool:
+    """Reject Graft binaries surfaced from another checkout's package bin directory."""
+    if tool != "graft":
+        return False
+    lexical = Path(value).absolute()
+    local_modules = (root / "node_modules").resolve()
+    if lexical.parent.name == ".bin" and lexical.parent.parent.name == "node_modules":
+        try:
+            lexical.relative_to(local_modules)
+        except ValueError:
+            return True
+    try:
+        resolved = Path(value).resolve(strict=True)
+    except OSError:
+        return True
+    try:
+        resolved.relative_to(local_modules)
+    except ValueError:
+        if "node_modules" in resolved.parts:
+            return True
+    return False
 
 
 def tool_version(root: Path, tool: str) -> tuple[str | None, str | None]:

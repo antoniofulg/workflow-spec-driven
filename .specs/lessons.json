@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 107,
+  "next_id": 110,
   "lessons": [
     {
       "id": "L-001",
@@ -1923,6 +1923,60 @@
       ],
       "created": "2026-09-11T05:49:40Z",
       "last_seen": "2026-09-11T05:49:40Z"
+    },
+    {
+      "id": "L-107",
+      "key": "gate_fail::exercise executable discovery under the package script path that exposes project local binaries",
+      "text": "Exercise executable discovery under the package-script PATH that exposes project-local binaries.",
+      "signal": "gate_fail",
+      "scope": "deep-review",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation.md#gate-check (deep-review)"
+      ],
+      "created": "2026-09-11T06:25:12Z",
+      "last_seen": "2026-09-11T06:25:12Z"
+    },
+    {
+      "id": "L-108",
+      "key": "surviving_mutant::assert public cli exit codes as literal contract values not implementation constants",
+      "text": "Assert public CLI exit codes as literal contract values, not implementation constants.",
+      "signal": "surviving_mutant",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation.md#discrimination-sensor-M2 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T06:25:12Z",
+      "last_seen": "2026-09-11T06:25:12Z"
+    },
+    {
+      "id": "L-109",
+      "key": "ac_gap::bind development tool resolution to the active checkout before invoking it",
+      "text": "Bind development-tool resolution to the active checkout before invoking it.",
+      "signal": "ac_gap",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation.md#RIR-03.1 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T06:25:12Z",
+      "last_seen": "2026-09-11T06:25:12Z"
     }
   ]
 }

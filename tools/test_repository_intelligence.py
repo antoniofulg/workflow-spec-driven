@@ -124,7 +124,7 @@ class AdapterTests(RepositoryFixture):
         graft = self.fake_tool("graft", "9.9.9")
         with mock.patch.dict(os.environ, self.env_path(graft), clear=False):
             result = subprocess.run([sys.executable, str(SCRIPT), "graft", "--root", str(self.root), "map"], text=True, capture_output=True)
-        self.assertEqual(result.returncode, ri.DEGRADED_EXIT)
+        self.assertEqual(result.returncode, 3)
         payload = json.loads(result.stdout)
         self.assertEqual(payload["expected_version"], ri.GRAFT_VERSION)
         self.assertEqual(payload["actual_version"], "9.9.9")
@@ -429,7 +429,7 @@ class AdapterTests(RepositoryFixture):
         with mock.patch.dict(os.environ, self.env_path(graft), clear=False), mock.patch.object(subprocess, "run", side_effect=run), mock.patch("sys.stdout", stdout), mock.patch("sys.stderr", stderr):
             exit_code = ri.main(["graft", "--root", str(self.root), "map"])
 
-        self.assertEqual(exit_code, ri.DEGRADED_EXIT)
+        self.assertEqual(exit_code, 3)
         payload = json.loads(stdout.getvalue())
         self.assertEqual(payload["status"], "degraded")
         self.assertEqual(payload["reason"], "graft timed out")
