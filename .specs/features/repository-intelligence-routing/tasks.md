@@ -459,6 +459,32 @@ T6 → T7
 
 **Commit**: `docs(qa): cover routed repository intelligence`
 
+### R8: Close RI-ADOPTION Technical Verifier gaps
+
+**Slice:** RI-ADOPTION
+**What**: Include the linked public intelligence guide in core adoption and regenerate the canonical parity/hash fixtures from the final managed content.
+**Where**: `scripts/installer/engine.js`
+**Depends on**: T7
+**Reuses**: Existing core catalog, parity generator, and skill-lock hash workflow
+**Requirement**: RIR-04, RIR-05, SEC-002
+
+**Blocker fingerprints**:
+
+- `51a313b0f930a12b87b7e789102d427c87e470338b7ce4a30137c6d7fb588ebb` — linked guide omitted from core adoption.
+- `e60701d6d9d1dae68719d394a32597d8c77df38e9b747f7cb3df8f8a7f495afc` — stale parity and skill-lock hashes.
+
+**Done when**:
+
+- [x] Fresh core build plan installs `docs/workflow/repository-intelligence.md` and every installed link resolves.
+- [x] Python parity fixture is regenerated from current canonical installer behavior.
+- [x] Deep Review skill-lock hash matches current managed skill bytes.
+- [x] Adoption and Documentation scoped gates pass with zero failures and exact counts.
+
+**Tests**: Remaining failures and direct probe in `validation-RI-ADOPTION.md`
+**Gate**: Adoption scoped plus Documentation scoped
+
+**Commit**: `fix(installer): close repository intelligence adoption gaps`
+
 ---
 
 ## Dependency Execution Map

@@ -23,6 +23,7 @@
     "templates/adoption",
     "docs/guidelines",
     "docs/workflow/README.md",
+    "docs/workflow/repository-intelligence.md",
     "docs/workflow/decisions.md",
     "docs/workflow/guidelines.md",
     "docs/workflow/loop.md",
