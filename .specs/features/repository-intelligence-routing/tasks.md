@@ -305,6 +305,36 @@ T6 → T7
 
 **Commit**: `feat(review): route Graft and Graphify context`
 
+### R5: Close RI-REVIEW Technical Verifier gaps
+
+**Slice:** RI-REVIEW
+**What**: Redact unexpected failures, preserve partial status, prove distinct dual-tool questions, and make hash/degraded/bound contracts mutation-sensitive.
+**Where**: `.agents/skills/deep-review/scripts/`
+**Depends on**: T4
+**Reuses**: Existing Graft/Graphify context adapters and canonical Deep Review suites
+**Requirement**: RIR-03, RIR-04, SEC-004
+
+**Blocker fingerprints**:
+
+- `6db156e8bb9335ebdd412b8f8c72d0f0879e78b150d7ee4891ebab0bc20feddc` — unexpected exception leakage.
+- `86a51e25892a3fc02fdb113a6dff9389f926e6d5eccee4484ae6638aab8af157` — partial Graft relabeled ready.
+- `fc9416f4d53cc9fb30a3d0652fcf00d08fc1e0923f7dbd8e54d4edc2df6cc7b4` — missing distinct-question identity/rationale.
+- `5954e7609d5f53992c4cfacffe73ddf376d11ef39648b24a9cb127c3af27ce9c` — hollow hashing/degraded/bound/help coverage.
+
+**Done when**:
+
+- [x] Unexpected exceptions persist only a fixed redacted reason with no exception text or sentinel credential.
+- [x] Partial Graft remains partial and carries exact fallback paths.
+- [x] Jobs metadata records distinct Graft and Graphify question hashes plus why both were required.
+- [x] Hash changes with the question; output bounds and every degraded path fail discriminating mutations.
+- [x] Removed Graft opt-in disappears from current CLI help and skill docs.
+- [x] Review scoped gate passes with 47 contract + 31 token-metrics cases and zero failures.
+
+**Tests**: All gaps in `validation-RI-REVIEW.md`, in the canonical Deep Review contract and metrics suites
+**Gate**: Review scoped
+
+**Commit**: `fix(review): close repository intelligence gaps`
+
 ### T5: Adopt tooling and generated-state hygiene
 
 **Slice:** RI-ADOPTION

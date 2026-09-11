@@ -596,6 +596,30 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation-RI-DISCOVERY.md:Discrimination Sensor timeout-conversion mutant (repository-intelligence)
 - last seen: 2026-09-11T03:55:03Z
 
+### L-098 - Redact unexpected exception text before writing repository-intelligence context artifacts.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `deep-review` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#gap-1 (deep-review)
+- last seen: 2026-09-11T04:42:20Z
+
+### L-099 - Preserve partial repository-intelligence status and targeted-inspection guidance through review context rendering.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `deep-review` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#gap-2 (deep-review)
+- last seen: 2026-09-11T04:42:20Z
+
+### L-100 - Record independent content-safe question identities and a reason whenever two repository-intelligence tools run.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `deep-review` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#gap-3 (deep-review)
+- last seen: 2026-09-11T04:42:20Z
+
+### L-101 - Derive expected hashes independently of production hashing helpers.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#M3 (tests)
+- last seen: 2026-09-11T04:42:20Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

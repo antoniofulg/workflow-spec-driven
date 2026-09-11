@@ -2,8 +2,8 @@
 """Deep-review plan gate (bootstrap helper; writes only under --out).
 
 Validates plan.json cohorts against the manifest (every selected file owned
-exactly once; hunk_scope slices line-exact; size caps), prepares Graft context
-only when .deep-review.yaml sets `graft: true`, renders every reviewer and sweep prompt from assets/PROMPT.md —
+exactly once; hunk_scope slices line-exact; size caps), always prepares Graft context,
+conditionally prepares one Graphify context, and renders every reviewer and sweep prompt from assets/PROMPT.md —
 injecting only the rules whose scope globs match that cohort's files — and
 materializes jobs.json, the work
 contract every execution engine runs.
@@ -429,6 +429,8 @@ def main() -> int:
             if args.graphify_question is not None
             else None
         )
+        if graphify is not None and graft.get("question_hash") == graphify.get("question_hash"):
+            raise RuntimeError("Graft and Graphify questions must be distinct")
 
         reviewer_template = load_template("reviewer")
         sweep_template = load_template("sweep")
@@ -515,6 +517,7 @@ def main() -> int:
                 "graft": {
                     "status": graft["status"],
                     "path": rel(Path(graft["path"]), repo),
+                    "question_hash": graft["question_hash"],
                     **({"reason": graft["reason"]} if graft.get("reason") else {}),
                 },
                 "graphify": (
@@ -524,6 +527,10 @@ def main() -> int:
                         "question_hash": graphify["question_hash"],
                         **({"reason": graphify["reason"]} if graphify.get("reason") else {}),
                     }
+                    if graphify is not None else None
+                ),
+                "dual_use_reason": (
+                    "Graphify provides architecture relationships; Graft provides code callers and symbols."
                     if graphify is not None else None
                 ),
             },

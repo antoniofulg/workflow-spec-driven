@@ -35,6 +35,12 @@ def _fallback(path: Path, digest: str, reason: str) -> dict[str, str]:
     return {"status": "degraded", "path": str(path), "question_hash": digest, "reason": reason}
 
 
+def _result_error(error: Exception) -> str:
+    if isinstance(error, ri.IntelligenceError):
+        return ri._redact(error.reason)
+    return "Graphify query failed"
+
+
 def prepare_graphify_context(repo: Path, out: Path, question: str) -> dict[str, str]:
     """Run one bounded Graphify question and persist only its content-safe hash."""
     path = out / "graphify-context.md"
@@ -42,10 +48,9 @@ def prepare_graphify_context(repo: Path, out: Path, question: str) -> dict[str, 
     try:
         result: Any = ri._run_context(repo, "graphify", "query", [question])
     except Exception as error:  # adapter converts expected tool failures to IntelligenceError
-        reason = error.reason if isinstance(error, ri.IntelligenceError) else str(error) or "Graphify query failed"
-        return _fallback(path, digest, reason)
+        return _fallback(path, digest, _result_error(error))
     if isinstance(result, dict) and result.get("status") == "degraded":
-        return _fallback(path, digest, str(result.get("reason") or "Graphify query failed"))
+        return _fallback(path, digest, ri._redact(str(result.get("reason") or "Graphify query failed")))
     context = str(result.get("context", "")).strip() if isinstance(result, dict) else ""
     if not context:
         return _fallback(path, digest, "Graphify returned insufficient context")

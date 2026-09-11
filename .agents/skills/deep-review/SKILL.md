@@ -64,9 +64,9 @@ The manifest builder resolves `path_filters` into manifest.json.
 - Optional metrics snapshot provider totals and cumulative checkpoints without changing dispatch,
   retries, outputs, or exits. The main thread records serialized cumulative checkpoints without
   per-job token attribution; totals finalize only after the full scope completes. Hosts without a
-  compatible adapter record `unavailable` and continue the review normally. With `graft: true`, the
-  pinned Graft CLI runs before prompts are materialized; a failed or absent Graft falls back to
-  ordinary repository inspection.
+  compatible adapter record `unavailable` and continue the review normally. The pinned Graft adapter
+  runs before prompts are materialized; a failed or absent Graft falls back to ordinary repository
+  inspection.
 - External `--subagent` runtimes spend `compozy exec` credit.
 
 ## Procedure

@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 98,
+  "next_id": 102,
   "lessons": [
     {
       "id": "L-001",
@@ -1761,6 +1761,78 @@
       ],
       "created": "2026-09-11T03:55:03Z",
       "last_seen": "2026-09-11T03:55:03Z"
+    },
+    {
+      "id": "L-098",
+      "key": "ac_gap::redact unexpected exception text before writing repository intelligence context artifacts",
+      "text": "Redact unexpected exception text before writing repository-intelligence context artifacts.",
+      "signal": "ac_gap",
+      "scope": "deep-review",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#gap-1 (deep-review)"
+      ],
+      "created": "2026-09-11T04:42:20Z",
+      "last_seen": "2026-09-11T04:42:20Z"
+    },
+    {
+      "id": "L-099",
+      "key": "ac_gap::preserve partial repository intelligence status and targeted inspection guidance through review context rendering",
+      "text": "Preserve partial repository-intelligence status and targeted-inspection guidance through review context rendering.",
+      "signal": "ac_gap",
+      "scope": "deep-review",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#gap-2 (deep-review)"
+      ],
+      "created": "2026-09-11T04:42:20Z",
+      "last_seen": "2026-09-11T04:42:20Z"
+    },
+    {
+      "id": "L-100",
+      "key": "ac_gap::record independent content safe question identities and a reason whenever two repository intelligence tools run",
+      "text": "Record independent content-safe question identities and a reason whenever two repository-intelligence tools run.",
+      "signal": "ac_gap",
+      "scope": "deep-review",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#gap-3 (deep-review)"
+      ],
+      "created": "2026-09-11T04:42:20Z",
+      "last_seen": "2026-09-11T04:42:20Z"
+    },
+    {
+      "id": "L-101",
+      "key": "surviving_mutant::derive expected hashes independently of production hashing helpers",
+      "text": "Derive expected hashes independently of production hashing helpers.",
+      "signal": "surviving_mutant",
+      "scope": "tests",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#M3 (tests)"
+      ],
+      "created": "2026-09-11T04:42:20Z",
+      "last_seen": "2026-09-11T04:42:20Z"
     }
   ]
 }

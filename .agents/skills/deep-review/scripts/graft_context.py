@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import sys
 import os
 from pathlib import Path
@@ -15,13 +16,15 @@ if str(RI_SCRIPTS) not in sys.path:
 import repository_intelligence as ri  # noqa: E402
 
 FALLBACK_LINE = "Graft context is unavailable; use plain repository inspection."
+PARTIAL_LINE = "Graft context is partial; use targeted repository inspection for uncovered paths."
 
 
-def _fallback(path: Path, reason: str, dot_paths: list[str]) -> dict[str, str]:
+def _fallback(path: Path, reason: str, dot_paths: list[str], digest: str) -> dict[str, str]:
     lines = [
         "# Graft context",
         "",
         "status: fallback",
+        f"question_hash: {digest}",
         f"reason: {reason}",
         "",
         FALLBACK_LINE,
@@ -34,13 +37,13 @@ def _fallback(path: Path, reason: str, dot_paths: list[str]) -> dict[str, str]:
         ])
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    return {"status": "fallback", "path": str(path), "reason": reason}
+    return {"status": "fallback", "path": str(path), "question_hash": digest, "reason": reason}
 
 
 def _result_error(error: Exception) -> str:
     if isinstance(error, ri.IntelligenceError):
-        return error.reason
-    return str(error) or "Graft context failed"
+        return ri._redact(error.reason)
+    return "Graft context failed"
 
 
 def _context(result: Any) -> str:
@@ -48,7 +51,9 @@ def _context(result: Any) -> str:
 
 
 def _reason(result: Any, default: str) -> str:
-    return str(result.get("reason") or default) if isinstance(result, dict) else default
+    if not isinstance(result, dict):
+        return default
+    return ri._redact(str(result.get("reason") or default))
 
 
 def prepare_graft_context(repo: Path, out: Path, selected_paths: list[str]) -> dict[str, str]:
@@ -56,14 +61,15 @@ def prepare_graft_context(repo: Path, out: Path, selected_paths: list[str]) -> d
     context_path = out / "graft-context.md"
     dot_paths = [path for path in selected_paths if path.startswith(".") or path.startswith("graft/")]
     visible_paths = [path for path in selected_paths if path not in dot_paths]
+    query = " ".join(visible_paths[:20]) or "repository structure"
+    digest = hashlib.sha256(query.encode("utf-8")).hexdigest()
     try:
         mapped = ri._run_context(repo, "graft", "map", [])
     except Exception as error:  # adapter converts expected tool failures to IntelligenceError
-        return _fallback(context_path, _result_error(error), dot_paths)
+        return _fallback(context_path, _result_error(error), dot_paths, digest)
     if isinstance(mapped, dict) and mapped.get("status") == "degraded":
-        return _fallback(context_path, _reason(mapped, "Graft map failed"), dot_paths)
+        return _fallback(context_path, _reason(mapped, "Graft map failed"), dot_paths, digest)
 
-    query = " ".join(visible_paths[:20]) or "repository structure"
     try:
         asked = ri._run_context(repo, "graft", "ask", ["--json", "--limit", "8", query])
     except Exception as error:
@@ -85,10 +91,13 @@ def prepare_graft_context(repo: Path, out: Path, selected_paths: list[str]) -> d
         except (TypeError, ValueError, json.JSONDecodeError):
             symbols = []
 
+    partial = mapped.get("status") == "partial" if isinstance(mapped, dict) else False
+    partial = partial or (asked.get("status") == "partial" if isinstance(asked, dict) else False)
     lines = [
         "# Graft context",
         "",
-        "status: ready" if asked_context and not dot_paths else "status: ready-with-fallback",
+        "status: partial" if partial else ("status: ready" if asked_context and not dot_paths else "status: ready-with-fallback"),
+        f"question_hash: {digest}",
         "",
         "Use this map as review orientation; verify every claim against the checkout.",
         "",
@@ -103,6 +112,7 @@ def prepare_graft_context(repo: Path, out: Path, selected_paths: list[str]) -> d
         lines.extend(["", ask_reason, "Use plain repository inspection for relevant symbols and callers."])
 
     blast_failed = False
+    blast_partial = False
     for symbol in symbols:
         try:
             callers = ri._run_context(repo, "graft", "callers", ["--json", "--depth", "1", symbol])
@@ -110,12 +120,17 @@ def prepare_graft_context(repo: Path, out: Path, selected_paths: list[str]) -> d
             blast_failed = True
             continue
         callers_context = _context(callers)
+        blast_partial = blast_partial or (isinstance(callers, dict) and callers.get("status") == "partial")
         if callers_context:
             lines.extend(["", f"### `{symbol}`", "```text", callers_context[:6000], "```"])
         else:
             blast_failed = True
     if blast_failed:
         lines.extend(["", "Graft blast-radius lookup failed; use plain repository inspection for callers."])
+    partial = partial or blast_partial
+    if partial:
+        lines[2] = "status: partial"
+        lines.extend(["", PARTIAL_LINE])
     if dot_paths:
         lines.extend([
             "",
@@ -123,11 +138,11 @@ def prepare_graft_context(repo: Path, out: Path, selected_paths: list[str]) -> d
             *[f"- `{item}`" for item in dot_paths],
         ])
     if not _context(mapped):
-        return _fallback(context_path, "Graft returned insufficient context", dot_paths)
+        return _fallback(context_path, "Graft returned insufficient context", dot_paths, digest)
     context_path.parent.mkdir(parents=True, exist_ok=True)
     context_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    status = "ready" if asked_context and not dot_paths and not blast_failed else "ready-with-fallback"
-    return {"status": status, "path": str(context_path)}
+    status = "partial" if partial else ("ready" if asked_context and not dot_paths and not blast_failed else "ready-with-fallback")
+    return {"status": status, "path": str(context_path), "question_hash": digest}
 
 
 def graft_binary(repo: Path) -> str | None:
