@@ -135,7 +135,7 @@ T6 → T7
 
 **Done when**:
 
-- [ ] Explorer performs Graphify architecture traces and Graft code discovery; Implementer uses Graft only when its packet lacks enough pointers.
+- [x] Explorer performs Graphify architecture traces and Graft code discovery; Implementer uses Graft only when its packet lacks enough pointers.
 - [x] Planner and Designer avoid duplicate code discovery; Deep Reviewer consumes prepared contexts and verifies checkout truth.
 - [x] All three providers render the same routing semantics without changing configured model metadata.
 - [x] Instruction scoped gate passes with zero failures (`python3 tools/test_phase_skills.py && python3 tools/test_workflow_config.py && node --test tests/installer/packets.test.js`).
@@ -144,6 +144,41 @@ T6 → T7
 **Gate**: Instruction scoped
 
 **Commit**: `feat(agents): make repository intelligence the default route`
+
+### R1: Close RI-DISCOVERY Technical Verifier gaps
+
+**Slice:** RI-DISCOVERY
+**What**: Correct the four independent verifier blockers and add discriminating tests for every T1–T3 criterion assigned to this slice.
+**Where**: `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py`
+**Depends on**: T3
+**Reuses**: Existing T1 adapter and `tools/test_repository_intelligence.py` canonical suite
+**Requirement**: RIR-01, RIR-02, RIR-04, RIR-05, SEC-001, SEC-003, SEC-004, SEC-005, SEC-006
+
+**Blocker fingerprints**:
+
+- `084d4241d8e7d467a1e4946ef356a3f07a3cbdf9d3faf1604211d112cc610952` — `module boundary` routes incorrectly.
+- `5775eb7e1c64d1501ba6487cd20978b4481201226f7f029a9a57e5ac623b8308` — Graphify setup/disclosure order is unsafe.
+- `5a74228a2c6a95d97f42fbd34a6ced63ae295bb8fa693fdb2f7b8e6620524f2e` — benchmark accepts unmatched controls.
+- `193996f899eedf7e0a2c94d26fa2d028706097be461036f3298d3c2d0da1b2b0` — declared fallback/freshness/concurrency/interruption coverage is hollow.
+
+**Tools**:
+
+- CLI: Graft for code discovery
+- Skill: `ponytail`, `wimplement`
+
+**Done when**:
+
+- [x] Every named architectural trigger, including `module boundary`, routes to Graphify.
+- [x] Graphify refuses query/update without valid setup/backend state and discloses backend/scope before extraction begins.
+- [x] Benchmark comparison requires matched task/category/configuration pairs and identical controls.
+- [x] Missing assigned freshness, concurrency, interruption, dot-directory, degraded Graphify, version, fingerprint, and benchmark cases have behavior-level assertions.
+- [x] T3's remaining checkbox is corrected from evidence, not merely marked complete.
+- [x] RI-DISCOVERY gate passes with zero failures and updated exact count (40 adapter cases; 20 + 64 + 37 instruction cases).
+
+**Tests**: All RI-DISCOVERY gaps cited in `validation-RI-DISCOVERY.md`, in the existing canonical suites
+**Gate**: Adapter scoped plus Instruction scoped
+
+**Commit**: `fix(intelligence): close verifier gaps`
 
 ### T4: Route repository intelligence into Deep Review
 

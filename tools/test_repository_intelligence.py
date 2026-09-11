@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import os
+from contextlib import contextmanager, redirect_stdout
+from io import StringIO
 from pathlib import Path
 import shutil
 import stat
@@ -64,7 +66,7 @@ class RoutingTests(unittest.TestCase):
         self.assertNotIn("graphify", ri.route({"phase": "execute", "file_count": 20})["tools"])
 
     def test_ut010_all_architecture_triggers_are_classified(self) -> None:
-        for trigger in ("boundary", "responsibility transfer", "shared abstraction", "central flow", "residual architectural uncertainty"):
+        for trigger in ("module boundary", "boundary", "responsibility transfer", "shared abstraction", "central flow", "residual architectural uncertainty"):
             self.assertEqual(ri.route({"phase": "design", "triggers": [trigger]})["first"], "graphify")
 
     def test_ut010_file_count_is_not_trigger(self) -> None:
@@ -76,6 +78,26 @@ class RoutingTests(unittest.TestCase):
 
 
 class AdapterTests(RepositoryFixture):
+    def test_r1_graphify_requires_setup_before_query(self) -> None:
+        graphify = self.fake_tool("graphify", ri.GRAPHIFY_VERSION)
+        with mock.patch.dict(os.environ, self.env_path(graphify), clear=False):
+            with self.assertRaisesRegex(ri.IntelligenceError, "setup required"):
+                ri._run_context(self.root, "graphify", "path", ["domain"])
+
+    def test_r1_graphify_setup_discloses_preflight_before_extraction(self) -> None:
+        graphify = self.fake_tool("graphify", ri.GRAPHIFY_VERSION)
+        output = StringIO()
+        with mock.patch.dict(os.environ, self.env_path(graphify), clear=False), redirect_stdout(output):
+            result = ri.graphify_setup(self.root, "claude-cli", "code-only")
+        self.assertIn('"preflight"', output.getvalue().splitlines()[0])
+        self.assertEqual(result["backend"], "claude-cli")
+
+    def test_r1_graphify_wrong_version_is_rejected(self) -> None:
+        graphify = self.fake_tool("graphify", "0.0.1")
+        with mock.patch.dict(os.environ, self.env_path(graphify), clear=False):
+            with self.assertRaisesRegex(ri.IntelligenceError, "version mismatch"):
+                ri._require_tool(self.root, "graphify", ri.GRAPHIFY_VERSION)
+
     def test_ut005_wrong_version_is_degraded_with_expected_and_actual(self) -> None:
         graft = self.fake_tool("graft", "9.9.9")
         with mock.patch.dict(os.environ, self.env_path(graft), clear=False):
@@ -130,11 +152,35 @@ class AdapterTests(RepositoryFixture):
             with self.assertRaisesRegex(ri.IntelligenceError, "refresh failed"):
                 ri._run_context(self.root, "graft", "map", [])
 
+    def test_r1_graft_insufficient_result_is_degraded(self) -> None:
+        graft = self.fake_tool("graft", ri.GRAFT_VERSION, output="")
+        with mock.patch.dict(os.environ, self.env_path(graft), clear=False):
+            with self.assertRaisesRegex(ri.IntelligenceError, "insufficient context"):
+                ri._run_context(self.root, "graft", "map", [])
+
+    def test_r1_dot_directory_result_is_partial_with_targeted_fallback(self) -> None:
+        graft = self.fake_tool("graft", ri.GRAFT_VERSION)
+        with mock.patch.dict(os.environ, self.env_path(graft), clear=False):
+            result = ri._run_context(self.root, "graft", "map", [".agents"])
+        self.assertEqual(result["status"], "partial")
+        self.assertEqual(result["fallback"], "targeted-native-inspection")
+        self.assertEqual(result["dot_paths"], [".agents"])
+
+    def test_r1_stale_after_refresh_is_rejected(self) -> None:
+        path = self.root / "bin" / "graft"
+        path.parent.mkdir(exist_ok=True)
+        path.write_text("#!/usr/bin/env python3\nimport sys\nif '--version' in sys.argv: print('0.10.1'); raise SystemExit(0)\nif sys.argv[1] == 'check': raise SystemExit(1)\nprint('src/app.py:1')\n", encoding="utf-8")
+        path.chmod(path.stat().st_mode | stat.S_IXUSR)
+        with mock.patch.dict(os.environ, self.env_path(path), clear=False):
+            with self.assertRaisesRegex(ri.IntelligenceError, "stale after refresh"):
+                ri._run_context(self.root, "graft", "map", [])
+
     def test_it003_graphify_query_is_bounded_and_fresh(self) -> None:
         graphify = self.fake_tool("graphify", ri.GRAPHIFY_VERSION, output="domain -> src/app.py:1\n")
         with mock.patch.dict(os.environ, self.env_path(graphify), clear=False):
+            ri.graphify_setup(self.root, "claude-cli", "code-only", announce=False)
             result = ri._run_context(self.root, "graphify", "path", ["domain"])
-        self.assertEqual(result["status"], "ready")
+        self.assertEqual(result["status"], "partial")
         self.assertIn("domain -> src/app.py:1", result["context"])
 
     def test_it004_graphify_not_called_by_local_route(self) -> None:
@@ -147,6 +193,53 @@ class AdapterTests(RepositoryFixture):
         state = ri.read_state(self.root, "graft")
         self.assertEqual(state["checkout"], str(self.root))
         self.assertEqual(state["tree"], ri.tree_fingerprint(self.root))
+        self.assertEqual(state["tool_version"], ri.GRAFT_VERSION)
+        self.assertEqual(state["source_scope"], ["."])
+        self.assertIn("src/app.py", state["indexed_source_manifest"])
+
+    def test_r1_source_mutation_refreshes_fingerprint_and_manifest(self) -> None:
+        graft = self.fake_tool("graft", ri.GRAFT_VERSION)
+        with mock.patch.dict(os.environ, self.env_path(graft), clear=False):
+            first = ri._run_context(self.root, "graft", "map", [])
+            (self.root / "notes.md").write_text("indexed\n", encoding="utf-8")
+            second = ri._run_context(self.root, "graft", "map", [])
+        self.assertNotEqual(first["tree"], second["tree"])
+        self.assertIn("notes.md", ri.read_state(self.root, "graft")["indexed_source_manifest"])
+
+    def test_r1_interrupted_publication_preserves_last_state(self) -> None:
+        graft = self.fake_tool("graft", ri.GRAFT_VERSION)
+        with mock.patch.dict(os.environ, self.env_path(graft), clear=False):
+            ri._run_context(self.root, "graft", "map", [])
+            previous = (self.root / ri.STATE_DIR / "graft.json").read_text(encoding="utf-8")
+            with mock.patch.object(ri, "_write_json", side_effect=OSError("interrupted")):
+                with self.assertRaises(OSError):
+                    ri._run_context(self.root, "graft", "map", [])
+        self.assertEqual((self.root / ri.STATE_DIR / "graft.json").read_text(encoding="utf-8"), previous)
+
+    def test_r1_query_runs_outside_refresh_mutation_lock(self) -> None:
+        events: list[str] = []
+
+        @contextmanager
+        def lock(_root: Path):
+            events.append("lock-enter")
+            yield
+            events.append("lock-exit")
+
+        def run(command, _root, **_kwargs):
+            events.append(command[1])
+            return subprocess.CompletedProcess(command, 0, "src/app.py:1\n", "")
+
+        with mock.patch.object(ri, "_require_tool", return_value="graft"), mock.patch.object(ri, "_run", side_effect=run), mock.patch.object(ri, "mutation_lock", lock):
+            result = ri._run_context(self.root, "graft", "map", [])
+        self.assertEqual(result["status"], "ready")
+        self.assertLess(events.index("lock-exit"), events.index("map"))
+
+    def test_r1_code_only_graphify_context_remains_partial(self) -> None:
+        graphify = self.fake_tool("graphify", ri.GRAPHIFY_VERSION, output="domain -> src/app.py:1\n")
+        with mock.patch.dict(os.environ, self.env_path(graphify), clear=False):
+            ri.graphify_setup(self.root, "claude-cli", "code-only", announce=False)
+            result = ri._run_context(self.root, "graphify", "path", ["domain"])
+        self.assertEqual(result["status"], "partial")
 
     def test_it014_remote_scope_outside_checkout_is_refused(self) -> None:
         with self.assertRaisesRegex(ri.IntelligenceError, "outside checkout"):
@@ -202,7 +295,7 @@ class BenchmarkTests(unittest.TestCase):
                 ri.benchmark_report(handle.name)
 
     def test_ut012_controlled_runs_group_by_configuration(self) -> None:
-        records = [self.record(str(i), "graft" if i < 5 else "routed") for i in range(10)]
+        records = [self.record(str(i), configuration) for i in range(5) for configuration in ("graft", "routed")]
         with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl") as handle:
             handle.write("\n".join(json.dumps(record) for record in records)); handle.flush()
             result = ri.benchmark_report(handle.name)
@@ -211,7 +304,7 @@ class BenchmarkTests(unittest.TestCase):
 
     def test_it019_success_requires_independent_evidence(self) -> None:
         record = self.record("1", "graft"); record["gate"] = "FAIL"
-        records = [record] + [self.record(str(i), "routed") for i in range(2, 11)]
+        records = [record, self.record("1", "routed")] + [self.record(str(i), configuration) for i in range(2, 6) for configuration in ("graft", "routed")]
         with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl") as handle:
             handle.write("\n".join(json.dumps(item) for item in records)); handle.flush()
             with self.assertRaisesRegex(ValueError, "gate/Verifier"):
@@ -224,13 +317,22 @@ class BenchmarkTests(unittest.TestCase):
                 ri.benchmark_report(handle.name)
 
     def test_it019_unavailable_metrics_are_explicit(self) -> None:
-        records = [self.record(str(i), "graft") for i in range(10)]
+        records = [self.record(str(i), configuration) for i in range(5) for configuration in ("graft", "routed")]
         records[0]["metrics"]["input_tokens"] = "unavailable"
-        records[5]["configuration"] = "routed"
         with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl") as handle:
             handle.write("\n".join(json.dumps(record) for record in records)); handle.flush()
             result = ri.benchmark_report(handle.name)
         self.assertEqual(result["tasks"], 10)
+
+    def test_r1_disjoint_task_ids_cannot_bypass_control_matching(self) -> None:
+        records = [self.record(str(i), "graft") for i in range(10)]
+        records[1]["configuration"] = "routed"
+        records[0]["tree"] = "other-tree"
+        records[0]["provider"] = "other-provider"
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl") as handle:
+            handle.write("\n".join(json.dumps(record) for record in records)); handle.flush()
+            with self.assertRaisesRegex(ValueError, "matched task/category/configuration"):
+                ri.benchmark_report(handle.name)
 
 
 if __name__ == "__main__":

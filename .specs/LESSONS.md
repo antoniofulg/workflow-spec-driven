@@ -506,6 +506,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md:P1-AC1 (installer)
 - last seen: 2026-09-08T05:02:34Z
 
+### L-083 - Normalize and test every spec-listed routing trigger phrase.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-02.1 (repository-intelligence)
+- last seen: 2026-09-11T02:41:14Z
+
+### L-084 - Emit remote extraction preflight before process launch and reject missing backend state.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:SEC-005 (repository-intelligence)
+- last seen: 2026-09-11T02:41:14Z
+
+### L-085 - Require paired benchmark configurations before validating comparison controls.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-05.2 (repository-intelligence)
+- last seen: 2026-09-11T02:41:14Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

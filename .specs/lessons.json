@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 83,
+  "next_id": 86,
   "lessons": [
     {
       "id": "L-001",
@@ -1491,6 +1491,60 @@
       ],
       "created": "2026-09-08T05:02:34Z",
       "last_seen": "2026-09-08T05:02:34Z"
+    },
+    {
+      "id": "L-083",
+      "key": "ac_gap::normalize and test every spec listed routing trigger phrase",
+      "text": "Normalize and test every spec-listed routing trigger phrase.",
+      "signal": "ac_gap",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:RIR-02.1 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T02:41:14Z",
+      "last_seen": "2026-09-11T02:41:14Z"
+    },
+    {
+      "id": "L-084",
+      "key": "ac_gap::emit remote extraction preflight before process launch and reject missing backend state",
+      "text": "Emit remote extraction preflight before process launch and reject missing backend state.",
+      "signal": "ac_gap",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:SEC-005 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T02:41:14Z",
+      "last_seen": "2026-09-11T02:41:14Z"
+    },
+    {
+      "id": "L-085",
+      "key": "ac_gap::require paired benchmark configurations before validating comparison controls",
+      "text": "Require paired benchmark configurations before validating comparison controls.",
+      "signal": "ac_gap",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:RIR-05.2 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T02:41:14Z",
+      "last_seen": "2026-09-11T02:41:14Z"
     }
   ]
 }

@@ -37,7 +37,7 @@ REMOTE_BACKENDS = {"gemini", "kimi", "openai", "deepseek", "bedrock", "azure"}
 ARCHITECTURAL_TRIGGERS = {
     "boundary", "boundary_change", "domain", "domain_boundary", "shared_abstraction",
     "responsibility_transfer", "central_flow", "architectural_uncertainty",
-    "residual_architectural_uncertainty", "architecture_risk",
+    "residual_architectural_uncertainty", "architecture_risk", "module_boundary",
 }
 CONTROL_FIELDS = ("tree", "prompt_hash", "provider", "model", "effort", "acceptance_contract_hash")
 METRIC_FIELDS = (
@@ -201,10 +201,14 @@ def _require_tool(root: Path, tool: str, expected: str) -> str:
 
 def _base_state(root: Path, tool: str, version: str, *, backend: str = "not-applicable",
                 status: str = "ready") -> dict[str, Any]:
+    manifest = subprocess.run(
+        ["git", "ls-files", "-co", "--exclude-standard"], cwd=root, text=True,
+        capture_output=True, check=True,
+    ).stdout.splitlines()
     return {
         "schema": SCHEMA, "tool": tool, "tool_version": version,
         "checkout": str(root), "tree": tree_fingerprint(root), "backend": backend,
-        "source_scope": ["."], "status": status,
+        "source_scope": ["."], "indexed_source_manifest": manifest, "status": status,
         "built_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
 
@@ -258,6 +262,8 @@ def _run_context(root: Path, tool: str, operation: str, arguments: list[str]) ->
     state = read_state(root, tool)
     if _foreign_state(root, state):
         return _result(tool, "degraded", reason="checkout/fingerprint mismatch; state rejected", rejected=True)
+    if tool == "graphify" and (not state or state.get("backend") in (None, "not-applicable")):
+        raise IntelligenceError("Graphify setup required; run graphify-setup with an explicit backend")
     command = [binary, operation, *arguments]
     with mutation_lock(root):
         try:
@@ -265,22 +271,35 @@ def _run_context(root: Path, tool: str, operation: str, arguments: list[str]) ->
             refreshed = _run(refresh, root, env={**os.environ, **({"GRAFT_REFRESH": "hash"} if tool == "graft" else {})})
             if refreshed.returncode != 0:
                 raise IntelligenceError(f"{tool} refresh failed")
-            output = _run(command, root)
-            if output.returncode != 0:
-                raise IntelligenceError(f"{tool} query failed")
-            context, status = _bounded_output(output.stdout)
-            if not context:
-                raise IntelligenceError(f"{tool} returned insufficient context")
-            state = _base_state(root, tool, expected, backend=(state or {}).get("backend", "not-applicable"), status=status)
-            _write_json(_state_path(root, tool), state)
-            return _result(tool, status, context=context, tree=state["tree"], command=command)
+            if tool == "graft":
+                checked = _run([binary, "check"], root)
+                if checked.returncode != 0:
+                    raise IntelligenceError("graft stale after refresh")
         except IntelligenceError:
             raise
         except (OSError, subprocess.SubprocessError) as exc:
             raise IntelligenceError(f"{tool} refresh failed") from exc
+    output = _run(command, root)
+    if output.returncode != 0:
+        raise IntelligenceError(f"{tool} query failed")
+    context, status = _bounded_output(output.stdout)
+    if tool == "graphify" and (state or {}).get("status") == "partial":
+        status = "partial"
+    dot_paths = [argument for argument in arguments if argument.startswith(".")]
+    if dot_paths:
+        status = "partial"
+    if not context:
+        raise IntelligenceError(f"{tool} returned insufficient context")
+    with mutation_lock(root):
+        state = _base_state(root, tool, expected, backend=(state or {}).get("backend", "not-applicable"), status=status)
+        _write_json(_state_path(root, tool), state)
+    extra: dict[str, Any] = {"tree": state["tree"], "command": command}
+    if dot_paths:
+        extra.update({"fallback": "targeted-native-inspection", "dot_paths": dot_paths})
+    return _result(tool, status, context=context, **extra)
 
 
-def graphify_setup(root: Path, backend: str, mode: str, source_root: str | None = None) -> dict[str, Any]:
+def graphify_setup(root: Path, backend: str, mode: str, source_root: str | None = None, *, announce: bool = True) -> dict[str, Any]:
     if backend not in GRAPHIFY_BACKENDS:
         raise IntelligenceError(f"unsupported Graphify backend: {backend}")
     scope = _validate_scope(root, backend, source_root)
@@ -294,6 +313,8 @@ def graphify_setup(root: Path, backend: str, mode: str, source_root: str | None 
     ).stdout.splitlines()
     ignored = ["graft/", "graphify-out/", f"{STATE_DIR}/"]
     preflight = {"tool_version": GRAPHIFY_VERSION, "backend": backend, "source_root": str(root), "indexed_file_count": len(files), "ignored_roots": ignored}
+    if announce:
+        print(json.dumps({"preflight": preflight}, sort_keys=True), flush=True)
     with mutation_lock(root):
         command = [binary, "extract"]
         if mode == "code-only":
@@ -367,6 +388,14 @@ def benchmark_report(path: str | Path) -> dict[str, Any]:
     mismatches: set[str] = set()
     for task_records in by_task.values():
         baseline = task_records[0]
+        task_configurations = {record["configuration"] for record in task_records}
+        expected_pair = {"baseline", "graft"} if "baseline" in configurations else {"graft", "routed"}
+        if configurations == {"baseline", "graft", "routed"}:
+            expected_pair = configurations
+        if task_configurations != expected_pair or len(task_records) != len(expected_pair):
+            raise ValueError("benchmark comparison requires matched task/category/configuration pairs")
+        if len({record.get("category") for record in task_records}) != 1:
+            raise ValueError("benchmark controls mismatch: category")
         for record in task_records[1:]:
             mismatches.update(field for field in CONTROL_FIELDS if record.get(field) != baseline.get(field))
     if mismatches:
