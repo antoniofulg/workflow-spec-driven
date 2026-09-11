@@ -1,112 +1,131 @@
-# Repository Intelligence Routing: RI-DISCOVERY Validation
+# RI-DISCOVERY Validation
 
 **Verdict**: FAIL
-**Date**: 2026-09-10
+**Date**: 2026-09-11
 **Spec**: `.specs/features/repository-intelligence-routing/spec.md`
-**Diff range**: `369337c..19c324f4`
-**Slice commits**: `c27f1541`, `57cfa314`, `19c324f4`
-**Verifier**: independent Technical Verifier; author was `implement_discovery`
+**Diff range**: `369337c..22c3d148`
+**Verifier**: fresh Technical Verifier; author `implement_discovery_r3` != verifier
 
 ## Task Completion
 
 | Task | Status | Evidence |
 | --- | --- | --- |
-| T1 | Partial | Adapter gate is green, but several declared Done-when branches have no discriminating test and three contract defects remain. |
-| T2 | Done | Routing reference and instruction gate are present and green. |
-| T3 | Partial | `.specs/features/repository-intelligence-routing/tasks.md:138` remains unchecked. Packet text exists, but the task is not recorded complete. |
+| T1 | Done | Adapter and canonical suite exist; 61 adapter cases pass. |
+| T2 | Done | Routing reference is shipped and contract-tested. |
+| T3 | Done | Provider-role packets are synchronized; 64 config and 37 packet cases pass. |
+| R1 | Done | Architectural-trigger, disclosure-order, and control-pair defects remain closed. |
+| R2 | Done | Freshness, publication, benchmark, and instruction cases are present. |
+| R3 | Needs fix / halted | All named direct probes pass and ten of eleven expanded mutants are killed. The real subprocess-timeout conversion mutant survives. |
+
+## Fingerprint Dispositions
+
+| Fingerprint | Disposition | Evidence |
+| --- | --- | --- |
+| `084d4241d8e7d467a1e4946ef356a3f07a3cbdf9d3faf1604211d112cc610952` | CLOSED | Every named architecture trigger selects Graphify at `tools/test_repository_intelligence.py:76-81`. |
+| `5775eb7e1c64d1501ba6487cd20978b4481201226f7f029a9a57e5ac623b8308` | CLOSED | Ordered disclosure assertion remains green at `tools/test_repository_intelligence.py:95-115`. |
+| `5a74228a2c6a95d97f42fbd34a6ced63ae295bb8fa693fdb2f7b8e6620524f2e` | CLOSED | Matched controls are enforced at `tools/test_repository_intelligence.py:518-534`, `:629-636`. |
+| `204f0f4405d678d55b28d4887344c1f4c314bcc33093015e6e7f4701002d01ea` | CLOSED | Distinct-task bounds, category grouping, and literal metrics pass; five benchmark mutants are killed. |
+| `193996f899eedf7e0a2c94d26fa2d028706097be461036f3298d3c2d0da1b2b0` | HALTED, failed remediation 4 | Removing `_run`'s `TimeoutExpired` conversion leaves 61/61 adapter tests green. Generation 1 reached `consecutive_stalls=3/3`; signature `mutant-timeout-conversion-survived`; fixes tried through `22c3d148`. |
 
 ## Spec-Anchored Acceptance Criteria
 
-Scope is the requirements assigned to T1-T3: RIR-01, RIR-02, RIR-04, RIR-05, SEC-001, SEC-003, SEC-004, SEC-005, and SEC-006. Evidence-or-zero is applied to every behavioral criterion.
-
-| Criterion | Spec-defined outcome | Behavioral assertion | Result |
+| Criterion | Spec-defined outcome | Behavioral evidence | Result |
 | --- | --- | --- | --- |
-| RIR-01.1 unknown code fact | Fresh checkout-local Graft precedes broad native discovery. | `tools/test_repository_intelligence.py:51` asserts `first == "graft"`; `tools/test_phase_skills.py:142` asserts instruction order. | PASS |
-| RIR-01.2 sufficient context | Neither tool is called. | `tools/test_repository_intelligence.py:60` asserts `tools == []`. | PASS |
-| RIR-01.3 sufficient Graft pointers | Direct reads are limited to returned pointers and verification paths. | No behavioral assertion walks or constrains agent reads. | GAP |
-| RIR-01.4 degraded Graft paths | Missing, incompatible, stale-after-refresh, failed, and insufficient results each report one reason, then targeted fallback continues. | `tools/test_repository_intelligence.py:79`, `:121`, and `:127` cover wrong-version, missing, and refresh failure only. No stale-after-refresh, insufficient/partial dot-directory, once-per-phase, or continued-fallback assertion. | GAP |
-| RIR-01.5 exact text | Exact native search remains available without becoming default discovery. | `tools/test_repository_intelligence.py:110` asserts exact text selects native; `tools/test_phase_skills.py:147` asserts the documented exception follows the routed order. | PASS |
-| RIR-02.1 architectural Design | Every named module/domain boundary, shared abstraction, responsibility transfer, or central flow selects Graphify before plan freeze. | `tools/test_repository_intelligence.py:56` covers `domain boundary`, but `repository_intelligence.py:37` omits normalized `module_boundary`. Probe returned `first: graft` for `{"phase":"design","triggers":["module boundary"]}`. | FAIL |
-| RIR-02.2 local task | Graphify is not called without unresolved architecture. | `tools/test_repository_intelligence.py:63` and `:140` assert Graphify is absent for local work/file count. | PASS |
-| RIR-02.3 bounded design record | Only relevant domains, relationships, paths, and risks are recorded. | No design-artifact behavior assertion. | GAP |
-| RIR-02.4 authority conflict | Conflict is verified directly and repository authority wins. | No behavioral assertion. | GAP |
-| RIR-02.5 degraded Graphify paths | Missing, timeout, budget, partial, failure, and insufficient results report one reason and dispatch targeted inspection. | No complete behavioral assertion. `tools/test_repository_intelligence.py:133` only proves a successful fake query. | GAP |
-| RIR-02.6 remote backend disclosure | Backend and bounded scope are exposed before repository content is sent. | No ordering assertion. `repository_intelligence.py:291` builds preflight data, invokes extraction at `:297-304`, and returns the preflight only at `:309`; CLI prints it later at `:438`. | FAIL |
-| RIR-04.1 bound intelligence state | Result binds checkout, exact tool version, backend, indexed manifest, and current fingerprint. | `tools/test_repository_intelligence.py:143` asserts checkout and tree; `:169` asserts backend persistence. No single assertion covers version, backend, scope/manifest, and fingerprint. | GAP |
-| RIR-04.2 all indexed changes | Tracked/untracked source, contract, config, and docs changes refresh or invalidate before return. | No mutation-based freshness assertion for these file classes. | GAP |
-| RIR-04.3 concurrency | Same-checkout mutation serializes; completed read-only queries may proceed concurrently. | No concurrency assertion. `repository_intelligence.py:262-276` holds the exclusive mutation lock through the query itself. | GAP |
-| RIR-04.4 foreign checkout/fingerprint | State from another checkout or fingerprint is rejected as stale. | `tools/test_repository_intelligence.py:88` and `:181` assert foreign checkout only; no stale-fingerprint assertion. | GAP |
-| RIR-04.5 development-only artifacts | Tools, graphs, caches, credentials, and generated reports stay outside runtime dependencies and committed product artifacts. | No behavioral assertion in this slice. | GAP |
-| RIR-04.6 unindexable paths | Dot-directories omitted by Graft use direct inspection and are labeled partial. | No behavioral assertion or adapter path for this outcome. | GAP |
-| RIR-04.7 interrupted publication | Last complete matching state survives, otherwise intelligence is unavailable. | Atomic JSON write exists at `repository_intelligence.py:143`, but no interrupted-build assertion proves the full outcome. | GAP |
-| RIR-05.1 benchmark record | Every required field and terminal evidence is recorded for each benchmark task. | `tools/test_repository_intelligence.py:185` constructs records for report parsing; the adapter has no event-recording interface or assertion. | GAP |
-| RIR-05.2 matched controls | Compared configurations share snapshot, prompt, provider, model, effort, and acceptance contract. | `tools/test_repository_intelligence.py:195` covers paired identical task IDs only. Probe with disjoint task IDs and all six controls mismatched returned success because `repository_intelligence.py:364-373` compares only within each task ID. | FAIL |
-| RIR-05.3 baseline vs Graft | First evaluation compares prior discovery with Graft-first. | No assertion requires `baseline` plus `graft`. | GAP |
-| RIR-05.4 Graft vs routed by category | Routed evaluation compares `graft` with `routed` within each task category. | No assertion requires those configurations or category pairing. | GAP |
-| RIR-05.5 10-20 terminal tasks | A directional report is produced only for 10-20 terminal tasks. | `tools/test_repository_intelligence.py:204`, `:212`, and `:220` assert accepted size, terminal evidence, and malformed rejection. | PASS |
-| RIR-05.6 explicit removal decision | A removal recommendation requires a new explicit project decision covering all affected surfaces. | No behavioral assertion or output field. | GAP |
-| SEC-001 exact versions | Unsupported Graphify and Graft versions are rejected before output use. | `tools/test_repository_intelligence.py:79` and `:155` assert Graft only; Graphify wrong-version behavior has no assertion. | GAP |
-| SEC-003 argument vectors | Repository paths and queries cannot trigger shell evaluation. | `tools/test_repository_intelligence.py:161` passes shell metacharacters and asserts no marker file. | PASS |
-| SEC-004 credential safety | Credential names, values, and credential-bearing commands never enter artifacts or logs. | `tools/test_repository_intelligence.py:103` asserts redaction and `:169` asserts setup result/state omit sentinel credentials. | PASS |
-| SEC-005 pre-extraction disclosure | Remote backend and source scope are exposed before extraction. | No ordering assertion; implementation returns disclosure only after extraction, as noted for RIR-02.6. | FAIL |
-| SEC-006 checkout isolation | Foreign checkout path or working-tree fingerprint is rejected. | `tools/test_repository_intelligence.py:88` and `:181` assert path mismatch only; fingerprint mismatch has no assertion. | GAP |
+| RIR-01.1 unknown code discovery | Fresh checkout-local Graft precedes broad native search. | `tools/test_repository_intelligence.py:61-64`, `:166-172`; `tools/test_phase_skills.py:142-153`. | PASS |
+| RIR-01.2 sufficient context | Neither tool runs. | `tools/test_repository_intelligence.py:70-71`. | PASS |
+| RIR-01.3 sufficient pointers | Reads stay within returned pointers and verification paths. | `tools/test_phase_skills.py:155-164`. | PASS |
+| RIR-01.4 degraded Graft | One degraded reason is reported and targeted native inspection continues. | `tools/test_repository_intelligence.py:123-148`, `:174-207`; `tools/test_phase_skills.py:155-163`. | PASS |
+| RIR-01.5 exact text | Exact native search remains available without becoming broad discovery default. | `tools/test_repository_intelligence.py:163-164`; `tools/test_phase_skills.py:142-153`. | PASS |
+| RIR-02.1 architectural Design | Every named architecture trigger selects Graphify before planning. | `tools/test_repository_intelligence.py:66-81`. | PASS |
+| RIR-02.2 local Design | No unresolved architecture relation means no Graphify. | `tools/test_repository_intelligence.py:73-81`, `:217-218`. | PASS |
+| RIR-02.3 bounded design record | Only relevant domains, relationships, paths, and risks are recorded. | `tools/test_phase_skills.py:155-164`; bounded pointer behavior at `tools/test_repository_intelligence.py:432-436`. | PASS |
+| RIR-02.4 authority conflict | Direct verification follows spec, architecture, and current source authority. | `tools/test_phase_skills.py:155-160`. | PASS |
+| RIR-02.5 degraded Graphify | Missing, timeout, budget, partial, failure, and insufficient paths degrade with a reason and targeted inspection. | Outcome assertions exist at `tools/test_repository_intelligence.py:89-93`, `:404-436`, but the real `TimeoutExpired` conversion at `repository_intelligence.py:71-72` is not discriminated; its removal survives. | FAIL |
+| RIR-02.6 remote disclosure | Backend and bounded scope are emitted before extraction. | `tools/test_repository_intelligence.py:95-115`, `:318-320`; disclosure mutant killed. | PASS |
+| RIR-04.1 bound state | Result binds checkout, versions, backend, source manifest/scope, and current fingerprint. | `tools/test_repository_intelligence.py:220-229`, `:310-316`. | PASS |
+| RIR-04.2 indexed changes | Every indexed change refreshes or invalidates before return. | `tools/test_repository_intelligence.py:232-257`, `:343-358`, `:438-453`; an independent live query mutation probe returned `graft result became stale during query`. | PASS |
+| RIR-04.3 concurrency | Mutations serialize and queries use a completed representation. | `tools/test_repository_intelligence.py:259-282`, `:490-503`. | PASS |
+| RIR-04.4 foreign state | Another checkout or fingerprint is rejected before context. | Public-path assertions at `tools/test_repository_intelligence.py:141-148`, `:322-341`; production-call mutant killed. | PASS |
+| RIR-04.5 development-only state | Tool state stays out of runtime dependencies and Git. | `.gitignore:19-22`; `tools/test_repository_intelligence.py:473-488`; no runtime dependency file changed. | PASS |
+| RIR-04.6 unindexable paths | Dot-directories use targeted native inspection and are labeled partial. | `tools/test_repository_intelligence.py:192-198`. | PASS |
+| RIR-04.7 interrupted publication | Last complete representation survives or state becomes unavailable. | `tools/test_repository_intelligence.py:241-257`, `:360-380`, `:455-471`; pre-refresh invalidation mutant killed. | PASS |
+| RIR-05.1 benchmark record | Every required metric and terminal evidence field is recorded. | Literal contract fields at `tools/test_repository_intelligence.py:26-30`, `:555-561`, `:600-607`, `:622-627`; native/total-token mutants killed. | PASS |
+| RIR-05.2 matched controls | Snapshot, prompt, provider, model, effort, and acceptance contract all match. | `tools/test_repository_intelligence.py:518-534`, `:629-636`. | PASS |
+| RIR-05.3 baseline comparison | Prior discovery is compared with Graft-first. | `tools/test_repository_intelligence.py:563-568`. | PASS |
+| RIR-05.4 routed comparison by category | Graft-only and routed are compared within each category. | `tools/test_repository_intelligence.py:536-546`; category-grouping mutant killed. | PASS |
+| RIR-05.5 10-20 representative tasks | Report accepts 10-20 distinct task IDs and reports runs separately. | `tools/test_repository_intelligence.py:536-553`, `:570-576`; row-count mutant killed. | PASS |
+| RIR-05.6 removal decision | Removal requires an approved decision covering every named surface. | `tools/test_repository_intelligence.py:609-620`. | PASS |
+| SEC-001 versions | Unsupported exact versions are rejected. | `tools/test_repository_intelligence.py:117-130`, `:296-300`. | PASS |
+| SEC-002 generated state | Graphs, caches, metadata, and benchmark scratch remain unstaged. | `.gitignore:19-22`; `tools/test_repository_intelligence.py:473-488`. | PASS |
+| SEC-003 argument vectors | Paths and queries receive no shell evaluation. | `tools/test_repository_intelligence.py:302-308`. | PASS |
+| SEC-004 credentials | Credential names/values do not enter returned or persisted setup data. | `tools/test_repository_intelligence.py:156-161`, `:310-316`. | PASS |
+| SEC-005 disclosure | Remote backend and indexed scope precede extraction. | `tools/test_repository_intelligence.py:95-115`, `:318-320`; mutant killed. | PASS |
+| SEC-006 isolation | Foreign checkout path or fingerprint is rejected. | Public-path assertions at `tools/test_repository_intelligence.py:141-148`, `:328-341`; mutant killed. | PASS |
 
-**Status**: 7/29 scoped criteria have full evidence; 22 have a gap or demonstrated failure; 0 spec-precision gaps.
+**Status**: 29/30 criteria match the spec outcome with behavioral evidence; 1 test-integrity failure; 0 spec-precision gaps.
 
 ## Edge Cases
 
-- GAP: Graft dot-directory fallback is not behaviorally asserted.
-- GAP: intentional graph shrink/full rebuild is not implemented or asserted.
-- GAP: interrupted graph build preservation is not asserted.
-- GAP: concurrent refresh behavior is not asserted; query execution is serialized inside the exclusive lock.
-- PASS: oversized context retains a pointer and returns `partial` at `tools/test_repository_intelligence.py:97`.
-- FAIL: Graphify without selected backend returned `ready` with backend `not-applicable`; `tools/test_repository_intelligence.py:133` currently encodes this incorrect success path.
-
-## Impacted QA Scenarios
-
-The five scenario IDs in `spec.md:47` were not rerun. This packet is technical slice verification over the private slice checkpoint; QA Plan and QA Execute require separate fresh sessions on the integrated final tree.
+- PASS: dot-directory output is partial and selects targeted inspection (`tools/test_repository_intelligence.py:192-198`).
+- PASS: deleted-source Graphify state takes the explicit full-rebuild path (`tools/test_repository_intelligence.py:382-402`).
+- PASS: abrupt publisher death leaves unavailable state (`tools/test_repository_intelligence.py:360-380`).
+- PASS: same-checkout mutation waits for read-only queries (`tools/test_repository_intelligence.py:490-503`).
+- PASS: oversized architecture context retains pointers and reports partial (`tools/test_repository_intelligence.py:432-436`).
+- PASS: Graphify without a configured backend refuses query (`tools/test_repository_intelligence.py:89-93`).
+- FAIL: real subprocess timeout conversion lacks a behavior-level test; the focused case injects the post-conversion `IntelligenceError` at `tools/test_repository_intelligence.py:404-416`.
 
 ## Gate Check
 
-- Command: `python3 tools/test_repository_intelligence.py && python3 tools/test_phase_skills.py && python3 tools/test_workflow_config.py && node --test tests/installer/packets.test.js`
-- Current result: 150 passed, 0 failed, 0 skipped (`29 + 20 + 64 + 37`).
-- Before-feature registered count at `369337c`: 119 (`19 + 63 + 37`). The baseline packet run registered 37 but had one frozen-byte mismatch at that historical checkout; current gate is green.
-- Count delta: +31 registered tests; no decrease.
-- `git diff --check 369337c..19c324f4`: PASS.
+- **RI-DISCOVERY command**: `python3 tools/test_repository_intelligence.py && python3 tools/test_phase_skills.py && python3 tools/test_workflow_config.py && node --test tests/installer/packets.test.js && git diff --check 369337c..22c3d148`
+- **Result**: 183 passed, 0 failed, 0 skipped (`61 + 21 + 64 + 37`); diff check PASS.
+- **Named direct-probe command**: `python3 -m unittest -v tools.test_repository_intelligence.AdapterTests.test_r3_public_foreign_fingerprint_is_rejected tools.test_repository_intelligence.AdapterTests.test_r3_source_mutation_after_query_is_rejected tools.test_repository_intelligence.AdapterTests.test_r3_abrupt_exit_leaves_unavailable_state tools.test_repository_intelligence.AdapterTests.test_r3_graphify_deleted_source_uses_explicit_rebuild tools.test_repository_intelligence.BenchmarkTests.test_r3_distinct_task_bounds_reject_duplicate_pairs tools.test_repository_intelligence.BenchmarkTests.test_ut012_controlled_runs_group_by_configuration tools.test_repository_intelligence.BenchmarkTests.test_r3_required_metrics_are_literal_contract_fields tools.test_repository_intelligence.BenchmarkTests.test_r2_missing_full_evidence_fields_is_rejected tools.test_repository_intelligence.AdapterTests.test_r3_query_timeout_is_degraded tools.test_repository_intelligence.AdapterTests.test_r3_query_failure_is_degraded tools.test_repository_intelligence.AdapterTests.test_r3_graphify_budget_keeps_bounded_architecture_pointers`
+- **Direct probes**: 11 passed, 0 failed. An additional live source-during-query probe also rejected stale context.
+- **Before feature (`369337c`)**: 119 registered tests (`19 + 63 + 37`); adapter suite absent.
+- **Delta**: +64 registered tests. No pre-existing test was deleted, skipped, or weakened to close this slice.
 
 ## Discrimination Sensor
 
-Scratch: detached temporary worktree at `19c324f4`; real-tree `git status --porcelain=v1` was empty before and after cleanup.
+Scratch: detached worktree `/tmp/ri-discovery-r3.ZlGyEt/tree` at `22c3d148`; removed after use. Real checkout retained the same four pre-existing verifier-state paths before and after cleanup.
 
-| Mutation | Location | Targeted command | Outcome |
-| --- | --- | --- | --- |
-| Remove `domain_boundary` architectural trigger | `repository_intelligence.py:37` | `python3 tools/test_repository_intelligence.py` | Killed: 1 failure (`test_ut002_architectural_design_uses_graphify`). |
-| Change unknown-code default from Graft to native | `repository_intelligence.py:330` | Same | Killed: 2 failures (`test_ut001_unknown_code_uses_graft`, `test_it004_graphify_not_called_by_local_route`). |
-| Disable foreign-checkout state rejection | `repository_intelligence.py:259` | Same | Killed: 1 failure (`test_ut006_foreign_state_rejected`). |
+| Mutation | Target | Result |
+| --- | --- | --- |
+| Replace public `_foreign_state` check with checkout-only predicate | `repository_intelligence.py:340-342` | KILLED by `test_r3_public_foreign_fingerprint_is_rejected`. |
+| Disable final tree validation before publication | `repository_intelligence.py:390-395` | KILLED by `test_r3_source_mutation_after_query_is_rejected`. |
+| Remove pre-refresh unavailable-state publication | `repository_intelligence.py:346-349` | KILLED by `test_r3_abrupt_exit_leaves_unavailable_state`. |
+| Remove Graphify full-rebuild fallback | `repository_intelligence.py:352-357` | KILLED by `test_r3_graphify_deleted_source_uses_explicit_rebuild`. |
+| Count benchmark rows instead of distinct tasks | `repository_intelligence.py:504-508` | KILLED by `test_r3_distinct_task_bounds_reject_duplicate_pairs`. |
+| Remove category report population | `repository_intelligence.py:545-555` | KILLED by `test_ut012_controlled_runs_group_by_configuration`. |
+| Remove literal `native_search_calls` requirement | `repository_intelligence.py:43-47` | KILLED by `test_r3_required_metrics_are_literal_contract_fields`. |
+| Remove literal `total_tokens` requirement and derive it silently | `repository_intelligence.py:43-47`, `:477-479` | KILLED by `test_r2_missing_full_evidence_fields_is_rejected`. |
+| Re-raise raw `TimeoutExpired` instead of converting to `IntelligenceError` | `repository_intelligence.py:71-72` | SURVIVED: 61 passed. |
+| Disable non-zero query-result check | `repository_intelligence.py:376-379` | KILLED by `test_r3_query_failure_is_degraded`. |
+| Mark oversized bounded output ready instead of partial | `repository_intelligence.py:307-323` | KILLED by `test_r3_graphify_budget_keeps_bounded_architecture_pointers`. |
 
-**Sensor depth**: lightweight. **Result**: 3/3 killed.
+**Sensor depth**: expanded lightweight over every R3 freshness/benchmark/degraded-result branch. **Result**: 10/11 killed, 1 survived. FAIL.
 
-## Code Quality and Test Integrity
+## Impacted QA Scenarios
 
-- Minimum/surgical scope and existing style: PASS.
-- No unrelated production edits: PASS; feature diff is confined to adapter, canonical routing/packets, tests, and workflow state.
-- Spec-anchored outcomes: FAIL. Several test IDs named by T1 have no matching test method, and one test asserts Graphify succeeds without setup.
-- Per-layer coverage: FAIL. Freshness, concurrency, interruption, fallback, remote disclosure ordering, and benchmark pairing lack discriminating tests.
-- Every test claims a contract outcome: PASS for existing tests, but declared contract IDs are not all realized.
-- Guidelines: `docs/guidelines/TEST-CONTRACT.md` and `docs/guidelines/VERIFICATION-EVIDENCE.md` applied.
+Not rerun in this technical phase: `QAS-use-graft-context-with-plain-fallback`, `DOC-use-optional-tools-with-repository-authority`, `CFG-keep-local-artifacts-out-of-git`, `ADP-install-phase-skills`, `QAS-resolve-phase-skill-procedures`. QA Plan and QA Execute require separate fresh packets on the integrated final tree.
 
-## Ranked Gaps and Fix Plans
+## Code Quality
 
-1. **Major: required architectural trigger routes incorrectly.** Root cause: normalized `module_boundary` is absent from `ARCHITECTURAL_TRIGGERS`. Fix task: add the exact trigger and extend the existing routing test to assert each spec phrase, including `module boundary`. Verify with adapter and slice gates.
-2. **Major/security: remote Graphify content can be sent before disclosure, and Graphify query succeeds without setup/backend.** Root cause: preflight is returned only after extraction and `_run_context` accepts missing Graphify state. Fix task: emit/return a preflight confirmation before extraction, require valid selected-backend state before semantic update/query, and add CLI-level setup-required/disclosure-order tests. Verify no tool process starts before disclosure/approval evidence.
-3. **Major: benchmark controls are bypassed by disjoint task IDs.** Root cause: control comparison occurs only within `by_task` groups and does not require matched configuration pairs/category. Fix task: reject unpaired comparisons and require the spec-defined configuration pairs with identical controls per task/category; add a mismatched-disjoint-ID test. Verify `benchmark-report` exits non-zero for the probe recorded above.
-4. **Major: T1's coverage claim is hollow across freshness, concurrency, interruption, dot-directory fallback, Graphify degraded paths, and fingerprint rejection.** Fix task: implement missing behavior where absent and extend `tools/test_repository_intelligence.py` with the assigned IT/SEC cases from `tests.md`; each test must assert the exact terminal outcome. Verify all scoped AC rows gain `file:line` assertions and rerun the sensor.
-5. **Minor/workflow state: T3 is not recorded complete.** Fix task: after behavioral fixes and evidence exist, update `tasks.md:138`; do not mark it complete before re-verification.
+| Principle | Status |
+| --- | --- |
+| Minimum code / no speculative abstraction | PASS |
+| Surgical scope / existing style | PASS |
+| Spec-anchored outcomes | FAIL: real timeout fallback is not regression-sensitive. |
+| Per-layer coverage | FAIL: timeout conversion at the subprocess boundary is mocked above the behavior-owning layer. |
+| Every test maps to contract | PASS, except the timeout case is hollow under `docs/guidelines/TEST-CONTRACT.md`: it injects the expected domain error instead of exercising conversion. |
+| Guidelines | `docs/guidelines/TEST-CONTRACT.md`, `docs/guidelines/VERIFICATION-EVIDENCE.md`, `docs/guidelines/REVIEW-ROUNDS.md`, feature `dx.md`. |
+
+## Ranked Gap and Halt
+
+1. **Major/test integrity: real tool timeout can regress to an uncaught `TimeoutExpired` while the full adapter suite remains green.** Premise: `tools/test_repository_intelligence.py:404-416` patches `_run` to raise the expected `IntelligenceError`; path: removing conversion at `repository_intelligence.py:71-72` makes production timeout escape the public degraded contract, yet 61/61 tests pass. Fix task would exercise an actual timed-out subprocess at the `_run`/CLI boundary and assert degraded JSON, one timeout reason, targeted fallback, and unavailable state. Do not remediate in this halted verifier session.
+
+**Halt**: fingerprint `193996f899eedf7e0a2c94d26fa2d028706097be461036f3298d3c2d0da1b2b0`; repeated signature `mutant-timeout-conversion-survived`; attempt count `4`; live stalls `3/3`; fixes tried `none`, `4ee5a2e5`, `fa9757ea`, `22c3d148`. Resume requires explicit authorization recorded through the convergence state.
 
 ## Summary
 
-**Overall**: FAIL. Green gate and 3/3 killed mutations do not overcome 22 evidence gaps/failures. RI-DISCOVERY must return to a new Implementer and then a fresh Technical Verifier.
+**Overall**: FAIL and HALTED. Gate and all named direct probes are green. Benchmark fingerprint closes. One timeout-conversion mutant survives, so the existing fallback/coverage fingerprint reaches the configured stall threshold.
 
-`validate_state.py` was not used as a closing PASS gate: it validates final `validation.md`, not a failing slice report. This report was checked with `git diff --check`.
-
-Grounded execution lessons were recorded as candidates L-083 through L-085 in `.specs/lessons.json` and rendered to `.specs/LESSONS.md`.
+**Next step**: human decision on halted fingerprint. If authorized to resume, route the timeout-boundary test fix to a new Implementer, then dispatch a fresh Technical Verifier.

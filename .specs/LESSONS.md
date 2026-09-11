@@ -524,6 +524,78 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation-RI-DISCOVERY.md:RIR-05.2 (repository-intelligence)
 - last seen: 2026-09-11T02:41:14Z
 
+### L-086 - Assert process-ordering contracts with event order, not final captured output.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:Discrimination Sensor mutation 1 (repository-intelligence)
+- last seen: 2026-09-11T02:59:51Z
+
+### L-087 - Coordinate read-only queries with mutation locks so no query observes an in-progress representation.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-04.3 (repository-intelligence)
+- last seen: 2026-09-11T02:59:51Z
+
+### L-088 - Publish generated representations and their matching metadata as one atomic unit.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-04.7 (repository-intelligence)
+- last seen: 2026-09-11T02:59:51Z
+
+### L-089 - Expose every spec-required benchmark metric in retained reports.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-05.1 (repository-intelligence)
+- last seen: 2026-09-11T02:59:51Z
+
+### L-090 - Test every declared freshness class and fingerprint mismatch against real state transitions.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-04.2/RIR-04.4 (repository-intelligence)
+- last seen: 2026-09-11T03:00:27Z
+
+### L-091 - Ignore generated state in the same slice that first writes it.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-04.5 (repository-intelligence)
+- last seen: 2026-09-11T03:00:27Z
+
+### L-092 - Assert every public instruction outcome, not only route-order phrases.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `agent-instructions` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-01.3/RIR-02.4 (agent-instructions)
+- last seen: 2026-09-11T03:00:27Z
+
+### L-093 - Kill-process publication tests must fail when pre-mutation invalidation is removed.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:Discrimination Sensor pre-refresh invalidation mutant (repository-intelligence)
+- last seen: 2026-09-11T03:29:45Z
+
+### L-094 - Assert each spec-required metric by literal contract name, not by iterating the production field list.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:Discrimination Sensor native_search_calls mutant (repository-intelligence)
+- last seen: 2026-09-11T03:29:45Z
+
+### L-095 - Enforce benchmark sample bounds on distinct task identities, not configuration-run rows.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-05.5 (repository-intelligence)
+- last seen: 2026-09-11T03:29:45Z
+
+### L-096 - Report controlled comparisons within each spec-named category rather than pooling categories.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-05.4 (repository-intelligence)
+- last seen: 2026-09-11T03:29:45Z
+
+### L-097 - Exercise real subprocess timeouts at the process boundary instead of injecting post-conversion domain errors.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:Discrimination Sensor timeout-conversion mutant (repository-intelligence)
+- last seen: 2026-09-11T03:55:03Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
