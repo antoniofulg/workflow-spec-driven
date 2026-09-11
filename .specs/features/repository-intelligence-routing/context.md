@@ -63,3 +63,7 @@ Replace the workflow's optional Graft-only review aid with standard routed repos
 - Automatic post-commit/post-checkout graph hooks.
 - Shared or global Graphify graphs across projects.
 - Statistical performance claims beyond the initial pilot.
+
+## Authorized Verifier Resume — 2026-09-11
+
+The operator explicitly authorized reopening fingerprint `193996f899eedf7e0a2c94d26fa2d028706097be461036f3298d3c2d0da1b2b0` after its first audit generation halted, so the `TimeoutExpired` discrimination gap may be corrected and independently reverified.
