@@ -17,6 +17,11 @@ choosing which path to open. Not the implementer's procedure, not all of STATE.m
 - Answer with paths and a short trace. No speculative refactors.
 - If the next step is an edit, stop and hand back to the planner.
 
+## Repository intelligence
+
+- For an assigned architectural trace, query fresh checkout-local Graphify first, then query Graft for exact implementation files, symbols, callers, and blast radius.
+- For code-only discovery, query Graft before broad `rg`, glob, find, or read. If either result is missing, stale, partial, or insufficient, report one degraded reason and inspect targeted paths only.
+
 ## Product context
 
 Read `docs/product/AGENT-CONTEXT.md` before work. Follow its role/task route, load only cited paths

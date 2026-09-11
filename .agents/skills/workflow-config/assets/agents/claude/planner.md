@@ -36,6 +36,11 @@ this is the second of its kind.
 
 A search or trace: spawn `explorer`. Do not search the product tree for that.
 
+## Repository intelligence
+
+- For a named module/domain boundary, responsibility transfer, shared abstraction, central flow, or unresolved architectural risk, have Explorer query fresh Graphify before freezing the plan.
+- Do not duplicate code discovery; use returned architectural pointers and let Explorer route unknown implementation locations to Graft.
+
 ## Classification and routing
 
 Before dispatching any phase or gate, state: `Classification: <tier>`; `Facts: <bounded surface,

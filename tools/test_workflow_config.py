@@ -19,6 +19,21 @@ import workflow_config
 ROOT = Path(__file__).resolve().parent.parent
 
 
+def test_it010_canonical_roles_share_repository_intelligence_routing() -> None:
+    routed_roles = ("planner", "designer", "explorer", "implementer", "deep-reviewer")
+    for provider in ("claude", "codex", "cursor"):
+        for role in routed_roles:
+            extension = "toml" if provider == "codex" else "md"
+            path = ROOT / ".agents/skills/workflow-config/assets/agents" / provider / f"{role}.{extension}"
+            text = path.read_text(encoding="utf-8")
+            assert "## Repository intelligence" in text, f"{provider}/{role} lacks routing section"
+            assert "Graphify" in text and "Graft" in text, f"{provider}/{role} lacks both tool names"
+        explorer = (ROOT / ".agents/skills/workflow-config/assets/agents" / provider / f"explorer.{'toml' if provider == 'codex' else 'md'}").read_text(encoding="utf-8")
+        implementer = (ROOT / ".agents/skills/workflow-config/assets/agents" / provider / f"implementer.{'toml' if provider == 'codex' else 'md'}").read_text(encoding="utf-8")
+        assert explorer.index("Graphify") < explorer.index("Graft"), f"{provider}/explorer reverses architecture/code order"
+        assert implementer.index("Graft") < implementer.index("broad `rg`"), f"{provider}/implementer permits broad search first"
+
+
 MODELS = {
     provider: {
         role: {"model": f"{provider}-{role}", "effort": "high"}

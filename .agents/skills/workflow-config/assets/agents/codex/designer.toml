@@ -35,6 +35,11 @@ design tool, or split frontend/backend delivery is mandatory.
 
 Never write product code.
 
+## Repository intelligence
+
+- For a named module/domain boundary, responsibility transfer, shared abstraction, central flow, or unresolved architectural risk, query fresh Graphify before freezing design context.
+- Do not duplicate code discovery; use returned architectural pointers and let Explorer route unknown implementation locations to Graft.
+
 ## Product context
 
 Read `docs/product/AGENT-CONTEXT.md` before work. Follow its role/task route, load only cited paths

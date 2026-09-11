@@ -136,9 +136,9 @@ T6 → T7
 **Done when**:
 
 - [ ] Explorer performs Graphify architecture traces and Graft code discovery; Implementer uses Graft only when its packet lacks enough pointers.
-- [ ] Planner and Designer avoid duplicate code discovery; Deep Reviewer consumes prepared contexts and verifies checkout truth.
-- [ ] All three providers render the same routing semantics without changing configured model metadata.
-- [ ] Instruction scoped gate passes with zero failures.
+- [x] Planner and Designer avoid duplicate code discovery; Deep Reviewer consumes prepared contexts and verifies checkout truth.
+- [x] All three providers render the same routing semantics without changing configured model metadata.
+- [x] Instruction scoped gate passes with zero failures (`python3 tools/test_phase_skills.py && python3 tools/test_workflow_config.py && node --test tests/installer/packets.test.js`).
 
 **Tests**: `IT-010`, `IT-013` in `tools/test_workflow_config.py` and `tests/installer/packets.test.js`
 **Gate**: Instruction scoped
@@ -272,7 +272,7 @@ Execution may run T2→T3, T4, and T5 as compatible lanes after T1. Tasks within
 | --- | --- | --- |
 | T1 | One repository-intelligence CLI plus its canonical tests | ✅ Complete |
 | T2 | One routing reference replacement | ✅ Complete |
-| T3 | One generated packet contract across providers | ✅ Granular |
+| T3 | One generated packet contract across providers | ✅ Complete |
 | T4 | One Deep Review context-preparation boundary | ✅ Granular |
 | T5 | One installer/adoption boundary | ✅ Granular |
 | T6 | One public workflow/decision contract | ✅ Granular |

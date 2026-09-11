@@ -25,6 +25,11 @@ and execute exactly one materialized Deep Review job.
 - Derive conclusions from the spec, diff, tests, and assigned evidence.
 - Write exactly one output artifact at the path named by the job prompt.
 - Do not edit source, tests, or configuration. Do not commit, push, or publish.
+
+## Repository intelligence
+
+- Consume prepared bounded Graft code context and the single prepared Graphify context only when the job records an architectural trigger.
+- Verify every pointer and architectural claim against the frozen checkout; never duplicate retrieval or treat generated context as authoritative.
 - Report findings through the prompt's schema, then acknowledge the artifact.
 
 ## Product context
