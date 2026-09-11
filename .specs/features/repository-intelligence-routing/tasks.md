@@ -357,6 +357,29 @@ T6 → T7
 
 **Commit**: `fix(review): prove Graphify version fallback`
 
+### R7: Prove no-trigger Graphify suppression
+
+**Slice:** RI-REVIEW
+**What**: Prove that job materialization never invokes or records Graphify without an architectural question.
+**Where**: `tools/test_deep_review_token_metrics.py`
+**Depends on**: R6
+**Reuses**: Existing job-builder fixture and repository-intelligence metadata assertions
+**Requirement**: RIR-03.3
+
+**Open blocker fingerprint**: `53d0f360005335e8414dcb07262d4070cc5dff9116f962d27f353f8b6627915b`
+
+**Done when**:
+
+- [x] No-question job building asserts zero `prepare_graphify_context` calls.
+- [x] `jobs.json.repository_intelligence.graphify` is `null` without a question.
+- [x] A mutant that supplies a default Graphify question fails the Review gate.
+- [x] Review scoped gate passes with 47 contract + 32 token-metrics cases and zero failures.
+
+**Tests**: RIR-03.3 no-trigger integration case
+**Gate**: Review scoped
+
+**Commit**: `test(review): prove Graphify stays conditional`
+
 ### T5: Adopt tooling and generated-state hygiene
 
 **Slice:** RI-ADOPTION

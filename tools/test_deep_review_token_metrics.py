@@ -907,7 +907,11 @@ class TokenMetricsTests(unittest.TestCase):
                 return (out / "graft-context.md").read_text(encoding="utf-8")
 
             # IT-005: legacy config is irrelevant; builder always prepares Graft.
-            self.assertEqual(build(None), graft_context.FALLBACK_LINE + "\n")
+            with patch.object(build_jobs, "prepare_graphify_context") as prepare:
+                self.assertEqual(build(None), graft_context.FALLBACK_LINE + "\n")
+                prepare.assert_not_called()
+            no_question_jobs = json.loads((out / "jobs.json").read_text(encoding="utf-8"))
+            self.assertIsNone(no_question_jobs["repository_intelligence"]["graphify"])
             config = out / ".deep-review.yaml"
             config.write_text("graft: false\n", encoding="utf-8")
             self.assertEqual(build(config), graft_context.FALLBACK_LINE + "\n")

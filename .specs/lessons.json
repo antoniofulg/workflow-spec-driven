@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 104,
+  "next_id": 105,
   "lessons": [
     {
       "id": "L-001",
@@ -1869,6 +1869,24 @@
       ],
       "created": "2026-09-11T05:07:51Z",
       "last_seen": "2026-09-11T05:07:51Z"
+    },
+    {
+      "id": "L-104",
+      "key": "surviving_mutant::assert zero repository intelligence calls when the routing trigger is absent",
+      "text": "Assert zero repository-intelligence calls when the routing trigger is absent.",
+      "signal": "surviving_mutant",
+      "scope": "deep-review",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#M6 (deep-review)"
+      ],
+      "created": "2026-09-11T05:21:51Z",
+      "last_seen": "2026-09-11T05:21:51Z"
     }
   ]
 }
