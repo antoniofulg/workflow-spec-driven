@@ -139,6 +139,19 @@ def test_phase_skill_line_cap() -> None:
         assert count <= SKILL_LINE_CAP, f"{name}/SKILL.md is {count} lines, cap is {SKILL_LINE_CAP}"
 
 
+def test_it013_code_analysis_routes_architecture_then_code_then_fallback() -> None:
+    text = (ROUTER / "references/code-analysis.md").read_text(encoding="utf-8")
+    graphify = text.index("fresh Graphify")
+    graft = text.index("fresh checkout-local Graft")
+    fallback = text.index("report one degraded reason")
+    exact_text = text.index("Exact-text questions")
+    assert graphify < graft < fallback < exact_text
+    assert "broad `rg`, glob, find, or read" in text.lower()
+    assert "File count alone is not a trigger" in text
+    assert "literal arguments" in text
+    assert "sufficient file, symbol, API, caller, and callee pointers" in text
+
+
 def test_router_line_cap() -> None:
     count = line_count(ROUTER / "SKILL.md")
     assert count <= ROUTER_LINE_CAP, f"router SKILL.md is {count} lines, cap is {ROUTER_LINE_CAP}"

@@ -109,10 +109,10 @@ T6 → T7
 
 **Done when**:
 
-- [ ] One canonical routing rule covers planning, exploration, implementation, and fallback without restating the user plan.
-- [ ] Broad `rg`/glob/find/read is forbidden as first discovery when Graft can answer.
-- [ ] Graphify is selected only by named architectural triggers.
-- [ ] Instruction scoped gate passes with zero failures.
+- [x] One canonical routing rule covers planning, exploration, implementation, and fallback without restating the user plan.
+- [x] Broad `rg`/glob/find/read is forbidden as first discovery when Graft can answer.
+- [x] Graphify is selected only by named architectural triggers.
+- [x] Instruction scoped gate passes with zero failures (`python3 tools/test_phase_skills.py && python3 tools/test_workflow_config.py && node --test tests/installer/packets.test.js`).
 
 **Tests**: `IT-013` contract assertions in `tools/test_phase_skills.py`
 **Gate**: Instruction scoped
@@ -271,7 +271,7 @@ Execution may run T2→T3, T4, and T5 as compatible lanes after T1. Tasks within
 | Task | Scope | Status |
 | --- | --- | --- |
 | T1 | One repository-intelligence CLI plus its canonical tests | ✅ Complete |
-| T2 | One routing reference replacement | ✅ Granular |
+| T2 | One routing reference replacement | ✅ Complete |
 | T3 | One generated packet contract across providers | ✅ Granular |
 | T4 | One Deep Review context-preparation boundary | ✅ Granular |
 | T5 | One installer/adoption boundary | ✅ Granular |
