@@ -41,9 +41,13 @@ ARCHITECTURAL_TRIGGERS = {
 }
 CONTROL_FIELDS = ("tree", "prompt_hash", "provider", "model", "effort", "acceptance_contract_hash")
 METRIC_FIELDS = (
-    "input_tokens", "output_tokens", "tool_calls", "direct_files_read", "wall_clock_ms",
-    "native_fallback_calls", "rework_count", "review_findings",
+    "input_tokens", "output_tokens", "total_tokens", "repository_intelligence_calls",
+    "native_search_calls", "direct_files_read", "wall_clock_ms", "rework_count",
+    "review_findings",
 )
+BENCHMARK_CONFIGURATIONS = {"baseline", "graft", "routed"}
+REMOVAL_SURFACES = {"routing", "provisioning", "configuration", "generated_state", "qa_promises"}
+DEGRADED_FALLBACK = "targeted-native-inspection"
 
 
 class IntelligenceError(Exception):
@@ -165,6 +169,19 @@ def mutation_lock(root: Path) -> Iterator[None]:
         os.close(fd)
 
 
+@contextlib.contextmanager
+def read_lock(root: Path) -> Iterator[None]:
+    """Allow concurrent reads of a completed representation, excluding mutation."""
+    path = _state_dir(root) / "mutation.lock"
+    fd = os.open(path, os.O_RDWR | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0), 0o600)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_SH)
+        yield
+    finally:
+        fcntl.flock(fd, fcntl.LOCK_UN)
+        os.close(fd)
+
+
 def _tool_path(root: Path, tool: str) -> str | None:
     local = root / "node_modules" / ".bin" / tool
     if local.is_file() and os.access(local, os.X_OK):
@@ -201,10 +218,7 @@ def _require_tool(root: Path, tool: str, expected: str) -> str:
 
 def _base_state(root: Path, tool: str, version: str, *, backend: str = "not-applicable",
                 status: str = "ready") -> dict[str, Any]:
-    manifest = subprocess.run(
-        ["git", "ls-files", "-co", "--exclude-standard"], cwd=root, text=True,
-        capture_output=True, check=True,
-    ).stdout.splitlines()
+    manifest = _source_manifest(root)
     return {
         "schema": SCHEMA, "tool": tool, "tool_version": version,
         "checkout": str(root), "tree": tree_fingerprint(root), "backend": backend,
@@ -213,8 +227,48 @@ def _base_state(root: Path, tool: str, version: str, *, backend: str = "not-appl
     }
 
 
+def _source_manifest(root: Path) -> list[str]:
+    listed = subprocess.run(
+        ["git", "ls-files", "-co", "--exclude-standard"], cwd=root, text=True,
+        capture_output=True, check=True,
+    ).stdout.splitlines()
+    return [
+        path for path in listed
+        if (root / path).exists() and path not in {STATE_DIR, f"{STATE_DIR}/"} and not path.startswith(f"{STATE_DIR}/")
+    ]
+
+
 def _foreign_state(root: Path, state: dict[str, Any] | None) -> bool:
+    return bool(state and (state.get("checkout") != str(root) or state.get("tree") != tree_fingerprint(root)))
+
+
+def _state_checkout_is_foreign(root: Path, state: dict[str, Any] | None) -> bool:
     return bool(state and state.get("checkout") != str(root))
+
+
+def _unavailable_state(root: Path, tool: str, reason: str, *, backend: str = "not-applicable") -> dict[str, Any]:
+    return {
+        "schema": SCHEMA,
+        "tool": tool,
+        "tool_version": GRAFT_VERSION if tool == "graft" else GRAPHIFY_VERSION,
+        "checkout": str(root),
+        "tree": tree_fingerprint(root),
+        "backend": backend,
+        "source_scope": ["."],
+        "indexed_source_manifest": [],
+        "status": "unavailable",
+        "reason": _redact(reason),
+    }
+
+
+def _invalidate_state(root: Path, tool: str, reason: str, *, backend: str = "not-applicable") -> None:
+    path = _state_path(root, tool)
+    try:
+        _write_json(path, _unavailable_state(root, tool, reason, backend=backend))
+    except OSError:
+        # Do not leave a previous valid fingerprint beside partially written tool output.
+        path.unlink(missing_ok=True)
+        raise
 
 
 def _validate_scope(root: Path, backend: str, source_root: str | None) -> list[str]:
@@ -252,6 +306,8 @@ def _result(tool: str, status: str, *, context: str = "", reason: str | None = N
     value = {"schema": SCHEMA, "tool": tool, "status": status, "context": context}
     if reason:
         value["reason"] = _redact(reason)
+    if status == "degraded":
+        value.setdefault("fallback", DEGRADED_FALLBACK)
     value.update(extra)
     return value
 
@@ -260,12 +316,14 @@ def _run_context(root: Path, tool: str, operation: str, arguments: list[str]) ->
     expected = GRAFT_VERSION if tool == "graft" else GRAPHIFY_VERSION
     binary = _require_tool(root, tool, expected)
     state = read_state(root, tool)
-    if _foreign_state(root, state):
+    if _state_checkout_is_foreign(root, state):
         return _result(tool, "degraded", reason="checkout/fingerprint mismatch; state rejected", rejected=True)
-    if tool == "graphify" and (not state or state.get("backend") in (None, "not-applicable")):
+    if tool == "graphify" and (not state or state.get("backend") in (None, "not-applicable") or state.get("status") == "unavailable"):
         raise IntelligenceError("Graphify setup required; run graphify-setup with an explicit backend")
     command = [binary, operation, *arguments]
     with mutation_lock(root):
+        backend = (state or {}).get("backend", "not-applicable")
+        _invalidate_state(root, tool, "refresh in progress", backend=backend)
         try:
             refresh = [binary, "build"] if tool == "graft" else [binary, "update"]
             refreshed = _run(refresh, root, env={**os.environ, **({"GRAFT_REFRESH": "hash"} if tool == "graft" else {})})
@@ -276,11 +334,22 @@ def _run_context(root: Path, tool: str, operation: str, arguments: list[str]) ->
                 if checked.returncode != 0:
                     raise IntelligenceError("graft stale after refresh")
         except IntelligenceError:
+            _invalidate_state(root, tool, "repository-intelligence refresh failed", backend=backend)
             raise
         except (OSError, subprocess.SubprocessError) as exc:
+            _invalidate_state(root, tool, "repository-intelligence refresh failed", backend=backend)
             raise IntelligenceError(f"{tool} refresh failed") from exc
-    output = _run(command, root)
+    with read_lock(root):
+        before_query = tree_fingerprint(root)
+        output = _run(command, root)
+        after_query = tree_fingerprint(root)
+    if before_query != after_query:
+        with mutation_lock(root):
+            _invalidate_state(root, tool, "working tree changed during query", backend=backend)
+        raise IntelligenceError(f"{tool} result became stale during query")
     if output.returncode != 0:
+        with mutation_lock(root):
+            _invalidate_state(root, tool, f"{tool} query failed", backend=backend)
         raise IntelligenceError(f"{tool} query failed")
     context, status = _bounded_output(output.stdout)
     if tool == "graphify" and (state or {}).get("status") == "partial":
@@ -289,9 +358,11 @@ def _run_context(root: Path, tool: str, operation: str, arguments: list[str]) ->
     if dot_paths:
         status = "partial"
     if not context:
+        with mutation_lock(root):
+            _invalidate_state(root, tool, f"{tool} returned insufficient context", backend=backend)
         raise IntelligenceError(f"{tool} returned insufficient context")
     with mutation_lock(root):
-        state = _base_state(root, tool, expected, backend=(state or {}).get("backend", "not-applicable"), status=status)
+        state = _base_state(root, tool, expected, backend=backend, status=status)
         _write_json(_state_path(root, tool), state)
     extra: dict[str, Any] = {"tree": state["tree"], "command": command}
     if dot_paths:
@@ -305,23 +376,23 @@ def graphify_setup(root: Path, backend: str, mode: str, source_root: str | None 
     scope = _validate_scope(root, backend, source_root)
     binary = _require_tool(root, "graphify", GRAPHIFY_VERSION)
     state = read_state(root, "graphify")
-    if state and not _foreign_state(root, state) and state.get("tree") == tree_fingerprint(root) and state.get("backend") == backend:
+    if state and not _state_checkout_is_foreign(root, state) and state.get("tree") == tree_fingerprint(root) and state.get("backend") == backend and state.get("status") != "unavailable":
         return _result("graphify", "ready", reused=True, tree=state["tree"], backend=backend, source_scope=scope)
-    files = subprocess.run(
-        ["git", "ls-files", "-co", "--exclude-standard"], cwd=root, text=True,
-        capture_output=True, check=True,
-    ).stdout.splitlines()
+    files = _source_manifest(root)
     ignored = ["graft/", "graphify-out/", f"{STATE_DIR}/"]
-    preflight = {"tool_version": GRAPHIFY_VERSION, "backend": backend, "source_root": str(root), "indexed_file_count": len(files), "ignored_roots": ignored}
+    disclosed_root = (root / scope[0]).resolve()
+    preflight = {"tool_version": GRAPHIFY_VERSION, "backend": backend, "source_root": str(disclosed_root), "indexed_file_count": len(files), "ignored_roots": ignored}
     if announce:
         print(json.dumps({"preflight": preflight}, sort_keys=True), flush=True)
     with mutation_lock(root):
+        _invalidate_state(root, "graphify", "extraction in progress", backend=backend)
         command = [binary, "extract"]
         if mode == "code-only":
             command.append("--code-only")
         command.extend(["--backend", backend])
         result = _run(command, root)
         if result.returncode != 0:
+            _invalidate_state(root, "graphify", "Graphify extraction failed", backend=backend)
             raise IntelligenceError("Graphify extraction failed")
         status = "partial" if mode == "code-only" else "ready"
         new_state = _base_state(root, "graphify", GRAPHIFY_VERSION, backend=backend, status=status)
@@ -352,13 +423,19 @@ def route(request: dict[str, Any]) -> dict[str, Any]:
 
 
 def _validate_metric_record(record: dict[str, Any]) -> None:
+    required = {"task_id", "category", "configuration", *CONTROL_FIELDS, "metrics", "gate", "verifier", "outcome"}
     if not isinstance(record, dict) or not record.get("task_id"):
         raise ValueError("benchmark record missing task_id")
-    if record.get("configuration") not in {"baseline", "graft", "routed"}:
+    missing = sorted(required - record.keys())
+    if missing:
+        raise ValueError("benchmark record missing fields: " + ", ".join(missing))
+    if record.get("configuration") not in BENCHMARK_CONFIGURATIONS:
         raise ValueError("benchmark record has unsupported configuration")
     if record.get("outcome") not in {"success", "failure", "blocked"}:
         raise ValueError("benchmark record is not terminal")
-    if record.get("outcome") == "success" and (record.get("gate") != "PASS" or record.get("verifier") != "PASS"):
+    if record.get("gate") not in {"PASS", "FAIL", "BLOCKED", "UNAVAILABLE"} or record.get("verifier") not in {"PASS", "FAIL", "BLOCKED", "UNAVAILABLE"}:
+        raise ValueError(f"terminal task {record['task_id']} lacks gate/Verifier evidence")
+    if record.get("outcome") == "success" and (record["gate"] != "PASS" or record["verifier"] != "PASS"):
         raise ValueError(f"successful task {record['task_id']} lacks gate/Verifier evidence")
     metrics = record.get("metrics")
     if not isinstance(metrics, dict):
@@ -366,6 +443,22 @@ def _validate_metric_record(record: dict[str, Any]) -> None:
     for field in METRIC_FIELDS:
         if field not in metrics or not (metrics[field] == "unavailable" or isinstance(metrics[field], int)):
             raise ValueError(f"benchmark metric {field} must be integer or unavailable")
+    inputs, outputs, total = (metrics[field] for field in ("input_tokens", "output_tokens", "total_tokens"))
+    if all(isinstance(value, int) for value in (inputs, outputs, total)) and total != inputs + outputs:
+        raise ValueError("benchmark total_tokens must equal input_tokens + output_tokens")
+    if record.get("retention_recommendation") == "remove":
+        decision = record.get("project_decision")
+        if not isinstance(decision, dict) or decision.get("approved") is not True or not decision.get("id"):
+            raise ValueError("removal recommendation requires an explicit project decision")
+        if not REMOVAL_SURFACES.issubset(set(decision.get("surfaces", []))):
+            raise ValueError("project decision must cover routing, provisioning, configuration, generated_state, and qa_promises")
+
+
+def record_benchmark(path: str | Path, record: dict[str, Any]) -> None:
+    """Append one validated terminal record to a checkout-local benchmark ledger."""
+    _validate_metric_record(record)
+    with Path(path).open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n")
 
 
 def benchmark_report(path: str | Path) -> dict[str, Any]:
@@ -380,8 +473,13 @@ def benchmark_report(path: str | Path) -> dict[str, Any]:
     if not 10 <= len(records) <= 20:
         raise ValueError("benchmark comparison requires 10-20 terminal controlled tasks")
     configurations = {record["configuration"] for record in records}
-    if len(configurations) < 2:
-        raise ValueError("benchmark comparison requires at least two configurations")
+    expected_pair = (
+        {"baseline", "graft"} if configurations == {"baseline", "graft"}
+        else {"graft", "routed"} if configurations == {"graft", "routed"}
+        else None
+    )
+    if expected_pair is None:
+        raise ValueError("benchmark comparison requires baseline->graft or graft->routed pairs")
     by_task: dict[str, list[dict[str, Any]]] = {}
     for record in records:
         by_task.setdefault(record["task_id"], []).append(record)
@@ -389,9 +487,6 @@ def benchmark_report(path: str | Path) -> dict[str, Any]:
     for task_records in by_task.values():
         baseline = task_records[0]
         task_configurations = {record["configuration"] for record in task_records}
-        expected_pair = {"baseline", "graft"} if "baseline" in configurations else {"graft", "routed"}
-        if configurations == {"baseline", "graft", "routed"}:
-            expected_pair = configurations
         if task_configurations != expected_pair or len(task_records) != len(expected_pair):
             raise ValueError("benchmark comparison requires matched task/category/configuration pairs")
         if len({record.get("category") for record in task_records}) != 1:
@@ -406,9 +501,22 @@ def benchmark_report(path: str | Path) -> dict[str, Any]:
         grouped[configuration] = {
             "tasks": len(selected),
             "outcomes": {outcome: sum(record["outcome"] == outcome for record in selected) for outcome in ("success", "failure", "blocked")},
-            "native_fallback_calls": sum(record["metrics"]["native_fallback_calls"] for record in selected if isinstance(record["metrics"]["native_fallback_calls"], int)),
+            "metrics": {
+                field: sum(record["metrics"][field] for record in selected if isinstance(record["metrics"][field], int))
+                if any(isinstance(record["metrics"][field], int) for record in selected) else "unavailable"
+                for field in METRIC_FIELDS
+            },
         }
-    return {"schema": SCHEMA, "tasks": len(records), "configurations": grouped, "controls": list(CONTROL_FIELDS)}
+    recommendations = {record.get("retention_recommendation") for record in records if record.get("retention_recommendation")}
+    return {
+        "schema": SCHEMA,
+        "tasks": len(records),
+        "configurations": grouped,
+        "controls": list(CONTROL_FIELDS),
+        "comparison": "baseline-to-graft" if configurations == {"baseline", "graft"} else "graft-to-routed",
+        "removal_decision_required": "remove" in recommendations,
+        "project_decisions": [record["project_decision"] for record in records if record.get("project_decision")],
+    }
 
 
 def agent_metrics(metrics: dict[str, Any]) -> dict[str, Any]:
@@ -467,7 +575,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(json.dumps(output, sort_keys=True))
         return DEGRADED_EXIT if output.get("status") == "degraded" else 0
     except IntelligenceError as exc:
-        payload = {"schema": SCHEMA, "status": "degraded", "reason": _redact(exc.reason)}
+        payload = {"schema": SCHEMA, "status": "degraded", "reason": _redact(exc.reason), "fallback": DEGRADED_FALLBACK}
         if exc.expected:
             payload["expected_version"] = exc.expected
         if exc.actual:

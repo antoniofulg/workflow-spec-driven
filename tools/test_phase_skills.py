@@ -152,6 +152,17 @@ def test_it013_code_analysis_routes_architecture_then_code_then_fallback() -> No
     assert "sufficient file, symbol, API, caller, and callee pointers" in text
 
 
+def test_it013_r2_instruction_outcomes_bound_reads_and_authority() -> None:
+    text = (ROUTER / "references/code-analysis.md").read_text(encoding="utf-8")
+    assert "Limit source reads to returned pointers and the verification paths needed" in text
+    assert "Specs and current checkout source remain" in text
+    assert "authoritative; generated Graphify/Graft context is bounded evidence" in text
+    assert "claim complete intelligence" in text
+    assert "after degraded output" in text
+    assert "one degraded reason for the phase" in text
+    assert "targeted paths natively" in text
+
+
 def test_router_line_cap() -> None:
     count = line_count(ROUTER / "SKILL.md")
     assert count <= ROUTER_LINE_CAP, f"router SKILL.md is {count} lines, cap is {ROUTER_LINE_CAP}"

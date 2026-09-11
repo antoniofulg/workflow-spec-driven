@@ -180,6 +180,41 @@ T6 → T7
 
 **Commit**: `fix(intelligence): close verifier gaps`
 
+### R2: Close remaining RI-DISCOVERY Technical Verifier gaps
+
+**Slice:** RI-DISCOVERY
+**What**: Make disclosure ordering, graph publication/read isolation, freshness rejection, generated-state hygiene, benchmark evidence, and instruction outcomes fully behavioral and mutation-sensitive.
+**Where**: `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py`
+**Depends on**: R1
+**Reuses**: Existing adapter, canonical adapter/instruction tests, AD-018 fingerprint, and current verifier report
+**Requirement**: RIR-01, RIR-02, RIR-04, RIR-05, SEC-002, SEC-005, SEC-006
+
+**Open blocker fingerprints**:
+
+- `5775eb7e1c64d1501ba6487cd20978b4481201226f7f029a9a57e5ac623b8308` — disclosure ordering, attempt 2.
+- `193996f899eedf7e0a2c94d26fa2d028706097be461036f3298d3c2d0da1b2b0` — incomplete behavioral coverage, attempt 2.
+- `204f0f4405d678d55b28d4887344c1f4c314bcc33093015e6e7f4701002d01ea` — incomplete benchmark evidence, attempt 1.
+
+**Tools**:
+
+- CLI: Graft for exact code/caller discovery
+- Skill: `ponytail`, `wimplement`
+
+**Done when**:
+
+- [x] An ordered event assertion fails if Graphify extraction begins before backend/scope disclosure.
+- [x] Same-checkout mutation cannot overlap a query; interrupted tool output cannot retain matching valid metadata; foreign fingerprints and every indexed file class invalidate.
+- [x] `.repository-intelligence/` is ignored as soon as T1 writes it, with a staging assertion.
+- [x] Benchmark records/reports cover every spec field, baseline→Graft and Graft→routed pairs, 10/20 bounds, unavailable telemetry, terminal evidence, and explicit removal-decision requirement.
+- [x] Bounded reads, authority conflicts, every degraded reason, targeted fallback, and once-per-phase wording have focused contract assertions.
+- [x] A disclosure-order mutant and at least two freshness/benchmark mutants are killed.
+- [x] Full RI-DISCOVERY gate passes with zero failures and updated exact count (51 adapter; 21 phase; 64 config; 37 packet).
+
+**Tests**: Every FAIL/GAP row in `validation-RI-DISCOVERY.md`, in the existing canonical adapter and phase suites
+**Gate**: Adapter scoped plus Instruction scoped
+
+**Commit**: `fix(intelligence): prove repository intelligence invariants`
+
 ### T4: Route repository intelligence into Deep Review
 
 **Slice:** RI-REVIEW
