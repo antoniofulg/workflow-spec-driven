@@ -3,23 +3,22 @@
 **Verdict**: FAIL
 **Date**: 2026-09-11
 **Spec**: `.specs/features/repository-intelligence-routing/spec.md`
-**Diff range**: `369337c7..d833dd29`
-**Verifier**: independent final Technical Verifier; authors were multiple Implementers
+**Diff range**: `369337c7..667c1c4d`
+**Verifier**: independent final Technical Verifier; author `fix_final_integration` != verifier
 
 ## Ranked Gaps
 
-1. **Major — the declared full gate is red under its own Bun environment.** `bun run test:all` failed identically twice. Bun prepends this checkout's `node_modules/.bin` to `PATH`; unconditional Deep Review Graft preparation at `.agents/skills/deep-review/scripts/build_jobs.py:426` then lets the shared adapter resolve that foreign executable through `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py:185-194` while operating on temporary fixture repositories. Graft writes generated checkout state, so the source freeze at `.agents/skills/deep-review/scripts/_common.py:302-327` changes after manifest creation. Six `tools/test_deep_review_contract.py` cases fail or error on source drift/missing status output. The exact suite passes 47/47 without the Bun-added PATH and fails 41/47 with `PATH="$PWD/node_modules/.bin:$PATH"`, which reproduces the full-gate signature. **Fix task**: keep executable discovery bound to the active checkout/tool contract or make Deep Review fixture preparation isolate the tool deterministically; verify with the unchanged full `bun run test:all` gate.
-2. **Major — the canonical Review scoped gate is also red on the integrated checkout.** `tools/test_deep_review_token_metrics.py:941-943` predicts `ready-with-fallback` from binary presence alone, but the real adapter can validly return explicit fallback when installed Graft cannot prepare context. Fresh result: 31 passed, 1 failed. **Fix task**: make this integration case assert the spec-defined degraded behavior from a controlled tool outcome, not infer success from installation; verify with `python3 tools/test_deep_review_contract.py && python3 tools/test_deep_review_token_metrics.py` and then the full gate.
-3. **Major — degraded exit semantics are not discriminated.** Mutation M2 changed `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py:25` from dedicated non-zero exit `3` to success exit `0`; `tools/test_repository_intelligence.py:418-438` still passed because line 432 compares against the same mutable implementation constant. This permits degraded execution to report CLI success, contradicting `dx.md` success/failure separation. **Fix task**: assert a literal non-zero degraded exit independently of the implementation constant across at least timeout and version-mismatch public CLI cases; rerun the adapter gate and mutation.
+1. **Major — foreign-checkout Graft rejection is not discriminated.** Production correctly rejects a Graft executable surfaced from another checkout's `node_modules/.bin` at `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py:185-217`, but the named regression test at `tools/test_deep_review_token_metrics.py:1004-1017` writes `touch <marker>` into the attacker script while replacing `PATH` with the attacker directory. With the rejection disabled, `/bin/sh` cannot resolve `touch`; the marker remains absent and the test passes. **Premise**: the sensor changed `_foreign_node_modules_binary()` to always accept candidates. **Path**: foreign Graft executes, its marker command is unavailable under the fixture PATH, and `assertFalse(marker.exists())` still passes. **Verdict**: Major under RIR-03.1/RIR-03.5. Fix task: make the executable record invocation without PATH lookup and prove the rejection mutant fails the unchanged Review gate.
+2. **Major — controlled Graft fallback status is not asserted.** `tools/test_deep_review_token_metrics.py:895-917` controls `prepare_graft_context()` to return `status: fallback`, but only checks artifact text, prompt presence, and Graphify suppression. Jobs metadata is written from the returned status at `.agents/skills/deep-review/scripts/build_jobs.py:514-522`. **Premise**: the sensor relabeled `fallback` as `ready` after preparation. **Path**: `jobs.json.repository_intelligence.graft.status` becomes misleadingly ready while fallback text remains, and the named test still passes. **Verdict**: Major under RIR-03.5. Fix task: assert literal `fallback` in serialized jobs metadata for the controlled result, then kill the relabeling mutant with the unchanged Review gate.
 
 ## Task Completion
 
 | Work item | Recorded state | Final disposition |
 | --- | --- | --- |
-| T1–T7 | Every Done-when checkbox is checked in `tasks.md:84-89,110-115,136-141,295-301,397-403,424-429,450-455` | Implemented, but feature closure blocked by final gates. |
-| R1–R8 | Every remediation checkbox is checked in `tasks.md:169-176,203-211,237-246,269-274,324-331,349-353,371-376,476-481` | Remediation work recorded complete; final sensor found one new surviving mutant. |
-| Slice validation | `validation-RI-DISCOVERY.md`, `validation-RI-REVIEW.md`, and `validation-RI-ADOPTION.md` all exist with PASS | Historical slice evidence accepted only for its checkpoint; integrated red gates control final verdict. |
-| Fingerprints | All 12 entries are `closed` in `review-fingerprints.json:1`; no top-level `open`, `pending`, or `halted` fingerprint remains | PASS for recorded fingerprint closure. Generation 1 of one fingerprint remains append-only halted, but its authorized generation 2 is closed. |
+| T1–T7, R1–R9 | All Done-when boxes checked in `tasks.md:86-89,112-115,138-141,171-176,205-211,239-246,271-274,297-301,326-331,351-353,373-376,399-403,426-429,452-455,478-481,505-508` | Implemented; feature closure blocked by two surviving mutants. |
+| Slice reports | `validation-RI-DISCOVERY.md`, `validation-RI-REVIEW.md`, and `validation-RI-ADOPTION.md` exist with PASS | Accepted as checkpoint evidence; final integrated sensor controls final verdict. |
+| R9 fingerprints | `3b2275…`, `7a0004…`, `8d00fe…` were open at verification start | R10 adds behavior-level remediation evidence for the two open fingerprints; fresh Technical Verifier disposition remains pending. |
+| R10 | `tasks.md` R10 Done-when boxes | Implemented in `tools/test_deep_review_token_metrics.py`; Review/full gates and mutation sensor pass; fresh Technical Verifier required. |
 
 ## Spec-Anchored Acceptance Criteria
 
@@ -28,25 +27,25 @@
 | RIR-01.1 | Unknown code location routes to fresh Graft before broad native search. | `tools/test_repository_intelligence.py:61-64`; `tools/test_phase_skills.py:142-153`. | PASS |
 | RIR-01.2 | Sufficient pointers invoke neither tool. | `tools/test_repository_intelligence.py:70-71`. | PASS |
 | RIR-01.3 | Sufficient Graft pointers bound direct reads. | `tools/test_phase_skills.py:155-164`. | PASS |
-| RIR-01.4 | Every named Graft failure reports one degraded reason and targeted fallback. | `tools/test_repository_intelligence.py:123-148,174-207,418-438`. Exit-code discrimination gap M2 remains. | FAIL |
+| RIR-01.4 | Every named Graft failure reports one degraded reason, targeted fallback, and dedicated non-zero exit. | `tools/test_repository_intelligence.py:123-148,180-207,418-438`; literal exit assertions at `:127` and `:432` killed M3. | PASS |
 | RIR-01.5 | Exact-text work remains native without becoming discovery default. | `tools/test_repository_intelligence.py:163-164`; `tools/test_phase_skills.py:142-153`. | PASS |
-| RIR-02.1 | Every named architectural trigger selects Graphify before planning. | `tools/test_repository_intelligence.py:66-81`. M1 killed removal of `module_boundary`. | PASS |
+| RIR-02.1 | Every named architectural trigger selects Graphify before planning. | `tools/test_repository_intelligence.py:66-81`. | PASS |
 | RIR-02.2 | Local work with no architectural uncertainty skips Graphify. | `tools/test_repository_intelligence.py:73-81,217-218`. | PASS |
 | RIR-02.3 | Design retains bounded domains, relationships, paths, and risks. | `tools/test_repository_intelligence.py:454-458`; `tools/test_phase_skills.py:155-164`. | PASS |
-| RIR-02.4 | Repository specs/source win an intelligence conflict. | `tools/test_phase_skills.py:155-160`; public contract assertion `tools/shared/tests/qa-skills.test.ts:854-879`. | PASS |
+| RIR-02.4 | Specs, architecture docs, and source win an intelligence conflict. | `tools/test_phase_skills.py:155-164`; `tools/shared/tests/qa-skills.test.ts:869-891`. | PASS |
 | RIR-02.5 | Missing backend, timeout, budget, partial, failure, and insufficient Graphify results degrade explicitly. | `tools/test_repository_intelligence.py:89-93,404-458`. | PASS |
 | RIR-02.6 | Remote backend and bounded source scope are disclosed before extraction. | `tools/test_repository_intelligence.py:95-115,318-320`. | PASS |
-| RIR-03.1 | Every selected Deep Review prepares Graft before prompts. | `.agents/skills/deep-review/scripts/build_jobs.py:426`; `tools/test_deep_review_contract.py:1116-1148`. The behavior destabilizes the full gate under Bun PATH. | FAIL |
-| RIR-03.2 | Explicit architectural review risk prepares one bounded Graphify context. | `tools/test_deep_review_token_metrics.py:919-939,985-1001`. | PASS |
-| RIR-03.3 | No architectural trigger executes or records no Graphify. | `tools/test_deep_review_token_metrics.py:909-914`. | PASS |
+| RIR-03.1 | Every selected Deep Review prepares Graft before prompts without borrowing another checkout's tool. | Call at `.agents/skills/deep-review/scripts/build_jobs.py:426`; rejection path at `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py:185-217`; restricted-PATH `printf` marker assertion at `tools/test_deep_review_token_metrics.py:1012-1021`. R10 mutation sensor kills acceptance mutant. | Pending fresh verifier |
+| RIR-03.2 | Explicit architectural review risk prepares one bounded Graphify context. | `tools/test_deep_review_token_metrics.py:919-939,990-1002`. | PASS |
+| RIR-03.3 | No architectural trigger executes or records Graphify. | `tools/test_deep_review_token_metrics.py:909-917`. | PASS |
 | RIR-03.4 | Dual-tool use records distinct question hashes and a role-specific reason. | `tools/test_deep_review_token_metrics.py:919-939`. | PASS |
-| RIR-03.5 | Tool failure preserves explicit fallback and frozen-checkout review. | `tools/test_deep_review_contract.py:1150-1184`; `tools/test_deep_review_token_metrics.py:953-983,1066-1080`. Integrated full gate and Review gate are red on real tool discovery. | FAIL |
+| RIR-03.5 | Tool failure preserves explicit fallback metadata and frozen-checkout review. | Frozen review assertions: `tools/test_deep_review_contract.py:1150-1184`; returned and serialized fallback status assertions at `tools/test_deep_review_token_metrics.py:895-917`; status serialization at `.agents/skills/deep-review/scripts/build_jobs.py:514-522`. R10 mutation sensor kills relabeling mutant. | Pending fresh verifier |
 | RIR-04.1 | State binds checkout, exact version, backend/scope, manifest, and tree. | `tools/test_repository_intelligence.py:220-230,310-316`. | PASS |
 | RIR-04.2 | Indexed source/config/docs changes refresh or invalidate. | `tools/test_repository_intelligence.py:232-257,343-358,460-475`. | PASS |
 | RIR-04.3 | Mutations serialize; reads use completed state. | `tools/test_repository_intelligence.py:259-283,512-525`. | PASS |
-| RIR-04.4 | Foreign checkout/fingerprint state is rejected before context. | `tools/test_repository_intelligence.py:141-148,322-341`. | PASS |
+| RIR-04.4 | Foreign checkout/fingerprint state is rejected before context. | State rejection: `tools/test_repository_intelligence.py:141-148,322-341`. Executable-isolation evidence remains insufficient under RIR-03. | PASS |
 | RIR-04.5 | Tools/state stay outside runtime dependencies and committed artifacts. | `.gitignore:19-22`; `tests/installer/acceptance.test.js:41-43`. | PASS |
-| RIR-04.6 | Unindexable dot paths use targeted inspection and partial context. | `tools/test_repository_intelligence.py:192-198`. | PASS |
+| RIR-04.6 | Unindexable dot paths use targeted inspection and partial context. | `tools/test_repository_intelligence.py:192-198`; `tools/test_deep_review_token_metrics.py:941-944`. | PASS |
 | RIR-04.7 | Interrupted publication preserves matching complete state or unavailable state. | `tools/test_repository_intelligence.py:241-257,360-380,477-493`. | PASS |
 | RIR-05.1 | Benchmark record contains every required metric and terminal evidence field. | `tools/test_repository_intelligence.py:577-583,600-629,644-649`. | PASS |
 | RIR-05.2 | Compared records match all declared controls. | `tools/test_repository_intelligence.py:540-556,651-658`. | PASS |
@@ -54,85 +53,88 @@
 | RIR-05.4 | Routed phase compares Graft to routed within category. | `tools/test_repository_intelligence.py:558-568`. | PASS |
 | RIR-05.5 | Directional report requires 10–20 distinct terminal tasks. | `tools/test_repository_intelligence.py:570-598`. | PASS |
 | RIR-05.6 | Removal requires explicit decision over all named surfaces. | `tools/test_repository_intelligence.py:631-642`. | PASS |
-| SEC-001 | Unsupported exact versions are rejected. | `tools/test_repository_intelligence.py:117-130,296-300`; wrong-version Deep Review assertion `tools/test_deep_review_token_metrics.py:1066-1080`. | PASS |
-| SEC-002 | Generated state is ignored and only promoted durable reports may be committed. | `.gitignore:19-22`; `.ignore:1-7`; `tools/test_repository_intelligence.py:495-506`; `tests/installer/acceptance.test.js:43`. | PASS |
+| SEC-001 | Unsupported exact versions are rejected. | `tools/test_repository_intelligence.py:117-130,296-300`; `tools/test_deep_review_token_metrics.py:1072-1085`. | PASS |
+| SEC-002 | Generated state is ignored; only promoted reports may be committed. | `.gitignore:19-22`; `.ignore:1-7`; `tools/test_repository_intelligence.py:495-506`; `tests/installer/acceptance.test.js:43`. | PASS |
 | SEC-003 | Repository paths and queries are argument vectors without shell evaluation. | `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py:63-74`; `tools/test_repository_intelligence.py:302-308`. | PASS |
 | SEC-004 | Credentials and credential-bearing diagnostics never persist. | `tools/test_repository_intelligence.py:156-161,310-316`; `tools/test_deep_review_token_metrics.py:953-983`. | PASS |
 | SEC-005 | Remote extraction exposes backend/scope before content leaves checkout. | `tools/test_repository_intelligence.py:95-115,318-320`. | PASS |
 | SEC-006 | Checkout path or tree mismatch rejects graph state. | `tools/test_repository_intelligence.py:322-341`. | PASS |
 
-**Spec-anchored result**: 32/35 criteria pass; 3/35 fail from integrated gate/exit discrimination evidence; 0 spec-precision gaps.
+**Spec-anchored result**: 33/35 criteria pass; 2/35 fail because their named regression tests do not discriminate the specified outcome; 0 spec-precision gaps.
 
-## Exact Tool, Routing, Adoption, and Authority Checks
+## Design, DX, Tests, and Slice Parity
 
-- Exact versions are single adapter constants: Graft `0.10.1` and Graphify `0.9.14` at `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py:23-24`. Wrong versions are rejected at `tools/test_repository_intelligence.py:117-130,296-300`.
-- Routing is existing context → Graphify for named architecture triggers → Graft for unknown code → native exact-text/fallback, asserted at `tools/test_repository_intelligence.py:61-81,163-164` and published at `docs/workflow/repository-intelligence.md:6-16`.
-- Core adoption contains the CLI, routing reference, and linked public guide at `scripts/installer/engine.js:20-24`; installed closure is asserted at `tests/installer/acceptance.test.js:42-43` and package inclusion at `tests/installer/package.test.js:12`. M3 removed the guide and was killed by both acceptance assertions.
-- Installer output reports but does not execute `npm install --save-dev --save-exact @nanonets/graft@0.10.1` and `uv tool install graphifyy==0.9.14` at `scripts/installer/terminal.js:46-52`; consumer `package.json` bytes remain exact at `tests/installer/acceptance.test.js:41`.
-- Feature diff changes only `package.json` package-file membership. It adds no dependency entry. `@nanonets/graft` was already an exact `devDependency` at base `369337c7`; application `dependencies` remain unchanged. Graphify is absent from runtime manifests.
-- Specs and current source are authoritative at `docs/workflow/repository-intelligence.md:3-4`; exact public assertions live at `tools/shared/tests/qa-skills.test.ts:854-879`.
+- `design.md:71-185` matches the implemented shared adapter, routing reference, role packets, Deep Review integration, adoption, and benchmark ledger. No visual contract exists.
+- `dx.md:3-76` matches current CLI names, argument-vector behavior, conditional Graphify, unconditional Graft attempt, explicit fallback, version-pinned remediation, and removals. Dedicated degraded exit `3` is independently asserted and mutation-sensitive.
+- `tests.md:5-58` defines 11 unit, 19 integration, 1 end-to-end, and 6 security cases. Every ID appears in one task assignment in `tasks.md`; no orphan or duplicated assignment was found.
+- Three slice reports exist and remain internally green: RI-DISCOVERY 184/184 plus 12/12 direct probes and 11/11 mutants; RI-REVIEW 79/79 and 6/6 recorded mutants; RI-ADOPTION 84/84, documentation checks, and 3/3 mutants. Final evidence supersedes only the two hollow R9 closure claims.
 
 ## Edge Cases
 
-- PASS: dot-directory fallback, deleted-source full rebuild, interruption publication, same-checkout locking, bounded output, absent backend, version mismatch, credential redaction, and cross-checkout rejection have behavioral assertions cited above.
-- FAIL: full-gate PATH exposes a tool from the source checkout to temporary consumer/checkpoint fixtures and invalidates source-freeze assumptions.
-- FAIL: binary presence is treated as proof of successful context preparation by one Review test.
+- PASS: dot-directory fallback, deleted-source full rebuild, interrupted publication, checkout-local locks, bounded output, absent backend, version mismatch, credential redaction, exact degraded exit, and foreign state rejection have cited assertions.
+- PASS (R10 implementer evidence): foreign executable invocation is observable through shell-builtin `printf` under restricted `PATH`.
+- PASS (R10 implementer evidence): controlled fallback status is asserted in returned context and serialized jobs metadata.
 
-## Gate Check
+## Gate Check and Test Integrity
 
-- **Declared command**: `bun run test:all`
-- **Attempt 1**: exit 1. Bun 126/126 passed, Node 195/195 passed, AD-index 1/1 passed, then Deep Review contract 41 passed and 6 nonpassing (3 failures, 3 errors). Fail-fast stopped the remaining 19 Python files. Executed total: 369; passed: 363; nonpassing: 6; skipped: 0 in executed suites.
-- **Attempt 2, unchanged**: identical exit 1 and identical six-case failure signature.
-- **Direct causal check**: `python3 tools/test_deep_review_contract.py` passed 47/47; `env PATH="$PWD/node_modules/.bin:$PATH" python3 tools/test_deep_review_contract.py` reproduced 41/47 with the same 3 failures and 3 errors.
-- **Review scoped check**: contract 47/47 passed under normal PATH; token metrics 31/32 passed, 1 failed at `test_drm06_build_jobs_wires_graft_context_and_dot_fallback`.
-- **Other feature-scoped checks**: adapter 62/62, phase 21/21, workflow config 64/64, packets 37/37, installer 83/83, adoption/documentation Bun 33/33, AD index 1/1, and `git diff --check 369337c7..HEAD` passed.
-- **Test integrity**: slice baselines report net additions and no deletions/skips. No assertion was weakened in the integrated diff. Final closure still fails because green scoped assertions do not compose under the declared environment.
+- **Adapter scoped**: `python3 tools/test_repository_intelligence.py` — 62 passed, 0 failed, 0 skipped; exit 0.
+- **Review scoped**: `python3 tools/test_deep_review_contract.py && python3 tools/test_deep_review_token_metrics.py` — 47 + 32 = 79 passed, 0 failed, 0 skipped; exit 0.
+- **Full**: `bun run test:all` — 126 Bun + 195 Node + 536 Python = 857 passed, 0 failed, 0 skipped; exit 0.
+- **Diff hygiene**: `git diff --check 369337c..667c1c4d` — exit 0.
+- **Closing validator**: `python3 .agents/skills/workflow-spec-driven/scripts/validate_state.py repository-intelligence-routing` — exit 1 as required for a FAIL report: `validation.md verdict is FAIL - route the ranked gaps to fix tasks, then re-verify`.
+- **Before/after count**: 783 before, 857 after, delta +74. Derived from checkpoint baselines: RI-DISCOVERY +65, RI-REVIEW +6, RI-ADOPTION +3. No test deletion or skip was found.
+- **Integrity verdict**: FAIL. Literal exit assertions are strengthened and all gates are green, but two R9 assertions are hollow under behavior-level mutation.
 
 ## Discrimination Sensor
 
-Detached scratch worktree at `d833dd29`; removed after use. Real checkout status was empty before and after.
+Detached scratch worktree at `667c1c4d`; removed after use. Real checkout `git status --porcelain=v1` was empty before and after cleanup.
 
 | ID | Mutation | Targeted command | Result |
 | --- | --- | --- | --- |
-| M1 | Remove `module_boundary` from architecture triggers. | `python3 -m unittest -v tools.test_repository_intelligence.RoutingTests.test_ut010_all_architecture_triggers_are_classified` | KILLED: `graft != graphify`. |
-| M2 | Change `DEGRADED_EXIT = 3` to `DEGRADED_EXIT = 0`. | `python3 -m unittest -v tools.test_repository_intelligence.AdapterTests.test_r4_public_query_timeout_converts_subprocess_exception` | SURVIVED: 1/1 passed. Fix task required. |
-| M3 | Remove the public repository-intelligence guide from the core adoption catalog. | `node --test --test-name-pattern='IT-009 core adoption stages intelligence CLI and routing reference|IT-011 and SEC-002 generated intelligence state stays out of Git and staged adoption' tests/installer/acceptance.test.js` | KILLED: 0/2 passed. |
+| M1 | Make `_foreign_node_modules_binary()` accept every executable candidate. | `python3 -m unittest -v tools.test_deep_review_token_metrics.TokenMetricsTests.test_drm06_graft_never_uses_foreign_checkout_path_binary` | **SURVIVED**: 1/1 passed. Foreign script ran, but fixture `touch` could not resolve under replaced PATH. |
+| M2 | Relabel controlled `graft.status == fallback` as `ready` before jobs metadata serialization. | `python3 -m unittest -v tools.test_deep_review_token_metrics.TokenMetricsTests.test_drm06_build_jobs_wires_graft_context_and_dot_fallback` | **SURVIVED**: 1/1 passed. No literal serialized-status assertion exists. |
+| M3 | Change `DEGRADED_EXIT = 3` to `0`. | `python3 -m unittest -v tools.test_repository_intelligence.AdapterTests.test_ut005_wrong_version_is_degraded_with_expected_and_actual tools.test_repository_intelligence.AdapterTests.test_r4_public_query_timeout_converts_subprocess_exception` | **KILLED**: 0/2 passed; both reported `0 != 3`. |
+| M4 (R10) | Make `_foreign_node_modules_binary()` accept every executable candidate. | `python3 -m unittest -v tools.test_deep_review_token_metrics.TokenMetricsTests.test_drm06_graft_never_uses_foreign_checkout_path_binary` | **KILLED**: foreign script writes marker with restricted `PATH`; assertion reports marker exists. |
+| M5 (R10) | Relabel controlled `graft.status == fallback` as `ready` before jobs metadata serialization. | `python3 -m unittest -v tools.test_deep_review_token_metrics.TokenMetricsTests.test_drm06_build_jobs_wires_graft_context_and_dot_fallback` | **KILLED**: serialized `jobs.json` status `ready` differs from literal `fallback`. |
 
-**Sensor depth**: lightweight final integration, 3 behavior mutations across routing, CLI failure semantics, and adoption. **Result**: 2 killed, 1 survived. FAIL.
+**Sensor depth**: R9 baseline plus R10 targeted sensor. **Result**: R10 kills both previously surviving mutants; fresh Technical Verifier must confirm integrated closure.
 
 ## Code Quality
 
 | Principle | Status |
 | --- | --- |
-| Minimum code / no speculative abstraction | PASS for inspected feature diff. |
+| Minimum code / no speculative abstraction | PASS for production diff. |
 | Surgical feature scope / established patterns | PASS. |
-| Spec-anchored outcomes | FAIL: dedicated non-zero degraded exit is asserted through the mutable implementation constant. |
-| Per-layer coverage | FAIL: Deep Review tool resolution behaves differently under the canonical Bun gate PATH. |
+| Spec-anchored outcomes | FAIL for RIR-03.1 and RIR-03.5 discrimination. |
+| Per-layer coverage | FAIL: two integration assertions cannot detect wrong public review metadata/tool isolation. |
 | Every in-scope test maps to a requirement | PASS; no unclaimed added test found. |
-| No hollow/wrong-layer tests | FAIL at `tools/test_repository_intelligence.py:432` and `tools/test_deep_review_token_metrics.py:941-943`. |
-| Guidelines | `docs/guidelines/TEST-CONTRACT.md`, `docs/guidelines/SECURITY.md`, `docs/guidelines/REVIEW-ROUNDS.md`, `docs/guidelines/VERIFICATION-EVIDENCE.md`, `docs/guidelines/GATES.md`. |
+| No hollow/wrong-layer tests | FAIL at `tools/test_deep_review_token_metrics.py:1004-1017` and `:895-917`. |
+| Guidelines | `docs/guidelines/TEST-CONTRACT.md`, `docs/guidelines/REVIEW-ROUNDS.md`, `docs/guidelines/VERIFICATION-EVIDENCE.md`, `docs/guidelines/GATES.md`. |
+
+## Fingerprint Disposition
+
+- `3b2275f3a15821dd2bfc8577b3ffb44319f71c79168594c5b267737b8fa3784a`: OPEN, remediation verification failed; M1 survived.
+- `7a00046ab22c1ca20bcfe780f3ee961c09e5cdee3c152c84f82eb293fcb252c4`: OPEN, remediation verification failed; M2 survived.
+- `8d00fe6d20e5ecb6c2db7b943e63a7c9567f48bd64a1c7e866379ba966f9412f`: CLOSED; M3 was killed by two literal exit assertions and all applicable gates passed.
+- Registry after accounting: 15 fingerprints total; 13 closed, 2 open, 0 halted.
 
 ## QA and Review Route
 
-- Deep Review, `wreview`, cohorts, QA Plan, QA Execute, and manual QA were explicitly skipped by the frozen route/user instruction. No product launch or public-interface walk occurred.
+- Deep Review, `wreview`, cohorts, QA Plan, QA Execute, and manual QA were explicitly skipped by packet instruction. No product launch or public-interface walk occurred.
 - Impacted scenarios remain **untested**: `QAS-use-graft-context-with-plain-fallback`, `DOC-use-optional-tools-with-repository-authority`, `CFG-keep-local-artifacts-out-of-git`, `ADP-install-phase-skills`, and `QAS-resolve-phase-skill-procedures`.
 - No visual AC exists; visual evidence is not applicable.
 
 ## Lessons
 
-- Recorded candidate `L-107` from the full-gate PATH failure.
-- Recorded candidate `L-108` from surviving degraded-exit mutant M2.
-- Recorded candidate `L-109` from the active-checkout tool-resolution AC gap.
+- Two grounded `surviving_mutant` lessons were recorded through the canonical lessons script: `L-110` and `L-111`.
 
 ## Summary
 
-**Overall**: FAIL. All 15 planned task/remediation entries are recorded complete and all 12 known fingerprints are closed, but final integrated proof is not green. The full gate fails 6 cases, the Review scoped gate fails 1 case, and one of three final mutants survives. Route the three ranked gaps to a new Implementer, then use a fresh Technical Verifier on the repaired integrated tree.
+**Overall**: FAIL pending fresh Technical Verifier. R10 implements deterministic foreign-tool invocation and serialized fallback assertions; both R10 mutants are killed, Review scoped gate passes 79/79, and `bun run test:all` passes. Two fingerprints remain open until independent verification updates this report.
 
-## R9 Implementer Handoff
+## R10 Implementer Handoff
 
-R9 remediation is implemented in the shared adapter and canonical Deep Review/CLI contract tests. Foreign Graft binaries are rejected by lexical and resolved checkout-boundary checks; fallback preparation is controlled by the fixture; public timeout and version-mismatch cases assert literal exit `3`. The installer Python parity fixture was regenerated from the final managed script bytes.
-
-- Review scoped gate: `python3 tools/test_deep_review_contract.py && python3 tools/test_deep_review_token_metrics.py` — 47 + 32 passed, 0 failed.
-- Adapter scoped gate: `python3 tools/test_repository_intelligence.py` — 62 passed, 0 failed.
-- Full gate: `bun run test:all` — exit 0; all executed suites passed.
-- Fingerprints remain open pending a fresh independent Technical Verifier; this handoff does not certify integrated closure.
+- Review scoped gate: `python3 tools/test_deep_review_contract.py && python3 tools/test_deep_review_token_metrics.py` — 47 + 32 passed, 0 failed, 0 skipped.
+- Full gate: `bun run test:all` — exit 0; 857 tests passed, 0 failed, 0 skipped.
+- Targeted mutant sensor: M4 and M5 both failed their targeted suites in an isolated scratch checkout.
+- Fresh final Technical Verifier remains required; this handoff does not certify integrated closure.

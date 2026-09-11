@@ -512,6 +512,32 @@ T6 → T7
 
 **Commit**: `fix(intelligence): close integrated verification gaps`
 
+### R10: Prove integrated Graft isolation and fallback status
+
+**Slice:** RI-ADOPTION
+**What**: Replace the PATH-dependent marker with a deterministic invocation probe and assert the exact fallback status written to jobs metadata.
+**Where**: `tools/test_deep_review_token_metrics.py`
+**Depends on**: R9
+**Reuses**: Existing Bun-PATH fixture and controlled fallback builder test
+**Requirement**: RIR-03.1, RIR-03.5
+
+**Open blocker fingerprints**:
+
+- `3b2275f3a15821dd2bfc8577b3ffb44319f71c79168594c5b267737b8fa3784a` — foreign-Graft marker is PATH-dependent.
+- `7a00046ab22c1ca20bcfe780f3ee961c09e5cdee3c152c84f82eb293fcb252c4` — fallback status in `jobs.json` is not asserted.
+
+**Done when**:
+
+- [x] Foreign-Graft invocation marker works with the restricted PATH and fails if another checkout's Graft executes.
+- [x] Controlled fallback asserts exact fallback status in the returned context and `jobs.json` metadata.
+- [x] Both prior mutants fail the targeted suites.
+- [x] Review scoped gate and `bun run test:all` pass with zero failures.
+
+**Tests**: Remaining two FAIL rows in `validation.md`
+**Gate**: Full
+
+**Commit**: `test(intelligence): prove integrated Graft fallback`
+
 ---
 
 ## Dependency Execution Map

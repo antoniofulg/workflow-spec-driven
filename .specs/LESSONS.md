@@ -668,6 +668,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: .specs/features/repository-intelligence-routing/validation.md#RIR-03.1 (repository-intelligence)
 - last seen: 2026-09-11T06:25:12Z
 
+### L-110 - Invocation-marker fixtures must not depend on commands removed by the PATH isolation they test.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation.md#M1 (repository-intelligence)
+- last seen: 2026-09-11T06:58:11Z
+
+### L-111 - Assert serialized degraded status independently of fallback artifact text.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `deep-review` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation.md#M2 (deep-review)
+- last seen: 2026-09-11T06:58:11Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 110,
+  "next_id": 112,
   "lessons": [
     {
       "id": "L-001",
@@ -1977,6 +1977,42 @@
       ],
       "created": "2026-09-11T06:25:12Z",
       "last_seen": "2026-09-11T06:25:12Z"
+    },
+    {
+      "id": "L-110",
+      "key": "surviving_mutant::invocation marker fixtures must not depend on commands removed by the path isolation they test",
+      "text": "Invocation-marker fixtures must not depend on commands removed by the PATH isolation they test.",
+      "signal": "surviving_mutant",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation.md#M1 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T06:58:11Z",
+      "last_seen": "2026-09-11T06:58:11Z"
+    },
+    {
+      "id": "L-111",
+      "key": "surviving_mutant::assert serialized degraded status independently of fallback artifact text",
+      "text": "Assert serialized degraded status independently of fallback artifact text.",
+      "signal": "surviving_mutant",
+      "scope": "deep-review",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation.md#M2 (deep-review)"
+      ],
+      "created": "2026-09-11T06:58:11Z",
+      "last_seen": "2026-09-11T06:58:11Z"
     }
   ]
 }

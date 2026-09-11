@@ -888,19 +888,23 @@ class TokenMetricsTests(unittest.TestCase):
             }), encoding="utf-8")
             def build(config: Path | None, question: str | None = None) -> str:
                 old_argv = sys.argv
+                prepared = {
+                    "status": "fallback",
+                    "path": str(out / "graft-context.md"),
+                    "question_hash": hashlib.sha256("tools/test_deep_review_token_metrics.py".encode("utf-8")).hexdigest(),
+                }
                 try:
                     sys.argv = ["build_jobs.py", "--out", str(out)]
                     if question is not None:
                         sys.argv.extend(["--graphify-question", question])
-                    with patch.object(build_jobs, "prepare_graft_context", return_value={
-                        "status": "fallback",
-                        "path": str(out / "graft-context.md"),
-                        "question_hash": hashlib.sha256("tools/test_deep_review_token_metrics.py".encode("utf-8")).hexdigest(),
-                    }):
+                    with patch.object(build_jobs, "prepare_graft_context", return_value=prepared):
                         (out / "graft-context.md").write_text(graft_context.FALLBACK_LINE + "\n", encoding="utf-8")
                         self.assertEqual(build_jobs.main(), 0)
                 finally:
                     sys.argv = old_argv
+                self.assertEqual(prepared["status"], "fallback")
+                jobs = json.loads((out / "jobs.json").read_text(encoding="utf-8"))
+                self.assertEqual(jobs["repository_intelligence"]["graft"]["status"], "fallback")
                 prompt = (out / "prompts/cohort-c01.md").read_text(encoding="utf-8")
                 self.assertIn("GRAFT CONTEXT", prompt)
                 self.assertIn("graft-context.md", prompt)
@@ -1008,7 +1012,7 @@ class TokenMetricsTests(unittest.TestCase):
             fake_repo.mkdir()
             fake_bin.mkdir(parents=True)
             attacker = fake_bin / "graft"
-            attacker.write_text(f"#!/bin/sh\ntouch {marker}\n", encoding="utf-8")
+            attacker.write_text(f"#!/bin/sh\nprintf invoked > {marker}\n", encoding="utf-8")
             attacker.chmod(0o700)
             with patch.dict(os.environ, {"PATH": str(fake_bin)}):
                 self.assertIsNone(graft_binary(fake_repo))
