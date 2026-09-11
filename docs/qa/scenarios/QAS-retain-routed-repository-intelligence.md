@@ -3,7 +3,7 @@ id: QAS-retain-routed-repository-intelligence
 area: QAS
 title: Decide retention from controlled repository-intelligence tasks
 persona: Workflow operator
-journey: J-review-workflow-release
+journey: J-decide-repository-intelligence-retention
 expected: The retention report rejects incomplete, mismatched, or non-terminal samples and compares matched baseline, Graft, and routed runs only after 10–20 distinct terminal tasks, ending with an explicit keep-or-remove decision.
 entry_points: .agents/skills/workflow-spec-driven/scripts/repository_intelligence.py benchmark-report; README.md#repository-intelligence; docs/workflow/repository-intelligence.md
 qa_status: untested

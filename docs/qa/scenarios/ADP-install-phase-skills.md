@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: A core-layer adoption reports the five phase skill directories as managed and leaves the target holding each `.agents/skills/w<phase>/SKILL.md` plus a `.claude/skills/w<phase>` link that resolves to it, while re-adoption preserves consumer-owned skill trees.
 entry_points: README.md#adopt-the-workflow; npx workflow-spec-driven install; .agents/skills/wspecify; .agents/skills/wdesign; .agents/skills/wtasks; .agents/skills/wimplement; .agents/skills/wverify; .claude/skills/
-qa_status: pass
-bug_ids:
-fix_status:
+qa_status: fail
+bug_ids: BUG-20260911-packaged-install-omits-claude-skill-links
+fix_status: pending
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-07-deterministic-installer/fresh-walk-summary.json; docs/qa/evidence/2026-09-07-deterministic-installer/independent-readback.json
-last_report: docs/qa/reports/2026-09-07-deterministic-installer.md
+evidence: docs/qa/evidence/2026-09-11-release-0-11-0/adoption-install.log; docs/qa/evidence/2026-09-11-release-0-11-0/adoption-phase-pointer-failure.txt; docs/qa/evidence/2026-09-11-release-0-11-0/adoption-link-counts.txt
+last_report: docs/qa/reports/2026-09-11-release-0-11-0.md
 overlaps: ADP-adopt-workflow-safely; ADP-layered-workflow-adoption; ADP-install-review-and-qa-entries
 ---
 

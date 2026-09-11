@@ -35,11 +35,12 @@ remote-delivery authority, published capability version, and honestly bounded pa
 
 - [`DOC-read-explicit-workflow-provenance`](../scenarios/DOC-read-explicit-workflow-provenance.md)
 - [`DOC-use-optional-tools-with-repository-authority`](../scenarios/DOC-use-optional-tools-with-repository-authority.md)
-- [`QAS-retain-routed-repository-intelligence`](../scenarios/QAS-retain-routed-repository-intelligence.md)
 - [`DOC-require-explicit-remote-action-approval`](../scenarios/DOC-require-explicit-remote-action-approval.md)
 - [`REL-report-current-workflow-release`](../scenarios/REL-report-current-workflow-release.md)
 
 This journey is the adjacent canary for `J-adopt-workflow`.
+Repository-intelligence retention is walked separately through
+[`J-decide-repository-intelligence-retention`](J-decide-repository-intelligence-retention.md).
 For the parallel release contract, its adjacent journeys are
 [`J-configure-feature-workflow`](J-configure-feature-workflow.md) and
 [`J-execute-parallel-slices`](J-execute-parallel-slices.md).

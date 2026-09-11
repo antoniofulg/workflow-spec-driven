@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-configure-feature-workflow
 expected: The resolver defaults to on-demand Deep Review with no groups, reports explicit scheduled cadence groups and the effective nonnegative remediation stall bound, accepts zero as unbounded, and rejects invalid inputs before writing state.
 entry_points: .my-workflow.toml.example; .my-workflow.toml; .agents/skills/workflow-config/scripts/workflow_config.py; .agents/skills/workflow-config/SKILL.md; docs/guidelines/REVIEW-ROUNDS.md
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence:
-last_report:
+evidence: docs/qa/evidence/2026-09-11-release-0-11-0/cadence-summary.txt; docs/qa/evidence/2026-09-11-release-0-11-0/cadence-default-reload.json; docs/qa/evidence/2026-09-11-release-0-11-0/cadence-invalid.stderr; docs/qa/evidence/2026-09-11-release-0-11-0/remediation-invalid.stderr; docs/qa/evidence/2026-09-11-release-0-11-0/packet-sync.json; docs/qa/evidence/2026-09-11-release-0-11-0/packet-routing-readback.txt
+last_report: docs/qa/reports/2026-09-11-release-0-11-0.md
 overlaps:
 ---
 

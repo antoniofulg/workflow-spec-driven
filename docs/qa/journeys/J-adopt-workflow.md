@@ -73,6 +73,7 @@ the complete apply before any write; this workflow has no layer-removal command.
 - [`QAS-discover-independent-qa-skills`](../scenarios/QAS-discover-independent-qa-skills.md)
 - [`QAS-enforce-spec-anchored-qa-contracts`](../scenarios/QAS-enforce-spec-anchored-qa-contracts.md)
 - [`CFG-keep-local-artifacts-out-of-git`](../scenarios/CFG-keep-local-artifacts-out-of-git.md)
+- [`ADP-report-repository-intelligence-setup`](../scenarios/ADP-report-repository-intelligence-setup.md)
 
 ## Adjacent canary
 
