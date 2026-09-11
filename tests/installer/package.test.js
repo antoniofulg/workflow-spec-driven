@@ -73,6 +73,15 @@ test('IT-010 and IT-015 packed executable performs Node-only install and public 
   assert.equal(fs.existsSync(manifestPath), true);
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
   assert.deepEqual(manifest.layers, ['core']);
+  for (const skill of ['wspecify', 'wdesign', 'wtasks', 'wimplement', 'wverify', 'wreview', 'wqa']) {
+    const alias = path.join(clean, '.claude/skills', skill);
+    const canonical = path.join(clean, '.agents/skills', skill);
+    assert.equal(fs.lstatSync(alias).isSymbolicLink(), true, skill);
+    const resolved = fs.realpathSync(alias);
+    assert.equal(resolved, fs.realpathSync(canonical), skill);
+    assert.ok(resolved.startsWith(`${fs.realpathSync(clean)}${path.sep}`), skill);
+    assert.deepEqual(fs.readFileSync(path.join(alias, 'SKILL.md')), fs.readFileSync(path.join(canonical, 'SKILL.md')), skill);
+  }
   const expected = buildPlan({ sourceRoot: root, targetRoot: fs.mkdtempSync(path.join(os.tmpdir(), 'installer-expected-')), selectedModules: ['core'] }).manifest;
   assert.deepEqual(manifest.files, expected.files);
   assert.equal(fs.existsSync(path.join(noPython, 'python')), false);
