@@ -31,7 +31,9 @@ import run_jobs  # noqa: E402
 import build_jobs  # noqa: E402
 from _common import freeze_snapshot  # noqa: E402
 from graft_context import graft_binary, prepare_graft_context  # noqa: E402
+from graphify_context import prepare_graphify_context, question_hash  # noqa: E402
 import graft_context  # noqa: E402
+import graphify_context  # noqa: E402
 
 PREFIX = "/reviewer/deep-review"
 REPO = Path.cwd()
@@ -881,11 +883,14 @@ class TokenMetricsTests(unittest.TestCase):
                 "cohorts": [{"id": "c01", "name": "fixture", "risk": "normal", "files": [manifest["files"][0]["path"]]}],
                 "sweeps": [],
             }), encoding="utf-8")
-            def build(config: Path | None) -> str:
+            def build(config: Path | None, question: str | None = None) -> str:
                 old_argv = sys.argv
                 try:
                     sys.argv = ["build_jobs.py", "--out", str(out)]
-                    with patch.object(build_jobs, "_config_path", return_value=config):
+                    if question is not None:
+                        sys.argv.extend(["--graphify-question", question])
+                    with patch.object(build_jobs, "prepare_graft_context", return_value={"status": "fallback", "path": str(out / "graft-context.md")}):
+                        (out / "graft-context.md").write_text(graft_context.FALLBACK_LINE + "\n", encoding="utf-8")
                         self.assertEqual(build_jobs.main(), 0)
                 finally:
                     sys.argv = old_argv
@@ -894,19 +899,24 @@ class TokenMetricsTests(unittest.TestCase):
                 self.assertIn("graft-context.md", prompt)
                 return (out / "graft-context.md").read_text(encoding="utf-8")
 
-            # P3 AC9: without `graft: true` no Graft subprocess runs and the context is the single fallback line
-            sentinel, stub = out / "graft-invoked", out / "stub-graft"
-            stub.write_text(f"#!/bin/sh\ntouch '{sentinel}'\nexit 1\n", encoding="utf-8")
-            stub.chmod(0o700)
-            with patch.object(graft_context, "graft_binary", return_value=str(stub)):
-                self.assertEqual(build(None), graft_context.FALLBACK_LINE + "\n")
-            self.assertFalse(sentinel.exists())
-
+            # IT-005: legacy config is irrelevant; builder always prepares Graft.
+            self.assertEqual(build(None), graft_context.FALLBACK_LINE + "\n")
             config = out / ".deep-review.yaml"
-            config.write_text("graft: true\n", encoding="utf-8")
-            opted_in = build(config)
-            if graft_binary(REPO):
-                self.assertIn("Repository map", opted_in)
+            config.write_text("graft: false\n", encoding="utf-8")
+            self.assertEqual(build(config), graft_context.FALLBACK_LINE + "\n")
+
+            # IT-006 / IT-018: one bounded Graphify artifact with a content-safe question hash.
+            graphify = out / "graphify-context.md"
+            with patch.object(build_jobs, "prepare_graphify_context", return_value={
+                "status": "ready", "path": str(graphify), "question_hash": question_hash("shared boundary")
+            }) as prepare:
+                graphify.write_text("# Graphify context\nquestion_hash: " + question_hash("shared boundary") + "\n", encoding="utf-8")
+                build(None, "shared boundary")
+                prepare.assert_called_once_with(REPO, out, "shared boundary")
+            prompt = (out / "prompts/cohort-c01.md").read_text(encoding="utf-8")
+            self.assertIn("GRAPHIFY CONTEXT", prompt)
+            jobs = json.loads((out / "jobs.json").read_text(encoding="utf-8"))
+            self.assertEqual(jobs["repository_intelligence"]["graphify"]["question_hash"], question_hash("shared boundary"))
 
             dot_context = prepare_graft_context(REPO, out / "dot", [".agents/skills/deep-review/SKILL.md"])
             self.assertEqual(dot_context["status"], "ready-with-fallback" if graft_binary(REPO) else "fallback")
@@ -951,11 +961,41 @@ class TokenMetricsTests(unittest.TestCase):
                     encoding="utf-8",
                 )
                 script.chmod(0o700)
-                with patch.object(graft_context, "graft_binary", return_value=str(script)):
+                def run_context(_repo, _tool, operation, _arguments):
+                    if operation == failure:
+                        raise graft_context.ri.IntelligenceError(expected)
+                    if operation == "ask":
+                        return {"status": "ready", "context": json.dumps({"hits": [{"kind": "symbol", "title": "main · function"}]})}
+                    return {"status": "ready", "context": "{}"}
+
+                with patch.object(graft_context.ri, "_run_context", side_effect=run_context):
                     context = prepare_graft_context(REPO, root / name, ["tools/test_deep_review_token_metrics.py"])
                 self.assertIn(context["status"], {"fallback", "ready-with-fallback"})
                 self.assertIn(expected, (root / name / "graft-context.md").read_text(encoding="utf-8"))
-                self.assertIn("build", log.read_text(encoding="utf-8"))
+
+    def test_drm06_graphify_is_one_shot_and_degrades_without_leaking_question(self) -> None:
+        question = "shared abstraction crosses modules"
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            calls = []
+
+            def run_context(_repo, tool, operation, arguments):
+                calls.append((tool, operation, arguments))
+                return {"status": "ready", "context": "src/a.py -> src/b.py"}
+
+            with patch.object(graphify_context.ri, "_run_context", side_effect=run_context):
+                result = prepare_graphify_context(root, root / "out", question)
+            self.assertEqual(calls, [("graphify", "query", [question])])
+            self.assertEqual(result["question_hash"], question_hash(question))
+            artifact = (root / "out/graphify-context.md").read_text(encoding="utf-8")
+            self.assertIn("status: ready", artifact)
+            self.assertIn(question_hash(question), artifact)
+            self.assertNotIn(question, artifact)
+
+            with patch.object(graphify_context.ri, "_run_context", side_effect=graphify_context.ri.IntelligenceError("Graphify timed out")):
+                degraded = prepare_graphify_context(root, root / "failed", question)
+            self.assertEqual(degraded["status"], "degraded")
+            self.assertIn("Graphify timed out", (root / "failed/graphify-context.md").read_text(encoding="utf-8"))
 
     def test_drm01_metrics_hooks_are_cumulative_without_job_attribution(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

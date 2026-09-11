@@ -294,11 +294,11 @@ T6 → T7
 
 **Done when**:
 
-- [ ] Legacy `.deep-review.yaml` Graft opt-in is removed with no compatibility branch.
-- [ ] Every review attempts bounded fresh Graft context.
-- [ ] Graphify executes exactly once only when an architectural question is supplied and records a distinct question hash.
-- [ ] Missing, wrong-version, failed, stale, partial, timeout and insufficient results preserve source freeze, prompt coverage, findings schema and verdict gates.
-- [ ] Review scoped gate passes with at least 10 repository-intelligence review cases and zero failures.
+- [x] Legacy `.deep-review.yaml` Graft opt-in is removed with no compatibility branch.
+- [x] Every review attempts bounded fresh Graft context.
+- [x] Graphify executes exactly once only when an architectural question is supplied and records a distinct question hash.
+- [x] Missing, wrong-version, failed, stale, partial, timeout and insufficient results preserve source freeze, prompt coverage, findings schema and verdict gates.
+- [x] Review scoped gate passes with 45 contract + 29 token-metrics cases and zero failures.
 
 **Tests**: `IT-005`–`IT-007`, `IT-017`, `IT-018`, Graft/Graphify failure variants in `tools/test_deep_review_contract.py` and `tools/test_deep_review_token_metrics.py`
 **Gate**: Review scoped
