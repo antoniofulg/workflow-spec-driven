@@ -161,6 +161,7 @@ def test_it013_r2_instruction_outcomes_bound_reads_and_authority() -> None:
     assert "after degraded output" in text
     assert "one degraded reason for the phase" in text
     assert "targeted paths natively" in text
+    assert "Planner\nand Designer record only relevant Graphify domains, relationships, paths, and risks" in text
 
 
 def test_router_line_cap() -> None:

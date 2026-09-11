@@ -8,6 +8,7 @@ from contextlib import contextmanager
 from io import StringIO
 from pathlib import Path
 import shutil
+import signal
 import stat
 import subprocess
 import tempfile
@@ -20,6 +21,13 @@ SCRIPT = ROOT / ".agents/skills/workflow-spec-driven/scripts/repository_intellig
 import sys
 sys.path.insert(0, str(SCRIPT.parent))
 import repository_intelligence as ri
+
+
+SPEC_METRIC_FIELDS = (
+    "input_tokens", "output_tokens", "total_tokens", "repository_intelligence_calls",
+    "native_search_calls", "direct_files_read", "wall_clock_ms", "rework_count",
+    "review_findings",
+)
 
 
 class RepositoryFixture(unittest.TestCase):
@@ -317,6 +325,116 @@ class AdapterTests(RepositoryFixture):
     def test_r2_foreign_fingerprint_is_rejected(self) -> None:
         self.assertTrue(ri._foreign_state(self.root, {"checkout": str(self.root), "tree": "foreign-tree"}))
 
+    def test_r3_public_foreign_fingerprint_is_rejected(self) -> None:
+        graft = self.fake_tool("graft", ri.GRAFT_VERSION)
+        (self.root / ri.STATE_DIR).mkdir(mode=0o700)
+        (self.root / ri.STATE_DIR / "graft.json").write_text(
+            json.dumps({
+                "checkout": str(self.root), "tree": "f" * 40,
+                "source_fingerprint": ri._source_fingerprint(self.root), "status": "ready",
+            }),
+            encoding="utf-8",
+        )
+        with mock.patch.dict(os.environ, self.env_path(graft), clear=False):
+            result = ri._run_context(self.root, "graft", "map", [])
+        self.assertEqual(result["status"], "degraded")
+        self.assertTrue(result["rejected"])
+
+    def test_r3_source_mutation_after_query_is_rejected(self) -> None:
+        graft = self.fake_tool("graft", ri.GRAFT_VERSION)
+        original_fingerprint = ri.tree_fingerprint
+        calls = 0
+
+        def fingerprint(root: Path) -> str:
+            nonlocal calls
+            calls += 1
+            value = original_fingerprint(root)
+            if calls == 3:
+                (root / "src/app.py").write_text("def changed(): pass\n", encoding="utf-8")
+            return value
+
+        with mock.patch.dict(os.environ, self.env_path(graft), clear=False), mock.patch.object(ri, "tree_fingerprint", side_effect=fingerprint):
+            with self.assertRaisesRegex(ri.IntelligenceError, "stale before publication"):
+                ri._run_context(self.root, "graft", "map", [])
+
+    def test_r3_abrupt_exit_leaves_unavailable_state(self) -> None:
+        graft = self.root / "bin" / "graft"
+        graft.parent.mkdir(exist_ok=True)
+        graft.write_text(
+            "#!/usr/bin/env python3\nimport os, signal, sys\n"
+            "if '--version' in sys.argv: print('0.10.1'); raise SystemExit(0)\n"
+            "if sys.argv[1] == 'build': os.kill(os.getppid(), signal.SIGKILL)\n"
+            "print('src/app.py:1')\n",
+            encoding="utf-8",
+        )
+        graft.chmod(graft.stat().st_mode | stat.S_IXUSR)
+        ri._state_dir(self.root)
+        ready = ri._base_state(self.root.resolve(), "graft", ri.GRAFT_VERSION)
+        ri._write_json(ri._state_path(self.root.resolve(), "graft"), ready)
+        with mock.patch.dict(os.environ, self.env_path(graft), clear=False):
+            result = subprocess.run(
+                [sys.executable, str(SCRIPT), "graft", "--root", str(self.root.resolve()), "map"],
+                text=True, capture_output=True, env={**os.environ, **self.env_path(graft)},
+            )
+        self.assertEqual(result.returncode, -signal.SIGKILL)
+        self.assertEqual(ri.read_state(self.root, "graft")["status"], "unavailable")
+
+    def test_r3_graphify_deleted_source_uses_explicit_rebuild(self) -> None:
+        graphify = self.root / "bin" / "graphify"
+        graphify.parent.mkdir(exist_ok=True)
+        calls = self.root / ri.STATE_DIR / "graphify-calls"
+        graphify.write_text(
+            "#!/usr/bin/env python3\nimport pathlib, sys\n"
+            f"log = pathlib.Path({str(calls)!r})\n"
+            "if '--version' in sys.argv: print('0.9.14'); raise SystemExit(0)\n"
+            "with log.open('a') as stream: stream.write(' '.join(sys.argv[1:]) + '\\n')\n"
+            "if sys.argv[1] == 'update' and not pathlib.Path('src/app.py').exists(): raise SystemExit(1)\n"
+            "print('domain -> src/app.py:1')\n",
+            encoding="utf-8",
+        )
+        graphify.chmod(graphify.stat().st_mode | stat.S_IXUSR)
+        with mock.patch.dict(os.environ, self.env_path(graphify), clear=False):
+            ri.graphify_setup(self.root, "claude-cli", "deep", announce=False)
+            (self.root / "src/app.py").unlink()
+            result = ri._run_context(self.root, "graphify", "path", ["domain"])
+        self.assertIn("domain -> src/app.py:1", result["context"])
+        self.assertTrue(any("extract --full-rebuild" in line for line in calls.read_text(encoding="utf-8").splitlines()))
+        self.assertNotIn("src/app.py", ri.read_state(self.root, "graphify")["indexed_source_manifest"])
+
+    def test_r3_query_timeout_is_degraded(self) -> None:
+        graft = self.fake_tool("graft", ri.GRAFT_VERSION)
+        original_run = ri._run
+
+        def run(command, root, **kwargs):
+            if command[1] == "map":
+                raise ri.IntelligenceError("graft timed out")
+            return original_run(command, root, **kwargs)
+
+        with mock.patch.dict(os.environ, self.env_path(graft), clear=False), mock.patch.object(ri, "_run", side_effect=run):
+            with self.assertRaisesRegex(ri.IntelligenceError, "timed out"):
+                ri._run_context(self.root, "graft", "map", [])
+        self.assertEqual(ri.read_state(self.root, "graft")["status"], "unavailable")
+
+    def test_r3_query_failure_is_degraded(self) -> None:
+        graft = self.fake_tool("graft", ri.GRAFT_VERSION)
+        original_run = ri._run
+
+        def run(command, root, **kwargs):
+            if command[1] == "map":
+                return subprocess.CompletedProcess(command, 1, "", "failed")
+            return original_run(command, root, **kwargs)
+
+        with mock.patch.dict(os.environ, self.env_path(graft), clear=False), mock.patch.object(ri, "_run", side_effect=run):
+            with self.assertRaisesRegex(ri.IntelligenceError, "query failed"):
+                ri._run_context(self.root, "graft", "map", [])
+        self.assertEqual(ri.read_state(self.root, "graft")["status"], "unavailable")
+
+    def test_r3_graphify_budget_keeps_bounded_architecture_pointers(self) -> None:
+        context, status = ri._bounded_output("domain -> src/app.py:1\n" + ("architecture detail " * 5000))
+        self.assertEqual(status, "partial")
+        self.assertIn("domain -> src/app.py:1", context)
+        self.assertLessEqual(len(context), ri.MAX_CONTEXT_CHARS)
+
     def test_r2_all_indexed_file_classes_refresh_state(self) -> None:
         graft = self.fake_tool("graft", ri.GRAFT_VERSION)
         with mock.patch.dict(os.environ, self.env_path(graft), clear=False):
@@ -386,11 +504,11 @@ class AdapterTests(RepositoryFixture):
 
 
 class BenchmarkTests(unittest.TestCase):
-    def record(self, task: str, configuration: str, *, tree: str = "tree") -> dict:
-        metrics = {field: 1 for field in ri.METRIC_FIELDS}
+    def record(self, task: str, configuration: str, *, tree: str = "tree", category: str = "local") -> dict:
+        metrics = {field: 1 for field in SPEC_METRIC_FIELDS}
         metrics["total_tokens"] = metrics["input_tokens"] + metrics["output_tokens"]
         return {
-            "schema": 1, "task_id": task, "category": "local", "configuration": configuration,
+            "schema": 1, "task_id": task, "category": category, "configuration": configuration,
             "tree": tree, "prompt_hash": "prompt", "acceptance_contract_hash": "contract",
             "provider": "provider", "model": "model", "effort": "high",
             "metrics": metrics, "gate": "PASS",
@@ -398,7 +516,7 @@ class BenchmarkTests(unittest.TestCase):
         }
 
     def test_ut009_mismatch_names_every_control(self) -> None:
-        records = [self.record(str(i), configuration) for i in range(5) for configuration in ("graft", "routed")]
+        records = [self.record(str(i), configuration) for i in range(10) for configuration in ("graft", "routed")]
         records[1]["tree"] = "other"
         records[1]["model"] = "other-model"
         with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl") as handle:
@@ -408,7 +526,7 @@ class BenchmarkTests(unittest.TestCase):
 
     def test_r2_each_control_mismatch_is_named(self) -> None:
         for field in ri.CONTROL_FIELDS:
-            records = [self.record(str(i), configuration) for i in range(5) for configuration in ("graft", "routed")]
+            records = [self.record(str(i), configuration) for i in range(10) for configuration in ("graft", "routed")]
             records[1][field] = "mismatch"
             with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl") as handle:
                 handle.write("\n".join(json.dumps(record) for record in records)); handle.flush()
@@ -416,25 +534,42 @@ class BenchmarkTests(unittest.TestCase):
                     ri.benchmark_report(handle.name)
 
     def test_ut012_controlled_runs_group_by_configuration(self) -> None:
-        records = [self.record(str(i), configuration) for i in range(5) for configuration in ("graft", "routed")]
+        records = [self.record(str(i), configuration, category="local" if i < 5 else "bug") for i in range(10) for configuration in ("graft", "routed")]
         with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl") as handle:
             handle.write("\n".join(json.dumps(record) for record in records)); handle.flush()
             result = ri.benchmark_report(handle.name)
         self.assertEqual(result["tasks"], 10)
-        self.assertEqual(result["configurations"]["graft"]["tasks"], 5)
+        self.assertEqual(result["runs"], 20)
+        self.assertEqual(result["categories"]["local"]["configurations"]["graft"]["tasks"], 5)
+        self.assertEqual(result["categories"]["bug"]["configurations"]["routed"]["tasks"], 5)
         self.assertEqual(result["comparison"], "graft-to-routed")
-        self.assertEqual(set(result["configurations"]["graft"]["metrics"]), set(ri.METRIC_FIELDS))
+        self.assertEqual(set(result["categories"]["local"]["configurations"]["graft"]["metrics"]), set(SPEC_METRIC_FIELDS))
+
+    def test_r3_distinct_task_bounds_reject_duplicate_pairs(self) -> None:
+        records = [self.record(str(i), configuration) for i in range(5) for configuration in ("graft", "routed")]
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl") as handle:
+            handle.write("\n".join(json.dumps(record) for record in records)); handle.flush()
+            with self.assertRaisesRegex(ValueError, "distinct task"):
+                ri.benchmark_report(handle.name)
+
+    def test_r3_required_metrics_are_literal_contract_fields(self) -> None:
+        records = [self.record(str(i), configuration) for i in range(10) for configuration in ("graft", "routed")]
+        del records[0]["metrics"]["native_search_calls"]
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl") as handle:
+            handle.write("\n".join(json.dumps(record) for record in records)); handle.flush()
+            with self.assertRaisesRegex(ValueError, "native_search_calls"):
+                ri.benchmark_report(handle.name)
 
     def test_r2_baseline_to_graft_comparison_is_explicit(self) -> None:
-        records = [self.record(str(i), configuration) for i in range(5) for configuration in ("baseline", "graft")]
+        records = [self.record(str(i), configuration) for i in range(10) for configuration in ("baseline", "graft")]
         with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl") as handle:
             handle.write("\n".join(json.dumps(record) for record in records)); handle.flush()
             result = ri.benchmark_report(handle.name)
         self.assertEqual(result["comparison"], "baseline-to-graft")
 
     def test_r2_short_and_long_benchmark_boundaries_are_rejected(self) -> None:
-        for count in (8, 22):
-            records = [self.record(str(i), configuration) for i in range(count // 2) for configuration in ("graft", "routed")]
+        for count in (8, 21):
+            records = [self.record(str(i), configuration) for i in range(count) for configuration in ("graft", "routed")]
             with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl") as handle:
                 handle.write("\n".join(json.dumps(record) for record in records)); handle.flush()
                 with self.assertRaisesRegex(ValueError, "10-20"):
@@ -455,7 +590,7 @@ class BenchmarkTests(unittest.TestCase):
                 ri.benchmark_report(handle.name)
 
     def test_it019_unavailable_metrics_are_explicit(self) -> None:
-        records = [self.record(str(i), configuration) for i in range(5) for configuration in ("graft", "routed")]
+        records = [self.record(str(i), configuration) for i in range(10) for configuration in ("graft", "routed")]
         records[0]["metrics"]["input_tokens"] = "unavailable"
         with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl") as handle:
             handle.write("\n".join(json.dumps(record) for record in records)); handle.flush()
@@ -465,14 +600,14 @@ class BenchmarkTests(unittest.TestCase):
     def test_r2_missing_full_evidence_fields_is_rejected(self) -> None:
         record = self.record("1", "graft")
         del record["metrics"]["total_tokens"]
-        records = [record, self.record("1", "routed")] + [self.record(str(i), configuration) for i in range(2, 6) for configuration in ("graft", "routed")]
+        records = [record, self.record("1", "routed")] + [self.record(str(i), configuration) for i in range(2, 11) for configuration in ("graft", "routed")]
         with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl") as handle:
             handle.write("\n".join(json.dumps(item) for item in records)); handle.flush()
             with self.assertRaisesRegex(ValueError, "total_tokens"):
                 ri.benchmark_report(handle.name)
 
     def test_r2_removal_recommendation_requires_explicit_surface_decision(self) -> None:
-        records = [self.record(str(i), configuration) for i in range(5) for configuration in ("graft", "routed")]
+        records = [self.record(str(i), configuration) for i in range(10) for configuration in ("graft", "routed")]
         records[0]["retention_recommendation"] = "remove"
         with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl") as handle:
             handle.write("\n".join(json.dumps(record) for record in records)); handle.flush()
@@ -492,8 +627,7 @@ class BenchmarkTests(unittest.TestCase):
         self.assertEqual(stored["metrics"]["total_tokens"], 2)
 
     def test_r1_disjoint_task_ids_cannot_bypass_control_matching(self) -> None:
-        records = [self.record(str(i), "graft") for i in range(10)]
-        records[1]["configuration"] = "routed"
+        records = [self.record(str(i), "graft") for i in range(10)] + [self.record("0", "routed")]
         records[0]["tree"] = "other-tree"
         records[0]["provider"] = "other-provider"
         with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl") as handle:

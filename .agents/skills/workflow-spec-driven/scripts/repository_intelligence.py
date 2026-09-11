@@ -222,7 +222,8 @@ def _base_state(root: Path, tool: str, version: str, *, backend: str = "not-appl
     return {
         "schema": SCHEMA, "tool": tool, "tool_version": version,
         "checkout": str(root), "tree": tree_fingerprint(root), "backend": backend,
-        "source_scope": ["."], "indexed_source_manifest": manifest, "status": status,
+        "source_scope": ["."], "indexed_source_manifest": manifest,
+        "source_fingerprint": _source_fingerprint(root), "status": status,
         "built_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
 
@@ -238,8 +239,28 @@ def _source_manifest(root: Path) -> list[str]:
     ]
 
 
+def _source_fingerprint(root: Path) -> str:
+    digest = hashlib.sha256()
+    for path in _source_manifest(root):
+        digest.update(path.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update((root / path).read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
 def _foreign_state(root: Path, state: dict[str, Any] | None) -> bool:
-    return bool(state and (state.get("checkout") != str(root) or state.get("tree") != tree_fingerprint(root)))
+    if not state or state.get("checkout") != str(root):
+        return bool(state)
+    tree = state.get("tree")
+    current = tree_fingerprint(root)
+    if tree == current:
+        return False
+    # A source edit makes the representation stale and refreshable; an unchanged source
+    # paired with another tree fingerprint is foreign state and must be rejected.
+    if state.get("source_fingerprint") and state["source_fingerprint"] != _source_fingerprint(root):
+        return False
+    return True
 
 
 def _state_checkout_is_foreign(root: Path, state: dict[str, Any] | None) -> bool:
@@ -256,6 +277,7 @@ def _unavailable_state(root: Path, tool: str, reason: str, *, backend: str = "no
         "backend": backend,
         "source_scope": ["."],
         "indexed_source_manifest": [],
+        "source_fingerprint": _source_fingerprint(root),
         "status": "unavailable",
         "reason": _redact(reason),
     }
@@ -316,7 +338,7 @@ def _run_context(root: Path, tool: str, operation: str, arguments: list[str]) ->
     expected = GRAFT_VERSION if tool == "graft" else GRAPHIFY_VERSION
     binary = _require_tool(root, tool, expected)
     state = read_state(root, tool)
-    if _state_checkout_is_foreign(root, state):
+    if _foreign_state(root, state):
         return _result(tool, "degraded", reason="checkout/fingerprint mismatch; state rejected", rejected=True)
     if tool == "graphify" and (not state or state.get("backend") in (None, "not-applicable") or state.get("status") == "unavailable"):
         raise IntelligenceError("Graphify setup required; run graphify-setup with an explicit backend")
@@ -328,7 +350,11 @@ def _run_context(root: Path, tool: str, operation: str, arguments: list[str]) ->
             refresh = [binary, "build"] if tool == "graft" else [binary, "update"]
             refreshed = _run(refresh, root, env={**os.environ, **({"GRAFT_REFRESH": "hash"} if tool == "graft" else {})})
             if refreshed.returncode != 0:
-                raise IntelligenceError(f"{tool} refresh failed")
+                if tool != "graphify":
+                    raise IntelligenceError(f"{tool} refresh failed")
+                rebuilt = _run([binary, "extract", "--full-rebuild", "--backend", backend], root)
+                if rebuilt.returncode != 0:
+                    raise IntelligenceError("graphify refresh failed")
             if tool == "graft":
                 checked = _run([binary, "check"], root)
                 if checked.returncode != 0:
@@ -362,6 +388,9 @@ def _run_context(root: Path, tool: str, operation: str, arguments: list[str]) ->
             _invalidate_state(root, tool, f"{tool} returned insufficient context", backend=backend)
         raise IntelligenceError(f"{tool} returned insufficient context")
     with mutation_lock(root):
+        if tree_fingerprint(root) != after_query:
+            _invalidate_state(root, tool, "working tree changed before publication", backend=backend)
+            raise IntelligenceError(f"{tool} result became stale before publication")
         state = _base_state(root, tool, expected, backend=backend, status=status)
         _write_json(_state_path(root, tool), state)
     extra: dict[str, Any] = {"tree": state["tree"], "command": command}
@@ -376,7 +405,9 @@ def graphify_setup(root: Path, backend: str, mode: str, source_root: str | None 
     scope = _validate_scope(root, backend, source_root)
     binary = _require_tool(root, "graphify", GRAPHIFY_VERSION)
     state = read_state(root, "graphify")
-    if state and not _state_checkout_is_foreign(root, state) and state.get("tree") == tree_fingerprint(root) and state.get("backend") == backend and state.get("status") != "unavailable":
+    if _foreign_state(root, state):
+        return _result("graphify", "degraded", reason="checkout/fingerprint mismatch; state rejected", rejected=True)
+    if state and state.get("tree") == tree_fingerprint(root) and state.get("backend") == backend and state.get("status") != "unavailable":
         return _result("graphify", "ready", reused=True, tree=state["tree"], backend=backend, source_scope=scope)
     files = _source_manifest(root)
     ignored = ["graft/", "graphify-out/", f"{STATE_DIR}/"]
@@ -470,8 +501,11 @@ def benchmark_report(path: str | Path) -> dict[str, Any]:
             raise ValueError(f"malformed benchmark record at line {line_number}") from exc
         _validate_metric_record(record)
         records.append(record)
-    if not 10 <= len(records) <= 20:
-        raise ValueError("benchmark comparison requires 10-20 terminal controlled tasks")
+    by_task: dict[str, list[dict[str, Any]]] = {}
+    for record in records:
+        by_task.setdefault(record["task_id"], []).append(record)
+    if not 10 <= len(by_task) <= 20:
+        raise ValueError("benchmark comparison requires 10-20 distinct task IDs with terminal controlled tasks")
     configurations = {record["configuration"] for record in records}
     expected_pair = (
         {"baseline", "graft"} if configurations == {"baseline", "graft"}
@@ -480,9 +514,6 @@ def benchmark_report(path: str | Path) -> dict[str, Any]:
     )
     if expected_pair is None:
         raise ValueError("benchmark comparison requires baseline->graft or graft->routed pairs")
-    by_task: dict[str, list[dict[str, Any]]] = {}
-    for record in records:
-        by_task.setdefault(record["task_id"], []).append(record)
     mismatches: set[str] = set()
     for task_records in by_task.values():
         baseline = task_records[0]
@@ -495,11 +526,10 @@ def benchmark_report(path: str | Path) -> dict[str, Any]:
             mismatches.update(field for field in CONTROL_FIELDS if record.get(field) != baseline.get(field))
     if mismatches:
         raise ValueError("benchmark controls mismatch: " + ", ".join(sorted(mismatches)))
-    grouped: dict[str, dict[str, Any]] = {}
-    for configuration in sorted(configurations):
-        selected = [record for record in records if record["configuration"] == configuration]
-        grouped[configuration] = {
-            "tasks": len(selected),
+    def summarize(selected: list[dict[str, Any]]) -> dict[str, Any]:
+        return {
+            "tasks": len({record["task_id"] for record in selected}),
+            "runs": len(selected),
             "outcomes": {outcome: sum(record["outcome"] == outcome for record in selected) for outcome in ("success", "failure", "blocked")},
             "metrics": {
                 field: sum(record["metrics"][field] for record in selected if isinstance(record["metrics"][field], int))
@@ -507,11 +537,29 @@ def benchmark_report(path: str | Path) -> dict[str, Any]:
                 for field in METRIC_FIELDS
             },
         }
+
+    grouped: dict[str, dict[str, Any]] = {
+        configuration: summarize([record for record in records if record["configuration"] == configuration])
+        for configuration in sorted(configurations)
+    }
+    categories: dict[str, dict[str, Any]] = {}
+    for category in sorted({record["category"] for record in records}):
+        selected = [record for record in records if record["category"] == category]
+        categories[category] = {
+            "tasks": len({record["task_id"] for record in selected}),
+            "runs": len(selected),
+            "configurations": {
+                configuration: summarize([record for record in selected if record["configuration"] == configuration])
+                for configuration in sorted(configurations)
+            },
+        }
     recommendations = {record.get("retention_recommendation") for record in records if record.get("retention_recommendation")}
     return {
         "schema": SCHEMA,
-        "tasks": len(records),
+        "tasks": len(by_task),
+        "runs": len(records),
         "configurations": grouped,
+        "categories": categories,
         "controls": list(CONTROL_FIELDS),
         "comparison": "baseline-to-graft" if configurations == {"baseline", "graft"} else "graft-to-routed",
         "removal_decision_required": "remove" in recommendations,

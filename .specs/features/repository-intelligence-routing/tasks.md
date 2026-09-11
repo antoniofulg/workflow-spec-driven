@@ -215,6 +215,41 @@ T6 → T7
 
 **Commit**: `fix(intelligence): prove repository intelligence invariants`
 
+### R3: Close freshness and benchmark verifier blockers
+
+**Slice:** RI-DISCOVERY
+**What**: Close the remaining production-path freshness races and make benchmark retention evidence count distinct controlled tasks by category.
+**Where**: `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py`
+**Depends on**: R2
+**Reuses**: Existing read/write lock, fingerprint state, benchmark schema, and deterministic probes in the current verifier report
+**Requirement**: RIR-02, RIR-04, RIR-05, SEC-005, SEC-006
+
+**Open blocker fingerprints**:
+
+- `193996f899eedf7e0a2c94d26fa2d028706097be461036f3298d3c2d0da1b2b0` — freshness, failure 3, live stalls 2/3.
+- `204f0f4405d678d55b28d4887344c1f4c314bcc33093015e6e7f4701002d01ea` — benchmark evidence, failure 2, live stalls 1/3.
+
+**Tools**:
+
+- CLI: Graft for production-path and caller discovery
+- Skill: `ponytail`, `wimplement`
+
+**Done when**:
+
+- [x] The public execution path rejects another checkout or tree fingerprint before using context.
+- [x] Refresh, query, final tree validation, and state publication form one coherent protocol; a source mutation during query returns degraded instead of old context labeled fresh.
+- [x] Removing pre-refresh unavailable publication fails an abrupt-exit test; deleted-source Graphify state requires its explicit rebuild path.
+- [x] Benchmark sample bounds count 10–20 distinct task IDs, report runs separately, and group every comparison by task category.
+- [x] Required metrics are asserted from the spec independently of implementation constants, including `native_search_calls` and `total_tokens`.
+- [x] Timeout, budget, query-failure, and bounded architecture-record outcomes receive focused assertions.
+- [x] The two prior direct probes now fail closed and all freshness/benchmark mutants are killed.
+- [x] Full RI-DISCOVERY gate passes with zero failures and updated exact count (61 adapter; 21 phase; 64 config; 37 packet).
+
+**Tests**: Every remaining FAIL/GAP row in `validation-RI-DISCOVERY.md`, in canonical adapter and phase suites
+**Gate**: Adapter scoped plus Instruction scoped
+
+**Commit**: `fix(intelligence): close freshness and benchmark blockers`
+
 ### T4: Route repository intelligence into Deep Review
 
 **Slice:** RI-REVIEW
