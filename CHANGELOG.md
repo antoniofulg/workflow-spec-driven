@@ -4,6 +4,41 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-09-11
+
+### Added
+
+- Graphify `0.9.14` is the standard architectural-intelligence tool for cross-cutting planning and
+  conditional architectural review; Graft `0.10.1` is the standard code-discovery tool for
+  exploration, implementation, and selected Deep Review.
+- Checkout-local repository-intelligence state validates versions, freshness, worktree identity,
+  bounded context, safe subprocess arguments, and controlled benchmark evidence.
+- Guided adoption ships the repository-intelligence router and reports exact development-tool setup
+  commands without changing application runtime dependencies.
+
+### Changed
+
+- Deep Review now defaults to on demand: absent cadence and fresh adoption resolve to `skip`; an
+  operator explicitly selects `slice`, `feature`, or `grouped.N` to schedule review groups.
+- Canonical Planner, Designer, Explorer, Implementer, and Deep Reviewer packets route architectural
+  questions to Graphify and code questions to Graft before broad native repository search.
+- Consumer-owned configuration remains preserved, and workflow/configuration changes retain
+  proportional validation.
+
+### Fixed
+
+- Repository-intelligence execution handles tracked directory symlinks, rejects foreign worktree
+  tools and stale state, preserves degraded status, and passes the required Graphify source paths.
+- Graphify code-only setup no longer sends the invalid `--backend code-only` argument.
+
+### Migration
+
+- Re-run `npx workflow-spec-driven install`. Existing `.my-workflow.toml` remains consumer-owned;
+  set `[deep_review] cadence = "skip"` explicitly to adopt the on-demand default in an existing
+  checkout.
+- Install the pinned development tools using the commands printed by adoption, then build each
+  checkout's local graphs. Neither tool is an application runtime dependency.
+
 ## [0.10.1] - 2026-09-08
 
 ### Fixed
