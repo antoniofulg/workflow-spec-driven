@@ -409,16 +409,18 @@ class AdapterTests(RepositoryFixture):
         self.assertEqual(result.returncode, -signal.SIGKILL)
         self.assertEqual(ri.read_state(self.root, "graft")["status"], "unavailable")
 
-    def test_r3_graphify_deleted_source_uses_explicit_rebuild(self) -> None:
+    def test_r12_graphify_commands_require_real_paths_and_force_flag(self) -> None:
         graphify = self.root / "bin" / "graphify"
         graphify.parent.mkdir(exist_ok=True)
         calls = self.root / ri.STATE_DIR / "graphify-calls"
         graphify.write_text(
-            "#!/usr/bin/env python3\nimport pathlib, sys\n"
+            "#!/usr/bin/env python3\nimport json, pathlib, sys\n"
             f"log = pathlib.Path({str(calls)!r})\n"
             "if '--version' in sys.argv: print('0.9.14'); raise SystemExit(0)\n"
-            "with log.open('a') as stream: stream.write(' '.join(sys.argv[1:]) + '\\n')\n"
-            "if sys.argv[1] == 'update' and not pathlib.Path('src/app.py').exists(): raise SystemExit(1)\n"
+            "if sys.argv[1] in {'extract', 'update'} and (len(sys.argv) < 3 or pathlib.Path(sys.argv[2]).resolve() != pathlib.Path.cwd().resolve()): raise SystemExit(2)\n"
+            "if sys.argv[1] == 'extract' and ('--out' not in sys.argv or pathlib.Path(sys.argv[sys.argv.index('--out') + 1]).resolve() != pathlib.Path.cwd().resolve() or '--full-rebuild' in sys.argv): raise SystemExit(2)\n"
+            "with log.open('a') as stream: stream.write(json.dumps(sys.argv[1:]) + '\\n')\n"
+            "if sys.argv[1] == 'update' and not pathlib.Path('src/app.py').exists() and '--force' not in sys.argv: raise SystemExit(1)\n"
             "print('domain -> src/app.py:1')\n",
             encoding="utf-8",
         )
@@ -428,7 +430,15 @@ class AdapterTests(RepositoryFixture):
             (self.root / "src/app.py").unlink()
             result = ri._run_context(self.root, "graphify", "path", ["domain"])
         self.assertIn("domain -> src/app.py:1", result["context"])
-        self.assertTrue(any("extract --full-rebuild" in line for line in calls.read_text(encoding="utf-8").splitlines()))
+        commands = [json.loads(line) for line in calls.read_text(encoding="utf-8").splitlines()]
+        extract = next(command for command in commands if command[0] == "extract")
+        updates = [command for command in commands if command[0] == "update"]
+        self.assertEqual(extract[1], str(self.root.resolve()))
+        self.assertIn("--mode", extract)
+        self.assertEqual(extract[extract.index("--out") + 1], str(self.root))
+        self.assertEqual(updates[0][1], str(self.root.resolve()))
+        self.assertIn("--force", updates[-1])
+        self.assertNotIn("--full-rebuild", " ".join(command for command in extract))
         self.assertNotIn("src/app.py", ri.read_state(self.root, "graphify")["indexed_source_manifest"])
 
     def test_r3_query_timeout_is_degraded(self) -> None:

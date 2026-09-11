@@ -375,12 +375,13 @@ def _run_context(root: Path, tool: str, operation: str, arguments: list[str]) ->
         backend = (state or {}).get("backend", "not-applicable")
         _invalidate_state(root, tool, "refresh in progress", backend=backend)
         try:
-            refresh = [binary, "build"] if tool == "graft" else [binary, "update"]
+            source_root = (root / ((state or {}).get("source_scope") or ["."])[0]).resolve()
+            refresh = [binary, "build"] if tool == "graft" else [binary, "update", str(source_root)]
             refreshed = _run(refresh, root, env={**os.environ, **({"GRAFT_REFRESH": "hash"} if tool == "graft" else {})})
             if refreshed.returncode != 0:
                 if tool != "graphify":
                     raise IntelligenceError(f"{tool} refresh failed")
-                rebuilt = _run([binary, "extract", "--full-rebuild", "--backend", backend], root)
+                rebuilt = _run([binary, "update", str(source_root), "--force"], root)
                 if rebuilt.returncode != 0:
                     raise IntelligenceError("graphify refresh failed")
             if tool == "graft":
@@ -445,10 +446,12 @@ def graphify_setup(root: Path, backend: str, mode: str, source_root: str | None 
         print(json.dumps({"preflight": preflight}, sort_keys=True), flush=True)
     with mutation_lock(root):
         _invalidate_state(root, "graphify", "extraction in progress", backend=backend)
-        command = [binary, "extract"]
+        command = [binary, "extract", str(disclosed_root)]
         if mode == "code-only":
             command.append("--code-only")
-        command.extend(["--backend", backend])
+        else:
+            command.extend(["--mode", mode])
+        command.extend(["--backend", backend, "--out", str(root)])
         result = _run(command, root)
         if result.returncode != 0:
             _invalidate_state(root, "graphify", "Graphify extraction failed", backend=backend)

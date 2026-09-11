@@ -559,6 +559,29 @@ T6 → T7
 
 **Commit**: `fix(intelligence): fingerprint tracked skill symlinks`
 
+### R12: Pass the required checkout path to Graphify commands
+
+**Slice:** RI-ADOPTION
+**What**: Invoke Graphify extraction, update, and forced rebuild with the explicit checkout/source path required by the real CLI.
+**Where**: `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py`
+**Depends on**: R11
+**Reuses**: Existing argument-vector setup/update fixtures and real Graphify `0.9.14` CLI
+**Requirement**: RIR-02.5, RIR-04.2
+
+**Done when**:
+
+- [x] `graphify-setup` passes the disclosed source root and checkout output root to `graphify extract`.
+- [x] Graphify refresh passes the checkout path to `graphify update`.
+- [x] Failed incremental refresh uses the real forced-rebuild flag and explicit paths.
+- [x] Removing any required path makes the canonical adapter suite fail.
+- [x] Real `graphify-setup --backend claude-cli --mode deep` completes or reports a backend failure after accepting valid CLI syntax.
+- [x] Adapter gate and `bun run test:all` pass with zero failures.
+
+**Tests**: Real-CLI argv regression for missing Graphify `<path>`
+**Gate**: Full
+
+**Commit**: `fix(intelligence): pass Graphify checkout paths`
+
 ---
 
 ## Dependency Execution Map
