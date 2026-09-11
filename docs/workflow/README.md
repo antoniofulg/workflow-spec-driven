@@ -17,6 +17,7 @@ artifacts, and explicit handoff prompts remain the durable semantic context.
 4. [Decisions — two namespaces, halt vs decide](decisions.md)
 5. [Guidelines — why each file exists](guidelines.md)
 6. [Skills, knowledge, adopt](pack.md)
+7. [Repository intelligence](repository-intelligence.md)
 
 ## Map
 
@@ -28,6 +29,7 @@ artifacts, and explicit handoff prompts remain the durable semantic context.
 | `AD-NNN` vs architecture invariants | [decisions.md](decisions.md) |
 | One paragraph per guideline | [guidelines.md](guidelines.md) |
 | What is vendored and what is not | [pack.md](pack.md) |
+| Graphify/Graft routing, setup, freshness, and benchmark | [repository-intelligence.md](repository-intelligence.md) |
 | The imperative rules | [`docs/guidelines/`](../guidelines/) |
 | What agents load every turn | [`AGENTS.md`](../../AGENTS.md) |
 

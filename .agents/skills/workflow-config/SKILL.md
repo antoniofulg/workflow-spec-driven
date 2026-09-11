@@ -52,7 +52,8 @@ With no `tasks.md`, the resolver uses one slice. `--slices <expected-count>` rem
 assertion for initial resolution and refresh; it never owns the count. Normal resume returns the
 frozen snapshot without reading current Tasks.
 
-Treat the snapshot as the persisted route and cadence; the current JSON output additionally reports
+Treat the snapshot as the persisted route and cadence; cadence defaults to `skip`, so Deep Review is
+on demand unless the operator selects `slice`, `feature`, or `grouped.N`. The current JSON output additionally reports
 the live remediation threshold. Cadence `skip` freezes `groups: []`: the route has no deep-review
 stage and nothing downstream waits for one; the human runs `wreview` later. The resolver owns config parsing, validation, balanced groups, role
 precedence, agent-file lookup, and atomic persistence. Keep those rules in the resolver instead of

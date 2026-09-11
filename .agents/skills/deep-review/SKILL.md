@@ -42,7 +42,6 @@ Optional repo-root file, the skill-native config standard. Any key absent there 
 | --- | --- |
 | `concurrency` | Maximum simultaneous reviewer jobs, an integer from `1` through `6`; defaults to `3` and is pinned in `manifest.json` |
 | `path_filters` | Globs over repo-relative paths: `!pat` excludes; bare patterns, when present, restrict review to their matches and beat any exclude; built-in excludes (locks, vendor, generated, testdata, snapshots) always append |
-| `graft` | `true` runs the pinned Graft CLI before prompts are materialized; otherwise `graft-context.md` is the single plain-inspection line |
 | `request_changes_workflow` | publish-mode review-event gate |
 
 The manifest builder resolves `path_filters` into manifest.json.
@@ -64,9 +63,9 @@ The manifest builder resolves `path_filters` into manifest.json.
 - Optional metrics snapshot provider totals and cumulative checkpoints without changing dispatch,
   retries, outputs, or exits. The main thread records serialized cumulative checkpoints without
   per-job token attribution; totals finalize only after the full scope completes. Hosts without a
-  compatible adapter record `unavailable` and continue the review normally. With `graft: true`, the
-  pinned Graft CLI runs before prompts are materialized; a failed or absent Graft falls back to
-  ordinary repository inspection.
+  compatible adapter record `unavailable` and continue the review normally. The pinned Graft adapter
+  runs before prompts are materialized; a failed or absent Graft falls back to ordinary repository
+  inspection.
 - External `--subagent` runtimes spend `compozy exec` credit.
 
 ## Procedure

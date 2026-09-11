@@ -229,6 +229,9 @@ changing instruction bodies.
 
 The `cadence` controls the deep-review groups:
 
+The default is `skip`: Deep Review runs only when the operator requests it or explicitly selects a
+scheduled cadence.
+
 - `slice`: one group per slice (`1, 2, 3, 4` → `[1] [2] [3] [4]`).
 - `feature`: one group for the whole feature (`1, 2, 3, 4` → `[1, 2, 3, 4]`).
 - `grouped.N`: consecutive, balanced groups with at most `N` slices (`grouped.3` with four
@@ -316,7 +319,7 @@ repository boundary. Retired workflow files are removed only when their managed 
 are pristine; edited or unproven paths conflict with zero writes.
 
 Each release lists its upgrade steps under `### Migration` in the changelog; follow them in order
-after installation. The package identity for this release is `workflow-spec-driven@0.10.1`.
+after installation. The package identity for this release is `workflow-spec-driven@0.11.0`.
 
 ## Managed paths
 
@@ -346,17 +349,52 @@ links into `.agents/skills/`.
 **A runtime packet has the wrong model or effort.** Edit the local `.my-workflow.toml`, then run
 `npx workflow-spec-driven install`. Runtime packets are generated output.
 
+## Repository intelligence
+
+The workflow stays stack- and tool-agnostic while using provider-neutral repository-intelligence defaults.
+Graphify and Graft are the standard, checkout-local development tools for repository intelligence.
+They never enter application runtime dependencies, and specs plus current checkout source remain
+authoritative.
+
+Use the smallest route that answers the question:
+
+- Existing file, symbol, API, caller, and callee pointers: skip retrieval.
+- Architectural trigger (boundary, responsibility transfer, shared abstraction, central flow, or
+  unresolved architectural risk): query Graphify first, then use Graft for implementation pointers.
+- Unknown code location or call relationship: query Graft before broad native search.
+- Exact-text question: use exact native search.
+
+Tool output stays bounded. Missing, wrong-version, stale, failed, partial, or insufficient output
+produces one explicit degraded reason for the phase, then targeted native inspection. Degraded
+inspection is a fallback, not normal routing.
+
+Adoption reports these exact development-tool remediation commands without executing them or changing
+application dependencies:
+
+```bash
+npm install --save-dev --save-exact @nanonets/graft@0.10.1
+uv tool install graphifyy==0.9.14
+python3 .agents/skills/workflow-spec-driven/scripts/repository_intelligence.py \
+  graphify-setup --root . --backend <backend> --mode deep
+```
+
+Graphify semantic extraction requires an explicit backend and discloses its source scope before
+extraction. Each query refreshes or rejects state using the active checkout and working-tree
+fingerprint. Generated graphs, caches, backend metadata, and benchmark scratch records remain ignored
+under `graft/`, `graphify-out/`, and `.repository-intelligence/`.
+
+The directional retention pilot records one controlled terminal task per JSONL record, including task
+category, configuration (`baseline`, `graft`, or `routed`), snapshot and prompt controls, provider,
+model, effort, token metrics, repository-intelligence/native-search calls, files read, wall-clock time,
+gate, Verifier, findings, rework, and outcome. Compare the same controls within each category after
+10–20 terminal tasks. A promoted report is directional, not statistically conclusive; removing or
+changing routing requires a later explicit project decision.
+
 ## Optional integrations
 
-The workflow stays stack- and tool-agnostic. Optional capabilities can improve a stage when
-available:
-
-- **Graft** can enrich deep-review context; absence or failure falls back to repository inspection.
-- **OpenDesign** can support visual iteration; the repository stores only the approved handoff, and
-  absence or failure falls back to normal repository artifacts.
-
-No integration is mandatory or installed by adoption. Keep daemon, port, CLI and version details in
-the relevant integration documentation.
+**OpenDesign** remains an optional visual capability. The repository stores only the approved handoff;
+absence or failure falls back to normal repository artifacts. It is separate from standard Graphify
+and Graft routing. No integration is mandatory or installed by adoption for visual iteration.
 
 The installer merges workflow-owned ignore entries, copies missing example/templates, generates
 local runtime packets, and records per-file ownership in `.my-workflow/adoption.json`. It preserves

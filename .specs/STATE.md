@@ -69,7 +69,7 @@
 - **Scope**: `.my-workflow.toml`, `.agents/skills/workflow-config/`, `AGENTS.md`, review guidance,
   workflow docs, and adoption.
 - **Date**: 2026-08-21
-- **Status**: active
+- **Status**: superseded by AD-034
 
 ### AD-005
 
@@ -84,7 +84,7 @@
 - **Scope**: `.agents/skills/deep-review/`, `package.json`, lockfiles, deep-review tests and
   documentation.
 - **Date**: 2026-08-22
-- **Status**: active
+- **Status**: superseded by AD-033
 
 ### AD-006
 
@@ -99,7 +99,7 @@
 - **Scope**: `README.md`, `docs/guidelines/UI-UX.md`, `docs/guidelines/SECURITY.md`, optional
   integration skills, and feature snapshots.
 - **Date**: 2026-08-23
-- **Status**: active
+- **Status**: superseded by AD-033
 
 ### AD-007
 
@@ -528,4 +528,44 @@
   Claude, Codex, and Cursor.
 - **Scope**: `templates/agents/*`, `.my-workflow.toml.example`, `scripts/adopt.py`, `workflow_config.py`.
 - **Date**: 2026-09-03
+- **Status**: active
+
+### AD-033
+
+- **Decision**: Graphify Labs `graphifyy` `0.9.14` and Nanonets Graft `0.10.1` are the workflow's
+  standard repository-intelligence tools. Graphify identifies architectural territory during Design
+  and architecturally uncertain review; Graft is the first code-discovery tool during exploration,
+  implementation, and every selected Deep Review. Existing sufficient context skips retrieval;
+  missing, failed, stale, partial, or insufficient tool output is an explicit degraded path to
+  targeted native inspection, not normal routing. Generated state is checkout-local and ignored;
+  specs and the current checkout remain authoritative. Vendor installers never own managed agent
+  instructions, neither tool enters application runtime dependencies, and retention or removal after
+  the 10–20 task pilot requires a later explicit decision. This supersedes AD-005 and AD-006; their
+  repository-authority and honest-fallback constraints remain here, while OpenDesign remains an
+  optional visual capability.
+- **Reason**: Standard routed retrieval should reduce broad repository search, token use, irrelevant
+  reads, and missed architectural or call-graph impact while assigning one tool to each information
+  level.
+- **Trade-off**: The workflow now owns exact development-tool versions, graph freshness, role routing,
+  degraded behavior, and benchmark evidence. Graphify semantic extraction may consume an external
+  model and transmit the disclosed source scope; each checkout must explicitly select its backend.
+- **Scope**: Repository-intelligence routing, phase skills and role packets, Deep Review, adoption,
+  local graph hygiene, QA scenarios, benchmark evidence, package metadata, and workflow docs.
+- **Date**: 2026-09-10
+- **Status**: active
+
+### AD-034
+
+- **Decision**: Deep Review defaults to on demand. Absent cadence and the tracked example resolve to
+  `skip` with no review groups; an operator explicitly selects `slice`, `feature`, or `grouped.N` to
+  schedule Deep Review. Technical Verifier behavior and remediation limits remain unchanged. This
+  supersedes AD-004's `grouped.3` default while preserving its configurable routing and frozen feature
+  snapshot contract.
+- **Reason**: Technical verification already owns normal feature correctness. Deep Review is an
+  additional inspection requested for the changes that warrant its cost.
+- **Trade-off**: Features receive no Deep Review unless the operator requests or schedules it; the
+  frozen route makes that absence explicit and leaves `wreview` available on demand.
+- **Scope**: Workflow configuration defaults, tracked/local config, public documentation, QA scenario,
+  tests, and future feature snapshots.
+- **Date**: 2026-09-11
 - **Status**: active

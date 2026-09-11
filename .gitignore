@@ -18,6 +18,8 @@ docs/qa/state.csv
 
 # graft's local graph cache — regenerable, not committed (run `graft build`).
 graft/
+graphify-out/
+.repository-intelligence/
 
 # Gate result cache records — regenerable (`tools/gate_cache.py`).
 .gate-cache/

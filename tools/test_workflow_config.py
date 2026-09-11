@@ -19,6 +19,21 @@ import workflow_config
 ROOT = Path(__file__).resolve().parent.parent
 
 
+def test_it010_canonical_roles_share_repository_intelligence_routing() -> None:
+    routed_roles = ("planner", "designer", "explorer", "implementer", "deep-reviewer")
+    for provider in ("claude", "codex", "cursor"):
+        for role in routed_roles:
+            extension = "toml" if provider == "codex" else "md"
+            path = ROOT / ".agents/skills/workflow-config/assets/agents" / provider / f"{role}.{extension}"
+            text = path.read_text(encoding="utf-8")
+            assert "## Repository intelligence" in text, f"{provider}/{role} lacks routing section"
+            assert "Graphify" in text and "Graft" in text, f"{provider}/{role} lacks both tool names"
+        explorer = (ROOT / ".agents/skills/workflow-config/assets/agents" / provider / f"explorer.{'toml' if provider == 'codex' else 'md'}").read_text(encoding="utf-8")
+        implementer = (ROOT / ".agents/skills/workflow-config/assets/agents" / provider / f"implementer.{'toml' if provider == 'codex' else 'md'}").read_text(encoding="utf-8")
+        assert explorer.index("Graphify") < explorer.index("Graft"), f"{provider}/explorer reverses architecture/code order"
+        assert implementer.index("Graft") < implementer.index("broad `rg`"), f"{provider}/implementer permits broad search first"
+
+
 MODELS = {
     provider: {
         role: {"model": f"{provider}-{role}", "effort": "high"}
@@ -32,11 +47,13 @@ def write_config(
     root: Path,
     *,
     models: dict | None = None,
-    cadence: str = "grouped.3",
+    cadence: str | None = "grouped.3",
     extra: str = "",
     filename: str = ".my-workflow.toml",
 ) -> None:
-    lines = ["version = 3", "", "[deep_review]", f'cadence = "{cadence}"', ""]
+    lines = ["version = 3", ""]
+    if cadence is not None:
+        lines.extend(["[deep_review]", f'cadence = "{cadence}"', ""])
     for provider in workflow_config.PROVIDERS:
         for role in workflow_config.ROLES:
             setting = (models or MODELS)[provider][role]
@@ -332,6 +349,7 @@ def test_refresh_rederives_current_slices_without_changing_snapshot_schema() -> 
 def test_defaults_and_native_routing() -> None:
     root = make_repo()
     try:
+        write_config(root, cadence=None)
         write_derived_tasks(root, "default", 4)
         snapshot = workflow_config.resolve(
             root=root, feature="default", slice_count=4, native_provider="codex"
@@ -340,7 +358,7 @@ def test_defaults_and_native_routing() -> None:
             "mode": "assisted", "max_workers": "auto", "automatic_baseline": 2,
             "automatic_ceiling": 4, "resource_provider": None,
         }
-        assert snapshot["deep_review"] == {"cadence": "grouped.3", "groups": [[1, 2], [3, 4]]}
+        assert snapshot["deep_review"] == {"cadence": "skip", "groups": []}
         assert all(value["provider"] == "codex" for value in snapshot["roles"].values())
         assert snapshot["roles"]["verifier"]["agent_file"] == ".codex/agents/verifier.toml"
     finally:

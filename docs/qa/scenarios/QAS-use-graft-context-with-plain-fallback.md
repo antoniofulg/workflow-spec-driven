@@ -1,12 +1,12 @@
 ---
 id: QAS-use-graft-context-with-plain-fallback
 area: QAS
-title: Use optional Graft context with plain-inspection fallback
+title: Use default Graft context with explicit fallback
 persona: Workflow operator
 journey: J-run-deep-review
-expected: Deep Review writes only the plain-inspection fallback unless `.deep-review.yaml` sets `graft: true`; with that flag, prompts receive Graft orientation when the binary works and the same fallback when Graft is absent, fails, is stale, or cannot cover selected dot-directories.
-entry_points: .agents/skills/deep-review/SKILL.md; .agents/skills/deep-review/scripts/build_jobs.py; .agents/skills/deep-review/scripts/graft_context.py; package.json
-qa_status: pass
+expected: Selected Deep Review prepares fresh Graft context by default, prepares one Graphify context only for an explicit architectural question, and preserves source-frozen review with one explicit degraded fallback when either tool is unavailable, stale, failed, partial, or insufficient.
+entry_points: .agents/skills/deep-review/SKILL.md; .agents/skills/deep-review/scripts/build_jobs.py; .agents/skills/deep-review/scripts/graft_context.py; .agents/skills/workflow-spec-driven/scripts/repository_intelligence.py; package.json
+qa_status: untested
 bug_ids:
 fix_status:
 retest_status:
@@ -16,7 +16,8 @@ last_report: docs/qa/reports/2026-09-10-one-round-deep-review.md
 overlaps:
 ---
 
-Graft is opt-in via `.deep-review.yaml` `graft: true`; absent that key the context file is the
-plain-inspection line and no `graft` subprocess runs. With the flag, pinned Graft still prepares
-before prompts and every unsupported, failed, stale, or partial-coverage path keeps the same
-fallback. The 2026-08-23 default-on verdict is historical.
+Graft is the selected Deep Review default and is prepared before prompts. Graphify is conditional on
+`--graphify-question` and runs once for that bounded architectural question; no question means no
+Graphify process. Missing, wrong-version, stale, failed, partial, insufficient, timeout, and
+dot-directory paths retain source-frozen review plus explicit targeted native inspection. The prior
+optional-flag expectation is superseded by active `AD-033`.

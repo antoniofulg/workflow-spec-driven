@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 83,
+  "next_id": 113,
   "lessons": [
     {
       "id": "L-001",
@@ -1491,6 +1491,546 @@
       ],
       "created": "2026-09-08T05:02:34Z",
       "last_seen": "2026-09-08T05:02:34Z"
+    },
+    {
+      "id": "L-083",
+      "key": "ac_gap::normalize and test every spec listed routing trigger phrase",
+      "text": "Normalize and test every spec-listed routing trigger phrase.",
+      "signal": "ac_gap",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:RIR-02.1 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T02:41:14Z",
+      "last_seen": "2026-09-11T02:41:14Z"
+    },
+    {
+      "id": "L-084",
+      "key": "ac_gap::emit remote extraction preflight before process launch and reject missing backend state",
+      "text": "Emit remote extraction preflight before process launch and reject missing backend state.",
+      "signal": "ac_gap",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:SEC-005 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T02:41:14Z",
+      "last_seen": "2026-09-11T02:41:14Z"
+    },
+    {
+      "id": "L-085",
+      "key": "ac_gap::require paired benchmark configurations before validating comparison controls",
+      "text": "Require paired benchmark configurations before validating comparison controls.",
+      "signal": "ac_gap",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:RIR-05.2 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T02:41:14Z",
+      "last_seen": "2026-09-11T02:41:14Z"
+    },
+    {
+      "id": "L-086",
+      "key": "surviving_mutant::assert process ordering contracts with event order not final captured output",
+      "text": "Assert process-ordering contracts with event order, not final captured output.",
+      "signal": "surviving_mutant",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:Discrimination Sensor mutation 1 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T02:59:51Z",
+      "last_seen": "2026-09-11T02:59:51Z"
+    },
+    {
+      "id": "L-087",
+      "key": "ac_gap::coordinate read only queries with mutation locks so no query observes an in progress representation",
+      "text": "Coordinate read-only queries with mutation locks so no query observes an in-progress representation.",
+      "signal": "ac_gap",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:RIR-04.3 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T02:59:51Z",
+      "last_seen": "2026-09-11T02:59:51Z"
+    },
+    {
+      "id": "L-088",
+      "key": "ac_gap::publish generated representations and their matching metadata as one atomic unit",
+      "text": "Publish generated representations and their matching metadata as one atomic unit.",
+      "signal": "ac_gap",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:RIR-04.7 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T02:59:51Z",
+      "last_seen": "2026-09-11T02:59:51Z"
+    },
+    {
+      "id": "L-089",
+      "key": "ac_gap::expose every spec required benchmark metric in retained reports",
+      "text": "Expose every spec-required benchmark metric in retained reports.",
+      "signal": "ac_gap",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:RIR-05.1 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T02:59:51Z",
+      "last_seen": "2026-09-11T02:59:51Z"
+    },
+    {
+      "id": "L-090",
+      "key": "ac_gap::test every declared freshness class and fingerprint mismatch against real state transitions",
+      "text": "Test every declared freshness class and fingerprint mismatch against real state transitions.",
+      "signal": "ac_gap",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:RIR-04.2/RIR-04.4 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T03:00:27Z",
+      "last_seen": "2026-09-11T03:00:27Z"
+    },
+    {
+      "id": "L-091",
+      "key": "ac_gap::ignore generated state in the same slice that first writes it",
+      "text": "Ignore generated state in the same slice that first writes it.",
+      "signal": "ac_gap",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:RIR-04.5 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T03:00:27Z",
+      "last_seen": "2026-09-11T03:00:27Z"
+    },
+    {
+      "id": "L-092",
+      "key": "ac_gap::assert every public instruction outcome not only route order phrases",
+      "text": "Assert every public instruction outcome, not only route-order phrases.",
+      "signal": "ac_gap",
+      "scope": "agent-instructions",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:RIR-01.3/RIR-02.4 (agent-instructions)"
+      ],
+      "created": "2026-09-11T03:00:27Z",
+      "last_seen": "2026-09-11T03:00:27Z"
+    },
+    {
+      "id": "L-093",
+      "key": "surviving_mutant::kill process publication tests must fail when pre mutation invalidation is removed",
+      "text": "Kill-process publication tests must fail when pre-mutation invalidation is removed.",
+      "signal": "surviving_mutant",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:Discrimination Sensor pre-refresh invalidation mutant (repository-intelligence)"
+      ],
+      "created": "2026-09-11T03:29:45Z",
+      "last_seen": "2026-09-11T03:29:45Z"
+    },
+    {
+      "id": "L-094",
+      "key": "surviving_mutant::assert each spec required metric by literal contract name not by iterating the production field list",
+      "text": "Assert each spec-required metric by literal contract name, not by iterating the production field list.",
+      "signal": "surviving_mutant",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:Discrimination Sensor native_search_calls mutant (repository-intelligence)"
+      ],
+      "created": "2026-09-11T03:29:45Z",
+      "last_seen": "2026-09-11T03:29:45Z"
+    },
+    {
+      "id": "L-095",
+      "key": "ac_gap::enforce benchmark sample bounds on distinct task identities not configuration run rows",
+      "text": "Enforce benchmark sample bounds on distinct task identities, not configuration-run rows.",
+      "signal": "ac_gap",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:RIR-05.5 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T03:29:45Z",
+      "last_seen": "2026-09-11T03:29:45Z"
+    },
+    {
+      "id": "L-096",
+      "key": "ac_gap::report controlled comparisons within each spec named category rather than pooling categories",
+      "text": "Report controlled comparisons within each spec-named category rather than pooling categories.",
+      "signal": "ac_gap",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:RIR-05.4 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T03:29:45Z",
+      "last_seen": "2026-09-11T03:29:45Z"
+    },
+    {
+      "id": "L-097",
+      "key": "surviving_mutant::exercise real subprocess timeouts at the process boundary instead of injecting post conversion domain errors",
+      "text": "Exercise real subprocess timeouts at the process boundary instead of injecting post-conversion domain errors.",
+      "signal": "surviving_mutant",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation-RI-DISCOVERY.md:Discrimination Sensor timeout-conversion mutant (repository-intelligence)"
+      ],
+      "created": "2026-09-11T03:55:03Z",
+      "last_seen": "2026-09-11T03:55:03Z"
+    },
+    {
+      "id": "L-098",
+      "key": "ac_gap::redact unexpected exception text before writing repository intelligence context artifacts",
+      "text": "Redact unexpected exception text before writing repository-intelligence context artifacts.",
+      "signal": "ac_gap",
+      "scope": "deep-review",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#gap-1 (deep-review)"
+      ],
+      "created": "2026-09-11T04:42:20Z",
+      "last_seen": "2026-09-11T04:42:20Z"
+    },
+    {
+      "id": "L-099",
+      "key": "ac_gap::preserve partial repository intelligence status and targeted inspection guidance through review context rendering",
+      "text": "Preserve partial repository-intelligence status and targeted-inspection guidance through review context rendering.",
+      "signal": "ac_gap",
+      "scope": "deep-review",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#gap-2 (deep-review)"
+      ],
+      "created": "2026-09-11T04:42:20Z",
+      "last_seen": "2026-09-11T04:42:20Z"
+    },
+    {
+      "id": "L-100",
+      "key": "ac_gap::record independent content safe question identities and a reason whenever two repository intelligence tools run",
+      "text": "Record independent content-safe question identities and a reason whenever two repository-intelligence tools run.",
+      "signal": "ac_gap",
+      "scope": "deep-review",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#gap-3 (deep-review)"
+      ],
+      "created": "2026-09-11T04:42:20Z",
+      "last_seen": "2026-09-11T04:42:20Z"
+    },
+    {
+      "id": "L-101",
+      "key": "surviving_mutant::derive expected hashes independently of production hashing helpers",
+      "text": "Derive expected hashes independently of production hashing helpers.",
+      "signal": "surviving_mutant",
+      "scope": "tests",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#M3 (tests)"
+      ],
+      "created": "2026-09-11T04:42:20Z",
+      "last_seen": "2026-09-11T04:42:20Z"
+    },
+    {
+      "id": "L-102",
+      "key": "surviving_mutant::exercise every declared degraded result class at the review context boundary",
+      "text": "Exercise every declared degraded-result class at the review context boundary.",
+      "signal": "surviving_mutant",
+      "scope": "deep-review",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#M7 (deep-review)"
+      ],
+      "created": "2026-09-11T05:07:51Z",
+      "last_seen": "2026-09-11T05:07:51Z"
+    },
+    {
+      "id": "L-103",
+      "key": "ac_gap::assert removed configuration semantics across markdown formatting not one contiguous spelling",
+      "text": "Assert removed configuration semantics across Markdown formatting, not one contiguous spelling.",
+      "signal": "ac_gap",
+      "scope": "skill-text-tests",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#gap-2 (skill-text-tests)"
+      ],
+      "created": "2026-09-11T05:07:51Z",
+      "last_seen": "2026-09-11T05:07:51Z"
+    },
+    {
+      "id": "L-104",
+      "key": "surviving_mutant::assert zero repository intelligence calls when the routing trigger is absent",
+      "text": "Assert zero repository-intelligence calls when the routing trigger is absent.",
+      "signal": "surviving_mutant",
+      "scope": "deep-review",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#M6 (deep-review)"
+      ],
+      "created": "2026-09-11T05:21:51Z",
+      "last_seen": "2026-09-11T05:21:51Z"
+    },
+    {
+      "id": "L-105",
+      "key": "ac_gap::assert that every installed documentation link resolves inside the staged consumer tree",
+      "text": "Assert that every installed documentation link resolves inside the staged consumer tree.",
+      "signal": "ac_gap",
+      "scope": "installer",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-ADOPTION.md:11 (installer)"
+      ],
+      "created": "2026-09-11T05:49:40Z",
+      "last_seen": "2026-09-11T05:49:40Z"
+    },
+    {
+      "id": "L-106",
+      "key": "gate_fail::refresh canonical package hashes after every change to installer owned source bytes",
+      "text": "Refresh canonical package hashes after every change to installer-owned source bytes.",
+      "signal": "gate_fail",
+      "scope": "installer",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation-RI-ADOPTION.md:12 (installer)"
+      ],
+      "created": "2026-09-11T05:49:40Z",
+      "last_seen": "2026-09-11T05:49:40Z"
+    },
+    {
+      "id": "L-107",
+      "key": "gate_fail::exercise executable discovery under the package script path that exposes project local binaries",
+      "text": "Exercise executable discovery under the package-script PATH that exposes project-local binaries.",
+      "signal": "gate_fail",
+      "scope": "deep-review",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation.md#gate-check (deep-review)"
+      ],
+      "created": "2026-09-11T06:25:12Z",
+      "last_seen": "2026-09-11T06:25:12Z"
+    },
+    {
+      "id": "L-108",
+      "key": "surviving_mutant::assert public cli exit codes as literal contract values not implementation constants",
+      "text": "Assert public CLI exit codes as literal contract values, not implementation constants.",
+      "signal": "surviving_mutant",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation.md#discrimination-sensor-M2 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T06:25:12Z",
+      "last_seen": "2026-09-11T06:25:12Z"
+    },
+    {
+      "id": "L-109",
+      "key": "ac_gap::bind development tool resolution to the active checkout before invoking it",
+      "text": "Bind development-tool resolution to the active checkout before invoking it.",
+      "signal": "ac_gap",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation.md#RIR-03.1 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T06:25:12Z",
+      "last_seen": "2026-09-11T06:25:12Z"
+    },
+    {
+      "id": "L-110",
+      "key": "surviving_mutant::invocation marker fixtures must not depend on commands removed by the path isolation they test",
+      "text": "Invocation-marker fixtures must not depend on commands removed by the PATH isolation they test.",
+      "signal": "surviving_mutant",
+      "scope": "repository-intelligence",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation.md#M1 (repository-intelligence)"
+      ],
+      "created": "2026-09-11T06:58:11Z",
+      "last_seen": "2026-09-11T06:58:11Z"
+    },
+    {
+      "id": "L-111",
+      "key": "surviving_mutant::assert serialized degraded status independently of fallback artifact text",
+      "text": "Assert serialized degraded status independently of fallback artifact text.",
+      "signal": "surviving_mutant",
+      "scope": "deep-review",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/repository-intelligence-routing/validation.md#M2 (deep-review)"
+      ],
+      "created": "2026-09-11T06:58:11Z",
+      "last_seen": "2026-09-11T06:58:11Z"
+    },
+    {
+      "id": "L-112",
+      "key": "surviving_mutant::assert the initial refresh argument vector independently from any successful recovery fallback",
+      "text": "Assert the initial refresh argument vector independently from any successful recovery fallback",
+      "signal": "surviving_mutant",
+      "scope": "repository-intelligence-adapter",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md#M7 (repository-intelligence-adapter)"
+      ],
+      "created": "2026-09-11T08:21:24Z",
+      "last_seen": "2026-09-11T08:21:24Z"
     }
   ]
 }

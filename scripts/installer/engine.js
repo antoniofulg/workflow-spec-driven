@@ -4,13 +4,13 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { TextDecoder } from 'node:util';
 
-export const WORKFLOW_VERSION = '0.10.1';
+export const WORKFLOW_VERSION = '0.11.0';
 export const LAYERS = ['core', 'parallel', 'quality', 'extras'];
 export const DEPENDENCIES = { core: [], parallel: ['core'], quality: ['core'], extras: ['core'] };
 export const BLOCK_LAYERS = ['core', 'parallel', 'quality'];
-export const WORKFLOW_GITIGNORE_ENTRIES = ['.my-workflow.toml', '.claude/agents/', '.codex/agents/', '.cursor/agents/', '!.deep-review/', '.deep-review/*', '!.deep-review/learnings.md', 'graft/'];
+export const WORKFLOW_GITIGNORE_ENTRIES = ['.my-workflow.toml', '.claude/agents/', '.codex/agents/', '.cursor/agents/', '!.deep-review/', '.deep-review/*', '!.deep-review/learnings.md', 'graft/', 'graphify-out/', '.repository-intelligence/'];
 export const LEGACY_WORKFLOW_GITIGNORE_ENTRIES = ['.specs/features/'];
-export const WORKFLOW_SEARCHIGNORE_ENTRIES = ['!graft/', 'graft/.cache/', 'graft/.graph/'];
+export const WORKFLOW_SEARCHIGNORE_ENTRIES = ['!graft/', 'graft/.cache/', 'graft/.graph/', 'graphify-out/', '.repository-intelligence/'];
 export const RUNTIME_PATHS = ['claude', 'codex', 'cursor'].flatMap((provider) => ['planner', 'implementer', 'verifier', 'explorer', 'deep-reviewer', 'designer'].map((role) => `.${provider}/agents/${role}.${provider === 'codex' ? 'toml' : 'md'}`));
 export const KNOWLEDGE_DESTINATIONS = {
   'AGENTS.md': { destination: 'docs/product/AGENT-CONTEXT.md', reason: 'Consumer-authored instructions require manual review.' },
@@ -20,10 +20,16 @@ export const KNOWLEDGE_DESTINATIONS = {
 };
 
 export const LAYER_PATHS = {
-  core: ['docs/guidelines', 'docs/workflow/README.md', 'docs/workflow/decisions.md', 'docs/workflow/guidelines.md', 'docs/workflow/loop.md', 'docs/workflow/purpose.md', 'docs/workflow/reviews.md', 'knowledge/AGENTS.md', 'knowledge/raw/README.md', '.agents/skills/workflow-spec-driven', '.agents/skills/ponytail', '.agents/skills/workflow-config', '.agents/skills/knowledge-check', '.agents/skills/wspecify', '.agents/skills/wdesign', '.agents/skills/wtasks', '.agents/skills/wimplement', '.agents/skills/wverify', '.agents/skills/wreview', '.agents/skills/wqa'],
+  core: ['docs/guidelines', 'docs/workflow/README.md', 'docs/workflow/repository-intelligence.md', 'docs/workflow/decisions.md', 'docs/workflow/guidelines.md', 'docs/workflow/loop.md', 'docs/workflow/purpose.md', 'docs/workflow/reviews.md', 'knowledge/AGENTS.md', 'knowledge/raw/README.md', '.agents/skills/workflow-spec-driven', '.agents/skills/ponytail', '.agents/skills/workflow-config', '.agents/skills/knowledge-check', '.agents/skills/wspecify', '.agents/skills/wdesign', '.agents/skills/wtasks', '.agents/skills/wimplement', '.agents/skills/wverify', '.agents/skills/wreview', '.agents/skills/wqa'],
   parallel: ['.agents/skills/autonomous'],
   quality: ['.agents/skills/deep-review', '.agents/skills/qa-plan', '.agents/skills/qa-execute'],
   extras: ['.agents/skills/ponytail', '.agents/skills/ponytail-audit', '.agents/skills/ponytail-debt', '.agents/skills/ponytail-gain', '.agents/skills/ponytail-help', '.agents/skills/ponytail-review'],
+};
+export const CLAUDE_SKILL_LINKS = {
+  core: ['workflow-spec-driven', 'ponytail', 'workflow-config', 'knowledge-check', 'wspecify', 'wdesign', 'wtasks', 'wimplement', 'wverify', 'wreview', 'wqa'],
+  parallel: ['autonomous'],
+  quality: ['deep-review', 'qa-plan', 'qa-execute'],
+  extras: ['ponytail-audit', 'ponytail-debt', 'ponytail-gain', 'ponytail-help', 'ponytail-review'],
 };
 export const LAYER_MISSING_PATHS = { core: ['.my-workflow.toml.example'], parallel: [], quality: [], extras: [] };
 export const CONSUMER_MISSING_SOURCES = {
@@ -167,6 +173,33 @@ export function composeBlocks(sourceRoot, root, modules, manifest) {
 function mergeIgnore(existing, entries, remove = []) { const lines = (existing ? existing.toString() : '').split(/\r?\n/).filter((line) => line && !remove.includes(line) && !entries.includes(line)); return Buffer.from([...lines, ...entries, ''].join('\n')); }
 function sourceBytes(root, relative) { return fs.readFileSync(path.join(root, (CONSUMER_MISSING_SOURCES[relative] || relative).split('/').join(path.sep))); }
 
+function linkParent(root, relative) {
+  const parent = path.posix.dirname(relative);
+  if (parent === '.') return;
+  let current = root;
+  for (const part of parent.split('/')) {
+    current = path.join(current, part);
+    if (!fs.existsSync(current)) continue;
+    const stat = fs.lstatSync(current);
+    if (stat.isSymbolicLink()) fail(`Claude skill link ${relative} uses symlink ${posix(path.relative(root, current))}`);
+    if (!stat.isDirectory()) fail(`Claude skill link ${relative} parent ${posix(path.relative(root, current))} must be a directory`);
+  }
+}
+
+function claudeSkillLink(root, skill) {
+  const relative = `.claude/skills/${skill}`;
+  const target = `../../.agents/skills/${skill}`;
+  linkParent(root, relative);
+  const destination = path.join(root, ...relative.split('/'));
+  const current = fs.lstatSync(destination, { throwIfNoEntry: false });
+  if (!current) return { relative, target, kind: 'add' };
+  if (!current.isSymbolicLink() || fs.readlinkSync(destination) !== target) fail(`Claude skill link ${relative} is an unsafe collision`);
+  const resolved = path.resolve(path.dirname(destination), target);
+  const targetRoot = path.resolve(root, `.agents/skills/${skill}`);
+  if (resolved !== targetRoot || !resolved.startsWith(`${path.resolve(root)}${path.sep}`)) fail(`Claude skill link ${relative} escapes target`);
+  return { relative, target, kind: 'no-change' };
+}
+
 export function buildPlan({ sourceRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..'), targetRoot = process.cwd(), selectedModules, modules } = {}) {
   const source = asRoot(sourceRoot), target = asRoot(targetRoot); const requested = selectedModules || modules; const requestedResolved = requestedModules(requested); const installedManifest = loadManifest(target); const installed = installedManifest.layers || []; const effective = resolveModules(requestedResolved); const manifestLayers = resolveModules([...requestedResolved, ...installed]);
   const entries = catalog(source, effective); const actions = [], conflicts = [], retired = []; const records = Object.fromEntries(Object.entries(installedManifest.files || {}).filter(([, record]) => !effective.includes(record.layer)));
@@ -189,13 +222,20 @@ export function buildPlan({ sourceRoot = path.resolve(path.dirname(new URL(impor
   }
   const blocks = composeBlocks(source, target, effective, installedManifest); conflicts.push(...blocks.conflicts); for (const conflict of blocks.conflicts) { const [filename, owner] = conflict.split(':'); actions.push({ path: conflict, kind: 'conflict', modules: [owner], reason: 'consumer content requires a decision' }); }
   const gitignore = safePath(target, '.gitignore', 'ignore file'); const searchignore = safePath(target, '.ignore', 'ignore file'); const ignorePlans = [[gitignore, '.gitignore', mergeIgnore(fs.existsSync(gitignore) ? fs.readFileSync(gitignore) : null, WORKFLOW_GITIGNORE_ENTRIES, LEGACY_WORKFLOW_GITIGNORE_ENTRIES)], [searchignore, '.ignore', mergeIgnore(fs.existsSync(searchignore) ? fs.readFileSync(searchignore) : null, WORKFLOW_SEARCHIGNORE_ENTRIES)]]; for (const [file, relative, bytes] of ignorePlans) { const exists = fs.existsSync(file); const kind = !exists ? 'add' : Buffer.compare(fs.readFileSync(file), bytes) === 0 ? 'no-change' : 'update'; actions.push({ path: relative, kind, modules: [...effective], reason: 'workflow ignore rules' }); }
+  const links = {};
+  const linkedSkills = new Set(effective.flatMap((module) => CLAUDE_SKILL_LINKS[module]));
+  for (const skill of linkedSkills) {
+    const link = claudeSkillLink(target, skill);
+    actions.push({ path: link.relative, kind: link.kind, modules: effective.filter((module) => CLAUDE_SKILL_LINKS[module].includes(skill)), reason: 'Claude public skill alias' });
+    if (link.kind === 'add') links[link.relative] = link.target;
+  }
   const staged = { '.gitignore': ignorePlans[0][2], '.ignore': ignorePlans[1][2], ...blocks.outputs };
-  for (const action of actions) if (['add', 'update', 'claim'].includes(action.kind) && !['.gitignore', '.ignore'].includes(action.path)) staged[action.path] = adoptedBytes(action.path, sourceBytes(source, action.path));
+  for (const action of actions) if (['add', 'update', 'claim'].includes(action.kind) && !['.gitignore', '.ignore'].includes(action.path) && !links[action.path]) staged[action.path] = adoptedBytes(action.path, sourceBytes(source, action.path));
   const newManifest = { schema: 1, workflow_version: WORKFLOW_VERSION, layers: manifestLayers, files: records, blocks: blocks.blocks }; staged['.my-workflow/adoption.json'] = Buffer.from(`${JSON.stringify(newManifest, null, 2)}\n`);
   const selectedSet = new Set(effective); const assessments = effective.map((id) => { const own = actions.filter((action) => action.modules.includes(id)); const kinds = new Set(own.map((action) => action.kind)); const status = kinds.has('conflict') ? 'conflict' : kinds.has('modified') ? 'modified' : kinds.has('update') ? 'outdated' : kinds.has('add') || kinds.has('claim') ? 'not installed' : 'up to date'; return { id, status, requiredBy: LAYERS.filter((candidate) => candidate !== id && DEPENDENCIES[candidate].includes(id) && selectedSet.has(candidate)), actions: own }; });
   const noChange = actions.length > 0 && actions.every((action) => ['preserve', 'no-change'].includes(action.kind)) && !conflicts.length;
   const finalActions = noChange ? [] : actions.map((action) => ({ ...action, modules: [...new Set(action.modules)] })).sort((a, b) => a.path.localeCompare(b.path));
-  return { plan: { target, packageVersion: WORKFLOW_VERSION, selectedModules: effective, assessments, actions: finalActions, unresolved: [...new Set(conflicts)].sort(), retired, status: conflicts.length ? 'conflict' : noChange ? 'no-change' : 'ready', message: noChange ? 'Selected modules are up to date. No files will change.' : undefined }, staged, manifest: newManifest };
+  return { plan: { target, packageVersion: WORKFLOW_VERSION, selectedModules: effective, assessments, actions: finalActions, unresolved: [...new Set(conflicts)].sort(), retired, status: conflicts.length ? 'conflict' : noChange ? 'no-change' : 'ready', message: noChange ? 'Selected modules are up to date. No files will change.' : undefined }, staged, links, manifest: newManifest };
 }
 
 export function gitProof(root, runner = execFileSync) {

@@ -20,6 +20,7 @@ No browser, API, or mobile surface exists in this repository.
 ## Runner and adapter
 
 - Existing runner or adapter: CLI/manual, using the canonical `workflow-spec-driven install` bin,
+  the bundled repository-intelligence CLI with checkout-local fake Graphify/Graft executables,
   parallel executor, assisted pointer probe, and filesystem inspection. The parallel-slice journey
   uses the installed Orca CLI only after its `orchestration.contract.v1` capability is proven; the
   disposable fixture and lifecycle oracle are owned by
@@ -41,7 +42,12 @@ checkout-local disposable target; inspect package membership with `bun pm pack -
   external-skill command before invoking
   [`scripts/install_security_skills.py`](../../scripts/install_security_skills.py) only when the
   QA packet explicitly authorizes network access and target writes; then inspect the targets and
-  repository files named by each charter. For Deep Review publication, extract the public recipe
+  repository files named by each charter. For repository intelligence, invoke
+  [`.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py`](../../.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py)
+  through its public `status`, `graft`, `graphify-setup`, `graphify`, and `benchmark-report`
+  commands against a checkout-owned disposable Git fixture and checkout-local fake tool binaries;
+  use [Deep Review's `build_jobs.py`](../../.agents/skills/deep-review/scripts/build_jobs.py) only
+  to inspect context preparation, never dispatch reviewer jobs during that charter. For Deep Review publication, extract the public recipe
   and execute it with the checkout-local fake `gh` pattern owned by
   [`tools/test_deep_review_contract.py`](../../tools/test_deep_review_contract.py); never contact
   GitHub during QA. For parallel execution, use the setup, dry-run, public executor

@@ -43,6 +43,9 @@
    clean status without source-checkout lookup.
 9. Continue to [`J-enable-external-security-skills`](J-enable-external-security-skills.md) only after
    explicitly authorizing its networked installer step.
+10. Confirm adoption reports the exact Graphify/Graft development-tool setup commands, installs no
+    application runtime dependency, and leaves `graft/`, `graphify-out/`, and
+    `.repository-intelligence/` checkout-local and ignored.
 
 For an existing project, start with `core`, add `parallel`, `quality`, and `extras` only when the
 project needs them, and keep consumer prose outside the managed instruction blocks. Conflicts stop
@@ -70,6 +73,7 @@ the complete apply before any write; this workflow has no layer-removal command.
 - [`QAS-discover-independent-qa-skills`](../scenarios/QAS-discover-independent-qa-skills.md)
 - [`QAS-enforce-spec-anchored-qa-contracts`](../scenarios/QAS-enforce-spec-anchored-qa-contracts.md)
 - [`CFG-keep-local-artifacts-out-of-git`](../scenarios/CFG-keep-local-artifacts-out-of-git.md)
+- [`ADP-report-repository-intelligence-setup`](../scenarios/ADP-report-repository-intelligence-setup.md)
 
 ## Adjacent canary
 

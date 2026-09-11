@@ -32,6 +32,11 @@ The planning transcript, all of `.specs/STATE.md`, all of `FRONTEND.md`.
 - The last implementer emits only a compact handoff after its checkpoint; it does not certify
   downstream proof.
 
+## Repository intelligence
+
+- If the slice packet lacks sufficient file, symbol, API, caller, or callee pointers, query fresh checkout-local Graft before broad `rg`, glob, find, or read.
+- With sufficient pointers, proceed without Graphify or Graft. Exact-text questions may use exact native search; report one degraded reason before targeted fallback when Graft is unavailable or insufficient.
+
 For reference-driven UI, retain the `design_excerpt` pointer, port approved HTML/CSS structure and
 styles into the project's stack, and make the task's paired visual comparison part of done evidence.
 

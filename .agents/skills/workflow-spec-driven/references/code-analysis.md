@@ -1,98 +1,36 @@
-# Code Analysis Tools
+# Code Analysis Routing
 
-Use graceful degradation for code search and structural analysis.
+Use one repository-intelligence route per question. Specs and current checkout source remain
+authoritative; generated Graphify/Graft context is bounded evidence, not truth.
 
-## Tool Priority
+## Routing rule
 
-1. **ast-grep** (`sg`) - Structural pattern-based search
-2. **ripgrep** (`rg`) - Fast context-aware text search
-3. **grep** - Standard text search (always available)
+1. If the task packet already has sufficient file, symbol, API, caller, and callee pointers, read
+   those paths and proceed. Do not invoke either tool.
+2. For Design, Specify, or review work with a named architectural trigger, query fresh Graphify
+   first. Triggers are a module or domain boundary, responsibility transfer, shared abstraction,
+   central flow, or unresolved architectural risk. File count alone is not a trigger.
+3. For an unknown implementation file, symbol, API surface, caller, callee, dependency, or
+   blast-radius fact, query fresh checkout-local Graft before broad native discovery. Use the
+   workflow adapter and pass query values as literal arguments:
 
-## Detection
+   ```text
+   python3 .agents/skills/workflow-spec-driven/scripts/repository_intelligence.py \
+     graft --root <checkout> <ask|skeleton|callers|grep|map> [literal arguments]
+   ```
 
-Check tool availability before use:
+4. Limit source reads to returned pointers and the verification paths needed for the task. If
+   Graphify or Graft is missing, wrong-version, stale, failed, timed out, partial, or insufficient,
+   report one degraded reason for the phase, then inspect only the targeted paths natively. Never
+   claim complete intelligence after degraded output.
+5. Exact-text questions are the exception: use exact `rg` or `grep` directly. They do not require
+   Graphify or Graft. Broad `rg`, glob, find, or read is not a first discovery mechanism when Graft
+   can answer.
 
-```bash
-# Check for ast-grep
-if command -v sg >/dev/null 2>&1; then
-  # Use ast-grep for structural search
-elif command -v rg >/dev/null 2>&1; then
-  # Fall back to ripgrep
-else
-  # Use standard grep as final fallback
-fi
-```
+## Role and phase use
 
-## Usage Examples
-
-**Finding function definitions:**
-
-```bash
-# ast-grep (best - structural)
-sg -p 'function $NAME($$$) { $$$ }'
-
-# ripgrep (fallback - fast text)
-rg '^function\s+\w+\(' --type-add 'source:*.[extension]' -t source
-
-# grep (last resort - basic)
-grep -r '^function ' --include="*.[extension]"
-```
-
-**Finding imports/requires:**
-
-```bash
-# ast-grep
-sg -p 'import { $$$ } from "$MODULE"'
-
-# ripgrep
-rg '^import .* from' --type-add 'source:*.[extension]' -t source
-
-# grep
-grep -r '^import ' --include="*.[extension]"
-```
-
-**Finding class/component definitions:**
-
-```bash
-# ast-grep
-sg -p 'class $NAME { $$$ }'
-
-# ripgrep
-rg '^(class|export class)\s+\w+' --type-add 'source:*.[extension]' -t source
-
-# grep
-grep -r '^class ' --include="*.[extension]"
-```
-
-## Search Scope
-
-**Best practices:**
-
-- Limit to source file extensions relevant to project
-- Exclude directories: `node_modules`, `vendor`, `dist`, `build`, `.git`
-- Focus on source directories: `src`, `lib`, `app`
-- Use file type filters when available
-
-**Performance tips:**
-
-- Use specific patterns over broad searches
-- Limit directory depth with `--max-depth` (ripgrep/grep)
-- Cache results for repeated queries
-
-## Fallback Notice
-
-If ast-grep unavailable, display once per session:
-
-```
-⚠️ ast-grep not detected. Install for more precise structural code analysis.
-   https://ast-grep.github.io/guide/quick-start.html
-```
-
-## When to Use
-
-- Finding usage patterns across codebase
-- Identifying code structure and organization
-- Locating function/class/component definitions
-- Analyzing import/dependency patterns
-- Refactoring impact analysis
-- Code navigation in unfamiliar codebases
+The rule applies during planning, architectural exploration, implementation, and review. Planner
+and Designer record only relevant Graphify domains, relationships, paths, and risks; they do not
+repeat code discovery. Explorer handles an assigned architectural Graphify trace, then uses Graft
+for implementation pointers. Implementer uses Graft only when its packet lacks enough pointers.
+Review consumes prepared contexts and verifies every claim against the current frozen checkout.

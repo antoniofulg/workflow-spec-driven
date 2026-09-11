@@ -73,10 +73,9 @@ serialized cumulative snapshots only and never assigns overlapping deltas to job
 Record `Mode: native` in context-pack.md, then run the validate-only gate. Provider-specific
 telemetry setup belongs in the runtime adapter guidance, not in this orchestration contract.
 
-Before prompts are materialized, `build_jobs.py` runs the pinned Graft CLI only when
-`.deep-review.yaml` sets `graft: true`: `graft build`, repository-map lookup, blast-radius tracing,
-and symbol lookup are written to the prompt's context artifact; without the flag that artifact is
-the single plain-inspection line and no subprocess runs. Graft is an optional inspection aid: a missing binary, stale map, or failed
+Before prompts are materialized, `build_jobs.py` always prepares the pinned Graft context:
+`graft build`, repository-map lookup, blast-radius tracing, and symbol lookup are written to the
+prompt's context artifact. Graft is a non-blocking inspection aid: a missing binary, stale map, or failed
 command falls back to plain repository inspection and does not block review. Graft does not index
 dot-directories, so selected `.agents` paths always carry an explicit plain-inspection fallback.
 

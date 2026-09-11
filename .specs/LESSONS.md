@@ -506,6 +506,186 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md:P1-AC1 (installer)
 - last seen: 2026-09-08T05:02:34Z
 
+### L-083 - Normalize and test every spec-listed routing trigger phrase.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-02.1 (repository-intelligence)
+- last seen: 2026-09-11T02:41:14Z
+
+### L-084 - Emit remote extraction preflight before process launch and reject missing backend state.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:SEC-005 (repository-intelligence)
+- last seen: 2026-09-11T02:41:14Z
+
+### L-085 - Require paired benchmark configurations before validating comparison controls.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-05.2 (repository-intelligence)
+- last seen: 2026-09-11T02:41:14Z
+
+### L-086 - Assert process-ordering contracts with event order, not final captured output.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:Discrimination Sensor mutation 1 (repository-intelligence)
+- last seen: 2026-09-11T02:59:51Z
+
+### L-087 - Coordinate read-only queries with mutation locks so no query observes an in-progress representation.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-04.3 (repository-intelligence)
+- last seen: 2026-09-11T02:59:51Z
+
+### L-088 - Publish generated representations and their matching metadata as one atomic unit.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-04.7 (repository-intelligence)
+- last seen: 2026-09-11T02:59:51Z
+
+### L-089 - Expose every spec-required benchmark metric in retained reports.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-05.1 (repository-intelligence)
+- last seen: 2026-09-11T02:59:51Z
+
+### L-090 - Test every declared freshness class and fingerprint mismatch against real state transitions.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-04.2/RIR-04.4 (repository-intelligence)
+- last seen: 2026-09-11T03:00:27Z
+
+### L-091 - Ignore generated state in the same slice that first writes it.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-04.5 (repository-intelligence)
+- last seen: 2026-09-11T03:00:27Z
+
+### L-092 - Assert every public instruction outcome, not only route-order phrases.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `agent-instructions` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-01.3/RIR-02.4 (agent-instructions)
+- last seen: 2026-09-11T03:00:27Z
+
+### L-093 - Kill-process publication tests must fail when pre-mutation invalidation is removed.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:Discrimination Sensor pre-refresh invalidation mutant (repository-intelligence)
+- last seen: 2026-09-11T03:29:45Z
+
+### L-094 - Assert each spec-required metric by literal contract name, not by iterating the production field list.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:Discrimination Sensor native_search_calls mutant (repository-intelligence)
+- last seen: 2026-09-11T03:29:45Z
+
+### L-095 - Enforce benchmark sample bounds on distinct task identities, not configuration-run rows.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-05.5 (repository-intelligence)
+- last seen: 2026-09-11T03:29:45Z
+
+### L-096 - Report controlled comparisons within each spec-named category rather than pooling categories.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:RIR-05.4 (repository-intelligence)
+- last seen: 2026-09-11T03:29:45Z
+
+### L-097 - Exercise real subprocess timeouts at the process boundary instead of injecting post-conversion domain errors.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation-RI-DISCOVERY.md:Discrimination Sensor timeout-conversion mutant (repository-intelligence)
+- last seen: 2026-09-11T03:55:03Z
+
+### L-098 - Redact unexpected exception text before writing repository-intelligence context artifacts.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `deep-review` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#gap-1 (deep-review)
+- last seen: 2026-09-11T04:42:20Z
+
+### L-099 - Preserve partial repository-intelligence status and targeted-inspection guidance through review context rendering.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `deep-review` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#gap-2 (deep-review)
+- last seen: 2026-09-11T04:42:20Z
+
+### L-100 - Record independent content-safe question identities and a reason whenever two repository-intelligence tools run.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `deep-review` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#gap-3 (deep-review)
+- last seen: 2026-09-11T04:42:20Z
+
+### L-101 - Derive expected hashes independently of production hashing helpers.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#M3 (tests)
+- last seen: 2026-09-11T04:42:20Z
+
+### L-102 - Exercise every declared degraded-result class at the review context boundary.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `deep-review` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#M7 (deep-review)
+- last seen: 2026-09-11T05:07:51Z
+
+### L-103 - Assert removed configuration semantics across Markdown formatting, not one contiguous spelling.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `skill-text-tests` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#gap-2 (skill-text-tests)
+- last seen: 2026-09-11T05:07:51Z
+
+### L-104 - Assert zero repository-intelligence calls when the routing trigger is absent.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `deep-review` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation-RI-REVIEW.md#M6 (deep-review)
+- last seen: 2026-09-11T05:21:51Z
+
+### L-105 - Assert that every installed documentation link resolves inside the staged consumer tree.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `installer` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation-RI-ADOPTION.md:11 (installer)
+- last seen: 2026-09-11T05:49:40Z
+
+### L-106 - Refresh canonical package hashes after every change to installer-owned source bytes.
+- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `installer` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation-RI-ADOPTION.md:12 (installer)
+- last seen: 2026-09-11T05:49:40Z
+
+### L-107 - Exercise executable discovery under the package-script PATH that exposes project-local binaries.
+- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `deep-review` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation.md#gate-check (deep-review)
+- last seen: 2026-09-11T06:25:12Z
+
+### L-108 - Assert public CLI exit codes as literal contract values, not implementation constants.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation.md#discrimination-sensor-M2 (repository-intelligence)
+- last seen: 2026-09-11T06:25:12Z
+
+### L-109 - Bind development-tool resolution to the active checkout before invoking it.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation.md#RIR-03.1 (repository-intelligence)
+- last seen: 2026-09-11T06:25:12Z
+
+### L-110 - Invocation-marker fixtures must not depend on commands removed by the PATH isolation they test.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `repository-intelligence` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation.md#M1 (repository-intelligence)
+- last seen: 2026-09-11T06:58:11Z
+
+### L-111 - Assert serialized degraded status independently of fallback artifact text.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `deep-review` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: .specs/features/repository-intelligence-routing/validation.md#M2 (deep-review)
+- last seen: 2026-09-11T06:58:11Z
+
+### L-112 - Assert the initial refresh argument vector independently from any successful recovery fallback
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `repository-intelligence-adapter` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation.md#M7 (repository-intelligence-adapter)
+- last seen: 2026-09-11T08:21:24Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

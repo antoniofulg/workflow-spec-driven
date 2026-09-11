@@ -6,6 +6,7 @@ Run: python3 tools/test_deep_review_contract.py
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import subprocess
 import sys
@@ -1112,8 +1113,8 @@ class DeepReviewContractTests(unittest.TestCase):
             self.assertTrue((out / "rules.template.json").is_file())
             self.assertFalse((out / "rules.json").exists())
 
-    def test_graft_runs_only_when_config_opts_in(self) -> None:
-        # IT-018 (P3 AC9; edge: graft: true with a failing binary still falls back)
+    def test_graft_runs_by_default_and_ignores_legacy_config(self) -> None:
+        # IT-005 / IT-007: Graft is attempted for every selected review.
         plan = {"cohorts": [{"id": "A", "name": "all", "risk": "normal", "files": ["file0.txt", "file1.txt", "file2.txt"]}]}
         for opt_in in (False, True):
             with self.subTest(opt_in=opt_in), tempfile.TemporaryDirectory() as raw:
@@ -1139,11 +1140,56 @@ class DeepReviewContractTests(unittest.TestCase):
                     out, build = full_fixture(root, plan)
                 self.assertEqual(build.returncode, 0, build.stdout + build.stderr)
                 context = (out / "graft-context.md").read_text(encoding="utf-8")
-                self.assertEqual(sentinel.exists(), opt_in)
-                if opt_in:
-                    self.assertIn("status: fallback", context)
-                else:
-                    self.assertEqual(context, "Graft context is unavailable; use plain repository inspection.\n")
+                self.assertTrue(sentinel.exists())
+                self.assertIn("status: fallback", context)
+                self.assertIn("plain repository inspection", context)
+                jobs = json.loads((out / "jobs.json").read_text(encoding="utf-8"))
+                expected_hash = hashlib.sha256("file0.txt file1.txt file2.txt".encode("utf-8")).hexdigest()
+                self.assertEqual(jobs["repository_intelligence"]["graft"]["question_hash"], expected_hash)
+
+    def test_degraded_context_keeps_frozen_review_validation(self) -> None:
+        # IT-017 / RIR-03.5: both degraded artifacts still flow through job validation and freeze checks.
+        plan = {"cohorts": [{"id": "A", "name": "all", "risk": "normal", "files": ["file0.txt", "file1.txt", "file2.txt"]}]}
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            node_bin = root / "node_modules" / ".bin" / "graft"
+            node_bin.parent.mkdir(parents=True)
+            node_bin.write_text("#!/bin/sh\nexit 1\n", encoding="utf-8")
+            node_bin.chmod(0o700)
+            package = root / "node_modules" / "@nanonets" / "graft" / "package.json"
+            package.parent.mkdir(parents=True)
+            package.write_text(json.dumps({"version": "0.10.1"}), encoding="utf-8")
+            (root / ".gitignore").write_text("node_modules/\n", encoding="utf-8")
+            git(root, "add", ".gitignore")
+            git(root, "commit", "-qm", "chore: local graft shim")
+            out, build = full_fixture(root, plan)
+            self.assertEqual(build.returncode, 0, build.stdout + build.stderr)
+            build = run_script(BUILD_JOBS, root, "--out", str(out), "--graphify-question", "shared boundary")
+            self.assertEqual(build.returncode, 0, build.stdout + build.stderr)
+            metadata = json.loads((out / "jobs.json").read_text(encoding="utf-8"))["repository_intelligence"]
+            self.assertEqual(metadata["graft"]["status"], "fallback")
+            self.assertEqual(metadata["graphify"]["status"], "degraded")
+            self.assertIn("dual_use_reason", metadata)
+
+            jobs = json.loads((out / "jobs.json").read_text(encoding="utf-8"))["jobs"]
+            for job in jobs:
+                (root / job["output"]).write_text(json.dumps({
+                    **valid_payload(),
+                    "coverage": {"hunks": [{**hunk, "checks": ["defect"], "outcome": "clear"} for hunk in job["required_hunks"]], "rules": []},
+                }), encoding="utf-8")
+            result = run_script(RUN_JOBS, root, "--out", str(out), "--validate-only")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            (root / "file0.txt").write_text("drifted\n", encoding="utf-8")
+            drifted = run_script(RUN_JOBS, root, "--out", str(out), "--validate-only")
+            self.assertEqual(drifted.returncode, 3, drifted.stdout + drifted.stderr)
+
+    def test_build_jobs_help_removes_graft_opt_in(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            result = run_script(BUILD_JOBS, root, "--help")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("always prepares Graft context", result.stdout)
+            self.assertNotIn("graft: true", result.stdout)
 
     def test_validate_only_rejects_source_drift_before_accepting_valid_output(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

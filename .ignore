@@ -3,3 +3,5 @@
 !graft/
 graft/.cache/
 graft/.graph/
+graphify-out/
+.repository-intelligence/

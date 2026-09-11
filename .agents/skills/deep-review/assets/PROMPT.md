@@ -17,7 +17,7 @@ FILES — you own every listed hunk:
 
 CONTEXT: read `{{context}}` (change intent, knowledge sources, linters, spec contract when present) and `{{taxonomy}}` (defect/advisory grammar and objective suppression rules) in full before judging.
 
-GRAFT CONTEXT: read `{{graft_context}}` for optional repository map, relevant symbols, and blast-radius orientation. Verify it against the checkout; use plain repository inspection for any fallback paths.
+GRAFT CONTEXT: read `{{graft_context}}` for the prepared repository map, relevant symbols, and blast-radius orientation. Verify it against the checkout; use plain repository inspection for any fallback paths.
 
 REPO RULES bound to these files — when a result violates one, include its id in `rule_ids` and quote the rule verbatim in `guideline`:
 {{rules_block}}
@@ -42,7 +42,7 @@ Global sweep "{{sweep_key}}" over {{target}}: {{lens}}. Read-only: never modify 
 
 Read `{{context}}`, `{{manifest}}`, and `{{taxonomy}}` in full. Work from the manifest's selected files and hunks; read any repository file you need and see changes with `{{diff_command}}`.
 
-GRAFT CONTEXT: read `{{graft_context}}` for optional repository map, relevant symbols, and blast-radius orientation. Verify it against the checkout; use plain repository inspection for any fallback paths.
+GRAFT CONTEXT: read `{{graft_context}}` for the prepared repository map, relevant symbols, and blast-radius orientation. Verify it against the checkout; use plain repository inspection for any fallback paths.
 
 REPO RULES applicable across the selected surface:
 {{rules_block}}
