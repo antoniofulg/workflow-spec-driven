@@ -423,10 +423,10 @@ T6 → T7
 
 **Done when**:
 
-- [ ] README/workflow tour state Graphify/Graft as defaults with the routing heuristic and explicit degraded fallback.
-- [ ] Setup, freshness and 10–20 task pilot fields have one durable human-facing home.
-- [ ] AD-005 and AD-006 are superseded by active AD-033 and `AD-INDEX.md` is regenerated.
-- [ ] Documentation scoped gate passes with zero failures.
+- [x] README/workflow tour state Graphify/Graft as defaults with the routing heuristic and explicit degraded fallback.
+- [x] Setup, freshness and 10–20 task pilot fields have one durable human-facing home.
+- [x] AD-005 and AD-006 are superseded by active AD-033 and `AD-INDEX.md` is regenerated.
+- [x] Documentation scoped gate passes with zero failures.
 
 **Tests**: Documentation assertions supporting `IT-009`, `IT-011`, `IT-012`, `IT-019`
 **Gate**: Documentation scoped

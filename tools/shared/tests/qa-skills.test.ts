@@ -151,7 +151,7 @@ function forbiddenAuthorityViolations(
 ): string[] {
   const scannedPaths = activeAuthorityPaths(paths);
   const forbiddenCommands = [
-    /(?:^|[`$>#;&|]\s*)npm\s+(?!(?:pack\s+--pack-destination\s+\S+(?:\s*#.*)?$|exec\s+--yes\s+--package\s+\S+\s+--\s+my-workflow\s+(?:plan|apply|resolve|status)\b))\S+/i,
+    /(?:^|[`$>#;&|]\s*)npm\s+(?!(?:pack\s+--pack-destination\s+\S+(?:\s*#.*)?$|install\s+--save-dev\s+--save-exact\s+@nanonets\/graft@0\.10\.1$|exec\s+--yes\s+--package\s+\S+\s+--\s+my-workflow\s+(?:plan|apply|resolve|status)\b))\S+/i,
     /(?:^|[`$>#;&|]\s*)npx\s+(?!(?:workflow-spec-driven\s+install|--yes\s+<approved-package>@<exact-version>(?:\s+(?:plan|apply|resolve|status)\b|(?=\s*`|$))))\S+/i,
     /\bvitest\s+(?:run|--|[A-Za-z])/i,
     /\btsx\s+(?:--|[A-Za-z])/i,
@@ -1203,6 +1203,7 @@ describe("Bun tooling runtime contract", () => {
       "tools/test_phase_skills.py",
       "tools/test_qa_parallel_pilot.py",
       "tools/test_remediation.py",
+      "tools/test_repository_intelligence.py",
       "tools/test_review_convergence.py",
       "tools/test_review_metrics.py",
       "tools/test_tlc_validators.py",
