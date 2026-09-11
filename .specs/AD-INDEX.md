@@ -11,8 +11,8 @@ When recording an `AD-NNN`, run the bundled workflow-spec-driven ad-index.py in 
 | `AD-002` | active | QA planning and QA execution are separate provider-neutral skills dispatched in fresh sessions by the existing Verifier. |
 | `AD-003` | superseded by AD-007 | `.specs/features/` is ignored local state. |
 | `AD-004` | active | Workflow routing is consumer-configurable in `.my-workflow.toml`. |
-| `AD-005` | active | Keep the optional, checkout-local Graft `0.10.1` integration as the deep-review context aid. |
-| `AD-006` | active | Keep the workflow stack- and tool-agnostic while allowing optional capability integrations. |
+| `AD-005` | superseded by AD-033 | Keep the optional, checkout-local Graft `0.10.1` integration as the deep-review context aid. |
+| `AD-006` | superseded by AD-033 | Keep the workflow stack- and tool-agnostic while allowing optional capability integrations. |
 | `AD-007` | active | `.specs/features/` is versioned, durable workflow state. |
 | `AD-008` | superseded by AD-019 | Adopt upstream ai-memory `1.31.0` only as an opt-in, transient handoff transport between Claude Code, Codex, and Cursor. |
 | `AD-009` | superseded by AD-010 | `.my-workflow.toml` is the single editable source for bundled Claude, Codex, and Cursor agent models and efforts. |
@@ -39,3 +39,4 @@ When recording an `AD-NNN`, run the bundled workflow-spec-driven ad-index.py in 
 | `AD-030` | active | The canonical consumer installer is the unscoped `workflow-spec-driven` npm package and homonymous Node.js 18 executable. |
 | `AD-031` | active | Deep-review runs one discovery review per implementation group. |
 | `AD-032` | active | `one-round-deep-review` is delivered with `bun run test:all` red only on `tests/installer` `IT-011` (frozen canonical packet bytes) and `IT… |
+| `AD-033` | active | Graphify Labs `graphifyy` `0.9.14` and Nanonets Graft `0.10.1` are the workflow's standard repository-intelligence tools. |
