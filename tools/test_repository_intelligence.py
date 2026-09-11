@@ -416,10 +416,11 @@ class AdapterTests(RepositoryFixture):
         graphify.write_text(
             "#!/usr/bin/env python3\nimport json, pathlib, sys\n"
             f"log = pathlib.Path({str(calls)!r})\n"
+            "log.parent.mkdir(parents=True, exist_ok=True)\n"
+            "with log.open('a') as stream: stream.write(json.dumps(sys.argv[1:]) + '\\n')\n"
             "if '--version' in sys.argv: print('0.9.14'); raise SystemExit(0)\n"
             "if sys.argv[1] in {'extract', 'update'} and (len(sys.argv) < 3 or pathlib.Path(sys.argv[2]).resolve() != pathlib.Path.cwd().resolve()): raise SystemExit(2)\n"
             "if sys.argv[1] == 'extract' and ('--out' not in sys.argv or pathlib.Path(sys.argv[sys.argv.index('--out') + 1]).resolve() != pathlib.Path.cwd().resolve() or '--full-rebuild' in sys.argv): raise SystemExit(2)\n"
-            "with log.open('a') as stream: stream.write(json.dumps(sys.argv[1:]) + '\\n')\n"
             "if sys.argv[1] == 'update' and not pathlib.Path('src/app.py').exists() and '--force' not in sys.argv: raise SystemExit(1)\n"
             "print('domain -> src/app.py:1')\n",
             encoding="utf-8",
@@ -436,8 +437,10 @@ class AdapterTests(RepositoryFixture):
         self.assertEqual(extract[1], str(self.root.resolve()))
         self.assertIn("--mode", extract)
         self.assertEqual(extract[extract.index("--out") + 1], str(self.root))
-        self.assertEqual(updates[0][1], str(self.root.resolve()))
+        self.assertGreaterEqual(len(updates), 2)
+        self.assertEqual(updates[0], ["update", str(self.root.resolve())])
         self.assertIn("--force", updates[-1])
+        self.assertEqual(updates[-1][1], str(self.root.resolve()))
         self.assertNotIn("--full-rebuild", " ".join(command for command in extract))
         self.assertNotIn("src/app.py", ri.read_state(self.root, "graphify")["indexed_source_manifest"])
 

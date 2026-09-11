@@ -680,6 +680,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: .specs/features/repository-intelligence-routing/validation.md#M2 (deep-review)
 - last seen: 2026-09-11T06:58:11Z
 
+### L-112 - Assert the initial refresh argument vector independently from any successful recovery fallback
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `repository-intelligence-adapter` · harmful: 0
+- features: repository-intelligence-routing
+- evidence: validation.md#M7 (repository-intelligence-adapter)
+- last seen: 2026-09-11T08:21:24Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

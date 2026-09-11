@@ -582,6 +582,28 @@ T6 → T7
 
 **Commit**: `fix(intelligence): pass Graphify checkout paths`
 
+### R13: Record rejected Graphify update attempts in the argv fixture
+
+**Slice:** RI-ADOPTION
+**What**: Make the fake Graphify executable record attempted calls before validation so the incremental-update path requirement cannot be masked by forced fallback.
+**Where**: `tools/test_repository_intelligence.py`
+**Depends on**: R12
+**Reuses**: Existing real-argv Graphify fixture and R12 sensor
+**Requirement**: RIR-04.2
+
+**Open blocker fingerprint**: `280dad79f0802dbf2ec32983354bfaea5c6c705bc54760b2c7d5813722f8b096`
+
+**Done when**:
+
+- [x] Fake Graphify logs every attempted argv before rejecting malformed calls.
+- [x] Removing the path from the initial incremental `update` fails the adapter suite even when forced fallback succeeds.
+- [x] Adapter gate and `bun run test:all` pass with zero failures.
+
+**Tests**: R12 missing-update-path mutant
+**Gate**: Full
+
+**Commit**: `test(intelligence): prove Graphify update path`
+
 ---
 
 ## Dependency Execution Map

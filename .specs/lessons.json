@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 112,
+  "next_id": 113,
   "lessons": [
     {
       "id": "L-001",
@@ -2013,6 +2013,24 @@
       ],
       "created": "2026-09-11T06:58:11Z",
       "last_seen": "2026-09-11T06:58:11Z"
+    },
+    {
+      "id": "L-112",
+      "key": "surviving_mutant::assert the initial refresh argument vector independently from any successful recovery fallback",
+      "text": "Assert the initial refresh argument vector independently from any successful recovery fallback",
+      "signal": "surviving_mutant",
+      "scope": "repository-intelligence-adapter",
+      "status": "candidate",
+      "features": [
+        "repository-intelligence-routing"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md#M7 (repository-intelligence-adapter)"
+      ],
+      "created": "2026-09-11T08:21:24Z",
+      "last_seen": "2026-09-11T08:21:24Z"
     }
   ]
 }

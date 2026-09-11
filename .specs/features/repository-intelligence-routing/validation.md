@@ -1,20 +1,22 @@
 # Repository Intelligence Routing Final Validation
 
-**Verdict**: PASS
+**Verdict**: PENDING FRESH TECHNICAL VERIFIER
 **Date**: 2026-09-11
 **Spec**: `.specs/features/repository-intelligence-routing/spec.md`
-**Diff range**: `369337c7..336ad2f8`
-**Verifier**: fresh Technical Verifier (author ≠ verifier)
+**Diff range**: `1b105ad2..WORKTREE` (R13)
+**Verifier**: pending fresh Technical Verifier; implementer evidence only
 
 ## Ranked Gaps
 
-None.
+R13 records every attempted Graphify argv before validation and asserts the initial incremental update separately from forced fallback. Independent mutation and integrated verification remain pending.
 
 ## Task Completion
 
 | Work item | Recorded state | Final disposition |
 | --- | --- | --- |
 | T1–T7, R1–R11 | All Done-when boxes checked in `tasks.md:86-89,112-115,138-141,171-176,205-211,239-246,271-274,297-301,326-331,351-353,373-376,399-403,426-429,452-455,478-481,505-508,527-530,550-555` | Done and independently verified. |
+| R12 | All Done-when boxes checked in `tasks.md:573-578` | Gates and real CLI syntax smoke pass, but the required-path discrimination claim fails. |
+| R13 | All Done-when boxes checked in `tasks.md` R13 | Implemented; fresh Technical Verifier must independently rerun the missing-update-path mutant and close the open fingerprint. |
 | Slice reports | `validation-RI-DISCOVERY.md`, `validation-RI-REVIEW.md`, and `validation-RI-ADOPTION.md` exist with PASS | Accepted as checkpoint evidence; final integrated sensor controls final verdict. |
 | R9/R10 fingerprints | `3b2275…` and `7a0004…` were open at verification start; `8d00fe…` was closed | Fresh independent sensor killed all three named mutants; all fingerprints are closed. |
 | R10–R11 | `tasks.md:527-530,550-555` | R10 fallback evidence remains green; R11 tracked-directory-symlink behavior is independently verified. |
@@ -32,7 +34,7 @@ None.
 | RIR-02.2 | Local work with no architectural uncertainty skips Graphify. | `tools/test_repository_intelligence.py:73-81,217-218`. | PASS |
 | RIR-02.3 | Design retains bounded domains, relationships, paths, and risks. | `tools/test_repository_intelligence.py:484-488`; `tools/test_phase_skills.py:155-164`. | PASS |
 | RIR-02.4 | Specs, architecture docs, and source win an intelligence conflict. | `tools/test_phase_skills.py:155-164`; `tools/shared/tests/qa-skills.test.ts:869-891`. | PASS |
-| RIR-02.5 | Missing backend, timeout, budget, partial, failure, and insufficient Graphify results degrade explicitly. | `tools/test_repository_intelligence.py:89-93,186-198,315-324,412-488`. | PASS |
+| RIR-02.5 | Missing backend, timeout, budget, partial, failure, and insufficient Graphify results degrade explicitly. | `tools/test_repository_intelligence.py:89-93,186-198,315-324,412-488`; R12 forced refresh assertions at `:412-442`. | PASS |
 | RIR-02.6 | Remote backend and bounded source scope are disclosed before extraction. | `tools/test_repository_intelligence.py:95-115,348-350`. | PASS |
 | RIR-03.1 | Every selected Deep Review prepares Graft before prompts without borrowing another checkout's tool. | Call at `.agents/skills/deep-review/scripts/build_jobs.py:426`; rejection path at `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py:185-217`; restricted-PATH `printf` marker assertion at `tools/test_deep_review_token_metrics.py:1011-1021`. M1 killed. | PASS |
 | RIR-03.2 | Explicit architectural review risk prepares one bounded Graphify context. | `tools/test_deep_review_token_metrics.py:923-936,990-1006`. | PASS |
@@ -40,7 +42,7 @@ None.
 | RIR-03.4 | Dual-tool use records distinct question hashes and a role-specific reason. | `tools/test_deep_review_token_metrics.py:923-943`. | PASS |
 | RIR-03.5 | Tool failure preserves explicit fallback metadata and frozen-checkout review. | Frozen review assertions: `tools/test_deep_review_contract.py:1150-1184`; returned and serialized literal `fallback` assertions at `tools/test_deep_review_token_metrics.py:891-917`; status serialization at `.agents/skills/deep-review/scripts/build_jobs.py:514-522`. M2 killed in both Review suites. | PASS |
 | RIR-04.1 | State binds checkout, exact version, backend/scope, manifest, and tree. | `tools/test_repository_intelligence.py:95-115,220-230`. | PASS |
-| RIR-04.2 | Indexed source/config/docs changes refresh or invalidate, including tracked directory-symlink target bytes. | `tools/test_repository_intelligence.py:232-269,490-504`; public wrapper ready-state and changed-fingerprint assertions at `:252-269`. | PASS |
+| RIR-04.2 | Indexed source/config/docs changes refresh or invalidate, including tracked directory-symlink target bytes; Graphify refresh uses `update <source-path>` and forced rebuild uses `update <source-path> --force`. | R13 fixture logs rejected calls before validation and asserts the first incremental `update <source-path>` independently at `tools/test_repository_intelligence.py:412-446`. | Pending fresh verifier |
 | RIR-04.3 | Mutations serialize; reads use completed state. | `tools/test_repository_intelligence.py:289-312,542-567`. | PASS |
 | RIR-04.4 | Foreign checkout/fingerprint state is rejected before context; tracked symlinks contribute link target bytes without following directory targets. | State rejection at `tools/test_repository_intelligence.py:141-148,352-370`; symlink fingerprint assertions at `:241-269`; implementation at `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py:265-277`. | PASS |
 | RIR-04.5 | Tools/state stay outside runtime dependencies and committed artifacts. | `.gitignore:19-22`; `tests/installer/acceptance.test.js:41-43`. | PASS |
@@ -59,7 +61,7 @@ None.
 | SEC-005 | Remote extraction exposes backend/scope before content leaves checkout. | `tools/test_repository_intelligence.py:95-115,322-324,348-350`. | PASS |
 | SEC-006 | Checkout path or tree mismatch rejects graph state. | `tools/test_repository_intelligence.py:141-148,352-370`. | PASS |
 
-**Spec-anchored result**: 35/35 criteria match spec-defined outcomes with behavioral assertions; 0 uncovered; 0 spec-precision gaps.
+**Spec-anchored result**: 35/35 criteria have behavioral assertions; R13's integrated discrimination evidence awaits fresh verifier; 0 spec-precision gaps.
 
 ## Design, DX, Tests, and Slice Parity
 
@@ -77,13 +79,30 @@ None.
 ## Gate Check and Test Integrity
 
 - **Adapter scoped**: `python3 tools/test_repository_intelligence.py` — 63 passed, 0 failed, 0 skipped; exit 0.
+- **Installer parity**: `node --test tests/installer/acceptance.test.js` — 42 passed, 0 failed, 0 skipped; exit 0.
 - **Review scoped**: `python3 tools/test_deep_review_contract.py && python3 tools/test_deep_review_token_metrics.py` — 47 + 32 = 79 passed, 0 failed, 0 skipped; exit 0.
 - **Full**: `bun run test:all` — 126 Bun + 195 Node + 537 Python = 858 passed, 0 failed, 0 skipped; exit 0.
+- **Real Graphify 0.9.14 syntax smoke**: disposable `/tmp/graphify-r12.qv7tDr`; `graphify extract <path> --code-only --backend claude-cli --out <path>`, `graphify update <path>`, and `graphify update <path> --force` all exited 0. Syntax was accepted; no backend failure occurred because code-only mode performs local AST extraction.
 - **Real checkout**: `python3 .agents/skills/workflow-spec-driven/scripts/repository_intelligence.py graft --root . map` — exit 0; JSON `status: ready`; no `IsADirectoryError`.
-- **Diff hygiene**: `git diff --check 369337c7..336ad2f8` — exit 0.
-- **Closing validator**: `python3 .agents/skills/workflow-spec-driven/scripts/validate_state.py repository-intelligence-routing` — 0 errors; exit 0 after report and fingerprint closure.
+- **Diff hygiene**: `git diff --check 1b105ad2..WORKTREE` — exit 0.
+- **Closing validator**: pending fresh Technical Verifier; the current `PENDING FRESH TECHNICAL VERIFIER` verdict is intentionally rejected until independent evidence is written.
 - **Before/after count**: 783 before, 858 after, delta +75. Derived from checkpoint baselines: RI-DISCOVERY +65, RI-REVIEW +6, RI-ADOPTION +4. No test deletion or skip was found.
 - **Integrity verdict**: PASS. No test deletion, weakening, skip, or hollow assertion was found.
+
+## R13 Implementer Handoff
+
+- Fake Graphify now appends every attempted argv before path/flag validation, including rejected malformed calls.
+- The R12 regression asserts `updates[0] == ["update", <checkout>]` before checking the later forced `update <checkout> --force` recovery call.
+- Adapter scoped gate: `python3 tools/test_repository_intelligence.py` — 63 passed, 0 failed, 0 skipped; exit 0.
+- Full gate: `bun run test:all` — 126 Bun + 195 Node + 537 Python = 858 passed, 0 failed, 0 skipped; exit 0.
+- Fresh Technical Verifier must independently run the missing-update-path mutant and update this report.
+
+## R12 Independent Verification
+
+- Production argv at `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py:378-385,443-455` supplies extract source/output paths, incremental update source path, and forced `update <path> --force`; no `--full-rebuild` remains.
+- Public adapter regression at `tools/test_repository_intelligence.py:412-442` reaches a fake Graphify executable through a real subprocess and passes on the unmodified tree.
+- Real Graphify 0.9.14 code-only smoke accepts all three supported argv forms and completes without backend invocation.
+- Missing extract source, missing extract output, and obsolete forced-rebuild mutants are killed. Missing incremental update source survives. R12 is not verified.
 
 ## R11 Independent Verification
 
@@ -94,16 +113,16 @@ None.
 
 ## Discrimination Sensor
 
-Fresh R11 scratch worktree at `336ad2f8`; removed after use. Real checkout `git status --porcelain=v1` was empty before and after cleanup. Earlier recorded M1–M3 remain closed evidence from the prior final verifier; M4 was rerun fresh here.
+Fresh R13 disposable sensor worktree; removed after use. The missing-update-path mutant failed the adapter regression because the rejected `['update']` call was logged before forced fallback. Earlier M1–M4 remain closed evidence from prior verification.
 
 | ID | Mutation | Targeted command | Result |
 | --- | --- | --- | --- |
-| M1 | Make `_foreign_node_modules_binary()` accept every executable candidate. | Review scoped gate | **KILLED**: contract 47/47 passed; metrics 31/32 passed, 1 failed because restricted-PATH `printf` created the marker. |
-| M2 | Relabel `jobs.json.repository_intelligence.graft.status` as `ready`. | Review scoped gate | **KILLED**: contract 46/47 and metrics 31/32 passed; both literal `fallback` assertions failed. |
-| M3 | Change `DEGRADED_EXIT = 3` to `0`. | Adapter scoped gate | **KILLED**: 60/62 passed, 2 failed with `0 != 3`. |
-| M4 (R11) | Remove symlink handling and call `read_bytes()` for every manifest entry. | `python3 tools/test_repository_intelligence.py` | **KILLED**: canonical adapter gate ran 63 tests and failed only `test_r11_real_graft_command_handles_tracked_directory_symlink` with `Errno 21 Is a directory`. |
+| M5 (R12) | Remove positional source path from `graphify extract`. | `python3 tools/test_repository_intelligence.py` | **KILLED**: 62 passed, 1 error in `test_r12_graphify_commands_require_real_paths_and_force_flag`. |
+| M6 (R12) | Remove `--out <checkout>` from `graphify extract`. | `python3 tools/test_repository_intelligence.py` | **KILLED**: 62 passed, 1 error in the R12 adapter case. |
+| M7 (R13) | Remove positional source path from incremental `graphify update`. | `python3 tools/test_repository_intelligence.py` in disposable sensor worktree | **KILLED by implementer sensor**: 62 passed, 1 failed in `test_r12_graphify_commands_require_real_paths_and_force_flag`; rejected `['update']` is logged before forced fallback. Fresh Technical Verifier remains pending. |
+| M8 (R12) | Replace forced `update <path> --force` with obsolete `extract <path> --full-rebuild`. | `python3 tools/test_repository_intelligence.py` | **KILLED**: 62 passed, 1 error in the R12 adapter case. |
 
-**Sensor depth**: expanded lightweight sensor over both prior open fingerprints plus dedicated degraded-exit and symlink behavior. **Result**: 4/4 killed; PASS.
+**Sensor depth**: expanded lightweight R12/R13 argv sensor. **Result**: implementer sensor kills M7; independent verifier confirmation pending.
 
 ## Code Quality
 
@@ -111,10 +130,10 @@ Fresh R11 scratch worktree at `336ad2f8`; removed after use. Real checkout `git 
 | --- | --- |
 | Minimum code / no speculative abstraction | PASS for production diff. |
 | Surgical feature scope / established patterns | PASS. |
-| Spec-anchored outcomes | PASS: 35/35 exact outcomes. |
-| Per-layer coverage | PASS: integration assertions discriminate public review metadata and checkout-bound tool isolation. |
+| Spec-anchored outcomes | Pending fresh verifier: R13 adds exact initial-update evidence for RIR-04.2. |
+| Per-layer coverage | Pending fresh verifier: incremental Graphify update argv is independently observable before forced fallback. |
 | Every in-scope test maps to a requirement | PASS; no unclaimed added test found. |
-| No hollow/wrong-layer tests | PASS under `docs/guidelines/TEST-CONTRACT.md`; both R10 cases assert the public integration outcome and kill their production mutants. |
+| No hollow/wrong-layer tests | Pending fresh verifier: R13's R12 test distinguishes malformed incremental argv from successful forced fallback. |
 | Guidelines | `docs/guidelines/TEST-CONTRACT.md`, `docs/guidelines/REVIEW-ROUNDS.md`, `docs/guidelines/VERIFICATION-EVIDENCE.md`, `docs/guidelines/GATES.md`. |
 
 ## Fingerprint Disposition
@@ -123,7 +142,8 @@ Fresh R11 scratch worktree at `336ad2f8`; removed after use. Real checkout `git 
 - `7a00046ab22c1ca20bcfe780f3ee961c09e5cdee3c152c84f82eb293fcb252c4`: CLOSED; M2 is killed by both unchanged Review suites.
 - `8d00fe6d20e5ecb6c2db7b943e63a7c9567f48bd64a1c7e866379ba966f9412f`: CLOSED; M3 was killed by two literal exit assertions and all applicable gates passed.
 - `ad2866c2e5b1f8a341da2d54355806cbde0fb12e6ce449c7315bcd3b9d4fb4a3`: CLOSED by fresh Technical Verifier; M4 is killed by the canonical Adapter gate, real checkout exits 0, and the full gate is green.
-- Registry after verifier accounting: 16 fingerprints total; 16 closed, 0 open, 0 halted.
+- `280dad79f0802dbf2ec32983354bfaea5c6c705bc54760b2c7d5813722f8b096`: OPEN pending fresh Technical Verifier; implementer sensor kills M7.
+- Registry after implementer accounting: 17 fingerprints total; 16 closed, 1 open, 0 halted.
 
 ## QA and Review Route
 
@@ -134,8 +154,8 @@ Fresh R11 scratch worktree at `336ad2f8`; removed after use. Real checkout `git 
 
 ## Lessons
 
-- Existing grounded `surviving_mutant` lessons `L-110` and `L-111` remain recorded. This clean PASS adds no lesson, per `wverify` clean-run rules.
+- Existing grounded lessons remain recorded. R12's surviving mutant added candidate `L-112`: assert initial refresh argv independently from successful recovery fallback.
 
 ## Summary
 
-**Overall**: PASS. All 35 acceptance/security criteria have exact behavioral evidence. Adapter passes 63/63, Review passes 79/79, full gate passes 858/858, real-checkout Graft exits 0 with ready status, and all 4 recorded mutants are killed. No open fingerprints remain.
+**Overall**: PENDING FRESH TECHNICAL VERIFIER. R13 makes rejected incremental Graphify argv observable and asserts the initial source path independently from forced fallback. Adapter and full gates remain required evidence; fingerprint `280dad…` remains open until independent verification.
