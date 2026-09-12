@@ -19,28 +19,15 @@ python3 <skill-dir>/scripts/run_jobs.py --out <out> [--jobs-file <out>/<stage>-j
   --command "compozy exec <runtime flags from the map> --format json --timeout 30m --prompt-file {prompt}"
 ```
 
-The runner executes reviewer jobs with the concurrency bound pinned in the manifest (default `3`,
-maximum `6`). A provider adapter may append
-`--metrics --metrics-db <source> --metrics-reviewer-prefix <configured-path>` to collect cumulative
-snapshots. The Codex adapter's source is `$CODEX_HOME/state_5.sqlite`; it must also pass an explicit
-reviewer path, for example `--metrics-reviewer-prefix "$DEEP_REVIEW_REVIEWER_PREFIX"`. Claude and
-Cursor omit those flags until stable adapters exist, and the runner records `unavailable` without
-inventing totals. The main thread serializes cumulative checkpoints and never assigns overlapping
-global deltas to individual jobs. The runner refills completed worker slots, keeps retries inside
-the owning slot, stops scheduling after a provider block while active attempts finish, and owns
-output validation, the source-freeze check, and resume (valid outputs are never re-run). Each job's
-output file is the agent's only product; JSONL/stderr logs are operational evidence — never parse
-them as review output.
+The runner executes reviewer jobs with the concurrency bound pinned in the manifest (default `3`, maximum `6`). An adapter may append metrics flags to collect cumulative snapshots. The runner refills completed worker slots, keeps retries inside the owning slot, stops scheduling after a provider block while active attempts finish, and owns output validation, the source-freeze check, and resume (valid outputs are never re-run). Each job's output file is the agent's only product; JSONL/stderr logs are operational evidence — never parse them as review output.
 
 ## Failure handling
 
-- **Runner exit 2 (blocked)** — a structured `error`/`turn.failed` event, or a raw non-JSON stdout or stderr line, matched a block pattern (default `usageLimitExceeded`; tool output never counts); `<out>/run-blocker.json` lists the pending jobs. Re-run the same command when the limit clears; add `--block-on <pattern>` for providers that phrase limits differently.
+- **Runner exit 2 (blocked)** — a stream matched a block pattern (default `usageLimitExceeded`); `<out>/run-blocker.json` lists the pending jobs. Re-run the same command when the limit clears; add `--block-on <pattern>` for providers that phrase limits differently.
 - **Runner exit 1 with FAIL jobs** — the agent kept producing missing/invalid output through its attempts. Read `<out>/runs/<label>.attempt-*.err`, then run that one agent on the `native` path (orchestration.md engines) and record the substitution in review.md — the no-skip invariant outranks runtime purity.
 - **`model "X" is not available`** — the error lists the runtime's advertised options. Surface them and stop; never substitute a model silently (L-010).
 - **`did not advertise an ACP model option`**, or `compozy` missing from PATH — stop and name the gap; external review has no alternate transport.
 
 ## Cost
 
-Every external invocation spends `compozy exec` credit — a large PR may require dozens of agent
-invocations. `native` fits exploratory runs; external runtimes earn their spend on gate rounds
-(e.g. loop Phase D's `codex` lane).
+Every external invocation spends `compozy exec` credit — a large PR fans out dozens of agents. `native` fits exploratory runs; external runtimes earn their spend on gate rounds (e.g. loop Phase D's `codex` lane).

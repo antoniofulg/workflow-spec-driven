@@ -55,8 +55,18 @@ REVIEWER_PLACEHOLDERS = {
 SWEEP_PLACEHOLDERS = {
     "sweep_key", "lens", "target", "context", "manifest", "taxonomy",
     "diff_command", "output", "schema", "rules_block",
-    "coverage_contract", "graft_context",
+    "coverage_contract", "graft_context", "spec_extra",
 }
+
+SPEC_EXTRA = (
+    " Read EVERY artifact in the context pack's Spec contract section in full and compare the "
+    "implementation to each one FIELD BY FIELD: names, types, defaults, required-vs-optional flags, "
+    "shapes, topologies, command surfaces, behaviors. A deliverable that contradicts a canonical "
+    "artifact is a Critical potential-issue, never a nitpick; never reinterpret the artifact to match "
+    "what was built. When an artifact names a visual reference, require its parity evidence bundle. "
+    "Set guideline to `<artifact path> — <section/field>` on every finding. An empty result asserts "
+    "every listed artifact conforms."
+)
 
 DEFAULT_LENSES = {
     "contracts": (
@@ -369,8 +379,14 @@ def prior_findings_block(ledger: dict[str, dict]) -> str:
     return "\n".join(lines)
 
 
-def coverage_contract(required_hunks: list[dict]) -> str:
-    return f"HUNK COVERAGE (one exact row per assignment): `{json.dumps(required_hunks, separators=(',', ':'))}`"
+def coverage_contract(required_hunks: list[dict], rule_ids: list[str] | None = None) -> str:
+    contract = f"HUNK COVERAGE (one exact row per assignment): `{json.dumps(required_hunks, separators=(',', ':'))}`"
+    if rule_ids is not None:
+        contract += (
+            "\nASSIGNED RULE ACCOUNTING (one exact row per id, even when compliant or not applicable): "
+            f"`{json.dumps(rule_ids, separators=(',', ':'))}`"
+        )
+    return contract
 
 
 def main() -> int:
@@ -479,7 +495,7 @@ def main() -> int:
                     "reliability, or failing-capable test defects. Put survivors in `defects`; "
                     "leave `advisories` empty."
                 ),
-                "coverage_contract": coverage_contract(required_hunks),
+                "coverage_contract": coverage_contract(required_hunks, [rule["id"] for rule in bound_rules]),
             }) + graphify_note
             (prompts_dir / f"{label}.md").write_text(prompt, encoding="utf-8")
             jobs.append({
@@ -502,7 +518,8 @@ def main() -> int:
                 "manifest": rel(out / "manifest.json", repo),
                 "output": rel(output, repo),
                 "rules_block": block,
-                "coverage_contract": coverage_contract([]),
+                "coverage_contract": coverage_contract([], [rule["id"] for rule in bound_rules]),
+                "spec_extra": SPEC_EXTRA if sweep["key"] == "spec-parity" else "",
             }) + graphify_note
             (prompts_dir / f"{label}.md").write_text(prompt, encoding="utf-8")
             jobs.append({

@@ -1,6 +1,6 @@
 # Review Taxonomy
 
-The grammar for defects, advisories, evidence, and optional suppressions. Every review uses one assertive posture: report every specific, actionable survivor regardless of size.
+The grammar for defects, advisories, evidence, and objective suppressions. Every review uses one assertive posture: report every specific, actionable survivor regardless of size.
 
 ## Result classes
 
@@ -9,7 +9,7 @@ The grammar for defects, advisories, evidence, and optional suppressions. Every 
 | **Defect** | `⚠️ Potential issue` | Critical/Major block SHIP | The change can produce a wrong result, crash, leak, vulnerability, broken contract, or failing-capable test gap under a concrete input/state. |
 | **Advisory** | `🛠️ Refactor suggestion`, `🧹 Nitpick` | Never | The code can remain functional, but a bounded change measurably improves maintainability, simplicity, clarity, naming, documentation, idiom, or conformance with a project rule/skill. |
 
-There is no advisory quota. A small advisory is valid when the premise is observed, the benefit is specific, and the fix is bounded. Formatter-owned style and vague preferences are not advisories.
+There is no advisory quota. A small advisory is valid when the premise is observed, the benefit is specific, and the fix is bounded. Formatter-owned style and vague preferences are suppressions, not advisories.
 
 ## Severity
 
@@ -50,9 +50,9 @@ Later evidence entries record one `command or file:line → what it showed` chec
 
 A result on untouched lines is allowed only when the diff breaks that code or when a sibling path must mirror the changed invariant. Mark it `in_diff: false` and `hunk: null`; it belongs in the summary rather than an inline comment.
 
-## Suppressions (optional)
+## Objective suppressions
 
-When you record a rejected candidate in `suppressions`, use one of these reasons and a concrete note:
+When an investigated candidate is rejected, record it in `suppressions` with one of these reasons and a concrete note:
 
 1. `linter-overlap` — a linter/typechecker lane already reports it.
 2. `intentional` — an adjacent justified disable, ADR, comment, or behavior-locking test proves intent.
@@ -67,4 +67,4 @@ Profile, volume, low severity, and personal taste are not suppression reasons.
 
 ## Volume discipline
 
-There is no numeric cap. Find broadly, refute actively, and report every survivor. One root cause becomes one result; search every occurrence and list the rest under `also_applies`.
+There is no numeric cap. Find broadly, refute actively, report every survivor, and account for every investigated rejection. One root cause becomes one result; search every occurrence and list the rest under `also_applies`.

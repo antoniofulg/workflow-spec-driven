@@ -1,12 +1,12 @@
 {
   "type": "object",
-  "required": ["defects", "advisories", "coverage"],
+  "required": ["defects", "advisories", "suppressions", "coverage"],
   "properties": {
     "defects": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["file", "line", "in_diff", "hunk", "category", "severity", "quick_win", "title", "body", "evidence"],
+        "required": ["file", "line", "in_diff", "hunk", "category", "severity", "quick_win", "title", "body", "rule_ids", "evidence"],
         "properties": {
           "file": { "type": "string" },
           "line": { "type": "integer" },
@@ -30,7 +30,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["file", "line", "in_diff", "hunk", "category", "severity", "quick_win", "title", "body", "evidence"],
+        "required": ["file", "line", "in_diff", "hunk", "category", "severity", "quick_win", "title", "body", "rule_ids", "evidence"],
         "properties": {
           "file": { "type": "string" },
           "line": { "type": "integer" },
@@ -80,7 +80,7 @@
     },
     "coverage": {
       "type": "object",
-      "required": ["hunks"],
+      "required": ["hunks", "rules"],
       "properties": {
         "hunks": {
           "type": "array",
