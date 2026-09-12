@@ -67,17 +67,17 @@ As a toolkit maintainer, I want upstream reporting improvements with our review 
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| DRW-01 | P1 | Execute | Implemented |
-| DRW-02 | P1 | Execute | Implemented |
-| DRW-03 | P1 | Execute | Implemented |
-| DRW-04 | P1 | Execute | Implemented |
-| DRW-05 | P1 | Execute | Implemented |
-| DRW-06 | P1 | Execute | Implemented |
-| DRW-07 | P1 | Execute | Implemented |
-| DRW-08 | P1 | Execute | Implemented |
-| DRW-09 | P1 | Execute | Implemented |
-| DRW-10 | P1 | Execute | Implemented |
-| DRW-11 | P1 | Execute | Implemented |
+| DRW-01 | P1 | Execute | Verified |
+| DRW-02 | P1 | Execute | Verified |
+| DRW-03 | P1 | Execute | Verified |
+| DRW-04 | P1 | Execute | Verified |
+| DRW-05 | P1 | Execute | Verified |
+| DRW-06 | P1 | Execute | Verified |
+| DRW-07 | P1 | Execute | Verified |
+| DRW-08 | P1 | Execute | Verified |
+| DRW-09 | P1 | Execute | Verified |
+| DRW-10 | P1 | Execute | Verified |
+| DRW-11 | P1 | Execute | Verified |
 
 ## Success Criteria
 
@@ -87,6 +87,8 @@ As a toolkit maintainer, I want upstream reporting improvements with our review 
 
 ## Execution Plan
 
-1. Implemented: reconciled `.agents/skills/deep-review/` and owning tests in `tools/test_deep_review*.py` against DRW-01 through DRW-11; scoped results: contract 48 passed, symlink 5 passed, token metrics 32 passed, convergence 15 passed, installation 1 passed; HTML output assertion covers defects, advisories, suppressions, repair plans, and defect coverage; final independent verification remains pending; commit `fix(deep-review): preserve workflow contracts across upstream update`.
+1. Verified: reconciled `.agents/skills/deep-review/` and owning tests against DRW-01 through DRW-11 in `7eb06ed4`, with contract remediation in `96bd48e5` and `8c5d7b9d`. Independent scoped results: contract 48 passed, symlink 5 passed, token metrics 32 passed, convergence 15 passed, installation 1 passed; three discrimination mutants killed. See `validation.md` for commands, assertions, and limitations.
+
+Scope closure: the assigned reconciliation passes. The final `bun run test:all` remains at 123 passed and 3 unrelated baseline failures in Bun-command authority and security-skill installation. `node --test tests/installer/*.test.js` separately passed 207 tests with zero failures or skips. Full-repository readiness is not claimed. Remote publication was not performed.
 
 Design and Tasks are inline: one coupled pipeline slice, one implementation task, one serial writer. The source schema, job builder, runner, merger, and renderer must move together. Existing commits provide reusable implementations; no compatibility layer is introduced.
