@@ -3,9 +3,11 @@
 **Verdict**: PASS
 **Date**: 2026-09-12
 **Spec**: `.specs/features/deep-review-workflow/spec.md`
-**Diff range**: `0450ee864962a7892f6b73447faa01cd861f0259..8c5d7b9da1675246be2b0fecaf2cc64b2bf62c50`
-**Verifier**: independent Technical Verifier, author != verifier
-**Scope**: single integrated slice, including remediation commits `96bd48e5` and `8c5d7b9d`
+**Evidence origin**: historical source-branch verification, independent verifier author != implementer
+**Source diff range**: `0450ee864962a7892f6b73447faa01cd861f0259..8c5d7b9da1675246be2b0fecaf2cc64b2bf62c50`
+**Integrated base**: `aaa50807` (`origin/main`); final main-base integration proof is pending
+**Source-branch scope**: single integrated slice, including remediation commits `96bd48e5` and `8c5d7b9d`
+**Main-base cherry-picks**: `3532055f`, `a1eab455`, `dc16a2a6`, `dd951ad4`
 
 ## Task Completion
 
@@ -62,7 +64,7 @@ Real checkout status was clean before sensor work and clean after all three temp
 **Sensor depth**: lightweight, three targeted behavior-level mutations.
 **Result**: 3/3 killed - PASS.
 
-## Gate Check
+## Historical Source-Branch Gate Check
 
 | Command | Exit | Exact result |
 | --- | ---: | --- |
@@ -94,7 +96,7 @@ Real checkout status was clean before sensor work and clean after all three temp
 | Existing patterns and whole-skill installation contract preserved | PASS |
 | Spec-anchored outcomes and behavioral assertions | PASS |
 | Every changed behavioral test maps to DRW criteria or a named edge case | PASS |
-| Guidelines followed: `docs/toolkit/guidelines/TEST-CONTRACT.md`, `docs/toolkit/guidelines/REVIEW-ROUNDS.md`, `docs/toolkit/guidelines/VERIFICATION-EVIDENCE.md` | PASS |
+| Guidelines followed: `docs/guidelines/TEST-CONTRACT.md`, `docs/guidelines/REVIEW-ROUNDS.md`, `docs/guidelines/VERIFICATION-EVIDENCE.md` | PASS |
 
 ## Limitations
 
@@ -106,6 +108,6 @@ Real checkout status was clean before sensor work and clean after all three temp
 
 ## Summary
 
-**Overall**: Ready within the assigned Deep Review reconciliation scope.
+**Overall**: Historical source-branch evidence is PASS within the assigned Deep Review reconciliation scope; main-base integration proof remains pending.
 
-All 11 DRW criteria have assertion-level evidence. Canonical checks pass 101/101. Three targeted mutants were killed. No ranked gaps remain. Full-repository readiness remains blocked by three unrelated baseline failures described above.
+All 11 DRW criteria have assertion-level evidence on the source branch. Canonical source-branch checks pass 101/101. Three targeted mutants were killed. Main-base focused checks and a fresh integration verifier remain required before readiness is claimed. Full-repository readiness remains blocked by three unrelated baseline failures described above.
