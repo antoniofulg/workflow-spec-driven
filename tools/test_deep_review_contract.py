@@ -1013,6 +1013,8 @@ class DeepReviewContractTests(unittest.TestCase):
             self.assertEqual(build.returncode, 0, build.stdout + build.stderr)
             jobs = json.loads((out / "jobs.json").read_text(encoding="utf-8"))["jobs"]
             self.assertEqual([job["kind"] for job in jobs], ["cohort", "cohort", "cohort", "sweep"])
+            cohort_prompt = (out / "prompts/cohort-c0.md").read_text(encoding="utf-8")
+            self.assertIn("concrete, actionable maintainability or project-rule improvements", cohort_prompt)
 
     def test_sweep_may_not_re_report_a_single_cohort_result(self) -> None:
         # C9: a sweep result inside cohort-owned hunks needs also_applies across two other files

@@ -111,12 +111,9 @@ Bracketed lines appear only when they apply. Every result has the certificate fo
 
 <finding blocks with in_diff: false, grouped per file; "None.">
 
-## Spec conformance
+## Spec context
 
-<only with --spec; one row per contract artifact from the context pack:>
-| Artifact | Assessment |
-| --- | --- |
-| `<path>` | conforms — no divergence found \| <n> violation(s): <finding claims> |
+<spec artifacts are provided to Technical Verifier; Deep Review does not render a separate spec-parity proof section>
 
 ## Duplicates (unresolved from round <N-1>)
 
@@ -145,8 +142,8 @@ When the harness exposes the ReportFindings tool, call it once after review.md i
 
 Derive after Step 4's merge from open **defects only**; advisories never change the verdict:
 
-- **SHIP** — no Critical or Major defect is open; Minor defects and every advisory ship as follow-ups. With `--spec`, the Spec conformance section must also be complete with zero open parity violations.
+- **SHIP** — no Critical or Major defect is open; Minor defects enter the mandatory current-feature closeout batch without a remediation check; Trivials and advisories become follow-ups.
 - **FIX_BEFORE_SHIP** — at least one Critical/Major defect is open, and remediation is local: the change's shape is right and each defect names a bounded fix.
-- **REWORK** — defects show structural failure needing redesign: a parity violation the implementation approach cannot express, one root cause across ≥3 cohorts, or a Critical whose fix rewrites the change's core. REWORK always carries a named rationale; otherwise FIX_BEFORE_SHIP is the ceiling.
+- **REWORK** — defects show structural failure needing redesign: one root cause across ≥3 cohorts or a Critical whose fix rewrites the change's core. REWORK always carries a named rationale; otherwise FIX_BEFORE_SHIP is the ceiling.
 
 The verdict lands in review.md, state.json, and the final message. render_review.py derives SHIP / FIX_BEFORE_SHIP from defects with round status new or duplicate plus prior `open` ledger entries without a `prior_findings` disposition, and accepts REWORK only through `--rework "<rationale>"` backed by structural defects.

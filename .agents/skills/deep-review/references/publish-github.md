@@ -69,7 +69,7 @@ gh api repos/$R/pulls/$N/comments --paginate --jq '.[].body' | grep -o 'deep-rev
 gh api repos/$R/pulls/$N/reviews --paginate --jq '.[].body' | grep -o 'deep-review:fp:[a-f0-9]*'
 ```
 
-Recover the latest `Reviewing files that changed between <base> and <head>.` line as the prior head. A fingerprint absent from the current defects/advisories is resolved only when its file was re-reviewed or left the diff.
+Recover the latest `Reviewing files that changed between <base> and <head>.` line as the prior head. A fingerprint absent from the current defects/advisories remains open unless the incremental reviewer returns a `prior_findings` row with `status: resolved` and evidence; otherwise it remains under Duplicates.
 
 ## Order and idempotency
 

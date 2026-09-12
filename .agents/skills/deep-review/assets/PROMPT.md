@@ -47,7 +47,7 @@ GRAFT CONTEXT: read `{{graft_context}}` for the prepared repository map, relevan
 REPO RULES applicable across the selected surface — account for every id:
 {{rules_block}}
 
-Find concrete cross-cohort hypotheses through this lens, enumerate every occurrence, then refute each with repository evidence. Put causal failures in `defects` with `Premise → Path → Verdict`; put measurable structural or convention improvements in `advisories` with `Premise → Improvement → Fix`. Record investigated candidates rejected by an objective taxonomy rule in `suppressions`. Cross-cohort results are the point of this sweep — cohort lanes own single-cohort results; a result inside cohort-owned hunks is rejected unless its `also_applies` names anchors in at least two other files.{{spec_extra}}
+Find concrete cross-cohort hypotheses through this lens, enumerate every occurrence, then refute each with repository evidence. Put causal failures in `defects` with `Premise → Path → Verdict`; put measurable structural or convention improvements in `advisories` with `Premise → Improvement → Fix`. Record investigated candidates rejected by an objective taxonomy rule in `suppressions`. Cross-cohort results are the point of this sweep — cohort lanes own single-cohort results; a result inside cohort-owned hunks is rejected unless its `also_applies` names anchors in at least two other files.
 
 {{coverage_contract}}
 

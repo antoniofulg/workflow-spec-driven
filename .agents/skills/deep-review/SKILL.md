@@ -22,13 +22,13 @@ Steps 1–4 drive an idempotent artifact pipeline under `<out>`: every stage gat
 | `--worktree` | Review uncommitted + untracked work against the base ref (always a full round) | — |
 | `--files <p1,p2>` | Restrict review to these paths | full diff |
 | `--concurrency <n>` | Override repository reviewer concurrency (`1`–`6`) while building the manifest | `.deep-review.yaml` or `3` |
-| `--spec <path>` | Spec file or directory; its contract-bearing artifacts become the conformance baseline (spec-parity sweep + verdict gate) | — |
+| `--spec <path>` | Spec file or directory; its contract-bearing artifacts are available as reviewer context | — |
 | `--subagent <runtime>` | Step 3 reviewer runtime: `native` \| `claude-opus` \| `grok` \| `codex` — non-native runs cross-LLM via `compozy exec` | `native` |
 | `--max-cohort-files <n>` | Maximum files assigned to one cohort; the ~6,000 changed-line cap still applies | `100` |
 | `--publish` | Post walkthrough + review to the PR | off — local report only |
 | `--full` | Ignore prior state; review the whole diff again | incremental when state exists |
 | `--out <dir>` | Artifact directory | `.deep-review/<target>/` |
-| `--no-workflow` | Skip the Workflow tool; use Agent fan-out | Workflow when available |
+| `--no-workflow` | Skip the Workflow tool; use Agent execution | Named native `deep-reviewer` when the host supports it; role-free Workflow fallback |
 | `--metrics` | Observe compatible provider usage when an adapter is configured | unavailable without a compatible adapter |
 | `--metrics-db <path>` | Provider telemetry source supplied by an adapter | none |
 | `--metrics-ledger <path>` | Content-safe observational metrics path | `<out>/runs/review-metrics.json` |
@@ -64,8 +64,8 @@ The manifest builder resolves `path_filters` into manifest.json; the knowledge s
   compatible adapter record `unavailable` and continue the review normally. The pinned Graft adapter
   runs before prompts are materialized; a failed or absent Graft falls back to ordinary repository
   inspection.
+- Native execution uses the configured named `deep-reviewer` when the host supports it; otherwise use the role-free Workflow fallback or prompt-only Agent fallback described in orchestration.md.
 - Reviewer concurrency is resolved before dispatch: `--concurrency N` overrides `.deep-review.yaml`, which overrides the default `3`; valid values are `1` through `6`. The resolved value is frozen in `manifest.json`. The legacy no-op `--workers` option is rejected.
-- Optional metrics snapshot provider totals and cumulative checkpoints without changing dispatch, retries, outputs, or exits. Hosts without a compatible adapter record `unavailable` and continue. The pinned Graft adapter runs before prompts are materialized; failed or absent Graft falls back to ordinary repository inspection.
 - External `--subagent` runtimes spend `compozy exec` credit.
 
 ## Procedure
@@ -101,7 +101,7 @@ The manifest builder resolves `path_filters` into manifest.json; the knowledge s
      [--max-cohort-files N]
    ```
 
-   It rejects incomplete source accounting and over-split plans, proves defect ownership, injects bound rules into every cohort and sweep, and materializes `<out>/jobs.json`.
+   It rejects incomplete source accounting and over-split plans, proves defect ownership, injects bound rules into every cohort and sweep, and materializes `<out>/jobs.json`. Test-adequacy and spec-parity proof remain Technical Verifier responsibilities.
 
 *Done when:* build_jobs.py exits 0, every discovered source has an audited decision in rules.json, context-pack.md lists applied source/rule and linter outcomes without copying the full registry, and walkthrough.md satisfies its contract.
 
