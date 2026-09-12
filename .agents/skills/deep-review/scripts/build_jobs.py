@@ -55,18 +55,8 @@ REVIEWER_PLACEHOLDERS = {
 SWEEP_PLACEHOLDERS = {
     "sweep_key", "lens", "target", "context", "manifest", "taxonomy",
     "diff_command", "output", "schema", "rules_block",
-    "coverage_contract", "graft_context", "spec_extra",
+    "coverage_contract", "graft_context",
 }
-
-SPEC_EXTRA = (
-    " Read EVERY artifact in the context pack's Spec contract section in full and compare the "
-    "implementation to each one FIELD BY FIELD: names, types, defaults, required-vs-optional flags, "
-    "shapes, topologies, command surfaces, behaviors. A deliverable that contradicts a canonical "
-    "artifact is a Critical potential-issue, never a nitpick; never reinterpret the artifact to match "
-    "what was built. When an artifact names a visual reference, require its parity evidence bundle. "
-    "Set guideline to `<artifact path> — <section/field>` on every finding. An empty result asserts "
-    "every listed artifact conforms."
-)
 
 DEFAULT_LENSES = {
     "contracts": (
@@ -492,8 +482,8 @@ def main() -> int:
                 "output": rel(output, repo),
                 "lane_instruction": (
                     "DEFECT LANE: report only concrete correctness, security, data, contract, "
-                    "reliability, or failing-capable test defects. Put survivors in `defects`; "
-                    "leave `advisories` empty."
+                    "reliability, or failing-capable test defects in `defects`; report concrete, "
+                    "actionable maintainability or project-rule improvements in `advisories`."
                 ),
                 "coverage_contract": coverage_contract(required_hunks, [rule["id"] for rule in bound_rules]),
             }) + graphify_note
@@ -519,7 +509,6 @@ def main() -> int:
                 "output": rel(output, repo),
                 "rules_block": block,
                 "coverage_contract": coverage_contract([], [rule["id"] for rule in bound_rules]),
-                "spec_extra": SPEC_EXTRA if sweep["key"] == "spec-parity" else "",
             }) + graphify_note
             (prompts_dir / f"{label}.md").write_text(prompt, encoding="utf-8")
             jobs.append({
