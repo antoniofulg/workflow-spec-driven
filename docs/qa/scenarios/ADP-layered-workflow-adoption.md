@@ -4,9 +4,9 @@ area: ADP
 title: Adopt workflow capabilities incrementally
 persona: Workflow adopter
 journey: J-adopt-workflow
-expected: A project selects core, quality, or extras, sees non-core selections include core, installs each exact current catalog including unchanged third-party Ponytail names, and repeats with an explicit no-change result and no parallel module.
+expected: A project selects core, quality, or extras, sees non-core selections include core, installs each exact current catalog including unchanged third-party Ponytail names plus optional prompt-review and current Claude aliases, and repeats with an explicit no-change result and no parallel module or retired alias.
 entry_points: README.md#quick-start; node /Users/antoniofulg/Projects/my-workflow/bin/wtk.js install; package.json; scripts/installer/engine.js
-qa_status: pass
+qa_status: untested
 bug_ids:
 fix_status:
 retest_status:
@@ -63,3 +63,8 @@ The 2026-09-13 cycle changes the catalog to `core`, `quality`, and `extras`, rem
 replaces old phase names with Workflow Toolkit names. Re-walk exact core and quality catalogs plus
 all extras members; `ponytail-audit`, `ponytail-debt`, `ponytail-gain`, `ponytail-help`, and
 `ponytail-review` retain their third-party names. Prior verdict is stale for this catalog.
+
+The completed 2026-09-13 report and evidence cover the prior five-member extras catalog and remain
+historical. The follow-up adds `prompt-review` as the sixth optional extra and refreshes Claude links
+to current `wtk-*`, Ponytail, and `prompt-review` aliases while removing retired aliases. Reset to
+`untested` pending source and packed CLI readback, byte-stable re-adoption, and a no-op/cancel canary.

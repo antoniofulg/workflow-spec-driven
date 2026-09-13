@@ -11,7 +11,7 @@ health endpoint exists here.
 | --- | --- | --- | --- |
 | `ADP` | Guided installer and generated consumer filesystem | `workflow-toolkit` package; `wtk install` executable | [`package.json`](../../package.json); [README quick start](../../README.md#quick-start); [`bin/wtk.js`](../../bin/wtk.js) |
 | `CFG` | Workflow configuration, resolution, generated packets, and Lean feature state | `.wtk.toml.example`; checkout-local `.wtk.toml`; `workflow_config.py` | [`wtk-config`](../../.agents/skills/wtk-config/SKILL.md); [tracked example](../../.wtk.toml.example) |
-| `QAS` | Agent-facing workflow, validation, review, QA, and closeout procedures | `.agents/skills/wtk*/`; provider packets; Lean validators; close helper | [skills contract](../../README.md#current-workflow); [`wtk-lean`](../../.agents/skills/wtk-lean/SKILL.md); [`wtk-ship`](../../.agents/skills/wtk-ship/SKILL.md) |
+| `QAS` | Agent-facing workflow, instruction audit, validation, review, QA, and closeout procedures | `.agents/skills/wtk*/`; `.agents/skills/prompt-review/SKILL.md`; provider packets; Lean validators; close helper | [skills contract](../../README.md#current-workflow); [`prompt-review`](../../.agents/skills/prompt-review/SKILL.md); [`wtk-lean`](../../.agents/skills/wtk-lean/SKILL.md); [`wtk-ship`](../../.agents/skills/wtk-ship/SKILL.md) |
 | `DOC` | Workflow documentation and authorization boundaries | `README.md`; `docs/toolkit/` | [`README.md`](../../README.md); [workflow index](../toolkit/README.md) |
 | `REL` | Package identity and membership | `package.json`; `bun.lock`; local package archive | [`package.json`](../../package.json) |
 
@@ -40,6 +40,11 @@ Command facts remain in their executable manifests or CI authorities.
   disposable feature fixtures. Inspect agent routing and on-demand guidance as shipped; assigned
   technical-forward evidence may support discrimination that cannot be made deterministic through
   this repository's CLI.
+- Prompt-review path: use the installed `.agents/skills/prompt-review/SKILL.md` through a bounded,
+  read-only instruction-bundle audit. Inventory hidden instruction files, reload cited source lines
+  independently, and record the observed findings or exact no-issue result plus coverage and
+  exclusions. The skill has no standalone executable; keep this manual agent-facing observation
+  separate from deterministic contract-test evidence.
 - Gate authority: [`package.json`](../../package.json) declares Bun, Node, and Python suites.
   Automated suites prove technical contracts; they are not substitutes for the public-interface
   QA walk.
@@ -60,6 +65,8 @@ Command facts remain in their executable manifests or CI authorities.
 - Fixtures or seed: disposable empty, adopted, re-adopted, conflicting, cancelled, and
   non-interactive Git consumers following `tests/installer/*.test.js`; use the existing PTY pattern
   in [`tests/installer/package.test.js`](../../tests/installer/package.test.js).
+- Prompt-review fixture: one bounded read-only tree containing visible and hidden instruction files;
+  record its path before the walk and verify its bytes and file set are unchanged afterward.
 - Config fixtures: a copy of `.wtk.toml.example`, a byte-distinct consumer `.wtk.toml`, and
   disposable `checks.md` fixtures for `light`, `standard`, and `ui`. Preserve both source files and
   every consumer-selected value during re-adoption.
@@ -78,7 +85,8 @@ Command facts remain in their executable manifests or CI authorities.
 - The `workflow-toolkit` package is not published. Do not fetch a registry package, publish, push,
   open or merge a pull request, deploy, or mutate production during QA.
 - Network access and external-skill installation are not authorized. Inspect the separately printed
-  security command and confirm the three external skills remain absent; do not execute
+  security command and confirm `security-spec`, `security-threat-model`, `security-implementation`,
+  and `security-review` remain absent; do not execute
   `scripts/install_security_skills.py`.
 - This workflow does not install a framework or invent commands. Use the source CLI or local packed
   package, existing PTY pattern, public Python CLIs, and filesystem readback.

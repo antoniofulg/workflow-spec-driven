@@ -4,9 +4,9 @@ area: DOC
 title: Read explicit credits and a product-neutral workflow scope
 persona: Repository reader
 journey: J-review-workflow-release
-expected: The README, pack guide, and QA skills distinguish bundled local adaptations from their linked sources and from three separately authorized, pinned external security skills without naming a consuming product or stack.
+expected: The README, pack guide, and QA skills distinguish bundled local adaptations from their linked sources and from four separately authorized pinned skills named security-spec, security-threat-model, security-implementation, and security-review without naming a consuming product or stack.
 entry_points: README.md; docs/toolkit/pack.md; skills-lock.json; .agents/skills/wtk-qa-plan/SKILL.md; .agents/skills/wtk-qa-execute/SKILL.md; NOTICE.md
-qa_status: pass
+qa_status: untested
 bug_ids: BUG-20260909-interactive-installer-omits-security-command
 fix_status: fixed
 retest_status: pass
@@ -35,3 +35,8 @@ Fresh QA at `e9e1c4ac` reloaded the exact local archive. Its 18 catalogued skill
 `wtk-*` and original Ponytail names; the Lean source remains pinned to `0ab82f64`; both QA skills
 retain project-owned Antonio Fulgêncio authorship and Pedro Nauck inspiration; three pinned external
 security skills remain absent from the archive.
+
+That report and evidence remain historical for the former three-skill set. The current public
+provenance promise names four external skills and adds project-owned `prompt-review` to the optional
+extras catalog. Reset to `untested` pending an independent README, pack guide, lockfile, archive, and
+installed-tree readback.

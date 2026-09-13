@@ -9,8 +9,9 @@
 
 1. Reconcile `workflow-toolkit`, version `1.0.0`, executable `wtk`, and package membership across
    README, changelog, package manifest, lockfile, and a local archive.
-2. Confirm project-owned capabilities use `wtk-*`, while third-party Ponytail skills keep their
-   original names and external security skills remain separate pinned dependencies.
+2. Confirm project-owned capabilities use `wtk-*`, while third-party Ponytail skills and
+   `prompt-review` keep their current names and `security-spec`, `security-threat-model`,
+   `security-implementation`, and `security-review` remain separate pinned dependencies.
 3. Follow workflow and provenance links; confirm Lean artifacts and modular artifact contracts are
    described without legacy aliases.
 4. Inspect `wtk-ship`: an authorized feature-branch push, one pull request, and merge remain scoped

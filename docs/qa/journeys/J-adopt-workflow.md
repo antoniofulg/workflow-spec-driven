@@ -12,7 +12,9 @@
    the complete preview before confirmation. Any non-core selection includes `core`.
 3. Read back the installed `wtk-*` skills, provider packets, docs, `.wtk.toml.example`, ignored
    `.wtk.toml`, and adoption manifest from a separate process. Confirm third-party Ponytail names
-   remain unchanged and external security skills remain absent behind their printed command.
+   remain unchanged, `prompt-review` is an optional extra with its current Claude alias, retired
+   aliases remain absent, and the four external security skills remain absent behind their printed
+   command.
 4. Re-adopt the same target and require a no-change result while preserving consumer config, product
    context, QA records, knowledge, ignore rules, and unrelated files byte-for-byte.
 5. In isolated copies, exercise cancellation, non-interactive refusal, consumer-modified conflicts,
@@ -36,7 +38,8 @@ without running its networked command, then walk
 
 ## Current cycle
 
-Workflow Toolkit Lean replaces the prior package, executable, module catalog, phase skills, and
-configuration names. The four current adoption promises are `untested` for the 2026-09-13 cycle;
-prior reports remain historical. Obsolete phase-skill and parallel-module promises are retained as
-`skipped` scenario records with explicit retirement reasons.
+Workflow Toolkit Lean replaced the prior package, executable, module catalog, phase skills, and
+configuration names. Its completed 2026-09-13 report remains historical evidence. The follow-up
+catalog cycle resets `ADP-layered-workflow-adoption` for optional `prompt-review` and current aliases,
+and resets `ADP-separate-external-security-skills` for the exact four-skill boundary. Safe adoption
+is an adjacent canary; obsolete phase-skill and parallel-module promises remain `skipped`.
