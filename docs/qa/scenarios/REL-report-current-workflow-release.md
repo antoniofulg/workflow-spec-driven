@@ -6,7 +6,7 @@ persona: Repository reader
 journey: J-review-workflow-release
 expected: The newest changelog release matches the package manifest, while Bun 1.4's lockfile identifies the root package and dependency graph; the documented install, knowledge, scoped-validation, frozen-lockfile, and package commands expose the current source pack without checkout residue.
 entry_points: CHANGELOG.md; README.md; package.json; bun.lock; bunfig.toml
-qa_status: pass
+qa_status: skipped
 bug_ids: BUG-20260824-release-overstates-lifecycle-qa; BUG-20260825-adoption-omits-parallel-pilot; BUG-20260829-bun-history-gate-rejects-new-qa-charters; BUG-20260903-history-gate-forbids-resetting-baseline-scenarios; BUG-20260904-adopt-apply-requires-designer-before-migration; BUG-20260913-changelog-uses-wrong-npx-package
 fix_status: fixed
 retest_status: pass
@@ -33,11 +33,14 @@ Release `0.10.1` preparation intentionally skips a QA Plan/Execute cycle under e
 direction. Scoped package and contract evidence is recorded separately by the release owner; this
 scenario makes no `0.10.1` QA PASS claim. The historical `0.9.2` report and evidence remain intact.
 
-Version-neutral owner for public release consistency. For release `1.0.0`, the reader compares the
+Version-neutral owner for public release consistency. For release `1.0.1`, the reader compares the
 newest changelog heading with the package manifest, checks Bun's root package and dependency graph
 metadata, and checks release claims against
 the shipped public contracts. The release walk reuses the current adoption verdict as a
 canaries instead of repeating their feature-level runtime probes.
+
+Release `1.0.1` uses scoped instruction, version and package validation under incremental impact
+selection. No new manual QA cycle is claimed; the earlier reports remain historical evidence.
 
 Release `0.10.1` changes this promise and is skipped for QA under explicit user direction. The release
 owner records scoped identity, package membership, and residue evidence; no closing full gate or

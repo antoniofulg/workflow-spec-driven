@@ -85,11 +85,15 @@ have reached, and it arrives at you looking like a limitation properly declared,
 real gap gets waved through by the one step that exists to catch it. Treat a blanket clause as a
 finding, then enumerate what it was covering.
 
-## 2. Run every proof
+## 2. Account for every proof
 
-Run the proofs yourself at `HEAD`, and never trust a report that the author already ran them.
+Apply `.agents/skills/wtk/references/validation.md`: independently inspect each proof's recorded
+result and input baseline, then run proofs with missing or invalidated evidence. A fresh Verifier
+still covers every check; it does not rerun unaffected tests solely because the actor or HEAD changed.
+For reused evidence, identify the original command/log, baseline and why its relevant inputs remain
+equivalent. Batch the selected fresh proofs below.
 
-**One invocation for the whole target, not one per proof and not one per file.** Runners take
+**Batch selected proofs by runner target, not one invocation per proof.** Runners take
 many files and many name patterns in a single call - `bin/rails test a_test.rb b_test.rb -n
 "/one|two/"`, `pytest f.py g.py -k "one or two"`, `jest --testPathPattern` with one
 `--testNamePattern` alternation. Batching per *file* is the mistake that looks like batching:
@@ -111,25 +115,19 @@ cite, so it is one search instead of two, and reading a 400-line spec to quote s
 is where this step's cost actually goes. One pass per file, not per check - checks cluster in a
 few files.
 
-Two more things worth a look while you are there. A proof that resolves only to a test the
-feature never touched proves nothing about the new behaviour - check the diff. And a proof
-that went green at an earlier commit says nothing about the current one.
+Existing tests may prove a corrected behavior without being edited themselves. Confirm their
+assertions cover the affected invariant. An earlier result remains valid only after checking its
+causal inputs; neither an unchanged test file nor a new commit alone settles validity.
 
 ## 3. Check the assertion, not its presence
 
 For each check, confirm the assertion targets the **checklist-defined** value, not merely
 that an assertion exists. Cite `file:line` and reproduce the assertion expression.
 
-**The assertion expression is the whole evidence. Do not go read the test's world.** Fixtures,
-`setup`, factories and helpers are not yours to walk: a claim naming `409` is settled by
-`assert_response :conflict` sitting next to it, and nothing about the fixture changes that
-verdict. This is the per-check cost that makes a 40-check review outlast the build it reviews,
-and it buys almost nothing.
-
-Where the expected value is *not* readable at the assertion - `assert_equal expected, actual`
-with `expected` built three files away - that is a **finding about the test**, not research you
-owe. An assertion whose expected value cannot be read where it is asserted is weak on its face,
-however green it runs. Say so and move on.
+Inspect the assertion and the relevant setup, fixtures and dependencies needed to establish its
+expected value and causal coverage. Trace indirect expected values within that scope; missing
+context is an evidence gap, not automatic proof that a test is wrong. Avoid unrelated fixture or
+repository exploration.
 
 Cite the one or two assertions that **settle** the claim, not every assertion in the test.
 Setup lines earn a citation only when the claim itself names the precondition.
@@ -275,16 +273,13 @@ A later round is scoped by two things: **the fix's diff, and every verdict that 
 Anything else carries forward. Re-running a whole review to reconfirm what a fix could not have
 touched is the cost the three-round bound multiplies by three.
 
-Two rules make that safe rather than convenient.
+Rerun only evidence invalidated by the fix's causal delta. Reuse other proofs after independently
+checking their tested code, transitive dependencies, fixtures, configuration and relevant runtime.
+A failed full run is retained as such; focused retests can prove its corrections without claiming
+that a new full run passed. Full-gate escalation follows `.agents/skills/wtk/references/validation.md`.
 
-**Proofs always re-run in full, at the new `HEAD`.** Green is a property of a commit - the same
-reason a proof that went green earlier says nothing about now - and batched by target this is
-two invocations, so it is not where the cost was anyway.
-
-**Everything carried forward says where it came from.** Each section marks itself
-`verified at <sha>` or `carried from <sha>`, and the header's `Round` reads `2 - scoped`. Silent
-inheritance is the self-report problem wearing a table again; marked inheritance is contestable
-by anyone reading.
+Everything carried forward identifies its source: mark sections `verified at <sha>` or
+`carried from <sha>` with the input-equivalence reason and retain `Round: 2 - scoped` in the header.
 
 Then scope by the diff, not by the fix's intent - a fix to a shared helper, a fixture or a
 config has a wider blast radius than its description:

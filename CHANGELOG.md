@@ -4,6 +4,24 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-09-13
+
+### Changed
+
+- Incremental validation selects regressions, owning suites and affected consumers from each
+  proof's last green input baseline. Independent feature verification still accounts for every check.
+- Review fixes and merges reuse unaffected evidence; full gates require a named unbounded impact
+  or explicit human request, rather than a new commit or feature-close event alone.
+- Isolated passes are diagnostic evidence, not automatic proof of a harness flake or a green full run.
+- The proportional validation record names causal paths, selected commands and reused evidence without
+  mandatory extra reports. Existing consumer-owned configuration remains preserved.
+
+### Migration
+
+- Run `npx workflow-toolkit install` to update the instruction references and review the managed diff.
+- The existing gate cache retains whole-tree invalidation; this release does not add an automatic
+  dependency graph or change cache algorithms.
+
 ## [1.0.0] - 2026-09-13
 
 ### Added

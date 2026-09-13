@@ -26,8 +26,10 @@ Resolve or resume the provider route through `.agents/skills/wtk-config/SKILL.md
 
 1. Confirm the feature's verification report passes the profile recorded in `checks.md` by running
    `.agents/skills/wtk-lean/scripts/validate_verification.py <feature>`.
-2. Run the consuming project's full gate and any selected `wtk-deep-review`, security, UI, and QA
-   procedures. These remain separate questions and are loaded only when their route applies.
+2. Apply incremental impact selection from `.agents/skills/wtk/references/validation.md`, including merges from main.
+   Run invalidated proofs and reuse valid evidence; a full gate needs that reference's trigger or an
+   explicit human request. Run selected `wtk-deep-review`, security, UI and QA procedures only for
+   their affected scope.
 3. Promote durable decisions, lessons, product promises, architecture rules, and QA evidence to
    their owning stores. Promotion is semantic work; do not invent an automatic knowledge merger.
 4. After promotion is complete, delete the entire transient feature directory with

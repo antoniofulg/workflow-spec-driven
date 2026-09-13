@@ -75,8 +75,8 @@ identity and buys the same independence.
    transcript or operator handoff. Their conclusions must come from the spec, diff, tests, and
    assigned evidence.
 8. **Documentation and instruction changes follow the proportional classifier in `.agents/skills/wtk/references/validation.md`.** Pure maintenance and bounded instruction changes do not start wtk-deep-review or QA by default; mixed changes run canonical checks for changed executable behavior. Named concrete risk or changed public promise can select stronger review; file count and the word "feature" do not escalate them.
-8. **A passing verdict on a failing tree is void.** Re-run the scoped gate after remediation; a green
-   review over a red gate is not a review.
+8. **A passing verdict requires valid evidence for its scope.** Apply `.agents/skills/wtk/references/validation.md` to the finding's causal path and retain unaffected results.
+   A failed full run stays failed even when focused correction proofs pass.
 9. **A new control for an unobserved failure is Major (YAGNI) unless the spec named it.** A
    killed-process shim, a test-of-the-test, or a prefix allowlist the spec did not name is overbuild.
    Filed-issue review uses the same rule. `ponytail-review` is the skill; this rule is what makes

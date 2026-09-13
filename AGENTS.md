@@ -54,6 +54,7 @@ decisions or new authority. Planning-only requests still end at the reviewable p
 After a coherent edit batch, use the existing formatter on changed files, when configured, then the
 applicable validation. Keep successful formatter output silent. `.agents/skills/wtk/references/validation.md`
 owns check selection and evidence reuse; do not install a formatter solely for an edit.
+When selecting or repeating gates, apply incremental validation by impact from that reference.
 
 **Public hierarchy is `Feature -> Slice -> Check`.** A slice is observable end-to-end behaviour;
 a check is a proof-backed obligation. `plan.md` freezes decisions and `checks.md` freezes obligations.

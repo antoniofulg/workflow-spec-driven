@@ -1095,14 +1095,14 @@ describe("adoption and public setup", () => {
       changelog.indexOf("## [0.9.1]"),
     );
 
-    expect(manifest.version).toBe("1.0.0");
+    expect(manifest.version).toBe("1.0.1");
     expect(manifest.name).toBe("workflow-toolkit");
     expect(manifest.private).toBe(false);
     expect(manifest.packageManager).toBe("bun@1.4.0");
     expect(manifest.scripts?.test).toBe("bun test && node --test tests/installer/*.test.js");
     expect(readRepositoryFile("bun.lock")).toContain('"name": "workflow-toolkit"');
     expect(existsSync(join(repositoryRoot, "package-lock.json"))).toBe(false);
-    expect(latestHeading).toBe("1.0.0");
+    expect(latestHeading).toBe("1.0.1");
     expect(latestHeading).toBe(manifest.version);
     expect(currentScenarioVersion).toBe(manifest.version);
     expect(releaseScenario.match(/^expected: .*$/m)?.[0]).toBe(

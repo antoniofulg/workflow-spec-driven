@@ -105,10 +105,11 @@ evidence, and every product fix is explicitly assigned to an Implementer rather 
 
 ### 7. Close or resume the cycle
 
-After a fix, start a fresh Verifier, re-run the technical gate, and resume from the affected journey
+After a fix, start a fresh Verifier, rerun only impact-invalidated technical proofs, and resume from the affected journey
 plus its adjacent canary. Keep the original report history and update statuses, retest fields, bug
 links, and evidence. At close, replace every pending row with a terminal result or an allowed
-`untested`/`blocked-verify` explanation, rerun the full gate, and record its exact command and result.
+`untested`/`blocked-verify` explanation, apply `.agents/skills/wtk/references/validation.md` and record
+the selected commands, reused evidence and results. QA close does not automatically repeat a full gate.
 
 **Done when:** no report row remains pending, every fixed bug has a passing retest or an explicit
 decision, every scenario status matches its evidence, and the final gate result is recorded.

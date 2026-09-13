@@ -26,8 +26,8 @@ phase per packet:
 2. Send a distinct fresh `phase: wtk-qa-execute` packet to invoke `wtk-qa-execute` and walk those journeys.
 
 The QA Plan session ends before the product starts. The QA Execute session does not write product
-code. A defect returns to an Implementer; after the fix, a fresh Verifier reruns the technical gate,
-retests the affected journey, and resumes the cycle.
+code. A defect returns to an Implementer; after the fix, a fresh Verifier applies incremental impact
+selection, reruns invalidated technical proofs, retests the affected journey, and resumes the cycle.
 
 ## Authorities and adapters
 
