@@ -2,12 +2,13 @@
 
 ## Handoff
 
-- **Feature**: `workflow-toolkit-lean`; approved `plan.md` and `checks.md` under `.specs/features/workflow-toolkit-lean/`.
-- **Phase / Task**: Implementation committed; independent full-feature verification and QA remain.
-- **Completed**: Toolkit replacement, original Ponytail names, genuine installer proofs, and `.wtk.toml.example` / `.wtk.toml` configuration through `68b5a362`. `bun run test:all` passed 124 Bun tests, 199 Node tests, and all Python suites. Lean selftest passed 46 mutation checks with 0 survivors. Knowledge update `19929cbd` passed its checker with 0 errors; unrelated historical gaps remain. AD-035 through AD-037 record the accepted contracts and lifecycle.
-- **In-progress**: Final proof and QA only; implementation is not yet claimed independently verified.
-- **Next step**: Verify the complete feature from `1171ef66` through the current HEAD, run separate QA Plan/Execute sessions, promote final evidence, then clean only this completed feature's artifacts. No remote delivery is authorized.
-- **Blockers**: None. The authorized knowledge update and configuration rename are complete.
+- **Feature**: `workflow-toolkit-lean`, completed; transient plan, checks, and verification are retained in Git at `46420c75`, not as active feature state.
+- **Phase / Task**: Closed locally after independent verification, QA, and durable promotion.
+- **Completed**: Workflow Toolkit replacement, original Ponytail names, `.wtk.toml.example` / `.wtk.toml`, and authorized knowledge updates. AD-035 through AD-037 and `knowledge/wiki/decisions/workflow-toolkit-contract.md` retain the accepted contracts. Independent technical verification at `46420c75` passed 19/19 checks and killed 5/5 injected faults; the native verification validator passed again before cleanup.
+- **Evidence**: QA commit `32c49fb1` records 13/13 passing scenarios across `docs/qa/reports/2026-09-13-workflow-toolkit-adoption.md`, `2026-09-13-workflow-toolkit-lean.md`, and `2026-09-13-workflow-toolkit-release.md`. The final `bun run test:all` exited 0: 124 Bun tests, 201 Node tests, and all 15 Python/script suites passed; two non-failing ResourceWarnings remain. Release-command defect fixed at `e9e1c4ac` and independently retested; original failure evidence is preserved.
+- **Cleanup**: Only `.specs/features/workflow-toolkit-lean/` is removed after promotion; other pending features and historical records are preserved. No archive or compatibility artifacts are created.
+- **Next step**: Human-scheduled work. No push, publication, or other remote delivery is authorized by this cycle.
+- **Blockers**: None.
 - **Branch**: `feat/workflow-toolkit-lean`.
 
 ## Decisions
