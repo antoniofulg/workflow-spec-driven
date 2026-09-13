@@ -6,7 +6,7 @@ persona: Workflow operator
 journey: J-execute-parallel-slices
 expected: Parallel adoption installs an inert wrapper whose same-resource commands queue at the selected scope while unrelated resources remain concurrent
 entry_points: npx workflow-spec-driven install; python3 .agents/skills/autonomous/scripts/resource_lock.py run
-qa_status: pass
+qa_status: skipped
 bug_ids:
 fix_status:
 retest_status:
@@ -15,6 +15,9 @@ evidence: docs/qa/evidence/2026-09-08-lean-consumer-installation/70-resource_loc
 last_report: docs/qa/reports/2026-09-08-lean-consumer-installation.md
 overlaps: ADP-layered-workflow-adoption
 ---
+
+Retired — the parallel module and its resource-lock helper were removed. Consuming projects may
+still serialize resources, but this source pack no longer promises that CLI.
 
 Apply `core` and `parallel` into separate checkout-owned targets. Confirm only `parallel` installs
 and tracks the wrapper, while neither layer rewrites consumer commands. Then use disposable Git

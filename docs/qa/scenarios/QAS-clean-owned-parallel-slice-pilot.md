@@ -6,7 +6,7 @@ persona: Workflow operator
 journey: J-execute-parallel-slices
 expected: Cleanup removes exactly the attested completed pilot workers and worktrees, preserves unrelated siblings, and reports idempotent success with no owned residue.
 entry_points: .agents/skills/autonomous/scripts/qa_parallel_pilot.py lifecycle-check; .agents/skills/autonomous/scripts/qa_parallel_pilot.py cleanup; git worktree list
-qa_status: blocked-verify
+qa_status: skipped
 bug_ids: BUG-20260824-parallel-pilot-cleanup-allows-incomplete-lifecycle
 fix_status: fixed
 retest_status: pending
@@ -15,6 +15,9 @@ evidence: docs/qa/evidence/2026-08-29-hybrid-slice-execution/summary.json; docs/
 last_report: docs/qa/reports/2026-08-29-hybrid-slice-execution.md
 overlaps: QAS-run-resource-free-parallel-orca-slices
 ---
+
+Retired — the parallel pilot and cleanup helper were removed. Earlier `blocked-verify` evidence is
+preserved below and is not converted to a pass.
 
 Covers the user-observable cleanup portion of EXE-22 and SEC-008. Cleanup may run only after the
 canonical lifecycle oracle accepts exactly two terminal read-before-ack-before-release receipts.

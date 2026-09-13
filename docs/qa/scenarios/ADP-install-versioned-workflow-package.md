@@ -1,12 +1,12 @@
 ---
 id: ADP-install-versioned-workflow-package
 area: ADP
-title: Install and update the workflow from an exact package release
+title: Install Workflow Toolkit from an exact local package
 persona: Workflow adopter
 journey: J-adopt-workflow
-expected: An exact local package completes the guided install and upgrade, repeats with an explicit no-change result, preserves consumer context, configuration, QA, and knowledge, and resolves edited content before publication.
-entry_points: README.md#quick-start; npx workflow-spec-driven install
-qa_status: pass
+expected: An exact local workflow-toolkit package exposes only the wtk executable, completes a guided install without registry access, and reads back the reviewed package identity and managed tree from outside the source checkout.
+entry_points: README.md#quick-start; package.json; bun pm pack --destination <pack-dir> --filename workflow-toolkit-1.0.0.tgz --ignore-scripts; node <runner>/package/bin/wtk.js install
+qa_status: untested
 bug_ids:
 fix_status:
 retest_status:
@@ -41,3 +41,7 @@ identified by a distinct SHA, even when both declare `0.10.0`.
 The `interactive-installer` cycle replaces `plan`, `apply`, `resolve`, and `status` with the guided
 `install` journey and changes the current package identity to `workflow-spec-driven@0.10.1`. Its QA
 walk uses the final reviewed local tarball at `4487afb`; all earlier evidence remains historical.
+
+The 2026-09-13 Workflow Toolkit Lean cycle replaces package identity and executable. Re-walk this
+scenario from an exact local archive with no registry lookup. Prior reports and evidence remain
+historical until the new `workflow-toolkit` / `wtk` result is observed.

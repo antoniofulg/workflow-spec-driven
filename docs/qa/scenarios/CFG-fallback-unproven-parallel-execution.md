@@ -6,7 +6,7 @@ persona: Workflow adopter
 journey: J-execute-parallel-slices
 expected: Disabled mode, unsupported Orca capability, missing resource metadata, or a resource-bearing lane without a provider reports the decisive serial reason and creates no worktree, worker, event, Git, or resource effect.
 entry_points: .wtk.toml; .agents/skills/workflow-config/scripts/workflow_config.py; .agents/skills/autonomous/scripts/parallel_execute.py start; .agents/skills/autonomous/scripts/parallel_execute.py status
-qa_status: pass
+qa_status: skipped
 bug_ids: BUG-20260824-parallel-executor-worker-start-fallback-leaks-worktree
 fix_status: fixed
 retest_status: pass
@@ -15,6 +15,9 @@ evidence: docs/qa/evidence/2026-08-29-hybrid-slice-execution/summary.json; docs/
 last_report: docs/qa/reports/2026-08-29-hybrid-slice-execution.md
 overlaps: CFG-plan-parallel-slice-dispatch; CFG-freeze-feature-workflow
 ---
+
+Retired — the public parallel executor and its fallback modes were removed. Prior zero-effect
+evidence remains historical, not a current Workflow Toolkit Lean pass.
 
 Covers the public fallback portions of EXE-01, EXE-05, EXE-11, EXE-19, EXE-21, and SEC-007.
 The canary deliberately proves zero effects; it never supplies a fake product runtime or database

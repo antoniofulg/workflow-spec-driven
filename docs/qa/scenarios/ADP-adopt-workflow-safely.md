@@ -4,9 +4,9 @@ area: ADP
 title: Adopt the workflow without replacing consumer-owned state
 persona: Workflow adopter
 journey: J-adopt-workflow
-expected: An exact package applies canonical skill-owned runtime and generated packets while preserving consumer context, config, QA, and knowledge, retiring proven old copies, and refusing edited or unproven old runtime before publication.
-entry_points: README.md#quick-start; docs/workflow/pack.md; npx workflow-spec-driven install
-qa_status: pass
+expected: Guided install, cancellation, non-interactive refusal, failure recovery, and idempotent re-adoption preserve all consumer-owned bytes while publishing only the reviewed Workflow Toolkit plan with exits 0, 2, or 1 as documented.
+entry_points: README.md#quick-start; node /Users/antoniofulg/Projects/my-workflow/bin/wtk.js install; bin/wtk.js; scripts/installer/transaction.js
+qa_status: untested
 bug_ids: BUG-20260822-deep-review-learnings-untrackable; BUG-20260822-feature-specs-ignored; BUG-20260822-feature-state-gate-conflicts; BUG-20260825-adoption-omits-parallel-pilot; BUG-20260829-final-qa-pass-conflicts-with-adoption-gate
 fix_status: fixed
 retest_status: pass
@@ -101,3 +101,8 @@ The `specify-impact-designer` feature adds three designer templates and three de
 The `lean-consumer-installation` cycle relocates installed runtime into owning skills and changes how
 proven previous-layout copies retire. Reset to `untested`; the 2026-09-07 report and evidence remain
 historical. Walk `CH-install-skill-owned-runtime-2026-09-08` from a final reviewed package.
+
+The 2026-09-13 cycle changes package, executable, configuration, and managed skill names. Re-walk
+normal apply and byte-stable re-adoption, cancellation with exit `0`, non-interactive refusal with
+exit `2`, conflict/publication failure with exit `1`, and verified recovery. Preserve prior evidence
+as history; it does not prove the replacement CLI.

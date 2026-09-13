@@ -35,10 +35,10 @@ unchanged, and keep the cache from ever standing between the operator and a real
    confirm the fingerprint is unchanged and the counter did not advance.
 5. Run the same command under a different `--gate` label, then the original label with a different
    command. Each must advance the counter and write its own record under its own fingerprint.
-6. Read `docs/guidelines/GATES.md`, `.agents/skills/autonomous/SKILL.md`,
-   `.agents/skills/wimplement/SKILL.md` and `.agents/skills/qa-execute/SKILL.md`
+6. Read `docs/guidelines/GATES.md`, `.agents/skills/wtk-ship/SKILL.md`,
+   `.agents/skills/wtk-implement/SKILL.md` and `.agents/skills/wtk-qa-execute/SKILL.md`
    in the repository. Confirm each names the cached invocation an operator is told to run, and that
-   `autonomous` admits a passing record only when gate scope **and** fingerprint match the claimed
+   `wtk-ship` admits a passing record only when gate scope **and** fingerprint match the claimed
    tree.
 7. Scope binding: take the passing `scoped` record from step 1 and attempt to satisfy a `full`-gate
    claim with it. The observable is that `--gate full` on the same tree and command produces a

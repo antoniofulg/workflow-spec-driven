@@ -4,9 +4,9 @@ area: ADP
 title: Resolve reviewed legacy adoption conflicts safely
 persona: Workflow adopter
 journey: J-adopt-workflow
-expected: A maintainer reviews every legacy or unowned conflict in the guided installer, deliberately replaces with a verified backup, excludes the affected module, or cancels, while consumer instructions and cancelled targets remain unchanged.
-entry_points: README.md#recovery-and-conflict-handling; npx workflow-spec-driven install
-qa_status: pass
+expected: A maintainer sees pristine owned legacy workflow paths retired without aliases, while modified or unknown destinations remain explicit conflicts and every cancelled or refused target stays byte-for-byte unchanged.
+entry_points: README.md#recovery-and-conflict-handling; node /Users/antoniofulg/Projects/my-workflow/bin/wtk.js install; scripts/installer/engine.js; scripts/installer/transaction.js
+qa_status: untested
 bug_ids:
 fix_status:
 retest_status:
@@ -35,4 +35,9 @@ byte-stable under normal re-apply. Git-boundary, symlink, and literal-metacharac
 external or helper effect; every disposable target was removed.
 
 That result is historical. The `interactive-installer` cycle removes the standalone `resolve`
-command, so fresh QA must prove the same safety promise through `npx workflow-spec-driven install`.
+command; current QA proves the same safety promise through the source `wtk install` path.
+
+Workflow Toolkit Lean replaces the legacy contract completely. The 2026-09-13 walk must prove
+hash-owned pristine old paths are removed, modified or unowned old paths block publication, no
+legacy alias is installed, and cancellation preserves the full target. Prior legacy reports remain
+historical.

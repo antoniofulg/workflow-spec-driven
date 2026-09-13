@@ -4,9 +4,9 @@ area: ADP
 title: Adopt workflow capabilities incrementally
 persona: Workflow adopter
 journey: J-adopt-workflow
-expected: A project selects fixed modules incrementally, sees dependency closure and conflicts before approval, preserves consumer content, installs canonical skill-owned runtime without root templates or tools, and repeats with an explicit no-change result.
-entry_points: README.md#quick-start; npx workflow-spec-driven install
-qa_status: pass
+expected: A project selects core, quality, or extras, sees non-core selections include core, installs each exact current catalog including unchanged third-party Ponytail names, and repeats with an explicit no-change result and no parallel module.
+entry_points: README.md#quick-start; node /Users/antoniofulg/Projects/my-workflow/bin/wtk.js install; package.json; scripts/installer/engine.js
+qa_status: untested
 bug_ids:
 fix_status:
 retest_status:
@@ -58,3 +58,8 @@ skill paths and absence of workflow-created root `templates/` and `tools/`.
 The `interactive-installer` cycle removes the legacy command set. Current QA uses only the guided
 `install` command; historical `plan`, `apply`, and `status` results above are not current entry
 points or evidence for this cycle.
+
+The 2026-09-13 cycle changes the catalog to `core`, `quality`, and `extras`, removes `parallel`, and
+replaces old phase names with Workflow Toolkit names. Re-walk exact core and quality catalogs plus
+all extras members; `ponytail-audit`, `ponytail-debt`, `ponytail-gain`, `ponytail-help`, and
+`ponytail-review` retain their third-party names. Prior verdict is stale for this catalog.

@@ -5,8 +5,8 @@ title: Read explicit credits and a product-neutral workflow scope
 persona: Repository reader
 journey: J-review-workflow-release
 expected: The README, pack guide, and QA skills distinguish bundled local adaptations from their linked sources and from three separately authorized, pinned external security skills without naming a consuming product or stack.
-entry_points: README.md; docs/workflow/pack.md; skills-lock.json; .agents/skills/qa-plan/SKILL.md; .agents/skills/qa-execute/SKILL.md
-qa_status: pass
+entry_points: README.md; docs/workflow/pack.md; skills-lock.json; .agents/skills/wtk-qa-plan/SKILL.md; .agents/skills/wtk-qa-execute/SKILL.md; NOTICE.md
+qa_status: untested
 bug_ids: BUG-20260909-interactive-installer-omits-security-command
 fix_status: fixed
 retest_status: pass
@@ -26,3 +26,7 @@ The `phase-skills` feature changes the bundled-capability list a reader evaluate
 Fresh closeout QA at `668ac1c3` passed the previously failing handoff. Four packed successful
 installs printed the exact separately authorized command once while all three external skill trees
 remained absent. README, pack guide, archive, lock entries, installed files, and QA credits agreed.
+
+Workflow Toolkit Lean changes public identity, capability names, and TLC provenance. The 2026-09-13
+canary must reconcile current `wtk-*` ownership, unchanged Ponytail names, the pinned Lean source,
+and separate security dependencies. Prior evidence remains historical.

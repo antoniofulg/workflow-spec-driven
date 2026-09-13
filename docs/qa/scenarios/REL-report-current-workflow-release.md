@@ -16,9 +16,10 @@ last_report:
 overlaps:
 ---
 
-Release `1.0.0` changes this promise. Fresh release validation must verify package identity,
-packaged repository-intelligence files, on-demand Deep Review defaults, full gates, clean package
-contents, and registry/tag consistency before publication.
+Release `1.0.0` changes this promise. Fresh QA must verify package identity, packaged
+repository-intelligence files, on-demand Deep Review defaults, clean local package contents, and
+zero checkout residue. Registry/tag consistency remains unavailable because publication and network
+access are outside this cycle.
 
 QA Execute on 2026-09-04 passed release `0.9.2` at `de53cb77`. Identity, the packaged DRC-01
 through DRC-04 deep-review defect closeout contract, its canonical structural assertion, private

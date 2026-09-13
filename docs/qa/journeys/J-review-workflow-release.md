@@ -1,59 +1,29 @@
 # J-review-workflow-release
 
 **Persona:** Repository reader
-**Goal:** Understand the workflow's provenance, neutral scope, standard repository-intelligence route,
-optional visual capability boundary,
-remote-delivery authority, published capability version, and honestly bounded parallel execution.
+**Goal:** Confirm Workflow Toolkit identity, provenance, shipped capabilities, and authority limits.
 **Entry point:** `README.md`
-**Tags:** w-entry-points
+**Tags:** wtk-release
 
 ## Flow
 
-1. Read the repository description, credits, adoption contract, bundled and external skills lists,
-   and out-of-scope text.
-2. Follow the Tech Leads Club and Pedro Nauck source links and compare them with the local authorship
-   statements.
-3. Confirm Graphify and Graft are standard checkout-local development tools: Graphify handles named
-   architectural triggers, Graft handles unknown code discovery, degraded results name one fallback
-   reason, and specs/current checkout remain authoritative. Confirm OpenDesign remains optional,
-   adoption reports but does not execute tool setup, and external filesystem writers are bounded and
-   non-destructive.
-4. Confirm invoking `autonomous` authorizes only its scoped feature-branch push, one pull request,
-   and merge after readiness; release, deploy, production mutation, force-push, direct `main` push,
-   and unrelated remote actions remain separately authorized.
-5. Inspect the external security entries in `skills-lock.json` and confirm the docs describe them as
-   separately authorized, immutable dependencies rather than bundled capabilities.
-6. Inspect the assisted-by-default hybrid slice contract: `assisted` and `disabled`, sequential
-   tasks within each slice, dynamic writer admission, checkpoint synchronization, resource preflight,
-   and zero-effect serial fallback when dependency, health, ownership, or isolation proof is missing.
-7. Reconcile the parallel release claims with durable QA status. Keep the real Orca/Codex two-lane
-   lifecycle and completed-pilot cleanup as `blocked-verify`, never as completed-pilot evidence.
-8. Inspect the Bun 1.4 package and lockfile root metadata, Bun-native knowledge and full-test
-   commands, and disposable `bun pm pack` membership for the published workflow version.
+1. Reconcile `workflow-toolkit`, version `1.0.0`, executable `wtk`, and package membership across
+   README, changelog, package manifest, lockfile, and a local archive.
+2. Confirm project-owned capabilities use `wtk-*`, while third-party Ponytail skills keep their
+   original names and external security skills remain separate pinned dependencies.
+3. Follow workflow and provenance links; confirm Lean artifacts and modular artifact contracts are
+   described without legacy aliases.
+4. Inspect `wtk-ship`: an authorized feature-branch push, one pull request, and merge remain scoped
+   delivery actions, while deploy, release, production mutation, force-push, direct `main` push, and
+   unrelated remote work remain separately authorized. Perform no remote action during QA.
+5. Reconcile public release claims with current scenario statuses and leave historical parallel
+   reports explicitly historical.
 
 ## Promises
 
 - [`DOC-read-explicit-workflow-provenance`](../scenarios/DOC-read-explicit-workflow-provenance.md)
-- [`DOC-use-optional-tools-with-repository-authority`](../scenarios/DOC-use-optional-tools-with-repository-authority.md)
 - [`DOC-require-explicit-remote-action-approval`](../scenarios/DOC-require-explicit-remote-action-approval.md)
 - [`REL-report-current-workflow-release`](../scenarios/REL-report-current-workflow-release.md)
 
-This journey is the adjacent canary for `J-adopt-workflow`.
-Repository-intelligence retention is walked separately through
-[`J-decide-repository-intelligence-retention`](J-decide-repository-intelligence-retention.md).
-For the parallel release contract, its adjacent journeys are
-[`J-configure-feature-workflow`](J-configure-feature-workflow.md) and
-[`J-execute-parallel-slices`](J-execute-parallel-slices.md).
-
-The 2026-09-03 `phase-skills` cycle resets [`DOC-read-explicit-workflow-provenance`](../scenarios/DOC-read-explicit-workflow-provenance.md) to `untested`: the pack guide now declares eleven local capabilities and `docs/workflow/roadmap.md` is new. This journey is the adjacent canary for [`CH-adopt-phase-skills-2026-09-03`](../charters/CH-adopt-phase-skills-2026-09-03.md).
-
-This journey is the adjacent canary for the 2026-09-03 `w-entry-points` cycle: `pack.md` now lists
-thirteen local capabilities including `wreview` and `wqa`. Provenance is not reset;
-[`QAS-list-seven-w-entries`](../scenarios/QAS-list-seven-w-entries.md) owns the seven-name menu.
-See [`CH-w-entry-points-2026-09-03`](../charters/CH-w-entry-points-2026-09-03.md).
-
-This journey is the adjacent canary for the 2026-09-03 `specify-impact-designer` cycle:
-`pack.md` names five windows and `AGENTS.md` names designer. Provenance is not reset;
-[`CFG-centralize-agent-model-routing`](../scenarios/CFG-centralize-agent-model-routing.md) owns
-the matrix and those two naming lines. See
-[`CH-specify-impact-designer-2026-09-03`](../charters/CH-specify-impact-designer-2026-09-03.md).
+This journey is the adjacent canary for `J-adopt-workflow`. The 2026-09-13 charter re-walks the
+remote-authority promise and uses release/provenance rows as canaries without publishing.

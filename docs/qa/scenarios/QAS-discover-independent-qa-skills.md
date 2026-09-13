@@ -6,7 +6,7 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: The adopted tree exposes qa-plan and qa-execute, and every provider routes each phase through its existing Verifier contract.
 entry_points: .agents/skills/qa-plan/SKILL.md; .agents/skills/qa-execute/SKILL.md; .cursor/agents/verifier.md; .claude/agents/verifier.md; .codex/agents/verifier.toml
-qa_status: pass
+qa_status: skipped
 bug_ids:
 fix_status:
 retest_status:
@@ -15,6 +15,9 @@ evidence: docs/qa/evidence/2026-09-03-phase-skills/51-qa-routing.txt; docs/qa/ev
 last_report: docs/qa/reports/2026-09-03-phase-skills.md
 overlaps:
 ---
+
+Retired — this row names the non-namespaced QA skill paths. Current `wtk-qa-plan` and
+`wtk-qa-execute` routing is covered by `QAS-route-workflow-toolkit-intent`.
 
 Covers skill discovery, planning/execution separation, scenario-authority routing, adapter reporting,
 and the Implementer → fresh Verifier defect handoff. QA retest on 2026-08-25 after fix `1593299`

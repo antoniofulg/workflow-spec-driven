@@ -6,7 +6,7 @@ persona: Workflow adopter
 journey: J-configure-feature-workflow
 expected: The read-only planner reports deterministic ready, blocked, checkpoint, or serial-fallback work while the installed orchestration contract keeps slice tasks sequential and preserves every delivery gate.
 entry_points: .agents/skills/workflow-config/scripts/parallel_plan.py; .agents/skills/autonomous/references/parallelization.md
-qa_status: pass
+qa_status: skipped
 bug_ids:
 fix_status:
 retest_status:
@@ -15,6 +15,8 @@ evidence: docs/qa/evidence/2026-08-29-hybrid-slice-execution/summary.json; docs/
 last_report: docs/qa/reports/2026-08-29-hybrid-slice-execution.md
 overlaps: CFG-freeze-feature-workflow
 ---
+
+Retired — the parallel planner and its dispatch statuses were removed by the sequential Lean route.
 
 Covers `PAR-05` through `PAR-16`: one candidate per slice, mode-specific readiness, dependency
 waiting and follow-up, deterministic JSON, decisive serial fallback, checkpoint synchronization,

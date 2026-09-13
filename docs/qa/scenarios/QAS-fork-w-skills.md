@@ -6,7 +6,7 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: Each of the seven w skills is marked to run in a fresh agent with the documented role and argument, the five phase skills and wqa bind the slash argument and stop when it is missing, and a spawned implementer still receives wimplement and ponytail without a Skill tool.
 entry_points: .agents/skills/wspecify/SKILL.md; .agents/skills/wdesign/SKILL.md; .agents/skills/wtasks/SKILL.md; .agents/skills/wimplement/SKILL.md; .agents/skills/wverify/SKILL.md; .agents/skills/wreview/SKILL.md; .agents/skills/wqa/SKILL.md; .agents/skills/workflow-config/assets/agents/claude/implementer.md
-qa_status: pass
+qa_status: skipped
 bug_ids:
 fix_status:
 retest_status:
@@ -15,6 +15,8 @@ evidence: docs/qa/evidence/2026-09-03-w-entry-points/16-frontmatter.json; docs/q
 last_report: docs/qa/reports/2026-09-03-w-entry-points.md
 overlaps: QAS-resolve-phase-skill-procedures; CFG-preload-agent-skills-in-packets
 ---
+
+Retired — the seven `/w` phase-entry fork contract was removed by the clean replacement.
 
 New promise from `w-entry-points`. Every `w*` skill carries `context: fork`,
 `background: false`, an `argument-hint`, and `agent:` planner / planner /

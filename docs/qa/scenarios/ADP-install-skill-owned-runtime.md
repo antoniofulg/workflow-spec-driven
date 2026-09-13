@@ -6,7 +6,7 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: Fresh and proven previous-layout installations use only canonical skill-owned runtime, retire only proven old workflow copies, preserve consumer-owned bytes, and remain clean on repeat apply.
 entry_points: README.md#adopt-the-workflow; npx workflow-spec-driven install; .agents/skills/workflow-config/scripts/workflow_config.py; .agents/skills/workflow-spec-driven/scripts/ad-index.py; .agents/skills/knowledge-check/scripts/cli.ts; .agents/skills/autonomous/scripts/
-qa_status: pass
+qa_status: skipped
 bug_ids:
 fix_status:
 retest_status:
@@ -15,6 +15,9 @@ evidence: docs/qa/evidence/2026-09-08-lean-consumer-installation/package/artifac
 last_report: docs/qa/reports/2026-09-08-lean-consumer-installation.md
 overlaps: ADP-install-versioned-workflow-package; ADP-adopt-workflow-safely; ADP-layered-workflow-adoption; CFG-centralize-agent-model-routing; QAS-coordinate-assisted-slices-offline; QAS-serialize-heavy-test-resources
 ---
+
+Retired — this scenario owns the prior runtime layout, including removed parallel helpers. Current
+package/runtime ownership is covered by the 2026-09-13 adoption scenarios.
 
 Owns the lean installed-filesystem promise. Fresh `core` and `full` targets contain runtime only
 under owning skill directories and receive no workflow-created top-level `templates/` or `tools/`.

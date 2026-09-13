@@ -6,7 +6,7 @@ persona: Workflow operator
 journey: J-execute-parallel-slices
 expected: Two resource-free slices become active in distinct owned worktrees and terminals, then finish through correlated read, acknowledgement, release, and status receipts without changing TLC task or verification order.
 entry_points: .agents/skills/autonomous/scripts/orca_assisted_probe.py dispatch|inspect|cleanup; .agents/skills/autonomous/scripts/qa_parallel_pilot.py; .agents/skills/autonomous/scripts/parallel_execute.py start; .agents/skills/autonomous/scripts/parallel_execute.py status; .agents/skills/autonomous/scripts/parallel_execute.py resume
-qa_status: blocked-verify
+qa_status: skipped
 bug_ids: BUG-20260824-parallel-executor-worker-start-fallback-leaks-worktree
 fix_status: fixed
 retest_status: pending
@@ -15,6 +15,9 @@ evidence: docs/qa/evidence/2026-08-29-hybrid-slice-execution/summary.json; docs/
 last_report: docs/qa/reports/2026-08-29-hybrid-slice-execution.md
 overlaps: CFG-plan-parallel-slice-dispatch
 ---
+
+Retired — live parallel Orca slice execution is no longer shipped. Earlier `blocked-verify`
+evidence remains preserved below and is not converted to a pass.
 
 Covers the public E2E-001 resource-free path and observable portions of EXE-02, EXE-04,
 EXE-06–EXE-10, EXE-18, and EXE-22. The independent live walk must use the real Orca capability and

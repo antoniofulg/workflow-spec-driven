@@ -6,7 +6,7 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: A core-layer adoption reports the review and QA entry skills as managed and leaves each SKILL.md plus a .claude/skills link that opens the same file.
 entry_points: README.md#adopt-the-workflow; npx workflow-spec-driven install; .agents/skills/wreview; .agents/skills/wqa; .claude/skills/
-qa_status: pass
+qa_status: skipped
 bug_ids:
 fix_status:
 retest_status:
@@ -15,6 +15,9 @@ evidence: docs/qa/evidence/2026-09-07-deterministic-installer/fresh-walk-summary
 last_report: docs/qa/reports/2026-09-07-deterministic-installer.md
 overlaps: ADP-install-phase-skills; ADP-adopt-workflow-safely; ADP-layered-workflow-adoption
 ---
+
+Retired — the old `wreview` and `wqa` entries were removed; current quality catalog coverage lives
+in `ADP-layered-workflow-adoption` under `wtk-*` names.
 
 New promise from `w-entry-points`. `scripts/adopt.py` `CORE_PATHS` gained
 `.agents/skills/wreview` and `.agents/skills/wqa`. The checkout tracks

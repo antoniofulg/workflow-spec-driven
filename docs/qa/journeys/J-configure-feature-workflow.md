@@ -1,55 +1,41 @@
 # J-configure-feature-workflow
 
 **Persona:** Workflow adopter
-**Goal:** Configure, freeze, and inspect one feature's models, review, provider, remediation, and slice-dispatch policy.
-**Entry point:** `.wtk.toml.example` → local `.wtk.toml` → `workflow-config` resolver CLI
+**Goal:** Route, configure, verify, and safely close one Workflow Toolkit feature.
+**Entry point:** `wtk` → `.wtk.toml.example` / `.wtk.toml` → `wtk-config` → Lean artifacts
+**Tags:** wtk-feature
 
 ## Flow
 
-1. Distinguish tracked `.wtk.toml.example` and skill-owned packet templates under `.agents/skills/workflow-config/assets/agents/` from ignored local config and generated runtimes; confirm the same ownership boundary.
-2. Initialize local config, select the documented profile, edit model/effort pairs, run explicit sync, and confirm generated packets are stable for all six roles including designer, carrying each Claude role's `skills:` preload and `disallowedTools:` scope byte-identical to its template (designer: `skills: [wdesign, ponytail]`, no `disallowedTools`); confirm a missing `[models.<provider>.designer]` table or a template preloading a skill with no `SKILL.md` fails the sync by name and writes nothing.
-3. Exercise invalid config, template, metadata, destination, and symlink inputs; confirm each failure names its source and changes no bytes.
-4. Author `tasks.md` from the installed task template, declaring one `**Slice:**` field per primary task and one `## Vertical Slice Closure` row per used slice; confirm the template names the slice/phase/batch distinction and that `validate_tasks.py --slice-contract-json` reports the same membership the document declares.
-5. Resolve a feature with cadence, profile, and overrides; confirm the slice count is derived from the validated closure contract (one slice when `tasks.md` is absent), that `--slices` acts only as an assertion, and that delegated model/effort and route are frozen while current JSON reports live remediation without persisting it.
-6. Select a supported parallelization mode and optional repository-relative resource provider, then explicitly refresh; confirm snapshot and JSON agree on frozen route, cadence, and parallelization, and that refresh re-derives the count from current tasks.
-7. Change only remediation threshold and resume; confirm the new live value is reported while route, cadence, models, efforts, derived slice count, and snapshot bytes remain frozen even when `tasks.md` changed or became malformed.
-8. Plan the versioned task state and inspect ready, blocked, checkpoint, or serial-fallback output; confirm planner membership equals the validator's primary-task membership and that review remediation records are ignored; continue to [`J-execute-parallel-slices`](J-execute-parallel-slices.md) only when capability and declared resources permit it.
-9. Confirm packet drift requires explicit synchronization and refresh, cadence grouping, provider precedence, checkout isolation, and adoption preservation.
+1. Invoke or inspect `wtk` for defined work, unresolved alternatives, ordinary diagnosis, and direct
+   modular requests. Confirm only the matching procedure and applicable local guidance are loaded.
+2. Follow integrated work through native `plan.md`, `checks.md`, and `verification.md`, whole
+   observable slices, coherent commits, sequential builders, and one fresh full-feature Verifier.
+3. Follow direct `wtk-discover`, `wtk-plan`, and `wtk-implement` entries to their distinct upstream
+   `.design`, `.tasks`, and `.checks` contracts.
+4. Copy `.wtk.toml.example` into a disposable consumer, preserve a byte-distinct local `.wtk.toml`,
+   synchronize provider packets, and resolve `light`, `standard`, and `ui` fixtures. Require default
+   `standard`, approved-profile pinning, provider precedence, and no obsolete config aliases.
+5. Confirm Deep Review defaults to on-demand `skip` and Technical Verification, Deep Review, and QA
+   remain separate stages. Inspect `wtk-ship` without performing remote work.
+6. In a disposable feature root, validate and close only one passing promoted feature. Confirm an
+   unrelated pending feature remains byte-for-byte unchanged.
 
 ## Promises
 
-- [`CFG-resolve-deep-review-cadence`](../scenarios/CFG-resolve-deep-review-cadence.md)
-- [`CFG-route-delegated-role-providers`](../scenarios/CFG-route-delegated-role-providers.md)
-- [`CFG-freeze-feature-workflow`](../scenarios/CFG-freeze-feature-workflow.md)
-- [`CFG-plan-parallel-slice-dispatch`](../scenarios/CFG-plan-parallel-slice-dispatch.md)
+- [`QAS-route-workflow-toolkit-intent`](../scenarios/QAS-route-workflow-toolkit-intent.md)
+- [`QAS-use-lean-feature-lifecycle`](../scenarios/QAS-use-lean-feature-lifecycle.md)
+- [`QAS-use-modular-workflow-entries`](../scenarios/QAS-use-modular-workflow-entries.md)
 - [`CFG-centralize-agent-model-routing`](../scenarios/CFG-centralize-agent-model-routing.md)
-- [`CFG-derive-merge-alone-slices`](../scenarios/CFG-derive-merge-alone-slices.md)
-- [`CFG-preload-agent-skills-in-packets`](../scenarios/CFG-preload-agent-skills-in-packets.md)
+- [`CFG-resolve-deep-review-cadence`](../scenarios/CFG-resolve-deep-review-cadence.md)
 
 ## Adjacent canary
 
-Walk [`J-adopt-workflow`](J-adopt-workflow.md) to confirm adoption installs the resolver while
-preserving consumer-owned configuration and local-artifact boundaries.
+Walk [`J-adopt-workflow`](J-adopt-workflow.md) to confirm the installed resolver and procedure tree
+match the source contract and preserve consumer-owned configuration.
 
-## Terminal QA status
+## Current cycle
 
-`CFG-freeze-feature-workflow`, `CFG-plan-parallel-slice-dispatch`, and
-`CFG-fallback-unproven-parallel-execution` are `pass` in the terminal report. The safe optional
-provider boundary is the repository's frozen `resource_provider: null` path; resource-bearing work
-serializes before mutation. The real Orca/Codex worker journey remains separately
-`blocked-verify` in [`J-execute-parallel-slices`](J-execute-parallel-slices.md).
-
-The v3 assisted and planner promises are reset to `untested` for the 2026-08-29 offline QA cycle;
-the passing zero-effect fallback remains an adjacent canary and will be reconfirmed in that cycle.
-
-The 2026-09-03 `phase-skills` cycle resets `CFG-centralize-agent-model-routing` and
-`CFG-derive-merge-alone-slices` to `untested` and adds `CFG-preload-agent-skills-in-packets`; see
-[`CH-adopt-phase-skills-2026-09-03`](../charters/CH-adopt-phase-skills-2026-09-03.md).
-
-The 2026-09-03 `specify-impact-designer` cycle resets `CFG-centralize-agent-model-routing` and
-`CFG-preload-agent-skills-in-packets` to `untested` (eighteen fields, designer tables and packet);
-see [`CH-specify-impact-designer-2026-09-03`](../charters/CH-specify-impact-designer-2026-09-03.md).
-
-The 2026-09-08 `lean-consumer-installation` cycle moves provider templates into the owning skill and
-resets `CFG-centralize-agent-model-routing` and `CFG-preload-agent-skills-in-packets` to `untested`.
-See [`CH-sync-skill-owned-agent-packets-2026-09-08`](../charters/CH-sync-skill-owned-agent-packets-2026-09-08.md).
+The 2026-09-13 cycle resets all five current promises to `untested`. Prior configuration reports
+remain historical. Task-derived and parallel-dispatch promises were retired because Lean uses
+checks-derived whole slices and sequential builders.

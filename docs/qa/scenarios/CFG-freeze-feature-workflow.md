@@ -6,7 +6,7 @@ persona: Workflow adopter
 journey: J-configure-feature-workflow
 expected: Resolution and resume report the live remediation stall bound without persisting it, while model/effort routes, cadence, selected parallelization mode, and safe optional resource provider remain frozen until an explicit refresh; packet drift still requires explicit synchronization and refresh.
 entry_points: .wtk.toml.example; .wtk.toml; .claude/agents/; .codex/agents/; .cursor/agents/; .agents/skills/workflow-config/scripts/workflow_config.py; .specs/features/<slug>/workflow.json; .agents/skills/workflow-config/SKILL.md
-qa_status: pass
+qa_status: skipped
 bug_ids:
 fix_status:
 retest_status:
@@ -15,6 +15,9 @@ evidence: docs/qa/evidence/2026-08-29-hybrid-slice-execution/summary.json; docs/
 last_report: docs/qa/reports/2026-08-29-hybrid-slice-execution.md
 overlaps:
 ---
+
+Retired — this row owns the prior parallelization/resource-provider snapshot. Current profile and
+Lean lifecycle behavior is covered by the 2026-09-13 configuration scenarios.
 
 Covers `CWF-STATE-1` through `CWF-STATE-4`, `PAR-01` through `PAR-04`, and the public configuration
 portion of EXE-19–EXE-21: complete snapshot fields, repeat stability, preservation of a prior valid

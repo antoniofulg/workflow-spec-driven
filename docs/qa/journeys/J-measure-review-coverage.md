@@ -2,7 +2,7 @@
 
 **Persona:** Workflow operator
 **Goal:** Emit a delivery's review outcome as a `Review-Signal` git trailer and read back, from git history alone, what fraction of delivered work was really reviewed.
-**Entry point:** `.agents/skills/workflow-spec-driven/scripts/check_commit.py` → `tools/review-metrics.py`
+**Entry point:** `.agents/skills/wtk-lean/scripts/check_commit.py` → `tools/review-metrics.py`
 
 ## Flow
 
