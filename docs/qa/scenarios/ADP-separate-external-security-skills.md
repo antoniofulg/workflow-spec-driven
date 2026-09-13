@@ -6,17 +6,22 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: Adoption leaves security-spec, security-threat-model, security-implementation, and security-review absent, identifies all four as separate from bundled skills, and prints one exact authorized installer command with the gate-unavailable warning.
 entry_points: README.md#quick-start; node /Users/antoniofulg/Projects/my-workflow/bin/wtk.js install; skills-lock.json
-qa_status: fail
+qa_status: skipped
 bug_ids: BUG-20260913-guided-install-omits-security-gate-warning
-fix_status: pending
-retest_status:
-fix_commits:
+fix_status: fixed
+retest_status: pass
+fix_commits: 3116d63
 evidence: docs/qa/evidence/2026-09-13-prompt-review-adoption/source-quality-install.log; docs/qa/evidence/2026-09-13-prompt-review-adoption/source-extras-install.log; docs/qa/evidence/2026-09-13-prompt-review-adoption/gate-warning-check.txt; docs/qa/evidence/2026-09-13-prompt-review-adoption/source-security-absence.txt
 last_report: docs/qa/reports/2026-09-13-prompt-review-security-follow-up.md
 overlaps:
 ---
 
 Owns the user-visible adoption boundary in `SSK-01` and the onboarding-output leg of `SSK-07`.
+
+The follow-up manual cycle was closed as over-scoped under the maintainer-approved bounded-work
+policy (`26950bf`). The warning defect is fixed in `3116d63`; its automated source/packed/output
+regression retest passed. `skipped` records that the manual charter was not completed, not a manual
+PASS. The latest report records the exact scoped command and evidence method.
 Installation mechanics belong to the follow-on journey, while the canonical repository-reading
 scenario owns the README and pack-guide leg of `SSK-07`.
 

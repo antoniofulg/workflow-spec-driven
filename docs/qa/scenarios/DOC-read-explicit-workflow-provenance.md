@@ -6,15 +6,18 @@ persona: Repository reader
 journey: J-review-workflow-release
 expected: The README, pack guide, and QA skills distinguish bundled local adaptations from their linked sources and from four separately authorized pinned skills named security-spec, security-threat-model, security-implementation, and security-review without naming a consuming product or stack.
 entry_points: README.md; docs/toolkit/pack.md; skills-lock.json; .agents/skills/wtk-qa-plan/SKILL.md; .agents/skills/wtk-qa-execute/SKILL.md; NOTICE.md
-qa_status: untested
+qa_status: skipped
 bug_ids: BUG-20260909-interactive-installer-omits-security-command
 fix_status: fixed
 retest_status: pass
 fix_commits: 668ac1c3
 evidence: docs/qa/evidence/2026-09-13-workflow-toolkit-release/release-retest-summary.md
-last_report: docs/qa/reports/2026-09-13-workflow-toolkit-release.md
+last_report: docs/qa/reports/2026-09-13-prompt-review-security-follow-up.md
 overlaps:
 ---
+
+The extra manual follow-up was closed as over-scoped under `26950bf`; targeted documentation and
+package checks cover this bounded change. No fresh manual-provenance walk is claimed.
 
 Covers public provenance, authorship, clean-room adaptation language, the bundled-versus-external
 security-skill boundary in `SSK-07`, and the reusable package's stack-agnostic scope. The current

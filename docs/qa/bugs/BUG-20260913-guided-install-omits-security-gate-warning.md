@@ -1,6 +1,6 @@
 # BUG-20260913-guided-install-omits-security-gate-warning
 
-- **Status:** open
+- **Status:** fixed
 - **Severity:** major
 - **Scenario:** `ADP-separate-external-security-skills`
 - **Expected:** Every successful guided adoption prints the one separately authorized four-skill
@@ -39,3 +39,13 @@ requiring zero warning/command output on cancellation. A fresh Verifier must res
 `CH-adopt-prompt-review-and-four-security-skills-2026-09-13`, re-walk
 `ADP-separate-external-security-skills` plus adjacent `ADP-adopt-workflow-safely`, and then continue
 the two unexecuted charters.
+
+## Resolution
+
+Fixed by `3116d63`: successful and no-change output now includes a conditional uncovered-gate
+notice, without adding installation, availability detection or cancellation output. The regression
+was observed failing before the fix. After the fix,
+`node --test tests/installer/terminal.test.js tests/installer/package.test.js` exited 0 with
+48 passed and 0 failed. This is an automated public-boundary retest, not a completed manual charter.
+The maintainer subsequently corrected the over-scoped workflow in `26950bf`; remaining manual
+charters were skipped under that bounded-work policy.

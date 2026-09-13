@@ -78,3 +78,24 @@ status diff is empty after excluding this report, its bug, and the owning scenar
 pre-existing knowledge edits, four untracked security-skill trees, and their aliases remain exactly
 as found. The untouched `/tmp/prompt-review-probe.KiejD7` inventory and SHA-256 set also have empty
 opening-to-closing diffs.
+
+## Cycle scope correction and closure
+
+The maintainer rejected recertifying an entire branch for this small skill addition and requested
+a process correction before release. Commit `26950bf` makes instruction-only skills, existing
+installer registration and bounded CLI-copy fixes use targeted evidence, with optional delegation
+and no automatic feature/QA reopening.
+
+The initial failed observation above is retained. Its product defect was fixed in `3116d63` and
+retested through the existing source and packed public-boundary tests:
+
+- `node --test tests/installer/terminal.test.js tests/installer/package.test.js`: exit 0,
+  48 passed, 0 failed; warning, command, no-op and cancellation expectations preserved.
+- `bun test tools/shared/tests/qa-skills.test.ts tools/shared/tests/autonomous-permissions.test.ts`:
+  exit 0, 34 passed, 0 failed for the process correction.
+
+The additional manual cycle is closed, not continued: its four owning scenarios are `skipped`
+with the scope reason. The warning bug is fixed with a passing automated regression retest.
+Unwalked packed/audit/provenance/canary legs have not been converted into manual passes; the
+safe-adoption canary's earlier status remains unchanged. Historical full-feature technical evidence
+at `9b821a8e` remains available for unchanged scope, not a claim that every later HEAD reran it.

@@ -6,15 +6,18 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: A project selects core, quality, or extras, sees non-core selections include core, installs each exact current catalog including unchanged third-party Ponytail names plus optional prompt-review and current Claude aliases, and repeats with an explicit no-change result and no parallel module or retired alias.
 entry_points: README.md#quick-start; node /Users/antoniofulg/Projects/my-workflow/bin/wtk.js install; package.json; scripts/installer/engine.js
-qa_status: untested
+qa_status: skipped
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
 evidence: docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/adoption-summary.md; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/source-core-readopt.log; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/source-quality-readback.log; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/source-extras-readback.log
-last_report: docs/qa/reports/2026-09-13-workflow-toolkit-adoption.md
+last_report: docs/qa/reports/2026-09-13-prompt-review-security-follow-up.md
 overlaps: ADP-adopt-workflow-safely
 ---
+
+This follow-up manual cycle was closed as over-scoped under `26950bf`. Current package/adoption
+regression checks passed; unwalked charter legs are skipped, not reported as manual passes.
 
 Fresh QA must select and install `core`, then select dependent modules in a new PTY session. Verify
 that `core` is selected once and named as required, installed modules remain cumulative in the
