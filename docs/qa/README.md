@@ -94,7 +94,7 @@ Command facts remain in their executable manifests or CI authorities.
   instruction/path inspection and the assigned Technical Verification forward evidence separately;
   do not convert technical tests into a claimed user walk.
 
-`wtk-qa-plan` uses this profile to create bounded charters. A fresh `wtk-qa-execute` Verifier records
+`wtk-qa-plan` uses this profile to select bounded charters. A non-author `wtk-qa-execute` Verifier records
 the selected interface, exact path, evidence, limitations, and observed status. Product defects go
 to an Implementer; QA does not fix them.
 

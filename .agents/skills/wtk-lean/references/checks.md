@@ -211,11 +211,12 @@ Where each unwritten requirement landed. All nine, one line each, every time.
 
 ## Handoff
 
-Intended split, with the arithmetic, written before any code:
+Default: one builder; no planned transfer. Only when a concrete context limit or transfer requires
+it, record the intended whole-slice split and estimate, for example:
 
 - S1-S3 = 118k, all in Billing; S4 enters Webhooks at 140k -> hand off after S3
 
-<Appended by each builder as it finishes, three lines each:>
+<Append when handing off:>
 
 - **Boundary:** C1-C7 closed at `<sha>`
 - **Settled mid-build:** <every clarification the user gave that did not become a Landing row or an edited check>

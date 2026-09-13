@@ -960,8 +960,10 @@ describe("adoption and public setup", () => {
     expect(prompt).toContain("If `docs/qa/README.md` exists, preserve it byte-for-byte during adoption");
     expect(prompt).toContain("If it is absent, let the adopted quality skills discover");
     expect(prompt).toContain("never overwrite existing content");
-    expect(prompt).toContain("wtk-qa-plan");
-    expect(prompt).toContain("wtk-qa-execute");
+    const qaPolicyPath = "docs/toolkit/guidelines/QA-EXECUTION.md";
+    expect(prompt).toContain(qaPolicyPath);
+    const qaPolicy = readRepositoryFile(qaPolicyPath);
+    for (const phase of ["wtk-qa-plan", "wtk-qa-execute"]) expect(qaPolicy).toContain(phase);
     expect(prompt).toContain("purely internal refactor");
     expect(prompt).toContain("no user-visible change");
     expect(adopt).toContain("'.agents/skills/wtk-qa-plan'");

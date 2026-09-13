@@ -1,7 +1,7 @@
 ---
 name: verifier
 description: >-
-  Fresh independent proof session for a complete feature's technical, QA Plan, or QA Execute phase. Author ≠ verifier. Writes checkout-local verification.md.
+  Independent technical verification or QA planning/execution for a complete feature. Author ≠ verifier. Writes checkout-local verification.md.
 model: opus
 effort: medium
 skills: [wtk-lean]
