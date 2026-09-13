@@ -13,7 +13,7 @@ authentication, fixtures or seed data, cleanup and residue checks, and installed
 invent a command or install a QA framework during adoption.
 
 Before writing, set the requested modules (`core`, `quality`, or `extras`) in the guided
-wizard. Run `npx wtk install` from `/path/to/target-project` and review every
+wizard. Run `npx workflow-toolkit install` from `/path/to/target-project` and review every
 previewed action. Report the managed paths and every target path that could be replaced. Preserve
 product-owned product, architecture, design, and stack documentation. For a new project, adoption
 initializes a neutral, consumer-owned `docs/product/AGENT-CONTEXT.md` index; fill it with product
@@ -30,7 +30,7 @@ conflict is resolved. Altered managed instruction blocks remain consumer-owned a
 the verified backup checklist.
 
 Read the release notes from the target's adopted version to the current exact package version before
- an update. Run `npx wtk install` only after the review. The wizard promotes pristine
+ an update. Run `npx workflow-toolkit install` only after the review. The wizard promotes pristine
  provider templates, refreshes managed blocks and runtime packets, and reconciles only hash-proven
  retired workflow files.
 

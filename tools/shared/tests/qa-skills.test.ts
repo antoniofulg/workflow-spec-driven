@@ -153,7 +153,7 @@ function forbiddenAuthorityViolations(
   const scannedPaths = activeAuthorityPaths(paths);
   const forbiddenCommands = [
     /(?:^|[`$>#;&|]\s*)npm\s+(?!(?:pack\s+--pack-destination\s+\S+(?:\s*#.*)?$|install\s+--save-dev\s+--save-exact\s+@nanonets\/graft@0\.10\.1$|exec\s+--yes\s+--package\s+\S+\s+--\s+my-workflow\s+(?:plan|apply|resolve|status)\b))\S+/i,
-    /(?:^|[`$>#;&|]\s*)npx\s+(?!(?:wtk\s+install|scripts\s+install|--yes\s+<approved-package>@<exact-version>(?:\s+(?:plan|apply|resolve|status)\b|(?=\s*`|$))))\S+/i,
+    /(?:^|[`$>#;&|]\s*)npx\s+(?!(?:workflow-toolkit\s+install|wtk\s+install|scripts\s+install|--yes\s+<approved-package>@<exact-version>(?:\s+(?:plan|apply|resolve|status)\b|(?=\s*`|$))))\S+/i,
     /\bvitest\s+(?:run|--|[A-Za-z])/i,
     /\btsx\s+(?:--|[A-Za-z])/i,
     /(?:from|require)\s*[(]?['"]yaml['"]/i,
@@ -950,7 +950,7 @@ describe("adoption and public setup", () => {
     const prompt = readRepositoryFile("docs/adoption-prompt.md");
     const adopt = readRepositoryFile("scripts/installer/engine.js");
 
-    expect(readme).toContain("npx wtk install");
+    expect(readme).toContain("npx workflow-toolkit install");
     expect(readme).toContain("managed paths");
     expect(prompt).toContain("git status --short");
     expect(prompt).toContain("read-only");
@@ -1026,7 +1026,7 @@ describe("adoption and public setup", () => {
     const pack = readRepositoryFile("docs/workflow/pack.md");
 
     expect(tour).toContain("[Skills, knowledge, adopt](pack.md)");
-    expect(pack).toContain("npx wtk install");
+    expect(pack).toContain("npx workflow-toolkit install");
   });
 
   it("IT-011 keeps stack-specific QA capabilities in the operational profile", () => {

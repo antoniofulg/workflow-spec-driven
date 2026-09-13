@@ -47,9 +47,11 @@ Proof: `node --test --test-name-pattern "IT-024 quality install publishes explic
 Proof: `node --test --test-name-pattern "IT-025 replacement retires pristine legacy paths and protects modified or unknown destinations" tests/installer/terminal.test.js`
 
 **C11** - Cancellation, non-interactive refusal, conflict, interrupted publication, restoration, and idempotent re-adoption preserve exit and transaction guarantees (WTK-02, AC 12)
-Proof: `node --test --test-name-pattern "IT-001 cancellation before preview writes nothing" tests/installer/terminal.test.js`
+Proof: `node --test --test-name-pattern "IT-015 public CLI cancellation returns exit 0 and preserves target state" tests/installer/cli.test.js`
+Proof: `node --test --test-name-pattern "IT-010 and IT-015 packed executable performs Node-only install and public cancellation probes" tests/installer/package.test.js`
 Proof: `node --test --test-name-pattern "IT-009 rejects non-interactive install exactly" tests/installer/cli.test.js`
 Proof: `node --test --test-name-pattern "IT-006 conflict cancellation preserves complete target tree" tests/installer/terminal.test.js`
+Proof: `node --test --test-name-pattern "IT-008 public CLI publication failure returns exit 1 and restores complete target state" tests/installer/cli.test.js`
 Proof: `node --test --test-name-pattern "IT-008 publication failure restores bytes, modes, adoption, and clears journal" tests/installer/transaction.test.js`
 Proof: `node --test --test-name-pattern "IT-020 no-op transaction creates no backup" tests/installer/transaction.test.js`
 Proof: `node --test --test-name-pattern "IT-022 extras catalog retains each third-party Ponytail name" tests/installer/package.test.js`

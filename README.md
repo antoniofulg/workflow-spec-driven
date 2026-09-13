@@ -17,7 +17,7 @@ human-owned merge.
 From the repository you want to install into, run the guided Node.js installer:
 
 ```bash
-npx wtk install
+npx workflow-toolkit install
 ```
 
 The command targets the current directory, requires Node.js 18 or newer, and walks through module
@@ -65,8 +65,9 @@ Use plain intent in the request:
   evidence. Confirmed wtk-deep-review defects are fixed inside their run; cosmetics become follow-up work.
 
 The feature path is Plan → Checks → Build → Verify. Builders use whole observable slices and
-coherent commits. Technical verification, deep review, QA, and the full gate are selected by
-the changed behavior and concrete risk; installing their skills does not make every stage mandatory.
+coherent commits, then one fresh independent Technical Verifier proves the complete feature range.
+Deep Review is optional and defaults to `skip`; QA runs when the changed surface requires a user-visible
+walk; the full gate remains selected by changed behavior and concrete risk.
 
 For UI work, Designer starts with constraints, reads selected references, and inspects existing
 components read-only. A design tool or isolated prototype supports exploration when useful. Three
@@ -142,7 +143,7 @@ includes `core`. The guided command is:
 `extras` adds optional Ponytail utilities. `full` resolves all three catalog modules.
 
 ```bash
-npx wtk install
+npx workflow-toolkit install
 ```
 
 The target must be the current directory and the command must run in an interactive terminal.
@@ -281,11 +282,11 @@ project adopted, then run the guided installer and inspect the complete diff bef
 cd /path/to/target-project
 git status --short
 git switch -c build/update-wtk
-npx wtk install
+npx workflow-toolkit install
 git diff
 ```
 
-Run `npx wtk install` for every installation or update. It updates pristine
+Run `npx workflow-toolkit install` for every installation or update. It updates pristine
 workflow-owned files, promotes provider templates using recorded source hashes, refreshes managed
 instruction blocks and runtime packets, and stops with all conflicts before writing.
 
@@ -320,11 +321,11 @@ no selected file or manifest is written while any conflict remains.
 **`refusing adoption: Makefile:N uses machine-global workflow skill path`** Point the target's gate at
 the vendored `.agents/skills/wtk-config/scripts/...` path.
 
-**Claude skill symlinks point nowhere.** Re-run `npx wtk install`; it recreates the `.claude/skills/`
+**Claude skill symlinks point nowhere.** Re-run `npx workflow-toolkit install`; it recreates the `.claude/skills/`
 links into `.agents/skills/`.
 
 **A runtime packet has the wrong model or effort.** Edit the local `.wtk.toml`, then run
-`npx wtk install`. Runtime packets are generated output.
+`npx workflow-toolkit install`. Runtime packets are generated output.
 
 ## Repository intelligence
 
@@ -388,7 +389,7 @@ Codex and OpenCode consume `.agents`. Do not add `.cursor/skills` or other agent
 project-owned `wtk-qa-plan` and `wtk-qa-execute` skills use the consuming project's profile in
 `docs/qa/README.md`; they do not select a framework or replace the project's gate.
 
-`npx wtk install` installs and updates only the workflow-owned `wtk` router, its Lean
+`npx workflow-toolkit install` installs and updates only the workflow-owned `wtk` router, its Lean
 skills (`wtk-lean`, `wtk-discover`, `wtk-plan`, `wtk-implement`), Ponytail, Deep
 Review, QA, wtk-config, and wtk-ship skills. Keep those canonical copies in
 `.agents/skills/` and the Claude Code

@@ -59,7 +59,7 @@ Empty on purpose. Machinery only: operating schema, `raw/` README, stub indexes,
 The package `workflow-toolkit@1.0.0` exposes the single canonical command:
 
 ```bash
-npx wtk install
+npx workflow-toolkit install
 ```
 
 The wizard targets the current directory, requires Node.js 18 or newer and an interactive

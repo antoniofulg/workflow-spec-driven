@@ -35,8 +35,14 @@ modular handoff to `wtk-plan`.
 
 Ask only the smallest question needed to distinguish routes. Do not preload quality, UI, security,
 QA, review, or delivery procedures; load them only when the selected route or changed surface
-requires them. `wtk-lean` defaults its approved verification profile to `standard`; use `ui` when
-binding interface sources are part of the feature.
+requires them. For Plan or Specify work touching runtime, configuration, dependency, public behaviour,
+authentication, or authorization, read `docs/guidelines/SECURITY.md` before coding, using `## 2. At
+Specify — declare the surfaces` and `## 3. At the test contract — abuse cases get IDs` at their
+named phases; use `## 5. At review — the residual only` during review. Do not run a broad security
+audit without a matching trigger or explicit request. Before Design or Build work that adds or changes
+a screen or interaction, read `docs/guidelines/UI-UX.md` and any feature `uiux.md`; a feature with no
+changed screen skips it. `wtk-lean` defaults its approved verification profile to `standard`; use `ui`
+when binding interface sources are part of the feature.
 
 The Lean artifacts and the modular entries deliberately retain their upstream names and schemas.
 Completed feature artifacts are transient: after independent verification and selected local gates,

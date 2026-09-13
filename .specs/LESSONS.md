@@ -4,7 +4,7 @@
 > Canonical state lives in `.specs/lessons.json`. Edit lessons only via the script.
 > promote_threshold=2 distinct features · window_days=45 · quarantine_threshold=2
 
-## Confirmed (load these at Specify/Design)
+## Confirmed (load these at Plan/Checks)
 
 Corroborated across multiple features. Safe to apply as guidance.
 
@@ -685,6 +685,30 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: repository-intelligence-routing
 - evidence: validation.md#M7 (repository-intelligence-adapter)
 - last seen: 2026-09-11T08:21:24Z
+
+### L-113 - When testing a default, omit every explicit value and override that bypasses the default branch.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `configuration` · harmful: 0
+- features: workflow-toolkit-lean
+- evidence: .specs/features/workflow-toolkit-lean/verification.md:93 (C6) (configuration)
+- last seen: 2026-09-13T03:11:13Z
+
+### L-114 - Assert public CLI exit outcomes at the process boundary, not through helper return values.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `installer` · harmful: 0
+- features: workflow-toolkit-lean
+- evidence: .specs/features/workflow-toolkit-lean/verification.md:91 (C11) (installer)
+- last seen: 2026-09-13T03:11:13Z
+
+### L-115 - Use package names in package-manager invocations and executable names only after installation.
+- signal: `spec_deviation` · recurrence: 1 feature(s) · scope: `installer` · harmful: 0
+- features: workflow-toolkit-lean
+- evidence: .specs/features/workflow-toolkit-lean/verification.md:89 (C7) (installer)
+- last seen: 2026-09-13T03:11:13Z
+
+### L-116 - Exercise every conditional instruction-router branch with an independent prompt that triggers only that condition.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `role-routing` · harmful: 0
+- features: workflow-toolkit-lean
+- evidence: .specs/features/workflow-toolkit-lean/verification.md:92 (C12) (role-routing)
+- last seen: 2026-09-13T03:11:13Z
 
 ## Quarantined (failed when applied - ignore)
 

@@ -1490,19 +1490,51 @@ def test_default_verification_profile_is_standard_and_stays_pinned_on_resume() -
     try:
         write_tasks(
             root,
-            "# Fixture checks\n\nProfile: standard\n\n### S1 - Capability works.\n",
+            "# Fixture checks\n\n### S1 - Capability works.\n",
             "profile-pinned",
         )
-        first = workflow_config.resolve(
-            root=root, feature="profile-pinned", native_provider="codex"
+        resolver = ROOT / ".agents/skills/wtk-config/scripts/workflow_config.py"
+        first_result = subprocess.run(
+            [
+                sys.executable,
+                str(resolver),
+                "--root",
+                str(root),
+                "--feature",
+                "profile-pinned",
+                "--native-provider",
+                "codex",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
         )
+        assert first_result.returncode == 0, first_result.stderr
+        first = json.loads(first_result.stdout)
         assert first["verification_profile"] == "standard"
+        snapshot_path = root / ".specs/features/profile-pinned/workflow.json"
+        assert json.loads(snapshot_path.read_text(encoding="utf-8"))["verification_profile"] == "standard"
         write_config(root, cadence="feature")
-        resumed = workflow_config.resolve(
-            root=root, feature="profile-pinned", native_provider="cursor"
+        resumed_result = subprocess.run(
+            [
+                sys.executable,
+                str(resolver),
+                "--root",
+                str(root),
+                "--feature",
+                "profile-pinned",
+                "--native-provider",
+                "cursor",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
         )
+        assert resumed_result.returncode == 0, resumed_result.stderr
+        resumed = json.loads(resumed_result.stdout)
         assert resumed["verification_profile"] == "standard"
         assert resumed["deep_review"] == first["deep_review"]
+        assert json.loads(snapshot_path.read_text(encoding="utf-8"))["verification_profile"] == "standard"
     finally:
         shutil.rmtree(root)
 
