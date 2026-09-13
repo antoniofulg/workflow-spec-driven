@@ -52,17 +52,20 @@ test('IT-010 and IT-015 packed executable performs Node-only install and public 
   assert.equal(eof.status, 0, `${eof.error?.message || ''} signal=${eof.signal || ''}\n${eof.stderr}\n${eof.stdout}`);
   assert.equal((eof.stdout.match(/Installation cancelled\. No files changed\./g) || []).length, 1, eof.stdout);
   assert.equal(eof.stdout.includes('scripts/install_security_skills.py'), false, eof.stdout);
+  assert.equal(eof.stdout.includes('security gate remains uncovered'), false, eof.stdout);
   assertResidueZero(eofTarget);
   const interruptTarget = clone();
   const interrupt = runCancellationProbe(interruptTarget, '\\003');
   assert.equal(interrupt.status, 0, `${interrupt.error?.message || ''} signal=${interrupt.signal || ''}\n${interrupt.stderr}\n${interrupt.stdout}`);
   assert.equal((interrupt.stdout.match(/Installation cancelled\. No files changed\./g) || []).length, 1, interrupt.stdout);
   assert.equal(interrupt.stdout.includes('scripts/install_security_skills.py'), false, interrupt.stdout);
+  assert.equal(interrupt.stdout.includes('security gate remains uncovered'), false, interrupt.stdout);
   assertResidueZero(interruptTarget);
   const normalTarget = clone();
   const normal = spawnSync('/usr/bin/expect', ['-c', [`set timeout 60`, `log_user 1`, `spawn -noecho $env(EXEC) install`, `stty rows 24 columns 80`, `expect -re {Modules.*comma-separated} { send "1\\r" }`, `expect -re {Continue to preview} { send "n\\r" }`, `expect "Installation cancelled. No files changed."`, `expect eof`].join('\n')], { cwd: normalTarget, env: { ...env, EXEC: path.join(normalTarget, 'node_modules/.bin/wtk') }, encoding: 'utf8' });
   assert.equal(normal.status, 0, `${normal.error?.message || ''} signal=${normal.signal || ''}\n${normal.stderr}\n${normal.stdout}`);
   assert.equal((normal.stdout.match(/Installation cancelled\. No files changed\./g) || []).length, 1, normal.stdout);
+  assert.equal(normal.stdout.includes('security gate remains uncovered'), false, normal.stdout);
   assertResidueZero(normalTarget);
   const colorEnv = { ...env };
   delete colorEnv.NO_COLOR;
@@ -78,6 +81,7 @@ test('IT-010 and IT-015 packed executable performs Node-only install and public 
   assert.equal(result.status, 0, `${result.error?.message || ''} signal=${result.signal || ''}\n${result.stderr}\n${result.stdout}`);
   assert.match(result.stdout, /Workflow Toolkit Installer/);
   assert.match(result.stdout, /Installation complete\./);
+  assert.equal((result.stdout.match(/security gate remains uncovered/g) || []).length, 1, result.stdout);
   const cleanRoot = fs.realpathSync(clean);
   const securityCommand = `python3 '${path.join(cleanRoot, 'node_modules/workflow-toolkit/scripts/install_security_skills.py')}' '${cleanRoot}' --yes`;
   assert.equal(result.stdout.includes(securityCommand), true, result.stdout);
