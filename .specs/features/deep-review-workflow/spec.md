@@ -92,3 +92,7 @@ As a toolkit maintainer, I want upstream reporting improvements with our review 
 Scope closure: the assigned reconciliation passes. The final `bun run test:all` remains at 123 passed and 3 unrelated baseline failures in Bun-command authority and security-skill installation. `node --test tests/installer/*.test.js` separately passed 207 tests with zero failures or skips. Full-repository readiness is not claimed. Remote publication was not performed.
 
 Design and Tasks are inline: one coupled pipeline slice, one implementation task, one serial writer. The source schema, job builder, runner, merger, and renderer must move together. Existing commits provide reusable implementations; no compatibility layer is introduced.
+
+## Main Integration
+
+Delivery uses `fix/deep-review-main`, based on `origin/main` at `aaa508070767cd0da5bf2780bf8de49d59b981bb`, and includes only this task's four commits plus integration/evidence corrections. Main's documentation paths and package version remain authoritative. `validation-main.md` records the independent integration check and passing full gate; the original branch's unrelated failures above do not apply to this isolated delivery. `fix/deep-review-workflow` preserves the source branch and its unmerged ancestors.

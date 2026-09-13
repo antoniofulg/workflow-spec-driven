@@ -8,4 +8,6 @@
 | Regenerate the complete deep-review skill-tree hash after conflict resolution. | Lock metadata and the installation contract must describe the exact integrated tree. |
 | Revalidate on `origin/main`. | Cherry-pick resolution can change both prose contracts and provenance independently of the source branch gate. |
 
-Readiness remains pending the full aggregate gate and fresh integration verification.
+The full aggregate gate on the main-based integration exited 0. Fresh integration evidence is recorded in `validation-main.md`; the source-branch limitations in `validation.md` are historical.
+
+Merging the original branch would include unrelated work; importing the toolkit rename would expand this delivery's scope. Keeping main's paths requires only conflict resolution and a new digest, with no new dependency or runtime cost. The original branch remains available if its separate changes are approved later.
