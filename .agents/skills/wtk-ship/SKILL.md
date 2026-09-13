@@ -1,6 +1,6 @@
 ---
 name: wtk-ship
-description: Ship Workflow Toolkit work through verification, local quality gates, lifecycle closeout, and authorized feature branch delivery. Use when the user asks to ship or finish a proven feature.
+description: Ship a proven feature through verification, local gates, lifecycle closeout, and authorized branch delivery. Use when asked to ship a proven feature.
 disable-model-invocation: true
 argument-hint: "[the work, in your own words]"
 ---

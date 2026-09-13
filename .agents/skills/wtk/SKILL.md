@@ -1,6 +1,6 @@
 ---
 name: wtk
-description: Route Workflow Toolkit work to discovery, planning, implementation, or the integrated Lean workflow while loading only the procedure the request needs. Use for feature work, fixes, or questions about this workflow.
+description: Route Workflow Toolkit work to the smallest applicable procedure, including bounded instruction or documentation corrections. Use for feature work, fixes, or workflow questions.
 license: CC-BY-4.0
 metadata:
   author: Antonio Fulgêncio
@@ -14,6 +14,10 @@ router loaded and load only the selected skill and its directly relevant referen
 
 ## Route
 
+- An authorized bounded documentation or instruction edit, or an exact direct correction with no unresolved
+  product/architecture choice: edit locally, run the proportional scoped check, and make the local
+  commit when this workflow owns delivery. Do not create feature artifacts or summon a Verifier for
+  unchanged behaviour. If the correction opens a choice or changes behaviour, use the feature route.
 - An unshaped idea, an open product decision, or competing solution alternatives: read and invoke
   `wtk-discover`. It may conclude build, build smaller/differently, not now, or do not build.
 - An existing integrated Lean feature directory with `plan.md`, `checks.md`, or

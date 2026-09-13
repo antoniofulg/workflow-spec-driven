@@ -1,107 +1,70 @@
 # Gates
 
-**Read when:** choosing which gate to run.
+**Read when:** selecting validation for the requested change.
 
-**Why this exists:** Keep task feedback scoped and cheap; run the full product gate once before the
-pull request. Never weaken a test to go green.
+The consuming project owns commands: `make check`, when present, is the full gate; a documented
+selector is the scoped gate. Choose by changed behavior and named risk, not file count or task label.
 
-The consuming project owns commands. `make check`, when present, is the full gate; a documented
-selector is the scoped gate. Name the actual commands.
+## Scope and completion
 
-For a named visual reference, `docs/toolkit/guidelines/UI-UX.md` owns the reference rows and paired visual
-evidence. Include that targeted comparison in scoped validation when the reference is in scope; it
-does not by itself escalate a behavior-preserving correction to Verifier, QA, e2e, or the full gate.
+| Change | Validation |
+| --- | --- |
+| Documentation maintenance | Accuracy, affected links/headings and whitespace |
+| Bounded agent-instruction change | Consistency and an existing relevant contract check |
+| Direct behavior-preserving correction | Narrowest canonical check covering the affected behavior |
+| Mixed documentation and executable change | Canonical tests for the changed executable behavior |
+| Feature slice | Named proofs and the scoped gate |
+| Closing a task with a browser surface | The consuming project's browser scoped gate, filtered by `@feature:<slug>` |
+| Feature close | Fresh full-feature Verifier and the selected local/full gates |
 
-Classify the resulting diff before applying generic feature rules. Pure documentation maintenance
-uses accuracy, affected-link, heading, and whitespace checks only. Agent-instruction changes use a
-consistency check and an existing relevant contract check. Mixed documentation and executable changes
-use canonical tests for changed executable behavior. Do not infer a full gate from file count, the word
-"feature", a UI diff, or an empty selector; stronger checks require named concrete risk. Explicit user
-skips are honored with a narrow claim and recorded limitation.
+Bounded corrections do not start a feature plan, Verifier, deep review or QA cycle. A missing UI
+selector is reported after the narrowest applicable check, not promoted to full e2e. Escalate only
+when evidence identifies a changed contract, shared behavior or risk outside that check's scope.
+`wtk` owns routing; `VERIFICATION-EVIDENCE.md` owns the completion claim.
 
-Before choosing a gate, apply the classification contract in
-`.agents/skills/wtk/SKILL.md`. A behavior-preserving `direct correction` or
-`UI-only correction` uses the narrowest check for the changed integration and closes after one
-passing scoped validation. It does not dispatch a Verifier, deep review, QA cycle, or full gate.
-UI presence and an absent feature selector are not escalation evidence; choose a component, render,
-unit, type, lint, build, or existing single-scenario check instead. Escalate only for named evidence
-of changed behavior, journey, state, data/API, auth, persistence, dependency/build, shared token,
-architecture, or unresolved product choice.
+For feature work, use the task's proofs during iteration and the scoped gate at slice close. Run the
+full gate at feature close, or earlier when a migration, shared boundary or unclassified impact
+cannot be covered by the documented selector. Use the project's extended gate when its trigger applies.
 
-## Which gate, when
+For reference-driven UI, include the comparison required by `UI-UX.md`. QA flags and journeys follow
+`QA-SCENARIOS.md`; scenario tags scope walks, not automated tests.
 
-| Moment | Gate | Why |
-| --- | --- | --- |
-| During a task | The task's own test command | Fast feedback while implementing |
-| Closing a task | The consuming project's scoped gate | Coverage for what this diff touched |
-| Closing a task with a browser surface | The consuming project's browser scoped gate, filtered by `@feature:<slug>` | Runs only that feature's browser scenarios |
-| Closing a feature, before the pull request | The consuming project's full gate | The product gate, once |
-| Heavy subsystem touched | The consuming project's extended gate, if it has one | Adds registered heavy checks |
+## Run and reuse evidence
 
-**No gate reads document shape instead of product code.** Knowledge checkers and dependency
-inventories stay separate: one opens a knowledge harvest; the other inventories current dependencies.
+Run the selected check after changes to its inputs. Fix failures within the authorized scope and
+rerun the affected check; widen only when the failure exposes broader impact. A passing subset used
+for diagnosis does not replace the gate selected for completion.
+
+Reuse passing evidence when its code, configuration, dependencies and other relevant inputs are
+unchanged. A prose-only edit does not invalidate unrelated executable proofs; validate the prose.
+Record the command, scope and result. Where the project uses a gate cache, retain its fingerprint
+and log path; its invalidation rules still apply. A commit alone does not invalidate evidence.
+
+Canonical cache invocation: `python3 tools/gate_cache.py run --gate <scoped|full> -- <gate command>`.
+
+Explicit user skips remain a narrow claim with the limitation recorded. Never weaken, skip or delete
+a test to obtain a pass, or describe a failed/unrun gate as passing. Knowledge checks run with bundle
+writes, not as an added feature-delivery gate; dependency inventories are not vulnerability proofs.
 
 ## Credential-free declarative agent-tool configuration
 
-Eligible only when the entire diff is declarative agent configuration containing agent or
-tool-server names, public URLs, and non-secret options. Executable commands, hooks, plugins,
-dependencies, credential-bearing headers or environment variables, OAuth clients or scopes,
-permissions, product or runtime code, CI or deploy changes, and external mutations take the
-applicable normal path.
+This route applies only when the whole diff contains agent/server names, public URLs and non-secret
+options. Commands, hooks, plugins, dependencies, credentials, OAuth/scopes, permissions, runtime code,
+CI/deploy changes and external mutations follow their applicable normal route.
 
-The active agent edits directly and makes one atomic commit. Create no `spec.md`, `tasks.md`, or
-`workflow.json`; dispatch no agent; run no Verifier, wtk-deep-review, QA, or completion gate.
+The active agent edits directly and makes one atomic commit, without feature artifacts, delegation,
+Verifier, deep review or QA. Before committing:
 
-Before committing:
+1. Parse changed files and compare intended names, URLs, keys and values with the client schema.
+2. Check for credential material.
+3. Query the relevant installed clients read-only, returning only `name`, `url`, `enabled` and `auth_status`.
+4. Run `git diff --check` and the project's commit-message validator.
 
-1. Parse every changed file with its native parser.
-2. Compare every name, public URL, key, and value exactly with the request and client schema.
-3. Scan keys and values for credential material.
-4. Query each installed client for the relevant server, returning only `name`, `url`, `enabled`, and
-   `auth_status`; remain read-only.
-5. Run `git diff --check` and the project's commit-message validator.
+OAuth requires explicit human authorization. Credentials, OAuth clients/scopes, permissions,
+authentication behavior and sensitive product data require full Verifier coverage.
 
-OAuth is a separate local action requiring explicit human authorization. Credentials, OAuth clients
-or scopes, permissions, authentication behaviour, and sensitive product data require full Verifier.
+## Runtime isolation
 
-## The narrow-claim rule
-
-**Intermediate tasks close on the scoped gate.** Claim *"task implemented, affected lanes green,
-full gate deferred to feature close"*. Run the full gate once after the last mutation, before the
-pull request.
-
-Escalate a feature task to the full gate when its diff touches something the selector cannot scope:
-migrations and schema, runtime orchestration, dependency or build tooling, architecture boundary
-configuration, or shared design tokens. Unknown or empty selection also escalates — that is the
-selector working, not failing. This rule does not apply to a direct UI correction: missing selector
-coverage is reported as a limitation after the narrowest available check, not promoted to full e2e.
-
-## Cached evidence
-
-A known result for the exact claimed tree need not run again. When a cache exists:
-
-- A matching **passing record is fresh evidence.** Cite gate, fingerprint, and log path.
-- A **missing or stale record means the gate runs now.** Records key on tree content, so any edit
-  invalidates one; a commit alone does not.
-- **Scope still binds.** A scoped record never supports a "feature complete" claim.
-- A **failing record** starts diagnosis from its log.
-
-Produce a record: `python3 tools/gate_cache.py run --gate <scoped|full> -- <gate command>`.
-
-## What the scenario tracker does not do
-
-Selectors and fingerprint caches reduce gate time. `docs/qa/scenarios/` scopes manual verification
-to invalidated user-visible promises; it does not scope automated tests.
-
-## Concurrency
-
-Concurrent full gates across checkouts can stall both.
-
-If a runtime is bound, find its owner and stop that checkout. Never set `reuseExistingServer: true`:
-one checkout could silently test a sibling's application.
-
-## Never
-
-- Never weaken, skip or delete a test to make a gate pass.
-- Never claim a gate passed without its output.
-- Never treat a warning as acceptable in a gate that reports zero-tolerance.
+Each checkout owns its runtime. Never use `reuseExistingServer: true` across siblings. Resolve a port
+collision with a checkout-owned runtime; do not stop another checkout's server merely to run a gate.
+Avoid concurrent full gates that compete for the same host resources.

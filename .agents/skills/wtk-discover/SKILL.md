@@ -1,6 +1,6 @@
 ---
 name: wtk-discover
-description: 'Interviews an unshaped idea into a verdict and a design document with literal decisions for wtk-plan. Use when the user says "research this", "help me understand this problem", "should we build this", "discovery", "explore this problem", or "wtk-discover". Do NOT use when the shape is already decided (wtk-plan), or to implement.'
+description: 'Explore an unshaped product idea to a build or stop verdict and design artifact. Use for discovery; not decided work or implementation.'
 license: CC-BY-4.0
 metadata:
   author: Tech Leads Club - github.com/tech-leads-club
@@ -268,4 +268,3 @@ Solution: switch kinds. Absence: what they do instead. Construction: what stalls
 ### Description or template placeholders leaking into the artifact
 Cause: the Format template was copied with the angle-bracket hints still in it.
 Solution: replace every placeholder with a concrete value, or omit the section. A heading with "N/A" under it does not appear.
-

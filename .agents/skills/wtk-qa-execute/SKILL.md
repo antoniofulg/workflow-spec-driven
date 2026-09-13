@@ -1,6 +1,6 @@
 ---
 name: wtk-qa-execute
-description: Execute planned QA through existing public interfaces; record evidence and defects. Use when a Verifier walks a QA plan; Don't use for planning, product fixes, or framework setup.
+description: Execute planned QA through existing public interfaces and record evidence or defects. Use when a Verifier walks QA; Don't use for planning, product fixes, or framework setup.
 metadata:
   author: Antonio Fulgêncio
 ---

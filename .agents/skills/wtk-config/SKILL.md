@@ -1,6 +1,6 @@
 ---
 name: wtk-config
-description: Configure workflow models, efforts, review cadence, and role providers. Use when editing settings, syncing packets, planning or resuming features, or freezing provider routes; not for gates, QA policy, or planning depth.
+description: Configure Workflow Toolkit providers, models, effort, review cadence, and feature routes; use for settings or packet sync, not gates, QA policy, or planning depth.
 ---
 
 # Workflow Configuration

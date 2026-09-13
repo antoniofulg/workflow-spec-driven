@@ -1,6 +1,6 @@
 ---
 name: wtk-deep-review
-description: "Review branch diffs, working trees, or PRs in depth, including incremental, CodeRabbit-grade, cross-LLM, and spec-conformance reviews or requested publication of findings. Excludes fixes, spec-document reviews, and quick single-file feedback."
+description: "Review diffs, worktrees, or PRs in depth, including spec conformance and requested finding publication. Use for deep review; not fixes, spec edits, or quick feedback."
 disable-model-invocation: true
 argument-hint: "[--pr N | --base <ref> | --staged | --worktree] [--files p1,p2] [--spec <path>] [--subagent native|claude-opus|grok|codex] [--max-cohort-files N] [--publish] [--full] [--out <dir>] [--no-workflow]"
 ---

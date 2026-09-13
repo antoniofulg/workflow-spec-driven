@@ -1,6 +1,6 @@
 ---
 name: wtk-qa
-description: "QA phase - plan or walk tagged user journeys. Argument: [plan] <flow> tag. Enter with /wtk-qa."
+description: "Run one tagged QA planning or execution phase through `/wtk-qa [plan] <flow>`. Use for verifier-owned journey work."
 argument-hint: "[plan] <flow>"
 context: fork
 agent: verifier

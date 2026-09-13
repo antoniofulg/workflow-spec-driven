@@ -1,6 +1,6 @@
 ---
 name: wtk-knowledge-check
-description: Check a repository's knowledge bundle for conformance, source drift, naming, and harvested gaps; use when verifying knowledge/wiki and knowledge/raw.
+description: Check `knowledge/` for source drift, naming, conformance, and harvested gaps. Use when verifying a knowledge bundle.
 ---
 
 # Knowledge Check

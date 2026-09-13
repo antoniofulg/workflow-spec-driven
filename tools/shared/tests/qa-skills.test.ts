@@ -1004,7 +1004,7 @@ describe("adoption and public setup", () => {
     expect(readme).toContain("`core` (Lean operating loop and shared tooling)");
     expect(readme).toMatch(/`quality`\s+\(review and QA\)/);
     expect(readme).toMatch(/`extras`\s+\(optional Ponytail utilities\)/);
-    expect(readme).toContain("The three external security skills are a separate authorized step");
+    expect(readme).toContain("The four external security skills are a separate authorized step");
     expect(readme).toContain("install_security_skills.py");
     expect(readme).not.toContain("@tech-leads-club/agent-skills install");
     expect(readme).not.toContain("skills add dietrichgebert/ponytail");
