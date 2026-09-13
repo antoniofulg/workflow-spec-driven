@@ -6,13 +6,13 @@ persona: Repository reader
 journey: J-review-workflow-release
 expected: wtk-ship performs feature-branch push, one pull request, and merge only after scoped authorization and readiness, while deploy, release, production mutation, force-push, direct main push, and unrelated remote actions remain separately authorized.
 entry_points: .agents/skills/wtk-ship/SKILL.md; AGENTS.md; README.md; docs/workflow/loop.md; docs/workflow/pack.md
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-08-22-explicit-remote-approval/session.md
-last_report: docs/qa/reports/2026-08-22-explicit-remote-approval.md
+evidence: docs/qa/evidence/2026-09-13-workflow-toolkit-release/release-retest-summary.md
+last_report: docs/qa/reports/2026-09-13-workflow-toolkit-release.md
 overlaps:
 ---
 
@@ -23,3 +23,8 @@ current pass includes a disposable adoption and independent reload of the instal
 The 2026-09-13 cycle replaces `autonomous` with `wtk-ship` and changes the scoped authorization
 shape. Inspect the installed contract only: do not push, create a pull request, merge, deploy,
 release, or mutate production. Prior evidence remains historical.
+
+Fresh QA at `e9e1c4ac` compared the packed `wtk-ship` contract with AGENTS, README, and workflow
+summaries. All distinguish the authorized feature-branch push, one pull request, and merge from
+deploy, release, production mutation, force-push, direct `main` push, and unrelated remote work.
+No remote action ran.

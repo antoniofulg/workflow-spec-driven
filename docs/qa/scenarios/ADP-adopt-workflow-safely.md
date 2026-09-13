@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: Guided install, cancellation, non-interactive refusal, failure recovery, and idempotent re-adoption preserve all consumer-owned bytes while publishing only the reviewed Workflow Toolkit plan with exits 0, 2, or 1 as documented.
 entry_points: README.md#quick-start; node /Users/antoniofulg/Projects/my-workflow/bin/wtk.js install; bin/wtk.js; scripts/installer/transaction.js
-qa_status: untested
+qa_status: pass
 bug_ids: BUG-20260822-deep-review-learnings-untrackable; BUG-20260822-feature-specs-ignored; BUG-20260822-feature-state-gate-conflicts; BUG-20260825-adoption-omits-parallel-pilot; BUG-20260829-final-qa-pass-conflicts-with-adoption-gate
 fix_status: fixed
 retest_status: pass
 fix_commits: 0413862; a7397d2; 43e9910; a3fc718; 5b5474e; 816afd6; 9653ed1
-evidence: docs/qa/evidence/2026-09-09-interactive-installer/47-knowledge-readback.json; docs/qa/evidence/2026-09-09-interactive-installer/49b-recovery-readback.json; docs/qa/evidence/2026-09-09-interactive-installer/50-malformed-state.log; docs/qa/evidence/2026-09-09-interactive-installer/50-unsafe-manifest.log; docs/qa/evidence/2026-09-09-interactive-installer/54-final-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/closeout-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/provenance-readback.json
-last_report: docs/qa/reports/2026-09-09-interactive-installer.md
+evidence: docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/adoption-summary.md; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/source-core-retry.log; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/source-core-readopt.log; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/cancel.log; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/eof.log
+last_report: docs/qa/reports/2026-09-13-workflow-toolkit-adoption.md
 overlaps:
 ---
 

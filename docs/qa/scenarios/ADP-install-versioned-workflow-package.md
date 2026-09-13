@@ -5,14 +5,14 @@ title: Install Workflow Toolkit from an exact local package
 persona: Workflow adopter
 journey: J-adopt-workflow
 expected: An exact local workflow-toolkit package exposes only the wtk executable, completes a guided install without registry access, and reads back the reviewed package identity and managed tree from outside the source checkout.
-entry_points: README.md#quick-start; package.json; bun pm pack --destination <pack-dir> --filename workflow-toolkit-1.0.0.tgz --ignore-scripts; node <runner>/package/bin/wtk.js install
-qa_status: untested
+entry_points: README.md#quick-start; package.json; bun pm pack --filename <pack-dir>/workflow-toolkit-1.0.0.tgz --ignore-scripts; node <runner>/package/bin/wtk.js install
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-09-interactive-installer/package/final/artifact.sha256; docs/qa/evidence/2026-09-09-interactive-installer/46b-outdated-upgrade.log; docs/qa/evidence/2026-09-09-interactive-installer/54-final-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/package/artifact.sha256; docs/qa/evidence/2026-09-09-interactive-installer/closeout/package/pack.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/closeout-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/provenance-readback.json
-last_report: docs/qa/reports/2026-09-09-interactive-installer.md
+evidence: docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/adoption-summary.md; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/package-core-readback.log
+last_report: docs/qa/reports/2026-09-13-workflow-toolkit-adoption.md
 overlaps: ADP-adopt-workflow-safely; ADP-layered-workflow-adoption; ADP-resolve-legacy-adoption-conflicts
 ---
 

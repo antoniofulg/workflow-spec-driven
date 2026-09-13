@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-configure-feature-workflow
 expected: Explicit sync and resolution use only .wtk.toml.example and the byte-preserved local .wtk.toml, render current native packets, default verification to standard, accept light, standard, and ui when pinned by checks, and reject obsolete config names without aliases.
 entry_points: .wtk.toml.example; .wtk.toml; .agents/skills/wtk-config/assets/agents/; .agents/skills/wtk-config/scripts/workflow_config.py; .claude/agents/; .codex/agents/; .cursor/agents/
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-08-lean-consumer-installation/50-sync-missing-packets.txt; docs/qa/evidence/2026-09-08-lean-consumer-installation/62-custom-models.txt; docs/qa/evidence/2026-09-08-lean-consumer-installation/62-custom-packet-readback.txt; docs/qa/evidence/2026-09-08-lean-consumer-installation/63-custom-mtimes-after.txt
-last_report: docs/qa/reports/2026-09-08-lean-consumer-installation.md
+evidence: docs/qa/evidence/2026-09-13-workflow-toolkit-lean/lean-summary.md
+last_report: docs/qa/reports/2026-09-13-workflow-toolkit-lean.md
 overlaps: ADP-adopt-workflow-safely; CFG-preload-agent-skills-in-packets
 ---
 

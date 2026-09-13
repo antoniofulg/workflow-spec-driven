@@ -6,13 +6,13 @@ persona: Repository reader
 journey: J-review-workflow-release
 expected: The newest changelog release matches the package manifest, while Bun 1.4's lockfile identifies the root package and dependency graph; the documented install, knowledge, scoped-validation, frozen-lockfile, and package commands expose the current source pack without checkout residue.
 entry_points: CHANGELOG.md; README.md; package.json; bun.lock; bunfig.toml
-qa_status: untested
-bug_ids: BUG-20260824-release-overstates-lifecycle-qa; BUG-20260825-adoption-omits-parallel-pilot; BUG-20260829-bun-history-gate-rejects-new-qa-charters; BUG-20260903-history-gate-forbids-resetting-baseline-scenarios; BUG-20260904-adopt-apply-requires-designer-before-migration
-fix_status:
-retest_status:
-fix_commits:
-evidence:
-last_report:
+qa_status: pass
+bug_ids: BUG-20260824-release-overstates-lifecycle-qa; BUG-20260825-adoption-omits-parallel-pilot; BUG-20260829-bun-history-gate-rejects-new-qa-charters; BUG-20260903-history-gate-forbids-resetting-baseline-scenarios; BUG-20260904-adopt-apply-requires-designer-before-migration; BUG-20260913-changelog-uses-wrong-npx-package
+fix_status: fixed
+retest_status: pass
+fix_commits: e9e1c4ac
+evidence: docs/qa/evidence/2026-09-13-workflow-toolkit-release/release-retest-summary.md
+last_report: docs/qa/reports/2026-09-13-workflow-toolkit-release.md
 overlaps:
 ---
 
@@ -121,3 +121,9 @@ The 2026-09-03 `phase-skills` QA Plan registered
 the scenario resets that `docs/guidelines/QA-SCENARIOS.md` requires, so the source pack a reader
 installs currently cannot run a compliant QA cycle. Reset to `untested` pending the 2026-09-03
 cycle; prior evidence remains historical.
+
+Fresh QA at `e9e1c4ac` passed the current `1.0.0` release comparison after retesting
+`BUG-20260913-changelog-uses-wrong-npx-package`. The changelog now uses
+`npx workflow-toolkit install`; manifest, Bun lockfile, README, and the 141-file offline archive
+agree on `workflow-toolkit@1.0.0` with sole executable `wtk`. Registry/tag consistency remains
+outside this authorized local cycle.

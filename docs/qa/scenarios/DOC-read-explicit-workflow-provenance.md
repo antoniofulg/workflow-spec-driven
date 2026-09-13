@@ -6,13 +6,13 @@ persona: Repository reader
 journey: J-review-workflow-release
 expected: The README, pack guide, and QA skills distinguish bundled local adaptations from their linked sources and from three separately authorized, pinned external security skills without naming a consuming product or stack.
 entry_points: README.md; docs/workflow/pack.md; skills-lock.json; .agents/skills/wtk-qa-plan/SKILL.md; .agents/skills/wtk-qa-execute/SKILL.md; NOTICE.md
-qa_status: untested
+qa_status: pass
 bug_ids: BUG-20260909-interactive-installer-omits-security-command
 fix_status: fixed
 retest_status: pass
 fix_commits: 668ac1c3
-evidence: docs/qa/evidence/2026-09-09-interactive-installer/closeout/closeout-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/provenance-readback.json
-last_report: docs/qa/reports/2026-09-09-interactive-installer.md
+evidence: docs/qa/evidence/2026-09-13-workflow-toolkit-release/release-retest-summary.md
+last_report: docs/qa/reports/2026-09-13-workflow-toolkit-release.md
 overlaps:
 ---
 
@@ -30,3 +30,8 @@ remained absent. README, pack guide, archive, lock entries, installed files, and
 Workflow Toolkit Lean changes public identity, capability names, and TLC provenance. The 2026-09-13
 canary must reconcile current `wtk-*` ownership, unchanged Ponytail names, the pinned Lean source,
 and separate security dependencies. Prior evidence remains historical.
+
+Fresh QA at `e9e1c4ac` reloaded the exact local archive. Its 18 catalogued skills retain current
+`wtk-*` and original Ponytail names; the Lean source remains pinned to `0ab82f64`; both QA skills
+retain project-owned Antonio Fulgêncio authorship and Pedro Nauck inspiration; three pinned external
+security skills remain absent from the archive.

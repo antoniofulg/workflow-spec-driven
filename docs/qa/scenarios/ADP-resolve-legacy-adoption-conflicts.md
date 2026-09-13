@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: A maintainer sees pristine owned legacy workflow paths retired without aliases, while modified or unknown destinations remain explicit conflicts and every cancelled or refused target stays byte-for-byte unchanged.
 entry_points: README.md#recovery-and-conflict-handling; node /Users/antoniofulg/Projects/my-workflow/bin/wtk.js install; scripts/installer/engine.js; scripts/installer/transaction.js
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-09-interactive-installer/47-knowledge-readback.json; docs/qa/evidence/2026-09-09-interactive-installer/48-conflict-exclude.log; docs/qa/evidence/2026-09-09-interactive-installer/48-conflict-cancel.log; docs/qa/evidence/2026-09-09-interactive-installer/50-unsafe-manifest.log; docs/qa/evidence/2026-09-09-interactive-installer/54-final-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/closeout-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/provenance-readback.json
-last_report: docs/qa/reports/2026-09-09-interactive-installer.md
+evidence: docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/adoption-summary.md; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/legacy-pristine.log; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/legacy-modified.log; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/legacy-unknown.log
+last_report: docs/qa/reports/2026-09-13-workflow-toolkit-adoption.md
 overlaps: ADP-layered-workflow-adoption; ADP-adopt-workflow-safely
 ---
 

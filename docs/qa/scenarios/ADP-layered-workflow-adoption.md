@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: A project selects core, quality, or extras, sees non-core selections include core, installs each exact current catalog including unchanged third-party Ponytail names, and repeats with an explicit no-change result and no parallel module.
 entry_points: README.md#quick-start; node /Users/antoniofulg/Projects/my-workflow/bin/wtk.js install; package.json; scripts/installer/engine.js
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-09-interactive-installer/43-full-80-no-color.log; docs/qa/evidence/2026-09-09-interactive-installer/45-noop.log; docs/qa/evidence/2026-09-09-interactive-installer/48-conflict-exclude.log; docs/qa/evidence/2026-09-09-interactive-installer/52-python-free-core.log; docs/qa/evidence/2026-09-09-interactive-installer/54-final-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/closeout-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/provenance-readback.json
-last_report: docs/qa/reports/2026-09-09-interactive-installer.md
+evidence: docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/adoption-summary.md; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/source-core-readopt.log; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/source-quality-readback.log; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/source-extras-readback.log
+last_report: docs/qa/reports/2026-09-13-workflow-toolkit-adoption.md
 overlaps: ADP-adopt-workflow-safely
 ---
 

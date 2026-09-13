@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: Adoption leaves all three external security skills absent, identifies them as separate from bundled skills, and prints one exact authorized installer command with the gate-unavailable warning.
 entry_points: README.md#quick-start; node /Users/antoniofulg/Projects/my-workflow/bin/wtk.js install; skills-lock.json
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-07-deterministic-installer/08-default-full-apply.stdout; docs/qa/evidence/2026-09-07-deterministic-installer/fresh-walk-summary.json; docs/qa/evidence/2026-09-07-deterministic-installer/provenance-canary.json
-last_report: docs/qa/reports/2026-09-07-deterministic-installer.md
+evidence: docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/adoption-summary.md; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/package-core-readback.log
+last_report: docs/qa/reports/2026-09-13-workflow-toolkit-adoption.md
 overlaps:
 ---
 

@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-configure-feature-workflow
 expected: Integrated work uses native plan, checks, and verification artifacts, whole sequential slices, the approved light, standard, or ui profile, one fresh full-feature Verifier, and closes only the named passing promoted feature while leaving unrelated pending state unchanged.
 entry_points: .agents/skills/wtk-lean/SKILL.md; .agents/skills/wtk-lean/scripts/validate_plan.py; .agents/skills/wtk-lean/scripts/validate_checks.py; .agents/skills/wtk-lean/scripts/validate_verification.py; .agents/skills/wtk-ship/scripts/close_feature.py; .specs/features/<feature>/
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence:
-last_report:
+evidence: docs/qa/evidence/2026-09-13-workflow-toolkit-lean/lean-summary.md
+last_report: docs/qa/reports/2026-09-13-workflow-toolkit-lean.md
 overlaps: QAS-route-workflow-toolkit-intent; CFG-resolve-deep-review-cadence
 ---
 

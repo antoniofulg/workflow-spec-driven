@@ -6,13 +6,13 @@ persona: Workflow adopter
 journey: J-configure-feature-workflow
 expected: Defined work uses Lean, unresolved product or architecture choices use discovery first, ordinary diagnosis stays diagnostic, and security, UI, QA, review, configuration, or delivery guidance loads only when its concern applies.
 entry_points: .agents/skills/wtk/SKILL.md; AGENTS.md; docs/product/AGENT-CONTEXT.md; provider planner packets
-qa_status: untested
+qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence:
-last_report:
+evidence: docs/qa/evidence/2026-09-13-workflow-toolkit-lean/lean-summary.md
+last_report: docs/qa/reports/2026-09-13-workflow-toolkit-lean.md
 overlaps: QAS-use-lean-feature-lifecycle; QAS-use-modular-workflow-entries
 ---
 
