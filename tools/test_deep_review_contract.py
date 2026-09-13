@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import hashlib
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -23,6 +24,7 @@ BUILD_JOBS = SCRIPTS / "build_jobs.py"
 MERGE_FINDINGS = SCRIPTS / "merge_findings.py"
 RUN_JOBS = SCRIPTS / "run_jobs.py"
 RENDER_REVIEW = SCRIPTS / "render_review.py"
+RENDER_HTML = SCRIPTS / "render_html.py"
 BUILD_KNOWLEDGE = SCRIPTS / "build_knowledge.py"
 PUBLISH_RECIPE = (
     Path(__file__).resolve().parents[1]
@@ -481,6 +483,48 @@ class DeepReviewContractTests(unittest.TestCase):
                 run_publish("existing"),
                 [list_call, ["api", "repos/owner/repo/issues/comments/42", "-X", "PATCH", "-F", body_arg]],
             )
+
+    def test_html_renderer_emits_real_findings_advisories_suppressions_and_coverage(self) -> None:
+        # IT-024 (P1 AC8)
+        with tempfile.TemporaryDirectory() as raw:
+            root = init_repo(raw)
+            out = render_fixture(root, [finding("major")])
+            ledger = json.loads((out / "findings.json").read_text(encoding="utf-8"))
+            ledger["advisories"] = [{
+                **finding("minor"),
+                "fingerprint": "fp-advisory",
+                "result_kind": "advisory",
+                "category": "refactor",
+                "title": "Keep the review summary focused",
+                "evidence": ["Premise: the summary mixes concerns → Improvement: clarify ownership → Fix: keep the lane summary focused."],
+            }]
+            ledger["suppressions"] = [{
+                "source_job": "cohort-a", "file": "source.txt", "line": 1,
+                "hunk": "new:1-1", "candidate": "format-only change",
+                "reason": "formatting", "rule_ids": [], "note": "formatter-owned",
+            }]
+            ledger["coverage"] = {
+                "hunks": [{"file": "source.txt", "hunk": "new:1-1", "checks": ["defect"], "outcome": "reported"}],
+                "rules": [],
+                "summary": {"selected_hunk_lines": 1, "lanes": {"defect": {"complete": True}}},
+            }
+            ledger["review_stats"] = {"candidates": 3, "reported": 2, "suppressed": 1, "coverage": ledger["coverage"]["summary"]}
+            (out / "findings.json").write_text(json.dumps(ledger), encoding="utf-8")
+
+            rendered = run_script(RENDER_REVIEW, root, "--out", str(out), "--no-freeze-check")
+            self.assertEqual(rendered.returncode, 0, rendered.stdout + rendered.stderr)
+            html = run_script(RENDER_HTML, root, "--out", str(out))
+            self.assertEqual(html.returncode, 0, html.stdout + html.stderr)
+            report = (out / "review.html").read_text(encoding="utf-8")
+            self.assertNotIn("__DEEP_REVIEW_DATA__", report)
+            data_match = re.search(r'<script id="dr-data" type="application/json">(.*?)</script>', report, re.S)
+            self.assertIsNotNone(data_match)
+            data = json.loads(data_match.group(1))
+            self.assertEqual([row["title"] for row in data["findings"]], ["major finding", "Keep the review summary focused"])
+            self.assertEqual(data["suppressions"][0]["reason"], "formatting")
+            self.assertTrue(data["coverage"]["summary"]["lanes"]["defect"]["complete"])
+            self.assertEqual(len(data["findings"][0]["repair_plan"]), 5)
+            self.assertIn("Repair plan", report)
 
     def test_incremental_manifest_uses_effective_base_for_hunks_and_command(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
@@ -969,6 +1013,8 @@ class DeepReviewContractTests(unittest.TestCase):
             self.assertEqual(build.returncode, 0, build.stdout + build.stderr)
             jobs = json.loads((out / "jobs.json").read_text(encoding="utf-8"))["jobs"]
             self.assertEqual([job["kind"] for job in jobs], ["cohort", "cohort", "cohort", "sweep"])
+            cohort_prompt = (out / "prompts/cohort-c0.md").read_text(encoding="utf-8")
+            self.assertIn("concrete, actionable maintainability or project-rule improvements", cohort_prompt)
 
     def test_sweep_may_not_re_report_a_single_cohort_result(self) -> None:
         # C9: a sweep result inside cohort-owned hunks needs also_applies across two other files
@@ -1013,13 +1059,14 @@ class DeepReviewContractTests(unittest.TestCase):
                 self.assertIn("HUNK COVERAGE", text)
 
             jobs = json.loads((out / "jobs.json").read_text(encoding="utf-8"))["jobs"]
-            unruled = {  # C7: rule_ids is optional; lane and rule bookkeeping never invalidate a review
+            unruled = {
                 "file": "file0.txt", "line": 1, "end_line": None, "in_diff": False, "hunk": None,
                 "category": "potential-issue", "severity": "minor", "quick_win": False,
                 "title": "Placeholder line ships", "body": "The file only says changed.",
+                "rule_ids": [],
                 "evidence": ["Premise: file0.txt:1 is a placeholder → Path: shipped as-is → Verdict: blocked."],
             }
-            bare = {"defects": [unruled], "advisories": []}
+            bare = {"defects": [unruled], "advisories": [], "suppressions": []}
             full = {
                 "defects": [], "advisories": [],
                 "suppressions": [{"file": "file0.txt", "line": 1, "hunk": "new:1-1", "candidate": "trailing newline",
@@ -1029,9 +1076,13 @@ class DeepReviewContractTests(unittest.TestCase):
                 with self.subTest(variant=variant):
                     for job in jobs:
                         hunks = [{**row, "checks": ["read callers", "traced input"], "outcome": "clear"} for row in job["required_hunks"]]
-                        coverage = {"hunks": hunks}
-                        if variant == "full":
-                            coverage["rules"] = [{"rule_id": "R1", "status": "not-applicable", "note": "no match"}]
+                        coverage = {
+                            "hunks": hunks,
+                            "rules": [
+                                {"rule_id": rule_id, "status": "not-applicable", "note": "no match"}
+                                for rule_id in job["rule_ids"]
+                            ],
+                        }
                         (root / job["output"]).write_text(json.dumps({**extra, "coverage": coverage}), encoding="utf-8")
                     result = run_script(RUN_JOBS, root, "--out", str(out), "--validate-only")
                     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

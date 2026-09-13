@@ -268,12 +268,25 @@ def job_contract_errors(payload: dict, job: dict) -> list[str]:
             f"missing={sorted(expected_hunks - actual_set)[:6]} "
             f"extra={sorted(actual_set - expected_hunks)[:6]}"
         )
+    coverage_check = str(job.get("coverage_check", ""))
+    if coverage_check:
+        for index, row in enumerate(rows):
+            if coverage_check not in row.get("checks", []):
+                errors.append(
+                    f"$.coverage.hunks[{index}].checks: missing required check {coverage_check!r}"
+                )
 
     expected_rules = set(job.get("rule_ids", []))
     rule_rows = payload.get("coverage", {}).get("rules", [])
     actual_rules = [str(row.get("rule_id")) for row in rule_rows]
     if len(actual_rules) != len(set(actual_rules)):
         errors.append("$.coverage.rules: duplicate rule_id rows")
+    if set(actual_rules) != expected_rules:
+        errors.append(
+            "$.coverage.rules: assignment mismatch "
+            f"missing={sorted(expected_rules - set(actual_rules))[:6]} "
+            f"extra={sorted(set(actual_rules) - expected_rules)[:6]}"
+        )
 
     cohort_hunks = {(str(row["file"]), str(row["hunk"])) for row in job.get("cohort_hunks", [])}
     for result_kind in ("defects", "advisories"):

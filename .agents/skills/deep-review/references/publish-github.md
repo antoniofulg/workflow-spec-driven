@@ -14,32 +14,15 @@ Same login means `event=COMMENT`. For a bot/machine user, `request_changes_workf
 
 ## 1. Upsert the walkthrough comment
 
-Author `$OUT/walkthrough.md` here — publish is the only step that needs it:
-
-```markdown
-<!-- deep-review:walkthrough -->
-## Changes
-
-| Cohort / File(s) | Summary |
-| --- | --- |
-| **<cohort name>** <br> `<path>`, `<path>` | <what changed there, 1–2 sentences> |
-
-## Review details
-
-<the `## Review details` list copied from review.md>
-```
-
 One comment per PR, edited in place through its marker:
 
 ```bash
-CID="$(gh api "repos/$R/issues/$N/comments" --paginate \
-  --jq '[.[] | select(.body | contains("<!-- deep-review:walkthrough -->"))][0].id // empty')"
+CID=$(gh api repos/$R/issues/$N/comments --paginate \
+  --jq '[.[] | select(.body | contains("<!-- deep-review:walkthrough -->"))][0].id // empty')
 if [ -n "$CID" ]; then
-  gh api "repos/$R/issues/comments/$CID" -X PATCH \
-    -F "body=@$OUT/walkthrough.md"
+  gh api repos/$R/issues/comments/$CID -X PATCH -F body=@"$OUT/walkthrough.md"
 else
-  gh api "repos/$R/issues/$N/comments" \
-    -F "body=@$OUT/walkthrough.md"
+  gh api repos/$R/issues/$N/comments -F body=@"$OUT/walkthrough.md"
 fi
 ```
 
@@ -86,7 +69,7 @@ gh api repos/$R/pulls/$N/comments --paginate --jq '.[].body' | grep -o 'deep-rev
 gh api repos/$R/pulls/$N/reviews --paginate --jq '.[].body' | grep -o 'deep-review:fp:[a-f0-9]*'
 ```
 
-Recover the latest `Reviewing files that changed between <base> and <head>.` line as the prior head. A fingerprint absent from the current defects/advisories is resolved only when its file was re-reviewed or left the diff.
+Recover the latest `Reviewing files that changed between <base> and <head>.` line as the prior head. A fingerprint absent from the current defects/advisories remains open unless the incremental reviewer returns a `prior_findings` row with `status: resolved` and evidence; otherwise it remains under Duplicates.
 
 ## Order and idempotency
 

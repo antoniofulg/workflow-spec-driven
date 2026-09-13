@@ -369,8 +369,14 @@ def prior_findings_block(ledger: dict[str, dict]) -> str:
     return "\n".join(lines)
 
 
-def coverage_contract(required_hunks: list[dict]) -> str:
-    return f"HUNK COVERAGE (one exact row per assignment): `{json.dumps(required_hunks, separators=(',', ':'))}`"
+def coverage_contract(required_hunks: list[dict], rule_ids: list[str] | None = None) -> str:
+    contract = f"HUNK COVERAGE (one exact row per assignment): `{json.dumps(required_hunks, separators=(',', ':'))}`"
+    if rule_ids is not None:
+        contract += (
+            "\nASSIGNED RULE ACCOUNTING (one exact row per id, even when compliant or not applicable): "
+            f"`{json.dumps(rule_ids, separators=(',', ':'))}`"
+        )
+    return contract
 
 
 def main() -> int:
@@ -476,10 +482,10 @@ def main() -> int:
                 "output": rel(output, repo),
                 "lane_instruction": (
                     "DEFECT LANE: report only concrete correctness, security, data, contract, "
-                    "reliability, or failing-capable test defects. Put survivors in `defects`; "
-                    "leave `advisories` empty."
+                    "reliability, or failing-capable test defects in `defects`; report concrete, "
+                    "actionable maintainability or project-rule improvements in `advisories`."
                 ),
-                "coverage_contract": coverage_contract(required_hunks),
+                "coverage_contract": coverage_contract(required_hunks, [rule["id"] for rule in bound_rules]),
             }) + graphify_note
             (prompts_dir / f"{label}.md").write_text(prompt, encoding="utf-8")
             jobs.append({
@@ -502,7 +508,7 @@ def main() -> int:
                 "manifest": rel(out / "manifest.json", repo),
                 "output": rel(output, repo),
                 "rules_block": block,
-                "coverage_contract": coverage_contract([]),
+                "coverage_contract": coverage_contract([], [rule["id"] for rule in bound_rules]),
             }) + graphify_note
             (prompts_dir / f"{label}.md").write_text(prompt, encoding="utf-8")
             jobs.append({

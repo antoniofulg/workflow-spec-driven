@@ -12,9 +12,9 @@ Every stage materializes jobs with lane ownership (`{label, kind, lane, prompt, 
 | Plan | `build_jobs.py` → prompts + jobs.json | — | source accounting + ownership |
 | Review | — | jobs.json (defect cohorts + sweeps) | `run_jobs.py --validate-only` |
 | Merge | `merge_findings.py` → findings.json + review-stats.json | — | complete defect-lane coverage |
-| Report | `render_review.py` → review.md + state.json | — | `render_review.py` |
+| Report | `render_review.py` → review.md + state.json; `render_html.py` → review.html | — | `render_review.py` |
 
-Both job kinds (`cohort`, `sweep`) return the same schema: defects, advisories, hunk coverage, and optional suppressions and rule notes. `hunk` is the assigned canonical range (`<side>:<start>-<end>`), null outside the diff. Defects use the causal certificate; advisories use the improvement certificate.
+Both job kinds (`cohort`, `sweep`) return the same schema: defects, advisories, objective suppressions, hunk coverage, and explicit rule accounting. `hunk` is the assigned canonical range (`<side>:<start>-<end>`), null outside the diff. Defects use the causal certificate; advisories use the improvement certificate.
 
 ## Cohort rules (Step 2)
 

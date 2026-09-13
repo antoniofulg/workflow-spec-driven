@@ -37,6 +37,10 @@ from _common import manifest_selected, read_json, rel, repo_root, write_json
 INSTRUCTION_NAMES = {"AGENTS.md", "CLAUDE.md"}
 CONFIG_SOURCES = (".deep-review.yaml", ".deep-review.yml", ".coderabbit.yaml", ".coderabbit.yml")
 SKILL_ROOTS = (".agents/skills", ".claude/skills", ".codex/skills", "skills")
+REPO_SIGNAL_FILES = (
+    "package.json", "go.mod", "Cargo.toml", "pyproject.toml", "requirements.txt",
+    "bun.lock", "pnpm-lock.yaml", "yarn.lock", "package-lock.json",
+)
 IGNORED_DIRS = {
     ".git", ".deep-review", "node_modules", "vendor", "dist", "build",
     ".next", "target", "__pycache__",
@@ -44,6 +48,11 @@ IGNORED_DIRS = {
 REFERENCE_RE = re.compile(
     r"(?P<path>(?:references|assets)/[A-Za-z0-9_./-]+\.md)", re.I
 )
+STOPWORDS = {
+    "about", "after", "agent", "agents", "best", "build", "building", "code",
+    "comprehensive", "create", "creating", "development", "expert", "files",
+    "guide", "implement", "project", "skill", "skills", "using", "when", "with",
+}
 
 
 def walk_named(repo: Path, names: set[str]) -> list[Path]:
@@ -76,6 +85,22 @@ def scope_for(repo: Path, source: Path) -> list[str]:
 def path_in_scope(path: str, source: Path, repo: Path) -> bool:
     parent = rel(source.parent, repo)
     return parent == "." or path == parent or path.startswith(parent + "/")
+
+
+def tokens(value: str) -> set[str]:
+    return {
+        token for token in re.findall(r"[a-z0-9][a-z0-9+#.-]+", value.lower())
+        if len(token) >= 3 and token not in STOPWORDS
+    }
+
+
+def repository_tokens(repo: Path) -> set[str]:
+    signal: set[str] = set()
+    for name in REPO_SIGNAL_FILES:
+        path = repo / name
+        if path.is_file():
+            signal |= tokens(path.read_text(encoding="utf-8", errors="replace")[:200_000])
+    return signal
 
 
 def frontmatter(text: str) -> dict[str, str]:
@@ -171,6 +196,7 @@ def main() -> int:
     try:
         manifest = read_json(out / "manifest.json")
         selected = sorted(manifest_selected(manifest))
+        signal_tokens = repository_tokens(repo)
         if reuse_prior_rules(repo, out, manifest):
             return 0
 
@@ -236,7 +262,13 @@ def main() -> int:
                 candidate, applies_to = True, under_skill
                 reason = f"skill directory contains {len(under_skill)} selected path(s)"
             else:
-                candidate, applies_to, reason = False, [], "no explicit dispatch"
+                overlap = sorted(tokens(f"{name} {description}") & signal_tokens)
+                candidate = bool(overlap)
+                applies_to = selected if candidate else []
+                reason = (
+                    f"metadata matches repository technology signals: {', '.join(overlap[:8])}"
+                    if candidate else "no explicit dispatch"
+                )
             ref_paths = direct_references(skill, repo, text)
             skills.append({
                 "path": path,

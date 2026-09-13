@@ -1,6 +1,6 @@
 # Context Pack
 
-How to assemble `<out>/context-pack.md` — the shared context every reviewer and sweep receives. **Keep it lean: target ≤ ~10 KB.** Every serialized reviewer reads it in full, so each extra kilobyte is paid once per job; reviewers dig into the code themselves (rg, git, file reads), so the pack carries only what they cannot cheaply rediscover — intent, review law, and what the linters already caught.
+How to assemble `<out>/context-pack.md` — the shared context every reviewer and sweep receives. **Keep it lean: target ≤ ~10 KB.** Every agent in the fan-out reads it in full, so each extra kilobyte is paid once per agent; reviewers dig into the code themselves (rg, git, file reads), so the pack carries only what they cannot cheaply rediscover — intent, review law, and what the linters already caught.
 
 ## 1. Repository knowledge — discover before extracting
 
@@ -23,10 +23,11 @@ It discovers every repository-local root/nested `AGENTS.md` and `CLAUDE.md`, rep
 
 Extract verdict-bearing rules in precedence order (higher wins on conflict):
 
-1. Nested `AGENTS.md` / `CLAUDE.md`, deepest applicable directory first.
-2. Root `AGENTS.md` / `CLAUDE.md`.
-3. Explicitly dispatched project skills and their required references.
-4. `.deep-review/learnings.md` entries whose scope matches selected files.
+1. Path instructions from repo review config.
+2. Nested `AGENTS.md` / `CLAUDE.md`, deepest applicable directory first.
+3. Root `AGENTS.md` / `CLAUDE.md`.
+4. Explicitly dispatched or change-relevant project skills and their required references.
+5. `.deep-review/learnings.md` entries whose scope matches selected files.
 
 Extract only rules that can bind a review result (error handling, testing shape, layering, security, naming, documentation, design tokens, framework patterns). Operational commands can leave an applied source with zero rules when the accounting reason says it was read but contains no review law. Register each rule once and keep its text verbatim:
 
@@ -42,7 +43,7 @@ Extract only rules that can bind a review result (error handling, testing shape,
 }
 ```
 
-`scope` is the instruction file's directory subtree, the selected skill's routed paths, or the learning's scope. To keep each serialized job focused, the pack lists applied sources/rule counts plus one aggregate not-applicable count; complete per-source decisions stay in rules.json. `build_jobs.py` injects bound rules into cohorts and sweeps.
+`scope` is the path-instruction glob, the instruction file's directory subtree, the selected skill's routed paths, or the learning's scope. To preserve the fan-out budget, the pack lists applied sources/rule counts plus one aggregate not-applicable count; complete per-source decisions stay in rules.json. `build_jobs.py` injects bound rules into defect cohorts and sweeps, and each output accounts for every assigned rule.
 
 ## 3. Linter lanes — run first, suppress overlaps
 
@@ -66,7 +67,7 @@ With `--pr`: title, description, linked issues (`gh pr view N --json title,body,
 
 ## 5. Spec contract (`--spec`)
 
-Resolve the conformance baseline: a file path is itself the artifact; a directory contributes its contract-bearing documents — `_prd.md`, `_techspec.md`, `_tests.md`, `_examples.md`, `_qa.md`, `_user_stories.md`, parity maps, requirement/UX docs, plus any document the spec's own files name as canonical. List every resolved artifact as `path → one-line role`. Reviewers read them as the contract under test — do NOT extract rubric rules from them: §1 sources are review law.
+Resolve the conformance baseline: a file path is itself the artifact; a directory contributes its contract-bearing documents — `_prd.md`, `_techspec.md`, `_tests.md`, `_examples.md`, `_qa.md`, `_user_stories.md`, parity maps, requirement/UX docs, plus any document the spec's own files name as canonical. List every resolved artifact as `path → one-line role` for Technical Verifier context. Deep Review does not dispatch a separate spec-parity proof job; do NOT extract rubric rules from these artifacts: §1 sources are review law, the spec is the contract under test.
 
 ## 6. context-pack.md layout
 
@@ -83,5 +84,5 @@ Resolve the conformance baseline: a file path is itself the artifact; a director
 <lane → ran(findings digest) | unavailable(reason)>
 
 ## Spec contract
-<only with --spec: one `- `path`` line per artifact>
+<only with --spec: one `- `path`` line per artifact — render_review.py parses these lines for the conformance table>
 ```
