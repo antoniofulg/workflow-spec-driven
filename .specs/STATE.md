@@ -3,11 +3,11 @@
 ## Handoff
 
 - **Feature**: `workflow-toolkit-lean`; approved `plan.md` and `checks.md` under `.specs/features/workflow-toolkit-lean/`.
-- **Phase / Task**: Build in progress. This is the authorized replacement of the old workflow, not a compatibility layer.
-- **Completed**: Installer/package checkpoint `659b8d52`; `node --test tests/installer/*.test.js` passed 195 tests with 0 failures. Imported Lean selftest passed 46 mutation checks with 0 survivors. AD-035 through AD-037 record the accepted contracts and lifecycle.
-- **In-progress**: Remaining skills, configuration, guidelines, documentation, and Python/Bun contracts are uncommitted in this checkout. Preserve this work; reconcile it against `checks.md` and Git before continuing.
-- **Next step**: Finish remaining contract failures, run `bun run test:all`, dispatch a fresh full-feature Verifier and separate QA Plan/Execute sessions, then promote durable evidence and clean only this completed feature's artifacts. No remote delivery is authorized.
-- **Blockers**: No implementation blocker. Permission to update affected `knowledge/` records is pending; keep that tree untouched until authorized.
+- **Phase / Task**: Implementation committed; independent full-feature verification and QA remain.
+- **Completed**: Toolkit replacement, original Ponytail names, genuine installer proofs, and `.wtk.toml.example` / `.wtk.toml` configuration through `68b5a362`. `bun run test:all` passed 124 Bun tests, 199 Node tests, and all Python suites. Lean selftest passed 46 mutation checks with 0 survivors. Knowledge update `19929cbd` passed its checker with 0 errors; unrelated historical gaps remain. AD-035 through AD-037 record the accepted contracts and lifecycle.
+- **In-progress**: Final proof and QA only; implementation is not yet claimed independently verified.
+- **Next step**: Verify the complete feature from `1171ef66` through the current HEAD, run separate QA Plan/Execute sessions, promote final evidence, then clean only this completed feature's artifacts. No remote delivery is authorized.
+- **Blockers**: None. The authorized knowledge update and configuration rename are complete.
 - **Branch**: `feat/workflow-toolkit-lean`.
 
 ## Decisions
