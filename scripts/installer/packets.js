@@ -5,12 +5,12 @@ import { safePath } from './engine.js';
 
 export const PROVIDERS = ['claude', 'codex', 'cursor'];
 export const ROLES = ['planner', 'implementer', 'verifier', 'explorer', 'deep_reviewer', 'designer'];
-const AGENT_NAMES = { deep_reviewer: 'deep-reviewer' };
+export const AGENT_NAMES = { deep_reviewer: 'deep-reviewer' };
 const EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max', 'ultra'];
 const modelRe = /^[^\\\s[\]"\x00-\x1f\x7f]+$/;
 const runtimePath = (provider, role) => `.${provider}/agents/${AGENT_NAMES[role] || role}.${provider === 'codex' ? 'toml' : 'md'}`;
-const templatePath = (root, provider, role) => path.join(root, '.agents', 'skills', 'workflow-config', 'assets', 'agents', provider, `${AGENT_NAMES[role] || role}.${provider === 'codex' ? 'toml' : 'md'}`);
-const error = (message) => { throw new Error(`workflow-config: ${message}`); };
+const templatePath = (root, provider, role) => path.join(root, '.agents', 'skills', 'wtk-config', 'assets', 'agents', provider, `${AGENT_NAMES[role] || role}.${provider === 'codex' ? 'toml' : 'md'}`);
+const error = (message) => { throw new Error(`wtk-config: ${message}`); };
 
 export function validateWorkflowConfig(config) {
   if (!config || typeof config !== 'object' || Array.isArray(config)) error('configuration must contain a table');

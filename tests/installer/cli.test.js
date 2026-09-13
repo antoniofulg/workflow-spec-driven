@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { main, HELP } from '../../bin/workflow-spec-driven.js';
+import { main, HELP } from '../../bin/wtk.js';
 import { applyTransaction } from '../../scripts/installer/transaction.js';
 import { runInstallWizard } from '../../scripts/installer/terminal.js';
 const root = path.resolve(import.meta.dirname, '../..');

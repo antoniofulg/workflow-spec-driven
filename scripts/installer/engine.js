@@ -4,12 +4,12 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { TextDecoder } from 'node:util';
 
-export const WORKFLOW_VERSION = '0.11.0';
-export const LAYERS = ['core', 'parallel', 'quality', 'extras'];
-export const DEPENDENCIES = { core: [], parallel: ['core'], quality: ['core'], extras: ['core'] };
-export const BLOCK_LAYERS = ['core', 'parallel', 'quality'];
-export const WORKFLOW_GITIGNORE_ENTRIES = ['.my-workflow.toml', '.claude/agents/', '.codex/agents/', '.cursor/agents/', '!.deep-review/', '.deep-review/*', '!.deep-review/learnings.md', 'graft/', 'graphify-out/', '.repository-intelligence/'];
-export const LEGACY_WORKFLOW_GITIGNORE_ENTRIES = ['.specs/features/'];
+export const WORKFLOW_VERSION = '1.0.0';
+export const LAYERS = ['core', 'quality', 'extras'];
+export const DEPENDENCIES = { core: [], quality: ['core'], extras: ['core'] };
+export const BLOCK_LAYERS = ['core', 'quality'];
+export const WORKFLOW_GITIGNORE_ENTRIES = ['.my-workflow.toml', '.claude/agents/', '.codex/agents/', '.cursor/agents/', '!.wtk-deep-review/', '.wtk-deep-review/*', '!.wtk-deep-review/learnings.md', 'graft/', 'graphify-out/', '.repository-intelligence/'];
+export const LEGACY_WORKFLOW_GITIGNORE_ENTRIES = ['.specs/features/', '!.deep-review/', '.deep-review/*', '!.deep-review/learnings.md'];
 export const WORKFLOW_SEARCHIGNORE_ENTRIES = ['!graft/', 'graft/.cache/', 'graft/.graph/', 'graphify-out/', '.repository-intelligence/'];
 export const RUNTIME_PATHS = ['claude', 'codex', 'cursor'].flatMap((provider) => ['planner', 'implementer', 'verifier', 'explorer', 'deep-reviewer', 'designer'].map((role) => `.${provider}/agents/${role}.${provider === 'codex' ? 'toml' : 'md'}`));
 export const KNOWLEDGE_DESTINATIONS = {
@@ -20,25 +20,23 @@ export const KNOWLEDGE_DESTINATIONS = {
 };
 
 export const LAYER_PATHS = {
-  core: ['docs/guidelines', 'docs/workflow/README.md', 'docs/workflow/repository-intelligence.md', 'docs/workflow/decisions.md', 'docs/workflow/guidelines.md', 'docs/workflow/loop.md', 'docs/workflow/purpose.md', 'docs/workflow/reviews.md', 'knowledge/AGENTS.md', 'knowledge/raw/README.md', '.agents/skills/workflow-spec-driven', '.agents/skills/ponytail', '.agents/skills/workflow-config', '.agents/skills/knowledge-check', '.agents/skills/wspecify', '.agents/skills/wdesign', '.agents/skills/wtasks', '.agents/skills/wimplement', '.agents/skills/wverify', '.agents/skills/wreview', '.agents/skills/wqa'],
-  parallel: ['.agents/skills/autonomous'],
-  quality: ['.agents/skills/deep-review', '.agents/skills/qa-plan', '.agents/skills/qa-execute'],
-  extras: ['.agents/skills/ponytail', '.agents/skills/ponytail-audit', '.agents/skills/ponytail-debt', '.agents/skills/ponytail-gain', '.agents/skills/ponytail-help', '.agents/skills/ponytail-review'],
+  core: ['docs/guidelines', 'docs/workflow/README.md', 'docs/workflow/repository-intelligence.md', 'docs/workflow/decisions.md', 'docs/workflow/guidelines.md', 'docs/workflow/loop.md', 'docs/workflow/purpose.md', 'docs/workflow/reviews.md', 'knowledge/AGENTS.md', 'knowledge/raw/README.md', '.agents/skills/wtk', '.agents/skills/wtk-lean', '.agents/skills/wtk-discover', '.agents/skills/wtk-plan', '.agents/skills/wtk-implement', '.agents/skills/wtk-config', '.agents/skills/wtk-knowledge-check', '.agents/skills/wtk-ship', '.agents/skills/ponytail'],
+  quality: ['.agents/skills/wtk-deep-review', '.agents/skills/wtk-qa', '.agents/skills/wtk-qa-plan', '.agents/skills/wtk-qa-execute'],
+  extras: ['.agents/skills/wtk-ponytail-audit', '.agents/skills/wtk-ponytail-debt', '.agents/skills/wtk-ponytail-gain', '.agents/skills/wtk-ponytail-help', '.agents/skills/wtk-ponytail-review'],
 };
 export const CLAUDE_SKILL_LINKS = {
-  core: ['workflow-spec-driven', 'ponytail', 'workflow-config', 'knowledge-check', 'wspecify', 'wdesign', 'wtasks', 'wimplement', 'wverify', 'wreview', 'wqa'],
-  parallel: ['autonomous'],
-  quality: ['deep-review', 'qa-plan', 'qa-execute'],
-  extras: ['ponytail-audit', 'ponytail-debt', 'ponytail-gain', 'ponytail-help', 'ponytail-review'],
+  core: ['wtk', 'wtk-lean', 'wtk-discover', 'wtk-plan', 'wtk-implement', 'wtk-config', 'wtk-knowledge-check', 'wtk-ship', 'ponytail'],
+  quality: ['wtk-deep-review', 'wtk-qa', 'wtk-qa-plan', 'wtk-qa-execute'],
+  extras: ['wtk-ponytail-audit', 'wtk-ponytail-debt', 'wtk-ponytail-gain', 'wtk-ponytail-help', 'wtk-ponytail-review'],
 };
-export const LAYER_MISSING_PATHS = { core: ['.my-workflow.toml.example'], parallel: [], quality: [], extras: [] };
+export const LAYER_MISSING_PATHS = { core: ['.my-workflow.toml.example'], quality: [], extras: [] };
 export const CONSUMER_MISSING_SOURCES = {
   'docs/product/AGENT-CONTEXT.md': 'templates/adoption/product/AGENT-CONTEXT.md',
   'knowledge/wiki/index.md': 'templates/adoption/knowledge/wiki/index.md',
   'knowledge/wiki/log.md': 'templates/adoption/knowledge/wiki/log.md',
   ...Object.fromEntries(['domain', 'product', 'architecture', 'design', 'decisions', 'research', 'open-questions'].map((group) => [`knowledge/wiki/${group}/index.md`, `templates/adoption/knowledge/wiki/${group}/index.md`])),
 };
-export const RETIRABLE_WORKFLOW_DIRS = ['.agents/skills/workflow-spec-driven/', '.agents/skills/workflow-config/', '.agents/skills/wspecify/', '.agents/skills/wdesign/', '.agents/skills/wtasks/', '.agents/skills/wimplement/', '.agents/skills/wverify/', '.agents/skills/wreview/', '.agents/skills/wqa/', '.agents/skills/ponytail/', '.agents/skills/autonomous/', '.agents/skills/deep-review/', '.agents/skills/qa-plan/', '.agents/skills/qa-execute/', '.agents/skills/ponytail-audit/', '.agents/skills/ponytail-debt/', '.agents/skills/ponytail-gain/', '.agents/skills/ponytail-help/', '.agents/skills/ponytail-review/', 'docs/guidelines/', 'docs/workflow/', 'templates/agents/', 'templates/adoption/agents/', 'tools/knowledge/src/', 'tools/shared/src/'];
+export const RETIRABLE_WORKFLOW_DIRS = ['.agents/skills/workflow-spec-driven/', '.agents/skills/workflow-config/', '.agents/skills/wspecify/', '.agents/skills/wdesign/', '.agents/skills/wtasks/', '.agents/skills/wimplement/', '.agents/skills/wverify/', '.agents/skills/wreview/', '.agents/skills/wqa/', '.agents/skills/autonomous/', '.agents/skills/deep-review/', '.agents/skills/qa-plan/', '.agents/skills/qa-execute/', '.agents/skills/ponytail-audit/', '.agents/skills/ponytail-debt/', '.agents/skills/ponytail-gain/', '.agents/skills/ponytail-help/', '.agents/skills/ponytail-review/', '.agents/skills/wtk-verify/', '.agents/skills/wtk-review/', 'docs/guidelines/', 'docs/workflow/', 'templates/agents/', 'templates/adoption/agents/', 'tools/knowledge/src/', 'tools/shared/src/'];
 export const RETIRABLE_WORKFLOW_FILES = ['tools/ad-index.py', 'tools/orca_assisted_probe.py', 'tools/qa_parallel_pilot.py', 'tools/resource_lock.py'];
 
 export class InstallerError extends Error {}
@@ -103,7 +101,7 @@ export function resolveModules(values) {
 export function requestedModules(values) {
   const raw = Array.isArray(values) ? values : String(values).split(',');
   const selected = new Set(raw.map((item) => String(item).trim()).filter(Boolean));
-  if (!selected.size || [...selected].some((item) => item !== 'full' && !LAYERS.includes(item)) || (selected.has('full') && selected.size > 1)) fail('modules must be core, parallel, quality, extras, or full');
+  if (!selected.size || [...selected].some((item) => item !== 'full' && !LAYERS.includes(item)) || (selected.has('full') && selected.size > 1)) fail('modules must be core, quality, extras, or full');
   return selected.has('full') ? [...LAYERS] : LAYERS.filter((module) => selected.has(module));
 }
 
@@ -139,12 +137,12 @@ export function loadManifest(root) {
 }
 
 function record(module, ownership, source, installed) { return { layer: module, ownership, source_sha256: sha256(source), installed_sha256: installed === null ? null : sha256(installed) }; }
-function isProvider(relative) { return relative.startsWith('.agents/skills/workflow-config/assets/agents/'); }
+function isProvider(relative) { return relative.startsWith('.agents/skills/wtk-config/assets/agents/'); }
 function isRetirable(relative) { return RETIRABLE_WORKFLOW_FILES.includes(relative) || RETIRABLE_WORKFLOW_DIRS.some((root) => relative.startsWith(root)); }
 
 function blockSpan(text, module) {
   const start = `<!-- my-workflow:${module}:start -->`, end = `<!-- my-workflow:${module}:end -->`;
-  const valid = /^<!-- my-workflow:(?:core|parallel|quality):(?:start|end) -->$/;
+  const valid = /^<!-- my-workflow:(?:core|quality):(?:start|end) -->$/;
   if (text.split(/\r?\n/).some((line) => line.includes('my-workflow:') && !valid.test(line.trim()))) fail(`managed ${module} block is duplicated or altered`);
   const starts = [...text.matchAll(new RegExp(start.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'))]; const ends = [...text.matchAll(new RegExp(end.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'))];
   if (!starts.length && !ends.length) return null; if (starts.length !== 1 || ends.length !== 1 || starts[0].index > ends[0].index) fail(`managed ${module} block is incomplete or nested`);
