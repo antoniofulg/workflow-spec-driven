@@ -2,7 +2,7 @@
 
 **Read when:** reporting completion or preparing a commit.
 
-Match each claim to evidence covering its scope. `GATES.md` selects the checks and defines when
+Match each claim to evidence covering its scope. `.agents/skills/wtk/references/validation.md` selects the checks and defines when
 passing evidence can be reused; this document defines what the result supports.
 
 ## Scope binds
@@ -12,9 +12,9 @@ passing evidence can be reused; this document defines what the result supports.
 | Test passes | That test ran and passed |
 | Slice complete | Named proofs and scoped gate passed |
 | Feature complete / ready for a pull request | Fresh independent full-feature Verifier, selected gates and applicable QA |
-| Bounded documentation or instruction update | Proportional checks from `GATES.md` |
+| Bounded documentation or instruction update | Proportional checks from `.agents/skills/wtk/references/validation.md` |
 | Previously verified feature with bounded follow-ups | Recorded feature receipt plus scoped evidence for the subsequent changes; no new feature certification |
-| Visual reference matched | Paired evidence at the states/viewports required by `UI-UX.md` |
+| Visual reference matched | Paired evidence at the states/viewports required by `docs/toolkit/guidelines/UI-UX.md` |
 | Bug fixed | Original symptom observed failing, then passing |
 | Regression test discriminates | Red before the fix and green after |
 
@@ -42,7 +42,7 @@ gate remains deferred. On failure, report the failure and remaining work without
 
 ## Before a commit
 
-Use passing evidence at the scope selected by `GATES.md`, account for applicable QA flags, and check
+Use passing evidence at the scope selected by `.agents/skills/wtk/references/validation.md`, account for applicable QA flags, and check
 that the staged diff matches the requested change. Report that evidence, then commit. Before a pull
 request, recheck delivery readiness through `wtk-ship`; its invocation supplies only its defined authority.
 
@@ -53,7 +53,7 @@ before modifying code. Resolve failures caused by the authorized change, preserv
 the approved contract. Diagnostic subsets are useful during repair; completion still requires the
 selected gate, or the project's declared reduced gate with its limitation stated.
 
-Follow `REVIEW-ROUNDS.md` for review remediation and its stall bound. Report pre-existing or unrelated
+Follow `docs/toolkit/guidelines/REVIEW-ROUNDS.md` for review remediation and its stall bound. Report pre-existing or unrelated
 failures separately; do not silently expand the task to repair them or claim the full gate passed.
 
 ## Stop and hand it back

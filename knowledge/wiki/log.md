@@ -2,6 +2,8 @@
 
 ## 2026-09-13
 
+* **Maintenance**: Repointed existing concept sources to the five shared contracts now owned by `wtk/references`; source claims and raw records are unchanged.
+
 * **Ingestion**: Added [Security skill integration](/architecture/security-skill-integration.md) from the maintainer's observation of missing local security skills, connecting phase routing to reproducible consumer delivery and preserving comparative quality as unvalidated.
 
 ## 2026-09-12

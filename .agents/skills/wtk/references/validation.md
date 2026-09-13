@@ -21,7 +21,7 @@ selector is the scoped gate. Choose by changed behavior and named risk, not file
 Bounded corrections do not start a feature plan, Verifier, deep review or QA cycle. A missing UI
 selector is reported after the narrowest applicable check, not promoted to full e2e. Escalate only
 when evidence identifies a changed contract, shared behavior or risk outside that check's scope.
-`wtk` owns routing; `VERIFICATION-EVIDENCE.md` owns the completion claim.
+`wtk` owns routing; `.agents/skills/wtk/references/evidence.md` owns the completion claim.
 
 Creating a skill from decided instructions, registering it in an existing catalog, or correcting
 CLI copy is bounded maintenance when it adds no executable skill helper, dependency, hook, expanded
@@ -39,8 +39,8 @@ For feature work, use the task's proofs during iteration and the scoped gate at 
 full gate at initial feature close, or earlier when a migration, shared boundary or unclassified impact
 cannot be covered by the documented selector. Use the project's extended gate when its trigger applies.
 
-For reference-driven UI, include the comparison required by `UI-UX.md`. QA flags and journeys follow
-`QA-SCENARIOS.md`; scenario tags scope walks, not automated tests.
+For reference-driven UI, include the comparison required by `docs/toolkit/guidelines/UI-UX.md`. QA flags and journeys follow
+`docs/toolkit/guidelines/QA-SCENARIOS.md`; scenario tags scope walks, not automated tests.
 
 ## Run and reuse evidence
 

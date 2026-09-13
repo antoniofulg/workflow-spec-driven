@@ -7,7 +7,7 @@ argument-hint: "[the work, in your own words]"
 
 # Workflow Toolkit Ship
 
-Deliver the requested branch using the scope rules in `docs/toolkit/guidelines/GATES.md`.
+Deliver the requested branch using the scope rules in `.agents/skills/wtk/references/validation.md`.
 
 ## Previously verified work
 

@@ -43,7 +43,7 @@ Product promises still belong in `docs/qa/scenarios/`; feature workflow state be
    - A durable lesson → the lessons layer
    - A product promise → `docs/qa/scenarios/`
    - An architecture invariant → the consuming project's architecture docs
-   - A rule agents must follow → this guidelines directory
+   - A shared workflow rule → its owning skill reference; a project-specific rule → the project's instructions
 3. **Nothing gates a disposable artifact for drift after cleanup.** A document nobody reads after the merge cannot
    be stale in a way that matters.
 4. **One home per fact.** A fact recorded in two durable places will disagree with itself. If it

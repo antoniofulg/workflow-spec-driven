@@ -22,7 +22,7 @@ Remediation identity, independent counters, and halt behavior follow `REVIEW-ROU
 | **Deep-review** (resolved groups; none under cadence `skip`) | Is the code correct, safe, maintainable? | Discovery once; remediation checks until no Critical/Major is open or `stall_attempts` halts |
 | **QA session** (feature closing step when the public surface changes) | Does the finished feature feel right, through the declared adapter? | One `wtk-qa-plan` and one `wtk-qa-execute` session; no slice runs QA |
 
-A documentation-only slice follows the proportional classifier in [GATES.md](guidelines/GATES.md):
+A documentation-only slice follows the proportional classifier in [validation.md](../../.agents/skills/wtk/references/validation.md):
 accuracy and affected-link checks close pure maintenance, while mixed changes run canonical tests for
 changed executable behavior. Deep-review and QA require named concrete risk or changed public promise;
 file count and the word "feature" do not escalate them.
@@ -68,7 +68,7 @@ A green gate is not a met requirement. Reviewers compare the deliverable to `pla
 
 ## Evidence
 
-[VERIFICATION-EVIDENCE.md](guidelines/VERIFICATION-EVIDENCE.md): no completion claim without a
+[evidence.md](../../.agents/skills/wtk/references/evidence.md): no completion claim without a
 fresh command. Scope binds — unit tests do not justify “feature complete”. A passing review over a
 red gate is void.
 

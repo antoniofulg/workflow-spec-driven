@@ -4,21 +4,41 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
-## [1.0.0] - 2026-09-12
+## [1.0.0] - 2026-09-13
 
 ### Added
 
 - Workflow Toolkit replaces the retired workflow identity with the `wtk` router, Lean artifacts,
   modular TLC entries, and namespaced quality and delivery skills.
+- Optional `prompt-review` audits instruction bundles with read-only defaults, scoped findings,
+  hidden-file discovery, and source-line citations.
+- Four pinned security lifecycle skills cover specification, threat modeling, implementation,
+  and review. Reviewed copies are versioned for local agents; consumer installation remains separate.
 
 ### Changed
 
-- consumer-owned guidance, proportional validation, and provider packet routing remain intact;
+- Consumer-owned guidance, proportional validation, and provider packet routing remain intact;
   completed Lean feature directories are transient and removed after promotion.
+- Shared validation, evidence, test, Git, and artifact rules now live in
+  `.agents/skills/wtk/references/`, loaded only when needed.
+- Bounded skill and documentation changes use direct, scoped validation and reuse verified-base
+  evidence instead of reopening complete feature verification or QA.
+- Project artifacts, including code, filenames, specs, commits, and PRs, use English regardless
+  of the conversation language.
+
+### Fixed
+
+- Claude aliases resolve to current skill names; obsolete aliases are removed.
+- Successful and no-change adoption outputs explain the separate security installation and
+  conditionally warn about uncovered security guidance.
+- Installer updates retire unchanged managed guideline copies while protecting consumer edits.
 
 ### Migration
 
 - Run `npx workflow-toolkit install` on a clean feature branch and review the complete replacement plan.
+- Review local settings under the canonical `.wtk.toml` name; do not rely on retired configuration
+  filenames or command aliases.
+- Update custom references to the five moved workflow documents under `.agents/skills/wtk/references/`.
 
 ## [0.11.0] - 2026-09-11
 

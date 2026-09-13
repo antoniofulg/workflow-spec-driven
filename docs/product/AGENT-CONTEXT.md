@@ -18,5 +18,5 @@ belongs in consuming projects; this index routes source-pack work without loadin
 | Boundary change | `docs/toolkit/guidelines/MODELING.md`; `docs/toolkit/guidelines/DX.md` |
 | Planner, other feature | `README.md#purpose`; `docs/toolkit/README.md`; affected capability/journey docs |
 | Implementer | Approved slice; `AGENTS.md#critical-rules`; relevant architecture/design docs |
-| Reviewer or verifier | `docs/toolkit/guidelines/REVIEW-ROUNDS.md`; `docs/toolkit/guidelines/VERIFICATION-EVIDENCE.md`; assigned spec/tests |
+| Reviewer or verifier | `docs/toolkit/guidelines/REVIEW-ROUNDS.md`; `.agents/skills/wtk/references/evidence.md`; assigned spec/tests |
 | Unknown scope or dependency | `docs/toolkit/guidelines/CONTEXT-BUDGET.md`; add affected reference with an explicit reason |

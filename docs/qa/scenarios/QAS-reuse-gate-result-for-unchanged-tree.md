@@ -5,7 +5,7 @@ title: Reuse a passing gate result for an unchanged tree
 persona: Workflow operator
 journey: J-run-project-gates
 expected: A gate that already passed on this exact tree finishes without running the command again and names the gate, fingerprint and log path that back the claim.
-entry_points: python3 tools/gate_cache.py run --gate scoped -- <gate command>; python3 tools/gate_cache.py run --gate full -- <gate command>; docs/toolkit/guidelines/GATES.md
+entry_points: python3 tools/gate_cache.py run --gate scoped -- <gate command>; python3 tools/gate_cache.py run --gate full -- <gate command>; .agents/skills/wtk/references/validation.md
 qa_status: pass
 bug_ids:
 fix_status:
@@ -46,6 +46,6 @@ and the tail of the log it cites, and again on a re-read.
 
 Documentation wiring is narrower than an earlier draft of this file claimed. This delivery's spec
 carries `GRC-01`–`GRC-05` only and records "Wiring depth: Tool only in this delivery"; its single
-documentation criterion is that `GATES.md` names the invocation, which it does at line 58. The
+documentation criterion is that `.agents/skills/wtk/references/validation.md` names the invocation, which it does at line 58. The
 `autonomous` readiness row, the `implement.md` reference and `qa-execute` do not name the cached
 invocation and are not required to in this delivery.

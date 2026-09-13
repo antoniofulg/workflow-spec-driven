@@ -125,7 +125,7 @@ cycle; record its targeted integration check instead. If the correction changes 
 invariant, walk the existing owning scenario only.
 
 Instruction-only skills, their declarative registration in an existing installer, and bounded CLI
-copy corrections follow `GATES.md`; being agent-facing or installable does not itself start QA.
+copy corrections follow `.agents/skills/wtk/references/validation.md`; being agent-facing or installable does not itself start QA.
 Use the owning package/adoption/output check and state the validation method. Correct stale promise
 text without reopening unrelated journeys. A broader QA cycle requires an explicit QA request or
 a changed user interaction not covered by that boundary check. If a cycle was over-scoped, record
@@ -136,7 +136,7 @@ its unwalked legs as skipped with the scope reason; do not claim a manual pass f
 - **Changed behaviour** — reset the affected files to `untested`. **A stale `pass` is worse than no
   verdict.**
 
-Named visual-reference work follows `GATES.md`: use `UI-UX.md#verifying-the-built-screen` in scoped
+Named visual-reference work follows `.agents/skills/wtk/references/validation.md`: use `UI-UX.md#verifying-the-built-screen` in scoped
 validation, and create or reset a QA scenario only when the product promise changes or QA is selected.
 When QA runs, point the report at the feature `uiux.md` reference rows and retain behavioral evidence.
 

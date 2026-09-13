@@ -20,13 +20,13 @@ last column.
 | 1 | **Plan / Checks** | Freeze `plan.md`, `checks.md`, and proof selectors | Auto-sized skip (tiny, obvious change) | `wtk-lean` |
 | 2 | **Slice** | One observable behaviour plus the checks that prove it | — | `AGENTS.md` |
 | 3 | **Build** | The cheapest code that makes the slice true | — | `ponytail` |
-| 4 | **Scoped gate** | Prove *this* diff, not the whole product | Escalate if the selector cannot scope it | [GATES.md](guidelines/GATES.md) |
+| 4 | **Scoped gate** | Prove *this* diff, not the whole product | Escalate if the selector cannot scope it | [validation.md](../../.agents/skills/wtk/references/validation.md) |
 | 5 | **Atomic commit** | One Conventional Commit after the applicable Lean check state is current | — | `AGENTS.md` |
 | 6 | **Technical Verifier** | One fresh independent pass proves every check over the complete feature range; mutants must die at the approved profile | Filed-issue path; no product code in final QA session | [REVIEW-ROUNDS.md](guidelines/REVIEW-ROUNDS.md) |
 | 7 | **Deep-review** | Correct, safe, maintainable — resolved groups, blocking findings only | Cadence `skip` (no groups; human runs `wtk-deep-review` later), or proportional classifier selects scoped validation | [REVIEW-ROUNDS.md](guidelines/REVIEW-ROUNDS.md) |
 | 8 | **QA session** | The finished feature, as a person meets it: one `wtk-qa-plan` and one `wtk-qa-execute` packet | Feature has no public, UI, API, CLI, or adoption change | [QA-EXECUTION.md](guidelines/QA-EXECUTION.md) |
-| 9 | **Full gate** | The product gate, once, when the proportional classifier selects it | Scoped gate is sufficient | [GATES.md](guidelines/GATES.md) |
-| 10 | **Remote delivery** | `wtk-ship` authorizes the feature-branch push, one pull request, and merge after readiness is rechecked | Readiness is evidence, not authorization for deploy/release, production mutations, force-push, direct `main` push, and unrelated remote actions; those need explicit instruction | [VERIFICATION-EVIDENCE.md](guidelines/VERIFICATION-EVIDENCE.md) |
+| 9 | **Full gate** | The product gate, once, when the proportional classifier selects it | Scoped gate is sufficient | [validation.md](../../.agents/skills/wtk/references/validation.md) |
+| 10 | **Remote delivery** | `wtk-ship` authorizes the feature-branch push, one pull request, and merge after readiness is rechecked | Readiness is evidence, not authorization for deploy/release, production mutations, force-push, direct `main` push, and unrelated remote actions; those need explicit instruction | [evidence.md](../../.agents/skills/wtk/references/evidence.md) |
 
 The feature-closing step is the QA session when the proportional classifier selects a public walk;
 no slice runs QA. Implementation slices remain vertical and independently committed; the Technical Verifier reads the
@@ -52,9 +52,9 @@ itself at integration.
 | Work | Path |
 | --- | --- |
 | **Feature** — a capability the product lacks | The full table above |
-| **Direct correction** — one exact, unambiguous invariant | The narrowest applicable check in [GATES.md](guidelines/GATES.md) |
+| **Direct correction** — one exact, unambiguous invariant | The narrowest applicable check in [validation.md](../../.agents/skills/wtk/references/validation.md) |
 | **Filed issue** — already reviewed, then parked | `implement → scoped gate → one commit` |
-| **Credential-free declarative agent-tool configuration** | The local light path in [GATES.md](guidelines/GATES.md) |
+| **Credential-free declarative agent-tool configuration** | The local light path in [validation.md](../../.agents/skills/wtk/references/validation.md) |
 
 A defect nobody filed is a feature at auto-sized depth. A “one-line fix” that opens a schema or a
 design question stopped being a filed issue; say so and take the feature path.
