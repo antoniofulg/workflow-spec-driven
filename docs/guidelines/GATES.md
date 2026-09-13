@@ -20,7 +20,7 @@ use canonical tests for changed executable behavior. Do not infer a full gate fr
 skips are honored with a narrow claim and recorded limitation.
 
 Before choosing a gate, apply the classification contract in
-`.agents/skills/workflow-spec-driven/SKILL.md`. A behavior-preserving `direct correction` or
+`.agents/skills/wtk/SKILL.md`. A behavior-preserving `direct correction` or
 `UI-only correction` uses the narrowest check for the changed integration and closes after one
 passing scoped validation. It does not dispatch a Verifier, deep review, QA cycle, or full gate.
 UI presence and an absent feature selector are not escalation evidence; choose a component, render,
@@ -50,7 +50,7 @@ permissions, product or runtime code, CI or deploy changes, and external mutatio
 applicable normal path.
 
 The active agent edits directly and makes one atomic commit. Create no `spec.md`, `tasks.md`, or
-`workflow.json`; dispatch no agent; run no Verifier, deep-review, QA, or completion gate.
+`workflow.json`; dispatch no agent; run no Verifier, wtk-deep-review, QA, or completion gate.
 
 Before committing:
 

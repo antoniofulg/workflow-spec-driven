@@ -1,9 +1,9 @@
-# workflow-spec-driven
+# Workflow Toolkit
 
-The npm package and executable are both `workflow-spec-driven`.
+The npm package is `workflow-toolkit`; the executable is `wtk`.
 
-An operating system for agents. It ships the workflow-owned [`workflow-spec-driven`](.agents/skills/workflow-spec-driven/SKILL.md)
-router and its five phase skills (`wspecify`, `wdesign`, `wtasks`, `wimplement`, `wverify`)
+An operating system for agents. It ships the workflow-owned [`wtk`](.agents/skills/wtk/SKILL.md)
+router and its Lean skills (`wtk-lean`, `wtk-discover`, `wtk-plan`, `wtk-implement`)
 with a capped delivery loop, countable tests and security surfaces, and a knowledge bundle. It is
 not a product template and not a stack starter.
 
@@ -17,7 +17,7 @@ human-owned merge.
 From the repository you want to install into, run the guided Node.js installer:
 
 ```bash
-npx workflow-spec-driven install
+npx wtk install
 ```
 
 The command targets the current directory, requires Node.js 18 or newer, and walks through module
@@ -26,7 +26,7 @@ result summary. It never requires Python. Existing files that are replaced or re
 byte-for-byte with their modes into `.my-workflow/backups/<UTC timestamp>/`; the adoption manifest
 is published last. Cancelling at any prompt writes nothing.
 
-Choose `core`, `parallel`, `quality`, or `extras`; selecting any non-core module also selects `core`.
+Choose `core`, `quality`, or `extras`; selecting any non-core module also selects `core`.
 Every module is shown as `not installed`, `up to date`, `outdated`, `modified`, or `conflict`. A
 conflict must be explicitly backed up and replaced, excluded, or cancelled. Successful replacements
 that affect consumer guidance include a `knowledge-transfer.md` checklist with a pending human
@@ -45,7 +45,7 @@ Start here: **[docs/workflow/](docs/workflow/)** — an index of every stage, gu
 | Proportional scoped gate; full gate only when selected | Never weaken a test to go green |
 | Nitpicks become filed issues, not extra rounds | Critical and Major still hold the ship |
 | `ponytail` at `full` — shortest code that works | Security surfaces declared and given `SEC-` ids |
-| `autonomous` scopes remote delivery | Its invocation authorizes the feature-branch push, one pull request, and merge after readiness is rechecked; readiness is evidence, not authorization for deploy/release, production mutations, force-push, direct `main` push, or unrelated remote actions |
+| `wtk-ship` scopes remote delivery | Its invocation authorizes the feature-branch push, one pull request, and merge after readiness is rechecked; readiness is evidence, not authorization for deploy/release, production mutations, force-push, direct `main` push, or unrelated remote actions |
 
 The loop, the caps, and the guidelines are the mechanism. The tour explains **why** each exists.
 `AGENTS.md` is what agents run.
@@ -62,10 +62,10 @@ Use plain intent in the request:
   label.
 - Documentation maintenance, agent-instruction changes, and mixed executable changes automatically
   use proportional checks from `GATES.md`. Named risk or changed public behavior selects stronger
-  evidence. Confirmed deep-review defects are fixed inside their run; cosmetics become follow-up work.
+  evidence. Confirmed wtk-deep-review defects are fixed inside their run; cosmetics become follow-up work.
 
-The feature path is Specify → optional Design/Tasks → Execute. Each task uses its selected checks
-and an atomic commit. Technical verification, deep review, QA, and the full gate are selected by
+The feature path is Plan → Checks → Build → Verify. Builders use whole observable slices and
+coherent commits. Technical verification, deep review, QA, and the full gate are selected by
 the changed behavior and concrete risk; installing their skills does not make every stage mandatory.
 
 For UI work, Designer starts with constraints, reads selected references, and inspects existing
@@ -100,12 +100,14 @@ separate references selected by the matching task.
 This workflow is maintained by Antonio Fulgêncio. The process builds on work from the following
 authors and communities:
 
-- Tech Leads Club: the adapted [`workflow-spec-driven`](.agents/skills/workflow-spec-driven/SKILL.md),
+- Tech Leads Club: the adapted [`wtk`](.agents/skills/wtk/SKILL.md),
   based on [`tlc-spec-driven`](https://github.com/tech-leads-club/agent-skills/tree/main/skills/tlc-spec-driven),
   and the security gate with its [security skills](https://github.com/tech-leads-club/agent-skills/tree/main/skills).
-- Pedro Nauck: [`deep-review`](https://github.com/pedronauck/skills/tree/main/skills/mine/deep-review),
+  The integrated Lean source is pinned to commit `0ab82f644cd9caf94c65347a50ad934800b0cbc4` under
+  CC BY 4.0; see [`NOTICE.md`](NOTICE.md) and [`skills-lock.json`](skills-lock.json).
+- Pedro Nauck: [`wtk-deep-review`](https://github.com/pedronauck/skills/tree/main/skills/mine/wtk-deep-review),
   whose review workflow is adapted here.
-- The project-owned `qa-plan` and `qa-execute` skills are Antonio's adaptations, inspired by Pedro's
+- The project-owned `wtk-qa-plan` and `wtk-qa-execute` skills are Antonio's adaptations, inspired by Pedro's
   [`qa-report`](https://github.com/pedronauck/skills/tree/main/skills/mine/qa-report) and
   [`qa-execution`](https://github.com/pedronauck/skills/tree/main/skills/mine/qa-execution).
 
@@ -132,18 +134,15 @@ Copy the loop, not the product. New projects receive a neutral, consumer-owned
 instead of copying this source pack's profile. Existing projects preserve their filled product
 paragraph and product-owned documentation. Knowledge transfer is always a human review step.
 
-The four fixed modules are `core` (operating loop and shared tooling), `parallel` (assisted slice
-execution), `quality` (review and QA), and `extras` (optional Ponytail utilities). Selecting
-`parallel`, `quality`, or `extras` automatically includes `core`. The guided command is:
+The three fixed modules are `core` (Lean operating loop and shared tooling), `quality` (review and QA),
+and `extras` (optional Ponytail utilities). Selecting `quality` or `extras` automatically
+includes `core`. The guided command is:
 
-`core` contains the operating loop and Bun tooling; `parallel` adds assisted slice execution;
-`quality` adds review and QA skills; `extras` adds optional Ponytail utilities. `full` resolves all
-four catalog modules when inspecting the package contents.
-The module definitions are: `parallel` (assisted slice execution), `quality` (review and QA), and
-`extras` (optional Ponytail utilities).
+`core` contains the Lean operating loop and Bun tooling; `quality` adds review and QA skills; and
+`extras` adds optional Ponytail utilities. `full` resolves all three catalog modules.
 
 ```bash
-npx workflow-spec-driven install
+npx wtk install
 ```
 
 The target must be the current directory and the command must run in an interactive terminal.
@@ -156,8 +155,8 @@ TTY guidance.
 
 Add capabilities later with another apply; installed layers are cumulative and omitted layers are
 never removed. `--skip-agents` preserves both instruction files byte-for-byte and skips local-config
-initialization and packet synchronization. Without it, adoption appends managed `core`, `parallel`,
-and `quality` blocks while preserving consumer prose. A differing
+initialization and packet synchronization. Without it, adoption appends managed `core` and `quality`
+blocks while preserving consumer prose. A differing
 managed file or unowned destination is reported as a conflict and causes zero writes.
 
 ### Recovery and conflict handling
@@ -169,32 +168,10 @@ the adoption manifest. It reports every conflict before writing. Choose `Back up
 If the process stops after publication begins, the next run detects the transaction journal and
 offers restoration from its verified backup before allowing a new installation.
 
-### Serialize only contested test resources
+### Test resources
 
-The `parallel` layer installs the dormant `.agents/skills/autonomous/scripts/resource_lock.py` helper. Activation is explicit:
-adoption does not rewrite a consumer command or gate. Wrap only a heavy command that shares a
-browser, database, container runtime, or other declared resource; unit tests and other light gates
-remain concurrent.
-
-For worktrees of the same project, use the default project scope:
-
-```bash
-python3 .agents/skills/autonomous/scripts/resource_lock.py run \
-  --resource browser \
-  -- python3 -m pytest tests/e2e
-```
-
-To serialize that resource across separate projects on one machine, opt into machine scope:
-
-```bash
-python3 .agents/skills/autonomous/scripts/resource_lock.py run \
-  --resource browser --scope machine \
-  -- python3 -m pytest tests/e2e
-```
-
-The wrapper holds the named lock only for the wrapped command and passes its arguments directly.
-Run `python3 .agents/skills/autonomous/scripts/resource_lock.py run --help` for the authoritative flags, defaults, and result
-codes.
+The Lean route uses one sequential builder. Consuming projects may serialize heavy commands that
+share a browser, database, container runtime, or other declared resource.
 
 Prerequisites: Node.js 18 or newer and an interactive terminal. Python is not an installer
 prerequisite; unrelated Python workflow tools remain available after installation.
@@ -203,20 +180,20 @@ The preview is the review: inspect the complete action list and backup destinati
 
 Feature workflow state follows the [artifact lifecycle](docs/guidelines/ARTIFACT-LIFECYCLE.md) and
 remains visible to Git. Adoption removes only the exact legacy `.specs/features/` ignore line,
-including duplicates, preserves consumer-owned lines and comments, and never stages or commits
-files.
+including duplicates, preserves consumer-owned lines and comments, and never stages or commits files
+from the transient feature tree.
 
 The tracked `.my-workflow.toml.example` documents the complete v3 matrix and `mixed` profile. Each
 checkout owns an ignored `.my-workflow.toml`, initialized from that example by adoption without
 `--skip-agents` or by explicit sync;
 it is the single editable source for all Claude, Codex, and Cursor model and effort choices. The
-tracked `.agents/skills/workflow-config/assets/agents/` trees hold canonical instruction bodies, while sync generates the
+tracked `.agents/skills/wtk-config/assets/agents/` trees hold canonical instruction bodies, while sync generates the
 ignored native runtime packets. Re-adoption preserves an existing local config byte-for-byte and
 regenerates runtime packets from the templates and that config when `--skip-agents` is not used.
 With `--skip-agents`, sync is an explicit later operator step.
 
 ```bash
-python3 .agents/skills/workflow-config/scripts/workflow_config.py \
+python3 .agents/skills/wtk-config/scripts/workflow_config.py \
   --root /path/to/target-project --sync-agents
 ```
 
@@ -227,7 +204,7 @@ idempotent. Native `model`, `effort`, and `model_reasoning_effort` fields are ge
 not edit runtime packets manually. Runtime edits are disposable; edit tracked templates when
 changing instruction bodies.
 
-The `cadence` controls the deep-review groups:
+The `cadence` controls the wtk-deep-review groups:
 
 The default is `skip`: Deep Review runs only when the operator requests it or explicitly selects a
 scheduled cadence.
@@ -236,8 +213,8 @@ scheduled cadence.
 - `feature`: one group for the whole feature (`1, 2, 3, 4` → `[1, 2, 3, 4]`).
 - `grouped.N`: consecutive, balanced groups with at most `N` slices (`grouped.3` with four
   slices → `[1, 2] [3, 4]`).
-- `skip`: no groups (`[]`); final QA, readiness, and merge do not wait for deep-review, and the
-  human runs `wreview` later.
+- `skip`: no groups (`[]`); final QA, readiness, and merge do not wait for wtk-deep-review, and the
+  human runs `wtk-deep-review` later.
 
 Post-cap remediation is bounded by `[remediation] stall_attempts`. It defaults to `3`; `0` means
 unbounded. The threshold is read from the current local config on every attempt and is not stored
@@ -252,7 +229,7 @@ After each remediation attempt, the scoped gate produces a normalized, sorted fa
 signature. A strictly smaller failing-test set resets the stall counter; an equal-size or larger
 set increments it, including when membership changes. A reached nonzero threshold halts with the
 signature, attempt count, and fixes tried. An unavailable gate halts immediately. The review cap
-never opens a third deep-review round.
+never opens a third wtk-deep-review round.
 
 The resolver uses the native provider for every role unless a named profile or role override is
 selected. Precedence is `CLI override > profile > native provider`:
@@ -264,17 +241,17 @@ the source of truth.
 
 ```bash
 # Native route: all roles use Codex.
-python3 .agents/skills/workflow-config/scripts/workflow_config.py \
+python3 .agents/skills/wtk-config/scripts/workflow_config.py \
   --root /path/to/target-project --feature register-user-native \
   --native-provider codex
 
 # Named profile: use the [profiles.mixed] routes from .my-workflow.toml.
-python3 .agents/skills/workflow-config/scripts/workflow_config.py \
+python3 .agents/skills/wtk-config/scripts/workflow_config.py \
   --root /path/to/target-project --feature register-user-profile \
   --native-provider codex --profile mixed
 
 # Role overrides win over both the selected profile and the native provider.
-python3 .agents/skills/workflow-config/scripts/workflow_config.py \
+python3 .agents/skills/wtk-config/scripts/workflow_config.py \
   --root /path/to/target-project --feature register-user-override \
   --native-provider codex --profile mixed \
   --override deep_reviewer=cursor --override verifier=claude
@@ -287,13 +264,13 @@ resume, the snapshot is authoritative and packet metadata must still match its f
 effort. If it differs, synchronize packets and explicitly refresh; ordinary resume will fail:
 
 ```bash
-python3 .agents/skills/workflow-config/scripts/workflow_config.py \
+python3 .agents/skills/wtk-config/scripts/workflow_config.py \
   --root /path/to/target-project --feature register-user-refresh \
   --native-provider codex --refresh
 ```
 
 The complete contract is in the
-[workflow-config skill](.agents/skills/workflow-config/SKILL.md).
+[wtk-config skill](.agents/skills/wtk-config/SKILL.md).
 
 ## Update an adopted project
 
@@ -303,12 +280,12 @@ project adopted, then run the guided installer and inspect the complete diff bef
 ```bash
 cd /path/to/target-project
 git status --short
-git switch -c build/update-workflow-spec-driven
-npx workflow-spec-driven install
+git switch -c build/update-wtk
+npx wtk install
 git diff
 ```
 
-Run `npx workflow-spec-driven install` for every installation or update. It updates pristine
+Run `npx wtk install` for every installation or update. It updates pristine
 workflow-owned files, promotes provider templates using recorded source hashes, refreshes managed
 instruction blocks and runtime packets, and stops with all conflicts before writing.
 
@@ -319,7 +296,7 @@ repository boundary. Retired workflow files are removed only when their managed 
 are pristine; edited or unproven paths conflict with zero writes.
 
 Each release lists its upgrade steps under `### Migration` in the changelog; follow them in order
-after installation. The package identity for this release is `workflow-spec-driven@0.11.0`.
+after installation. The package identity for this release is `workflow-toolkit@1.0.0` with the `wtk` executable.
 
 ## Managed paths
 
@@ -341,13 +318,13 @@ hash or resolve an unowned collision, then run the guided command again. Install
 no selected file or manifest is written while any conflict remains.
 
 **`refusing adoption: Makefile:N uses machine-global workflow skill path`** Point the target's gate at
-the vendored `.agents/skills/workflow-spec-driven/scripts/...` path.
+the vendored `.agents/skills/wtk-config/scripts/...` path.
 
-**Claude skill symlinks point nowhere.** Re-run `npx workflow-spec-driven install`; it recreates the `.claude/skills/`
+**Claude skill symlinks point nowhere.** Re-run `npx wtk install`; it recreates the `.claude/skills/`
 links into `.agents/skills/`.
 
 **A runtime packet has the wrong model or effort.** Edit the local `.my-workflow.toml`, then run
-`npx workflow-spec-driven install`. Runtime packets are generated output.
+`npx wtk install`. Runtime packets are generated output.
 
 ## Repository intelligence
 
@@ -374,7 +351,7 @@ application dependencies:
 ```bash
 npm install --save-dev --save-exact @nanonets/graft@0.10.1
 uv tool install graphifyy==0.9.14
-python3 .agents/skills/workflow-spec-driven/scripts/repository_intelligence.py \
+python3 .agents/skills/wtk-config/scripts/repository_intelligence.py \
   graphify-setup --root . --backend <backend> --mode deep
 ```
 
@@ -408,17 +385,17 @@ separate authorized step and leaves the security gate uncovered until that comma
 
 Canonical copies live in `.agents/skills/`. Claude Code gets symlinks in `.claude/skills/`. Cursor,
 Codex and OpenCode consume `.agents`. Do not add `.cursor/skills` or other agent trees. The
-project-owned `qa-plan` and `qa-execute` skills use the consuming project's profile in
+project-owned `wtk-qa-plan` and `wtk-qa-execute` skills use the consuming project's profile in
 `docs/qa/README.md`; they do not select a framework or replace the project's gate.
 
-`npx workflow-spec-driven install` installs and updates only the workflow-owned `workflow-spec-driven` router, its five
-phase skills (`wspecify`, `wdesign`, `wtasks`, `wimplement`, `wverify`), Ponytail, Deep
-Review, QA, workflow-config, and autonomous skills. Keep those canonical copies in
+`npx wtk install` installs and updates only the workflow-owned `wtk` router, its Lean
+skills (`wtk-lean`, `wtk-discover`, `wtk-plan`, `wtk-implement`), Ponytail, Deep
+Review, QA, wtk-config, and wtk-ship skills. Keep those canonical copies in
 `.agents/skills/` and the Claude Code
 symlinks in `.claude/skills/`. The three external security skills are a separate authorized step:
 
 ```bash
-python3 /path/to/workflow-spec-driven/scripts/install_security_skills.py \
+python3 /path/to/workflow-toolkit/scripts/install_security_skills.py \
   /path/to/target-project --yes
 ```
 
@@ -426,8 +403,8 @@ The installer uses only the reviewed refs and hashes in `skills-lock.json`; it d
 `latest` or perform automatic updates. Review its printed plan and authorize the command before
 running it. Until it succeeds, do not treat the security gate as covered.
 
-`autonomous` is vendored here. `CLAUDE.md` is the one line `@AGENTS.md` (not a symlink). Canonical
-packet templates live under `.agents/skills/workflow-config/assets/agents/{cursor,claude,codex}/`; generated implementer,
+`wtk-ship` is vendored here. `CLAUDE.md` is the one line `@AGENTS.md` (not a symlink). Canonical
+packet templates live under `.agents/skills/wtk-config/assets/agents/{cursor,claude,codex}/`; generated implementer,
 explorer and verifier runtimes live under the ignored `.cursor/agents/`, `.claude/agents/` and
 `.codex/agents/` directories.
 

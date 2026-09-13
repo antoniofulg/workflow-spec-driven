@@ -7,9 +7,8 @@ A test that mirrors the implementation, or exists only to raise coverage, proves
 
 ## The artifact
 
-Every feature large enough to have a `tasks.md` also has `.specs/features/<feature>/tests.md`. It is
-written during Specify, immediately after acceptance criteria are settled, and it is the input to
-task breakdown — not an output of it.
+Every integrated Lean feature has `.specs/features/<feature>/checks.md`. It is written after the
+plan, immediately after acceptance criteria are settled, and each check names its proof.
 
 ```markdown
 # <Feature> Test Contract
@@ -44,12 +43,9 @@ task breakdown — not an output of it.
    condition fires.
 2. **Every case names an exact input, condition and expected result.** "Test the happy path" is not a
    case. "`POST` the create route with an unknown region returns 422 and no row" is.
-3. **Every ID is assigned to exactly one task** — the task implementing the behaviour it verifies.
-   Integration and e2e IDs go to the task that completes the flow they exercise.
-4. **Audit before the breakdown is approved.** Every ID in `tests.md` appears in exactly one task's
-   `## Tests` section. No orphans, no duplicates. An ID that fits no task means the breakdown is
-   missing a slice — fix the breakdown, never drop the case.
-5. **Tests ship inside the task that implements the behaviour.** Never a task dedicated to testing.
+3. **Every ID is assigned to exactly one check** — the check owning the behaviour it verifies.
+4. **Audit before the build is approved.** Every check has one proof, no orphan or duplicate proof.
+5. **Tests ship with the slice that implements the behaviour.** Never a test-only slice.
 6. **A case is not done because a test exists.** It is done when the test asserts the contracted
    expected result. A test that exists without asserting the contracted behaviour is a hollow case and
    fails review.
@@ -84,12 +80,12 @@ already owns it:
 - Tests over generated files, config shape, or CSS
 - A second suite duplicating an existing one because the existing one was hard to find
 
-## Where this differs from what tlc ships
+## Where this differs from what TLC ships
 
-`workflow-spec-driven` generates a Test Coverage Matrix during Tasks — a per-layer policy
+`wtk-lean` generates a Test Coverage Matrix in `checks.md` — a per-layer policy
 (`Service → unit → all branches; 1:1 to spec ACs`). Keep it: it decides *which layer* and *which
 command*. This contract adds *which cases*, so the matrix's promise becomes countable. Both exist;
-the matrix sets the shape, `tests.md` enumerates the content.
+the matrix sets the shape, and `checks.md` enumerates the content.
 
 The mutation sensor stays. Enumerated cases prove coverage exists; the sensor proves the coverage is
 real. Neither substitutes for the other.

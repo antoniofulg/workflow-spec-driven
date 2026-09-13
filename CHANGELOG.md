@@ -4,6 +4,22 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-09-12
+
+### Added
+
+- Workflow Toolkit replaces the retired workflow identity with the `wtk` router, Lean artifacts,
+  modular TLC entries, and namespaced quality and delivery skills.
+
+### Changed
+
+- consumer-owned guidance, proportional validation, and provider packet routing remain intact;
+  completed Lean feature directories are transient and removed after promotion.
+
+### Migration
+
+- Run `npx wtk install` on a clean feature branch and review the complete replacement plan.
+
 ## [0.11.0] - 2026-09-11
 
 ### Added

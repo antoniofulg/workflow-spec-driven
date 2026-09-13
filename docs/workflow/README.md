@@ -25,7 +25,7 @@ artifacts, and explicit handoff prompts remain the durable semantic context.
 | --- | --- |
 | The thesis | [purpose.md](purpose.md) |
 | Specify → slice → gate → PR | [loop.md](loop.md) |
-| Verifier, QA, deep-review, filed issues | [reviews.md](reviews.md) |
+| Verifier, QA, wtk-deep-review, filed issues | [reviews.md](reviews.md) |
 | `AD-NNN` vs architecture invariants | [decisions.md](decisions.md) |
 | One paragraph per guideline | [guidelines.md](guidelines.md) |
 | What is vendored and what is not | [pack.md](pack.md) |
@@ -38,14 +38,14 @@ artifacts, and explicit handoff prompts remain the durable semantic context.
 ```
 per slice    implement → scoped gate → atomic commit
              Verifier fingerprint cap
-resolved     deep-review groups from workflow config, before QA
+resolved     wtk-deep-review groups from wtk-config, before QA
 
 feature      selected QA session (no product code)
 then         selected full/scoped gate → pull request
 ```
 
-Public hierarchy: `Feature -> Vertical Slice -> Task`. Read
-`.agents/skills/workflow-config/SKILL.md` before dispatch; it resolves cadence and delegated providers.
+Public hierarchy: `Feature -> Slice -> Check`. Read
+`.agents/skills/wtk-config/SKILL.md` before dispatch; it resolves cadence and delegated providers.
 
 Repeated review blockers use the immutable fingerprint and independent counter in
 [`REVIEW-ROUNDS.md`](../guidelines/REVIEW-ROUNDS.md); this guide does not duplicate that protocol.

@@ -12,10 +12,10 @@ is never "is this useful" — it is "is this useful *after the feature ships*".
 
 ## The split
 
-| Durable — committed, maintained | Disposable — scratch, dies with the branch |
+| Durable — committed, maintained | Disposable — scratch, dies at feature close |
 | --- | --- |
 | The code and its tests | `memory/` workflow memory |
-| `.specs/features/<feature>/` workflow state | `uiux.md`, `dx.md`, review rounds |
+| `.specs/features/<feature>/` workflow state until verified close | `uiux.md`, `dx.md`, review rounds |
 | `.specs/STATE.md` decisions (`AD-NNN`) | |
 | `docs/qa/` — scenarios, journeys, bugs, charters, reports | |
 | `docs/` — product, architecture, engineering, design | |
@@ -34,17 +34,17 @@ Product promises still belong in `docs/qa/scenarios/`; feature workflow state be
 
 ## Rules
 
-1. **`.specs/features/` is versioned workflow state.** Specs, tasks, test contracts, workflow
-   snapshots, and validation reports travel with the feature through worktrees, gates, and CI.
-   Adoption removes only the exact legacy managed `.specs/features/` ignore line, including
-   duplicates, while preserving consumer-owned lines and comments; it never stages or commits files.
-2. **Promote before the pull request.** Anything that must outlive the feature moves to its real home:
+1. **`.specs/features/` is transient Lean workflow state.** `plan.md`, `checks.md`, `verification.md`,
+   and snapshots travel with the feature through worktrees and gates, then the complete feature
+   directory is deleted after verification and required promotion. Adoption removes only the exact
+   legacy managed `.specs/features/` ignore line; it never stages or commits feature files.
+2. **Promote before cleanup.** Anything that must outlive the feature moves to its real home:
    - A project decision → `.specs/STATE.md` as `AD-NNN`
    - A durable lesson → the lessons layer
    - A product promise → `docs/qa/scenarios/`
    - An architecture invariant → the consuming project's architecture docs
    - A rule agents must follow → this guidelines directory
-3. **Nothing gates a disposable artifact for drift.** A document nobody reads after the merge cannot
+3. **Nothing gates a disposable artifact for drift after cleanup.** A document nobody reads after the merge cannot
    be stale in a way that matters.
 4. **One home per fact.** A fact recorded in two durable places will disagree with itself. If it
    belongs in `docs/`, it is referenced from a guideline — never copied into one.

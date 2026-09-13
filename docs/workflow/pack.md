@@ -6,19 +6,19 @@ The workflow ships thirteen local capabilities:
 
 | Skill | Role |
 | --- | --- |
-| `workflow-spec-driven` | Router. Sizing, phase chain, `.specs` layout, resume. |
-| `wspecify` | Specify phase: EARS requirements, discuss, closure gate. |
-| `wdesign` | Design phase: architecture, components, reuse, risks. |
-| `wtasks` | Tasks phase: atomic tasks, coverage matrix, gate commands. |
-| `wimplement` | Execute phase: per-task cycle, gate, atomic commit. |
-| `wverify` | Verify phase: spec-anchored evidence, sensor, UAT, fix plans. |
-| `wreview` | Review phase: deep review of branch diffs, working trees, or PRs. |
-| `wqa` | QA phase: run user-visible QA plans or walks over tagged journeys. |
-| `qa-plan` | Maps changed user-visible promises to durable QA journeys and charters. |
-| `qa-execute` | Walks those journeys through the consuming project's existing adapter. |
+| `wtk` | Router. Sizing, phase chain, `.specs` layout, resume. |
+| `wtk-discover` | Discovery for unresolved product or architecture choices. |
+| `wtk-plan` | Modular planning: slices, observable criteria, and source-grounded decisions. |
+| `wtk-implement` | Modular execution: proof-backed checks, gate, and atomic commit. |
+| `wtk-lean` | Integrated Lean plan, checks, build, and independent feature verification. |
+| `wtk-config` | Resolves provider routes, profiles, and feature snapshots. |
+| `wtk-knowledge-check` | Validates the consuming knowledge bundle when present. |
+| `wtk-deep-review` | Review phase: deep review of branch diffs, working trees, or PRs. |
+| `wtk-qa` | QA phase: run user-visible QA plans or walks over tagged journeys. |
+| `wtk-qa-plan` | Maps changed user-visible promises to durable QA journeys and charters. |
+| `wtk-qa-execute` | Walks those journeys through the consuming project's existing adapter. |
 | `ponytail` (`full`) | Shortest code that works. Stdlib before a dependency. |
-| `autonomous` | Unattended run: classify work; credential-free configuration stays local, while eligible work may deliver one feature branch through one pull request. |
-| `deep-review` | Multi-lane review orchestration, context assembly, findings, and rendered review artifacts. |
+| `wtk-ship` | Unattended run: classify work; credential-free configuration stays local, while eligible work may deliver one feature branch through one pull request. |
 
 Canonical copies: `.agents/skills/`. Claude: symlinks in `.claude/skills/`. Cursor / Codex /
 OpenCode consume `.agents`. Do not add `.cursor/skills`.
@@ -32,14 +32,14 @@ commit refs and hashes; it does not install
 uncovered.
 
 Planner / implementer / explorer / verifier / designer are five windows. Canonical packet bodies live in
-`.agents/skills/workflow-config/assets/agents/{cursor,claude,codex}/`; sync generates ignored runtime files in
+`.agents/skills/wtk-config/assets/agents/{cursor,claude,codex}/`; sync generates ignored runtime files in
 `.cursor/agents/`, `.claude/agents/`, and `.codex/agents/`. Spawn models live on those generated
 files. `CLAUDE.md` is `@AGENTS.md`. Explorer is read-only and handles product-tree searches and
 flow traces for the parent agent.
 
-`autonomous` readiness still needs: full gate 0 on the final tree, no Critical, Major, or Minor left,
+`wtk-ship` readiness still needs: full gate 0 on the final tree, no Critical, Major, or Minor left,
 `main` not moved underneath, and flagged scenarios terminal (`untested` blocks; `blocked-verify` does not).
-Invoking `autonomous` authorizes the feature-branch push, one pull request, and merge after readiness
+Invoking `wtk-ship` authorizes the feature-branch push, one pull request, and merge after readiness
 is rechecked. Readiness is evidence, not authorization for deploy/release, production mutations,
 force-push, direct push to `main`, or unrelated remote actions; those require explicit instruction.
 
@@ -56,14 +56,14 @@ Empty on purpose. Machinery only: operating schema, `raw/` README, stub indexes,
 
 ## Guided installation
 
-The package `workflow-spec-driven@0.10.1` exposes the single canonical command:
+The package `workflow-toolkit@1.0.0` exposes the single canonical command:
 
 ```bash
-npx workflow-spec-driven install
+npx wtk install
 ```
 
 The wizard targets the current directory, requires Node.js 18 or newer and an interactive
-terminal, and never requires Python. It selects `core`, `parallel`, `quality`, or `extras` (with
+terminal, and never requires Python. It selects `core`, `quality`, or `extras` (with
 `core` automatically included for every non-core selection), previews every action, and requires
 an explicit conflict choice before publication. Replaced or removed files are verified in
 `.my-workflow/backups/<UTC timestamp>/`; the adoption manifest publishes last. Cancellation writes

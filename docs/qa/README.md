@@ -9,32 +9,27 @@ For consuming projects, those authorities are their executable manifests or CI j
 
 | Area | Interface | Entry point | Authority |
 | --- | --- | --- | --- |
-| `ADP` | Guided installer, external-skill CLI, and generated filesystem | `npx workflow-spec-driven install`; `scripts/install_security_skills.py` with a disposable target | [README installation contract](../../README.md#adopt-the-workflow), [`package.json`](../../package.json), [`scripts/install_security_skills.py`](../../scripts/install_security_skills.py) |
-| `QAS` | Manual agent-file inspection, checkout-local CLI recipes, and Orca-backed workflow execution | `.agents/skills/qa-plan/`, `.agents/skills/qa-execute/`, `.agents/skills/autonomous/scripts/parallel_execute.py`, `tools/gate_cache.py`, `.agents/skills/deep-review/references/publish-github.md`, provider Verifier packets | [Skills contract](../../README.md#skills), [parallel executor contract](../../.agents/skills/autonomous/references/parallelization.md), [Deep Review publication recipe](../../.agents/skills/deep-review/references/publish-github.md) |
+| `ADP` | Guided installer, external-skill CLI, and generated filesystem | `npx wtk install`; `scripts/install_security_skills.py` with a disposable target | [README installation contract](../../README.md#adopt-the-workflow), [`package.json`](../../package.json), [`scripts/install_security_skills.py`](../../scripts/install_security_skills.py) |
+| `QAS` | Manual agent-file inspection, checkout-local CLI recipes, and provider Verifier packets | `.agents/skills/wtk-qa-plan/`, `.agents/skills/wtk-qa-execute/`, `tools/gate_cache.py`, `.agents/skills/wtk-deep-review/references/publish-github.md`, provider Verifier packets | [Skills contract](../../README.md#skills), [Deep Review publication recipe](../../.agents/skills/wtk-deep-review/references/publish-github.md) |
 | `DOC` | Documentation | `README.md` | [`README.md`](../../README.md) |
-| `CFG` | Workflow configuration, derived slice contract, generated state, and Git visibility | `.my-workflow.toml.example`; `.my-workflow.toml`; `.agents/skills/workflow-config/assets/agents/`; `.agents/skills/workflow-config/scripts/workflow_config.py`; `.agents/skills/workflow-config/scripts/parallel_plan.py`; `.agents/skills/workflow-spec-driven/scripts/validate_tasks.py --slice-contract-json`; `.agents/skills/wtasks/references/tasks-template.md`; `.gitignore`; `.specs/` | [README configuration contract](../../README.md#adopt-the-workflow), [`workflow-config` skill](../../.agents/skills/workflow-config/SKILL.md), [`wtasks` task template](../../.agents/skills/wtasks/references/tasks-template.md), [artifact lifecycle](../guidelines/ARTIFACT-LIFECYCLE.md) |
+| `CFG` | Workflow configuration, profile resolution, generated state, and Git visibility | `.my-workflow.toml.example`; `.my-workflow.toml`; `.agents/skills/wtk-config/assets/agents/`; `.agents/skills/wtk-config/scripts/workflow_config.py`; `.agents/skills/wtk-lean/scripts/validate_checks.py`; `.gitignore`; `.specs/` | [README configuration contract](../../README.md#adopt-the-workflow), [`wtk-config` skill](../../.agents/skills/wtk-config/SKILL.md), [artifact lifecycle](../guidelines/ARTIFACT-LIFECYCLE.md) |
 | `REL` | Package metadata | `package.json`, `bun.lock` | [`package.json`](../../package.json) |
 
 No browser, API, or mobile surface exists in this repository.
 
 ## Runner and adapter
 
-- Existing runner or adapter: CLI/manual, using the canonical `workflow-spec-driven install` bin,
+- Existing runner or adapter: CLI/manual, using the canonical `wtk install` bin,
   the bundled repository-intelligence CLI with checkout-local fake Graphify/Graft executables,
-  parallel executor, assisted pointer probe, and filesystem inspection. The parallel-slice journey
-  uses the installed Orca CLI only after its `orchestration.contract.v1` capability is proven; the
-  disposable fixture and lifecycle oracle are owned by
-  [`.agents/skills/autonomous/scripts/qa_parallel_pilot.py`](../../.agents/skills/autonomous/scripts/qa_parallel_pilot.py), while
-  [`.agents/skills/autonomous/scripts/orca_assisted_probe.py`](../../.agents/skills/autonomous/scripts/orca_assisted_probe.py) is the shipped pointer-only
-  lifecycle boundary. Deep Review publication recipes
+  and filesystem inspection. Deep Review publication recipes
   use a checkout-local fake `gh` that logs arguments;
   [`tools/test_deep_review_contract.py`](../../tools/test_deep_review_contract.py) owns that
   no-network adapter.
 - Manifest or CI authority: [`package.json`](../../package.json) owns the structural gate and
   `tests/installer/*.test.js` owns the disposable installer smoke path.
-- Exact path used by `qa-execute`: invoke `npx workflow-spec-driven install` as documented by the
+- Exact path used by `qa-execute`: invoke `npx wtk install` as documented by the
 [README adoption contract](../../README.md#adopt-the-workflow) inside a checkout-local
-disposable Git repository; invoke `npx workflow-spec-driven install` from the target
+  disposable Git repository; invoke `npx wtk install` from the target
 against a separate
 checkout-local disposable target; inspect package membership with `bun pm pack --dry-run`
   from the active checkout, and create any clean-clone canary from the active local repository into
@@ -43,10 +38,10 @@ checkout-local disposable target; inspect package membership with `bun pm pack -
   [`scripts/install_security_skills.py`](../../scripts/install_security_skills.py) only when the
   QA packet explicitly authorizes network access and target writes; then inspect the targets and
   repository files named by each charter. For repository intelligence, invoke
-  [`.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py`](../../.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py)
+  [`.agents/skills/wtk-config/scripts/repository_intelligence.py`](../../.agents/skills/wtk-config/scripts/repository_intelligence.py)
   through its public `status`, `graft`, `graphify-setup`, `graphify`, and `benchmark-report`
   commands against a checkout-owned disposable Git fixture and checkout-local fake tool binaries;
-  use [Deep Review's `build_jobs.py`](../../.agents/skills/deep-review/scripts/build_jobs.py) only
+  use [Deep Review's `build_jobs.py`](../../.agents/skills/wtk-deep-review/scripts/build_jobs.py) only
   to inspect context preparation, never dispatch reviewer jobs during that charter. For Deep Review publication, extract the public recipe
   and execute it with the checkout-local fake `gh` pattern owned by
   [`tools/test_deep_review_contract.py`](../../tools/test_deep_review_contract.py); never contact

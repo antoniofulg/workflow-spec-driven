@@ -2,6 +2,7 @@
   "name": "workflow-toolkit",
   "version": "1.0.0",
   "private": false,
+  "license": "MIT",
   "type": "module",
   "packageManager": "bun@1.4.0",
   "bin": {
@@ -16,6 +17,7 @@
     "scripts/installer",
     "scripts/install_security_skills.py",
     "skills-lock.json",
+    "NOTICE.md",
     "AGENTS.md",
     ".my-workflow.toml.example",
     "knowledge/AGENTS.md",

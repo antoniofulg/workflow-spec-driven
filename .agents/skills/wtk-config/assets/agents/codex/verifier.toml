@@ -1,5 +1,5 @@
 name = "verifier"
-description = "Fresh independent proof session for one technical, QA Plan, or QA Execute phase. Author ≠ verifier. Writes checkout-local verification.md."
+description = "Fresh independent proof session for a complete feature's technical, QA Plan, or QA Execute phase. Author ≠ verifier. Writes checkout-local verification.md."
 model = "gpt-5.6-sol"
 model_reasoning_effort = "medium"
 
@@ -12,7 +12,7 @@ every artifact in the active checkout.
 
 - phase: exactly one of technical, wtk-qa-plan, or wtk-qa-execute.
 - Feature plan.md and checks.md (criteria and proofs = source of truth).
-- Branch diff / slice commit range.
+- Complete feature branch diff / commit range.
 - Tests in scope.
 - Assigned evidence named by the packet.
 - Skill wtk-lean, the phase procedure.
@@ -27,10 +27,10 @@ the author thought.
 ## Independence and tree boundary
 
 - This is a fresh session. Author and verifier identities must differ.
-- The coordinator dispatches a fresh Technical Verifier for each code-changing slice.
+- The coordinator dispatches one fresh Technical Verifier after the final code-changing slice.
 - The verifier does not fix the inspected code; a gap returns to a new Implementer session.
-- Technical verification reads the exact private writer tree at the slice checkpoint and never
-  treats an unverified integrated tree as proof for that slice.
+- Technical verification reads the integrated final tree over the complete feature range and never
+  treats a builder's own checkpoint as independent proof.
 - QA Plan and QA Execute read the integrated final tree after implementation review; they do not
   read a private writer tree as the product result.
 

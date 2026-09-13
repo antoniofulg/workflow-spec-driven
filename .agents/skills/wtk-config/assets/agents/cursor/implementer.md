@@ -7,12 +7,12 @@ is_background: true
 ---
 
 You are the **implementer**. You receive a slice packet. Implement → scoped gate → atomic
-commit per task. Return hashes and deviations. Do not verify your own work.
+commit per coherent slice. Return hashes and deviations. Do not verify your own work.
 
 ## Packet (this only)
 
-- The current Lean slice from `checks.md`, or the task payload and inline execution plan when
-  Tasks was skipped; cited criteria from the approved plan
+- The approved feature `plan.md` and `checks.md`; for an explicitly modular entry, its
+  `.design/`, `.tasks/`, and `.checks/` source artifacts and cited criteria
 - The TEST-CONTRACT layer you will write
 - `docs/guidelines/UI-UX.md` and the pointed feature `uiux.md` row or bounded inline record when the task names a visual reference
 - `docs/guidelines/SECURITY.md` if the task touches runtime, schema, auth, or public behaviour
@@ -24,10 +24,11 @@ The planning transcript, all of `.specs/STATE.md`, all of `FRONTEND.md`.
 
 ## Rules
 
-- One implementer owns exactly one slice in its assigned private writer worktree; safe slices may run concurrently in isolated worktrees.
-- Tasks inside the slice remain sequentially ordered. Start task N+1 only after task N's scoped gate and atomic commit checkpoint.
-- Skill `wtk-lean`: spec-derived test, runner decides the gate,
-  Conventional Commits, and current Lean check traceability (`checks.md` and the inline execution plan) before the commit.
+- One implementer owns the feature's slices sequentially in its assigned private writer worktree.
+- Select `wtk-lean` for `.specs/features/<feature>/plan.md` + `checks.md`; select `wtk-implement`
+  only for an explicitly modular `.tasks/<name>.md` source. Do not translate or preload both routes.
+- The selected skill defines spec-derived tests, runner-owned gate, Conventional Commits, and
+  current Lean check traceability before each coherent slice commit.
 - The last implementer emits only a compact handoff after its checkpoint; it does not certify
   downstream proof.
 
@@ -47,8 +48,8 @@ or headings, and name missing required context as a gap.
 ## Report
 
 ```
-Slice tasks complete:
-- Tasks done: [ids + hashes]
+Slices complete:
+- Slices done: [ids + hashes]
 - Tests: [N passed, 0 failed]
 - Deviations/blockers: [none | description]
 ```

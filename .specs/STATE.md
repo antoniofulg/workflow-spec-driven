@@ -2,12 +2,13 @@
 
 ## Handoff
 
-- **Feature**: `one-round-deep-review` (branch `feat/one-round-deep-review`, worktree `../my-workflow-one-round-deep-review`)
-- **Phase / Task**: Complete locally. Slices T1–T16, corrections C1–C9, G1–G2, L1, R1–R4; feature-level Technical Verifier PASS at `685e5599`; QA session PASS (6 scenarios, 62 fixture checks, 0 bugs) in `docs/qa/reports/2026-09-10-one-round-deep-review.md`.
-- **Completed**: fingerprint-only merge; explicit `prior_findings` dispositions; verdict counts carried open Critical/Major; stale-output archiving; Repair plan in md+html; one-job incremental remediation check that rejects re-reported priors; polish lane and `tests`/`spec-parity` sweeps removed; cohorts sized to concurrency; sweeps only with ≥3 cohorts and never single-cohort findings; knowledge scoped to dispatched or in-diff skills with cross-round reuse; Graft opt-in; provider block from structured error events; invalid artifacts repaired with the validation error; `REVIEW-ROUNDS.md` remediation-check rule; AD-031; knowledge decision `deep-review-cadence`; `skills-lock.json` hash aligned. Gates: contract suite 44, token-metrics 28, `bun run test:python` 0, `bun test` 126/126, `node --test` 190/192 (#39 IT-012, #97 IT-011 fail identically on `origin/main`).
-- **In-progress** (file:line): none
-- **Next step**: remote delivery is human-scheduled; branch is unpushed, no PR. Optional: neutral-diff loop-to-SHIP benchmark against `main` (see knowledge decision). Dry-run tags `dryrun/*` are local and disposable.
-- **Blockers**: none.
+- **Feature**: `workflow-toolkit-lean`; approved `plan.md` and `checks.md` under `.specs/features/workflow-toolkit-lean/`.
+- **Phase / Task**: Build in progress. This is the authorized replacement of the old workflow, not a compatibility layer.
+- **Completed**: Installer/package checkpoint `659b8d52`; `node --test tests/installer/*.test.js` passed 195 tests with 0 failures. Imported Lean selftest passed 46 mutation checks with 0 survivors. AD-035 through AD-037 record the accepted contracts and lifecycle.
+- **In-progress**: Remaining skills, configuration, guidelines, documentation, and Python/Bun contracts are uncommitted in this checkout. Preserve this work; reconcile it against `checks.md` and Git before continuing.
+- **Next step**: Finish remaining contract failures, run `bun run test:all`, dispatch a fresh full-feature Verifier and separate QA Plan/Execute sessions, then promote durable evidence and clean only this completed feature's artifacts. No remote delivery is authorized.
+- **Blockers**: No implementation blocker. Permission to update affected `knowledge/` records is pending; keep that tree untouched until authorized.
+- **Branch**: `feat/workflow-toolkit-lean`.
 
 ## Decisions
 
@@ -112,7 +113,7 @@
 - **Scope**: `.specs/features/`, `.gitignore`, `AGENTS.md`, artifact lifecycle guidance, and TLC
   workflow state handling.
 - **Date**: 2026-08-24
-- **Status**: active
+- **Status**: superseded by AD-037
 
 ### AD-008
 
@@ -195,7 +196,7 @@
 - **Scope**: Autonomous parallel execution, workflow snapshots and task resource metadata, Orca/Git
   adapters, consumer resource providers, and future IDE adapters.
 - **Date**: 2026-08-24
-- **Status**: active
+- **Status**: superseded by AD-036
 
 ### AD-013
 
@@ -204,7 +205,7 @@
 - **Trade-off**: The core owns this narrow Git worktree primitive; adapter-specific worker and event effects remain behind the provider-neutral protocol.
 - **Scope**: Parallel slice executor worktree creation, adapter contracts, and future worktree/worker providers.
 - **Date**: 2026-08-24
-- **Status**: active
+- **Status**: superseded by AD-036
 
 ### AD-014
 
@@ -241,7 +242,7 @@
   schema, planner/executor scheduling, resource provider and health probe, worktree lifecycle,
   adoption, verification, QA, and context-budget evidence.
 - **Date**: 2026-08-28
-- **Status**: active
+- **Status**: superseded by AD-036
 
 ### AD-016
 
@@ -375,7 +376,7 @@
 - **Scope**: npm package identity, installer CLI, adoption planner and transaction, install-time
   provider packet generation, installation tests, adoption documentation, and QA scenarios.
 - **Date**: 2026-09-08
-- **Status**: active
+- **Status**: superseded by AD-036
 
 ### AD-031
 
@@ -515,7 +516,7 @@
 - **Scope**: `.agents/skills/w*`, `workflow-spec-driven/SKILL.md`, `templates/agents/claude/*`,
   `scripts/adopt.py` core catalog.
 - **Date**: 2026-09-03
-- **Status**: active
+- **Status**: superseded by AD-036
 
 ### AD-029
 
@@ -568,4 +569,58 @@
 - **Scope**: Workflow configuration defaults, tracked/local config, public documentation, QA scenario,
   tests, and future feature snapshots.
 - **Date**: 2026-09-11
+- **Status**: active
+
+### AD-035
+
+- **Decision**: Adopt the upstream TLC Lean artifact names and formats (`plan.md`, `checks.md`, and
+  `verification.md`). Adapt local consumers to that contract instead of retaining local artifact
+  names or rewriting upstream templates to match them.
+- **Reason**: The user prioritizes minimizing drift from the evolving upstream skill so updates
+  remain easier to compare and incorporate.
+- **Trade-off**: Local validation, reporting, and integrations must accommodate upstream contracts;
+  preserving the current local nomenclature is not a requirement.
+- **Scope**: Artifact names, formats, templates, and their consumers in the TLC Lean adoption.
+- **Date**: 2026-09-12
+- **Status**: active
+
+### AD-036
+
+- **Decision**: Replace the task-granular workflow with Workflow Toolkit: package `workflow-toolkit`
+  version `1.0.0`, CLI and on-demand entry `wtk`, and project-owned capabilities named `wtk-*`,
+  including `wtk-deep-review`. Base Lean, discovery, modular planning, and modular implementation on
+  TLC commit `0ab82f644cd9caf94c65347a50ad934800b0cbc4`, keeping their distinct upstream contracts.
+  Use sequential builders, whole observable slices, coherent commits, and a fresh independent
+  Verifier over the complete feature. Support native `light`, `standard`, and `ui` profiles with
+  `standard` as the toolkit default. Retain local security, UI, QA, review, configuration, and
+  authorized delivery integrations on demand; Deep Review remains optional under AD-034. No old
+  skill aliases, task pipeline, or compatibility readers remain. This supersedes AD-012, AD-013,
+  AD-015, AD-028, and AD-030 while retaining installer safety and author/verifier independence.
+- **Reason**: A thin integration around the upstream contracts reduces maintenance drift and
+  instruction overhead while retaining the toolkit's own capabilities. A major version keeps
+  existing `0.x` installations older than the replacement without a version exception.
+- **Trade-off**: Slice parallelism and granular task checkpoints are removed initially; pending
+  older plans require explicit adaptation, and independent findings may arrive later in the build.
+- **Scope**: Public identity, skills, installer catalog, provider packets, configuration, workflow
+  execution, verification, and documentation. Native agent role identities remain distinct from
+  namespaced skill names.
+- **Date**: 2026-09-12
+- **Status**: active
+
+### AD-037
+
+- **Decision**: Feature planning and verification artifacts are transient. Keep them available
+  through execution, independent verification, and selected local gates; promote required durable
+  decisions, lessons, documentation, product promises, and QA evidence before deleting the exact
+  completed feature directory. Do not archive it as a second product description. Unrelated pending
+  features remain untouched, and adapting an older pending plan requires an explicit request.
+  This supersedes AD-007's permanent-retention policy.
+- **Reason**: The user considers specs temporary work aids; maintained documentation and executable
+  tests carry the product contract after completion.
+- **Trade-off**: Later investigation uses durable records and Git history rather than retaining the
+  feature's planning tree. Cleanup depends on completed verification and promotion, not file age.
+- **Scope**: Feature artifact lifecycle, closeout, handoff, and cleanup. Shared project decisions,
+  durable lessons, and QA records are not feature cleanup targets; knowledge writes still require
+  their own authorization.
+- **Date**: 2026-09-12
 - **Status**: active

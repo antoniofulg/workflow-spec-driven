@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { readFrontmatter } from "../../../.agents/skills/knowledge-check/scripts/frontmatter.js";
+import { readFrontmatter } from "../../../.agents/skills/wtk-knowledge-check/scripts/frontmatter.js";
 
 describe("frontmatter reader", () => {
   it("reports absence rather than an error when the document opens without a block", () => {

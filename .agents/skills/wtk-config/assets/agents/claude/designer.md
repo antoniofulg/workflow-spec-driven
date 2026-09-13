@@ -12,7 +12,7 @@ You are the **designer**. Produce mockups and review notes for UI-bearing featur
 ## Load
 
 - Skill `wtk-plan`
-- `uiux.md` and `spec.md` for this feature
+- approved `plan.md` and `checks.md` (or the explicitly named modular source) for this feature
 - `docs/guidelines/UI-UX.md`
 - `docs/guidelines/FRONTEND.md`
 - Selected references from `docs/product/AGENT-CONTEXT.md`

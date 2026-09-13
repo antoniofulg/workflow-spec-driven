@@ -8,8 +8,8 @@ nit changes the diff; the next round finds new nits. The loop is unbounded by co
 
 [REVIEW-ROUNDS.md](../guidelines/REVIEW-ROUNDS.md) is the protocol. This page is the choice.
 
-The public hierarchy is `Feature -> Vertical Slice -> Task`. Before dispatch, read
-`.agents/skills/workflow-config/SKILL.md`; it resolves the feature's review groups.
+The public hierarchy is `Feature -> Slice -> Check`. Before dispatch, read
+`.agents/skills/wtk-config/SKILL.md`; it resolves the feature's review groups.
 
 ## One Verifier role, several phases
 
@@ -20,7 +20,7 @@ Remediation identity, independent counters, and halt behavior follow `REVIEW-ROU
 | --- | --- | --- |
 | **Technical Verifier** | Do the tests actually prove the spec? | Fingerprint-scoped; halt on third failed remediation |
 | **Deep-review** (resolved groups; none under cadence `skip`) | Is the code correct, safe, maintainable? | Discovery once; remediation checks until no Critical/Major is open or `stall_attempts` halts |
-| **QA session** (feature closing step) | Does the finished feature feel right, through the declared adapter? | One `qa-plan` and one `qa-execute` session; no slice runs QA |
+| **QA session** (feature closing step) | Does the finished feature feel right, through the declared adapter? | One `wtk-qa-plan` and one `wtk-qa-execute` session; no slice runs QA |
 
 A documentation-only slice follows the proportional classifier in [GATES.md](../guidelines/GATES.md):
 accuracy and affected-link checks close pure maintenance, while mixed changes run canonical tests for
@@ -32,13 +32,13 @@ commit range, and the closing session's fresh QA Plan/Execute packets read the i
 distinct author and proof identities; the last implementer supplies a handoff and never certifies
 the integrated result.
 
-They do not send work back to each other. A deep-review finding never restarts the Verifier. A
+They do not send work back to each other. A wtk-deep-review finding never restarts the Verifier. A
 Critical/Major finding is fixed under the approved loop and its scoped gate, then proven by a one-job
-remediation check (incremental deep-review); batch and check repeat until none is open or
+remediation check (incremental wtk-deep-review); batch and check repeat until none is open or
 `stall_attempts` halts. Remediation follows the stall bound: each attempt runs the scoped gate, a smaller failing
 test set resets the counter, and an equal-size or larger set increments it. An unavailable gate
 halts immediately; a reached nonzero threshold halts with the normalized signature, attempt count,
-and fixes tried. If a deep-review fix changes user-visible behaviour, re-walk **the affected scenario
+and fixes tried. If a wtk-deep-review fix changes user-visible behaviour, re-walk **the affected scenario
 rows only**.
 
 ## What blocks, what files
@@ -50,9 +50,9 @@ rows only**.
 | `Minor` | No | Fix in one current-run batch, scoped gate, one commit |
 | `Trivial` | No | File an issue |
 
-Every deep-review defect is fixed inside the feature run. Minor fixes start no new proof round.
+Every wtk-deep-review defect is fixed inside the feature run. Minor fixes start no new proof round.
 Filed Trivial issues are real backlog, not a disposal bin; they do **not** re-enter Verifier + QA +
-deep-review because that ceremony already happened.
+wtk-deep-review because that ceremony already happened.
 
 A user-visible fix still flags and walks its scenario. A fix that grows into a design or schema
 change is a feature.

@@ -25,7 +25,7 @@ Feature workflow state (`spec.md`, `design.md`, `tasks.md`, and validation) stay
 
 ## Halt vs decide
 
-An unattended run (`autonomous`) must **settle or stop** before building:
+An unattended run (`wtk-ship`) must **settle or stop** before building:
 
 - If the documents already answer it, proceed.
 - If evidence in the repo is enough, decide, record `AD-NNN` with reasoning, move on.

@@ -5,7 +5,7 @@ import { join, relative, sep } from "node:path";
 import { describe, expect, it } from "bun:test";
 
 const repositoryRoot = process.cwd();
-const skillDirectory = join(repositoryRoot, ".agents", "skills", "deep-review");
+const skillDirectory = join(repositoryRoot, ".agents", "skills", "wtk-deep-review");
 
 function readJson(path: string): unknown {
   return JSON.parse(readFileSync(path, "utf8"));
@@ -41,21 +41,21 @@ function hashSkillTree(directory: string): string {
   return hash.digest("hex");
 }
 
-describe("deep-review installation", { timeout: 30_000 }, () => {
+describe("wtk-deep-review installation", { timeout: 30_000 }, () => {
   it("keeps the skill, lock metadata, release version, and project discovery aligned", () => {
     expect(existsSync(join(skillDirectory, "SKILL.md"))).toBe(true);
 
     const lock = readJson(join(repositoryRoot, "skills-lock.json")) as {
       skills?: Record<string, unknown>;
     };
-    const lockEntry = lock.skills?.["deep-review"] as
+    const lockEntry = lock.skills?.["wtk-deep-review"] as
       | { source?: string; sourceType?: string; skillPath?: string; computedHash?: string }
       | undefined;
     expect(lockEntry).toEqual({
       source: "pedronauck/skills",
       sourceType: "github",
-      skillPath: "skills/mine/deep-review/SKILL.md",
-      computedHash: "28212963175965f34c4455639ba31dbc75fa9cc4dfb19097d4a40c15fca16787",
+      skillPath: "skills/mine/wtk-deep-review/SKILL.md",
+      computedHash: "38dab530ea1c50f4f85f4d310a8a4b21e3cfc30b13493d1cf6cad99a52e51afd",
     });
     expect(hashSkillTree(skillDirectory)).toBe(lockEntry?.computedHash);
 
@@ -64,7 +64,7 @@ describe("deep-review installation", { timeout: 30_000 }, () => {
       packageManager?: string;
       devDependencies?: Record<string, string>;
     };
-    expect(packageManifest.version).toBe("0.11.0");
+    expect(packageManifest.version).toBe("1.0.0");
     expect(packageManifest.packageManager).toBe("bun@1.4.0");
     expect(existsSync(join(repositoryRoot, "bun.lock"))).toBe(true);
     expect(existsSync(join(repositoryRoot, "package-lock.json"))).toBe(false);
@@ -82,7 +82,7 @@ describe("deep-review installation", { timeout: 30_000 }, () => {
       }),
     ) as Array<Record<string, unknown>>;
     expect(discovered).toContainEqual({
-      name: "deep-review",
+      name: "wtk-deep-review",
       path: skillDirectory,
       scope: "project",
       agents: expect.any(Array),

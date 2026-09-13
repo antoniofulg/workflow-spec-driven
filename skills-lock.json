@@ -1,15 +1,18 @@
 {
   "version": 1,
   "skills": {
-    "workflow-spec-driven": {
-      "source": "local",
-      "sourceType": "local",
-      "skillPath": ".agents/skills/workflow-spec-driven/SKILL.md"
+    "wtk-lean": {
+      "source": "tech-leads-club/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/tlc-spec-lean/SKILL.md",
+      "ref": "0ab82f644cd9caf94c65347a50ad934800b0cbc4",
+      "computedHash": "56db00c3b8c5e76c41f05aeddf1ba1c21be420f4afee48a5695c693a7391a50f",
+      "license": "CC-BY-4.0"
     },
-    "autonomous": {
+    "wtk": {
       "source": "local",
       "sourceType": "local",
-      "skillPath": ".agents/skills/autonomous/SKILL.md"
+      "skillPath": ".agents/skills/wtk/SKILL.md"
     },
     "security-best-practices": {
       "source": "openai/skills",
@@ -35,11 +38,11 @@
       "ref": "49f948faa9258a0c61caceaf225e179651397431",
       "computedHash": "a262f878637565892051aa945c88e8748e743896c20925b59c5c2d7d79e061a7"
     },
-    "deep-review": {
+    "wtk-deep-review": {
       "source": "pedronauck/skills",
       "sourceType": "github",
-      "skillPath": "skills/mine/deep-review/SKILL.md",
-      "computedHash": "28212963175965f34c4455639ba31dbc75fa9cc4dfb19097d4a40c15fca16787"
+      "skillPath": "skills/mine/wtk-deep-review/SKILL.md",
+      "computedHash": "38dab530ea1c50f4f85f4d310a8a4b21e3cfc30b13493d1cf6cad99a52e51afd"
     },
     "ponytail": {
       "source": "dietrichgebert/ponytail",

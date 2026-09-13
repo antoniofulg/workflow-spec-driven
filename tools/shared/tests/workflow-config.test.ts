@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { describe, expect, it } from "bun:test";
 
 const repositoryRoot = process.cwd();
-const skillPath = ".agents/skills/workflow-config/SKILL.md";
+const skillPath = ".agents/skills/wtk-config/SKILL.md";
 const roles = ["implementer", "verifier", "explorer", "deep-reviewer", "designer"] as const;
 const resolverRoles = ["implementer", "verifier", "explorer", "deep_reviewer", "designer"] as const;
 const providers = ["claude", "cursor", "codex"] as const;
@@ -57,57 +57,43 @@ describe("workflow configuration skill", () => {
   it("defines resolution, resume, refresh, and explicit provider failure", () => {
     const skill = readRepositoryFile(skillPath);
 
-    expect(skill).toMatch(/^---\nname: workflow-config\ndescription: .+\n---/);
-    expect(skill).toContain("python3 .agents/skills/workflow-config/scripts/workflow_config.py");
+    expect(skill).toMatch(/^---\nname: wtk-config\ndescription: .+\n---/);
+    expect(skill).toContain("python3 .agents/skills/wtk-config/scripts/workflow_config.py");
     expect(skill).toContain("--refresh");
     expect(skill).toContain("Read the existing feature snapshot before dispatch");
     expect(skill).toMatch(/Halt with the\s+provider and role named/);
     expect(skill).toContain("without merging definitions or silently");
-    expect(skill).not.toContain("deep-review after every slice");
+    expect(skill).not.toContain("wtk-deep-review after every slice");
   });
 
-  // MAS-IT-009: the published contract teaches slice, phase/cohort, and batch.
-  it("publishes the merge-alone slice planning contract", () => {
-    const template = readRepositoryFile(".agents/skills/wtasks/references/tasks-template.md");
-    const normalizedTemplate = template.replace(/\s+/g, " ");
-    const normalizedSkill = readRepositoryFile(skillPath).replace(/\s+/g, " ");
-    const normalizedReadme = readRepositoryFile("README.md").replace(/\s+/g, " ");
+  it("defaults to standard and accepts all upstream Lean profiles", () => {
+    const resolver = readRepositoryFile(".agents/skills/wtk-config/scripts/workflow_config.py");
+    const lean = readRepositoryFile(".agents/skills/wtk-lean/SKILL.md");
+    expect(resolver).toContain('selected = requested or approved or "standard"');
+    expect(resolver).toContain('LEAN_PROFILES = ("light", "standard", "ui")');
+    expect(lean).toContain("`standard`");
+    expect(resolver).toContain("does not match checks.md profile");
+  });
 
-    expect(template).toContain("## Vertical Slice Closure");
-    expect(template).toContain("**Slice:** <slice-id>");
-    expect(normalizedTemplate).toContain("merge-alone observable outcome");
-    expect(normalizedTemplate).toContain("A phase or cohort describes technical ordering");
-    expect(normalizedTemplate).toContain("a batch describes worker capacity");
-    expect(template.indexOf("## Vertical Slice Closure")).toBeLessThan(
-      template.indexOf("## Task Breakdown"),
-    );
-    expect(normalizedSkill).toContain(
-      "validates the vertical-slice closure contract and derives the count",
-    );
-    expect(normalizedSkill).toContain("optional assertion");
-    expect(normalizedSkill).toContain("it never owns the count");
-    expect(normalizedReadme).toContain("validates its vertical-slice closure table and derives");
-    expect(normalizedReadme).toContain("`--slices` is an optional assertion");
-    expect(normalizedReadme).not.toContain("--feature register-user-native --slices 4");
-    expect(normalizedReadme).not.toContain("--feature register-user-profile --slices 4");
-    expect(normalizedReadme).not.toContain("--feature register-user-override --slices 4");
-    expect(normalizedReadme).not.toContain("--feature register-user-refresh --slices 4");
+  it("keeps modular and integrated artifact contracts distinct", () => {
+    const plan = readRepositoryFile(".agents/skills/wtk-plan/SKILL.md");
+    const implement = readRepositoryFile(".agents/skills/wtk-implement/SKILL.md");
+    const lean = readRepositoryFile(".agents/skills/wtk-lean/SKILL.md");
 
-    const taskBreakdown = template.slice(template.indexOf("## Task Breakdown"));
-    const taskExamples = [...taskBreakdown.matchAll(/^### (T\d+):/gm)];
-    expect(taskExamples.map(([, taskId]) => taskId)).toEqual(["T1", "T2", "T3", "T4"]);
-    taskExamples.forEach((match, index) => {
-      const start = match.index ?? 0;
-      const end = taskExamples[index + 1]?.index ?? taskBreakdown.length;
-      expect(taskBreakdown.slice(start, end).match(/^\*\*Slice:\*\* \[id\]$/gm) ?? []).toHaveLength(1);
-    });
+    const discover = readRepositoryFile(".agents/skills/wtk-discover/SKILL.md");
+    expect(discover).toContain(".design/<name>.md");
+    expect(plan).toContain(".tasks/<name>.md");
+    expect(implement).toContain(".checks/<feature>.md");
+    expect(lean.replace(/\s+/g, " ")).toContain(".specs/features/lockfile-v2/plan.md");
+    expect(plan).not.toContain(".specs/features/<feature>/plan.md");
+    expect(implement).not.toContain(".specs/features/<feature>/plan.md");
   });
 
   it("identifies a complete agent definition for every supported role and provider", () => {
     for (const provider of providers) {
       for (const role of roles) {
         const extension = provider === "codex" ? "toml" : "md";
-const path = `.agents/skills/workflow-config/assets/agents/${provider}/${role}.${extension}`;
+const path = `.agents/skills/wtk-config/assets/agents/${provider}/${role}.${extension}`;
         expect(existsSync(join(repositoryRoot, path)), path).toBe(true);
         expect(readRepositoryFile(path).trim(), path).not.toBe("");
       }
@@ -119,7 +105,7 @@ const path = `.agents/skills/workflow-config/assets/agents/${provider}/${role}.$
       cwd: repositoryRoot,
       encoding: "utf8",
     }).trim()).toBe("");
-    expect(execFileSync("git", ["ls-files", "--", ".my-workflow.toml.example", ".agents/skills/workflow-config/assets/agents"], {
+    expect(execFileSync("git", ["ls-files", "--", ".my-workflow.toml.example", ".agents/skills/wtk-config/assets/agents"], {
       cwd: repositoryRoot,
       encoding: "utf8",
     })).toContain(".my-workflow.toml.example");
@@ -133,9 +119,9 @@ const path = `.agents/skills/workflow-config/assets/agents/${provider}/${role}.$
     }
     const packaged = packagedFiles();
     expect(packaged).toContain(".my-workflow.toml.example");
-    expect(packaged).toContain(".agents/skills/workflow-config/assets/agents/claude/planner.md");
-    expect(packaged).toContain(".agents/skills/workflow-config/assets/agents/codex/planner.toml");
-    expect(packaged).toContain(".agents/skills/workflow-config/assets/agents/cursor/planner.md");
+    expect(packaged).toContain(".agents/skills/wtk-config/assets/agents/claude/planner.md");
+    expect(packaged).toContain(".agents/skills/wtk-config/assets/agents/codex/planner.toml");
+    expect(packaged).toContain(".agents/skills/wtk-config/assets/agents/cursor/planner.md");
     expect(packaged).not.toContain(".my-workflow.toml");
     expect(packaged.some((path) => path.startsWith(".claude/agents/"))).toBe(false);
     expect(packaged.some((path) => path.startsWith(".codex/agents/"))).toBe(false);
@@ -162,7 +148,7 @@ const path = `.agents/skills/workflow-config/assets/agents/${provider}/${role}.$
       );
       const resolver = join(
         repositoryRoot,
-        ".agents/skills/workflow-config/scripts/workflow_config.py",
+        ".agents/skills/wtk-config/scripts/workflow_config.py",
       );
       execFileSync("python3", [resolver, "--root", temporaryRoot, "--sync-agents"], { encoding: "utf8" });
       const snapshot = JSON.parse(
@@ -196,7 +182,7 @@ const path = `.agents/skills/workflow-config/assets/agents/${provider}/${role}.$
   }, 30_000);
 
   it("asserts resolver-returned agent files for every non-native provider route", () => {
-    const temporaryRoot = mkdtempSync(join(tmpdir(), "workflow-config-"));
+    const temporaryRoot = mkdtempSync(join(tmpdir(), "wtk-config-"));
     try {
       cpSync(join(repositoryRoot, ".agents/skills"), join(temporaryRoot, ".agents/skills"), {
         recursive: true,
@@ -220,7 +206,7 @@ const path = `.agents/skills/workflow-config/assets/agents/${provider}/${role}.$
 
       const resolver = join(
         repositoryRoot,
-        ".agents/skills/workflow-config/scripts/workflow_config.py",
+        ".agents/skills/wtk-config/scripts/workflow_config.py",
       );
       execFileSync("python3", [resolver, "--root", temporaryRoot, "--sync-agents"], {
         encoding: "utf8",

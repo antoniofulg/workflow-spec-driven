@@ -5,9 +5,10 @@ from __future__ import annotations
 import importlib.util
 import subprocess
 import tempfile
+import unittest
 from pathlib import Path
 
-MODULE_PATH = Path(__file__).resolve().parent.parent / ".agents/skills/workflow-spec-driven/scripts/ad-index.py"
+MODULE_PATH = Path(__file__).resolve().parent.parent / ".agents/skills/wtk-config/scripts/ad-index.py"
 
 
 def load():
@@ -37,38 +38,39 @@ SAMPLE = """# Project state
 """
 
 
-def test_parse_and_render() -> None:
-    rows = ad_index.parse(SAMPLE)
-    assert [(ident, status, decision) for _n, ident, decision, status in rows] == [
-        ("AD-001", "superseded", "First decision spans two lines."),
-        ("AD-002", "active", "Second decision uses a | pipe."),
-    ]
-    text = ad_index.render(rows)
-    assert "| `AD-001` | superseded | First decision spans two lines. |" in text
-    assert "| `AD-002` | active | Second decision uses a \\| pipe. |" in text
-    assert "The rest is dropped" not in text
+class AdIndexTests(unittest.TestCase):
+    def test_parse_and_render(self) -> None:
+        rows = ad_index.parse(SAMPLE)
+        self.assertEqual(
+            [(ident, status, decision) for _n, ident, decision, status in rows],
+            [
+                ("AD-001", "superseded", "First decision spans two lines."),
+                ("AD-002", "active", "Second decision uses a | pipe."),
+            ],
+        )
+        text = ad_index.render(rows)
+        self.assertIn("| `AD-001` | superseded | First decision spans two lines. |", text)
+        self.assertIn("| `AD-002` | active | Second decision uses a \\| pipe. |", text)
+        self.assertNotIn("The rest is dropped", text)
 
-
-def test_check_stale_then_fresh() -> None:
-    with tempfile.TemporaryDirectory() as raw:
-        root = Path(raw)
-        specs = root / ".specs"
-        specs.mkdir()
-        (specs / "STATE.md").write_text(SAMPLE, encoding="utf-8")
-        dest = root / ".agents/skills/workflow-spec-driven/scripts/ad-index.py"
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(MODULE_PATH.read_text(encoding="utf-8"), encoding="utf-8")
-        cmd = ["python3", str(dest), "--check"]
-        stale = subprocess.run(cmd, cwd=root, capture_output=True, text=True)
-        assert stale.returncode == 1, stale.stderr
-        write = subprocess.run(["python3", str(dest)], cwd=root, capture_output=True, text=True)
-        assert write.returncode == 0, write.stderr
-        ok = subprocess.run(cmd, cwd=root, capture_output=True, text=True)
-        assert ok.returncode == 0, ok.stderr
-        assert "AD-001" in (specs / "AD-INDEX.md").read_text(encoding="utf-8")
+    def test_check_stale_then_fresh(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            specs = root / ".specs"
+            specs.mkdir()
+            (specs / "STATE.md").write_text(SAMPLE, encoding="utf-8")
+            dest = root / ".agents/skills/wtk-config/scripts/ad-index.py"
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_text(MODULE_PATH.read_text(encoding="utf-8"), encoding="utf-8")
+            cmd = ["python3", str(dest), "--check"]
+            stale = subprocess.run(cmd, cwd=root, capture_output=True, text=True)
+            self.assertEqual(stale.returncode, 1, stale.stderr)
+            write = subprocess.run(["python3", str(dest)], cwd=root, capture_output=True, text=True)
+            self.assertEqual(write.returncode, 0, write.stderr)
+            ok = subprocess.run(cmd, cwd=root, capture_output=True, text=True)
+            self.assertEqual(ok.returncode, 0, ok.stderr)
+            self.assertIn("AD-001", (specs / "AD-INDEX.md").read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":
-    test_parse_and_render()
-    test_check_stale_then_fresh()
-    print("ok")
+    unittest.main()

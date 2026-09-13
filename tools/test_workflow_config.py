@@ -12,7 +12,7 @@ import re
 from pathlib import Path
 import sys
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / ".agents/skills/workflow-config/scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / ".agents/skills/wtk-config/scripts"))
 import workflow_config
 
 
@@ -24,12 +24,12 @@ def test_it010_canonical_roles_share_repository_intelligence_routing() -> None:
     for provider in ("claude", "codex", "cursor"):
         for role in routed_roles:
             extension = "toml" if provider == "codex" else "md"
-            path = ROOT / ".agents/skills/workflow-config/assets/agents" / provider / f"{role}.{extension}"
+            path = ROOT / ".agents/skills/wtk-config/assets/agents" / provider / f"{role}.{extension}"
             text = path.read_text(encoding="utf-8")
             assert "## Repository intelligence" in text, f"{provider}/{role} lacks routing section"
             assert "Graphify" in text and "Graft" in text, f"{provider}/{role} lacks both tool names"
-        explorer = (ROOT / ".agents/skills/workflow-config/assets/agents" / provider / f"explorer.{'toml' if provider == 'codex' else 'md'}").read_text(encoding="utf-8")
-        implementer = (ROOT / ".agents/skills/workflow-config/assets/agents" / provider / f"implementer.{'toml' if provider == 'codex' else 'md'}").read_text(encoding="utf-8")
+        explorer = (ROOT / ".agents/skills/wtk-config/assets/agents" / provider / f"explorer.{'toml' if provider == 'codex' else 'md'}").read_text(encoding="utf-8")
+        implementer = (ROOT / ".agents/skills/wtk-config/assets/agents" / provider / f"implementer.{'toml' if provider == 'codex' else 'md'}").read_text(encoding="utf-8")
         assert explorer.index("Graphify") < explorer.index("Graft"), f"{provider}/explorer reverses architecture/code order"
         assert implementer.index("Graft") < implementer.index("broad `rg`"), f"{provider}/implementer permits broad search first"
 
@@ -83,7 +83,7 @@ def write_packets(root: Path, *, runtime: bool = True) -> None:
         for role in workflow_config.ROLES:
             agent_name = workflow_config.AGENT_NAMES.get(role, role)
             content = template.format(role=agent_name).encode("utf-8")
-            template_path = root / ".agents" / "skills" / "workflow-config" / "assets" / "agents" / provider / f"{agent_name}.{extension}"
+            template_path = root / ".agents" / "skills" / "wtk-config" / "assets" / "agents" / provider / f"{agent_name}.{extension}"
             template_path.parent.mkdir(parents=True, exist_ok=True)
             template_path.write_bytes(content)
             if runtime:
@@ -111,7 +111,7 @@ def write_parallelization(root: Path, content: str, *, encoding: str = "utf-8") 
 
 
 def write_tasks(root: Path, content: str, feature: str = "fixture") -> Path:
-    path = root / ".specs" / "features" / feature / "tasks.md"
+    path = root / ".specs" / "features" / feature / "checks.md"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
     return path
@@ -133,22 +133,12 @@ def task_row(task_id: str, slice_id: str) -> str:
 
 
 def task_contract(*rows: str, slice_count: int = 1) -> str:
-    closures = [
-        "| Slice | Observable outcome | Independent gate | Merge if later slices are cancelled? | Why |",
-        "| --- | --- | --- | --- | --- |",
-    ]
-    for index in range(slice_count):
-        slice_id = chr(ord("A") + index)
-        closures.append(
-            f"| {slice_id} | Capability {slice_id} works alone. | `python3 -m unittest` | yes | Independent value. |"
-        )
-    return "\n".join(
-        ["# Fixture tasks", "", "## Vertical Slice Closure", "", *closures, "", "## Task Breakdown", "", *rows, ""]
-    )
+    headings = [f"### S{index} - Capability {index} works alone." for index in range(1, slice_count + 1)]
+    return "\n".join(["# Fixture checks", "", *headings, "", *rows, ""])
 
 
 def write_derived_tasks(root: Path, feature: str, slice_count: int) -> Path:
-    """Write a tasks.md whose validated closure contract derives `slice_count` slices."""
+    """Write a checks.md whose slice headings derive `slice_count` slices."""
     rows = "".join(task_row(f"T{n}", chr(ord("A") + n - 1)) for n in range(1, slice_count + 1))
     return write_tasks(root, task_contract(rows, slice_count=slice_count), feature)
 
@@ -170,8 +160,7 @@ def make_provider(root: Path, relative: str = "tools/workflow_resources", *, exe
 def test_initial_resolution_derives_one_slice_from_tasks() -> None:
     root = make_repo()
     try:
-        fixture = ROOT / "tools/fixtures/tlc-validator/merge-alone-one-slice.md"
-        write_tasks(root, fixture.read_text(encoding="utf-8"))
+        write_derived_tasks(root, "fixture", 1)
         snapshot = workflow_config.resolve(root=root, feature="fixture", native_provider="codex")
         assert snapshot["deep_review"]["groups"] == [[1]]
     finally:
@@ -182,8 +171,7 @@ def test_initial_resolution_derives_one_slice_from_tasks() -> None:
 def test_initial_resolution_derives_two_independent_slices_from_tasks() -> None:
     root = make_repo()
     try:
-        fixture = ROOT / "tools/fixtures/tlc-validator/merge-alone-two-slices.md"
-        write_tasks(root, fixture.read_text(encoding="utf-8"))
+        write_derived_tasks(root, "fixture", 2)
         snapshot = workflow_config.resolve(root=root, feature="fixture", native_provider="codex")
         assert snapshot["deep_review"]["groups"] == [[1, 2]]
     finally:
@@ -263,47 +251,7 @@ def test_missing_tasks_defaults_to_one_slice_without_manual_count() -> None:
         shutil.rmtree(root)
 
 
-# MAS-IT-005: a malformed closure contract fails before the snapshot is written.
-def test_malformed_tasks_fails_before_snapshot_write() -> None:
-    root = make_repo()
-    try:
-        write_tasks(root, task_row("T1", "A"))
-        try:
-            workflow_config.resolve(root=root, feature="fixture", native_provider="codex")
-        except workflow_config.ConfigError as exc:
-            assert "tasks closure validation failed" in str(exc)
-            assert "Vertical Slice Closure" in str(exc)
-        else:
-            raise AssertionError("expected malformed tasks failure")
-        assert not (root / ".specs/features/fixture/workflow.json").exists()
-    finally:
-        shutil.rmtree(root)
-
-
-# MAS-IT-005: a malformed refresh preserves the existing snapshot bytes.
-def test_malformed_refresh_preserves_snapshot_bytes() -> None:
-    root = make_repo()
-    try:
-        write_derived_tasks(root, "fixture", 1)
-        workflow_config.resolve(root=root, feature="fixture", native_provider="codex")
-        snapshot_path = root / ".specs/features/fixture/workflow.json"
-        before = snapshot_path.read_bytes()
-        write_tasks(root, task_row("T1", "A"))
-        try:
-            workflow_config.resolve(
-                root=root, feature="fixture", native_provider="codex", refresh=True
-            )
-        except workflow_config.ConfigError as exc:
-            assert "tasks closure validation failed" in str(exc)
-            assert "Vertical Slice Closure" in str(exc)
-        else:
-            raise AssertionError("expected malformed refresh failure")
-        assert snapshot_path.read_bytes() == before
-    finally:
-        shutil.rmtree(root)
-
-
-# MAS-IT-006: normal resume returns the frozen snapshot without reading current tasks.
+# MAS-IT-006: normal resume returns the frozen snapshot without reading current checks.
 def test_resume_returns_frozen_snapshot_without_reading_changed_tasks() -> None:
     for current_tasks in (
         task_contract(task_row("T1", "A") + task_row("T2", "B"), slice_count=2),
@@ -355,7 +303,7 @@ def test_defaults_and_native_routing() -> None:
             root=root, feature="default", slice_count=4, native_provider="codex"
         )
         assert snapshot["parallelization"] == {
-            "mode": "assisted", "max_workers": "auto", "automatic_baseline": 2,
+            "mode": "disabled", "max_workers": "auto", "automatic_baseline": 2,
             "automatic_ceiling": 4, "resource_provider": None,
         }
         assert snapshot["deep_review"] == {"cadence": "skip", "groups": []}
@@ -368,7 +316,7 @@ def test_defaults_and_native_routing() -> None:
 def test_parallelization_accepts_supported_modes_and_caps() -> None:
     root = make_repo()
     try:
-        resolver = ROOT / ".agents/skills/workflow-config/scripts/workflow_config.py"
+        resolver = ROOT / ".agents/skills/wtk-config/scripts/workflow_config.py"
         for mode in ("assisted", "disabled"):
             write_parallelization(root,
                 f"[parallelization]\nmode = '{mode}'\n", encoding="utf-8"
@@ -407,7 +355,7 @@ def test_parallelization_accepts_supported_modes_and_caps() -> None:
                                         native_provider="codex", refresh=True)
             except workflow_config.ConfigError as exc:
                 assert str(exc) == (
-                    "workflow-config: parallelization.max_workers must be "
+                    "wtk-config: parallelization.max_workers must be "
                     "'auto' or an integer of at least 1"
                 )
             else:
@@ -436,7 +384,7 @@ def test_parallelization_rejects_invalid_mode_without_replacing_snapshot() -> No
                 refresh=True,
             )
         except workflow_config.ConfigError as exc:
-            assert str(exc) == "workflow-config: parallelization.mode must be 'assisted' or 'disabled'"
+            assert str(exc) == "wtk-config: parallelization.mode must be 'assisted' or 'disabled'"
         else:
             raise AssertionError("expected invalid parallelization mode")
         assert path.read_bytes() == original
@@ -458,7 +406,7 @@ def test_old_active_snapshot_requires_explicit_refresh_without_replacement() -> 
             workflow_config.resolve(root=root, feature="stale", slice_count=1, native_provider="codex")
         except workflow_config.ConfigError as exc:
             assert str(exc) == (
-                "workflow-config: workflow snapshot version is stale; "
+                "wtk-config: workflow snapshot version is stale; "
                 "rerun resolution with --refresh"
             )
         else:
@@ -843,9 +791,9 @@ def test_sync_preflights_early_and_late_runtime_collisions_before_local_init() -
                 workflow_config.sync_agents(root)
             except workflow_config.ConfigError as exc:
                 expected = (
-                    f"workflow-config: runtime destination {collision.as_posix()} must be a file"
+                    f"wtk-config: runtime destination {collision.as_posix()} must be a file"
                     if kind == "destination"
-                    else f"workflow-config: runtime parent {collision.as_posix()} must be a directory"
+                    else f"wtk-config: runtime parent {collision.as_posix()} must be a directory"
                 )
                 assert str(exc) == expected
             else:
@@ -871,7 +819,7 @@ def test_sync_rejects_symlinked_runtime_paths_before_local_init() -> None:
             "runtime destination .codex/agents/planner.toml must not be a symlink",
         ),
     )
-    resolver = Path(__file__).resolve().parent.parent / ".agents/skills/workflow-config/scripts/workflow_config.py"
+    resolver = Path(__file__).resolve().parent.parent / ".agents/skills/wtk-config/scripts/workflow_config.py"
     for name, collision, message in cases:
         root = make_packet_root()
         outside = Path(tempfile.mkdtemp())
@@ -901,7 +849,7 @@ def test_sync_rejects_symlinked_runtime_paths_before_local_init() -> None:
             )
             assert result.returncode == 2, name
             assert result.stdout == "", name
-            assert result.stderr == f"workflow-config: {message}\n", name
+            assert result.stderr == f"wtk-config: {message}\n", name
             assert not (root / ".my-workflow.toml").exists(), name
             assert runtime_state(root) == before_runtime, name
             assert tree_state(outside) == before_outside, name
@@ -916,11 +864,11 @@ def test_sync_rejects_symlinked_local_sources_before_any_write() -> None:
         ("config example", Path(".my-workflow.toml.example"), "config example path .my-workflow.toml.example must not be a symlink"),
         (
             "agent template",
-            Path(".agents/skills/workflow-config/assets/agents/claude/planner.md"),
-            "agent template path .agents/skills/workflow-config/assets/agents/claude/planner.md must not be a symlink",
+            Path(".agents/skills/wtk-config/assets/agents/claude/planner.md"),
+            "agent template path .agents/skills/wtk-config/assets/agents/claude/planner.md must not be a symlink",
         ),
     )
-    resolver = Path(__file__).resolve().parent.parent / ".agents/skills/workflow-config/scripts/workflow_config.py"
+    resolver = Path(__file__).resolve().parent.parent / ".agents/skills/wtk-config/scripts/workflow_config.py"
     for name, source, message in cases:
         root = make_packet_root()
         outside = Path(tempfile.mkdtemp())
@@ -957,7 +905,7 @@ def test_sync_rejects_symlinked_local_sources_before_any_write() -> None:
             )
             assert result.returncode == 2, name
             assert result.stdout == "", name
-            assert result.stderr == f"workflow-config: {message}\n", name
+            assert result.stderr == f"wtk-config: {message}\n", name
             assert path_state(root / ".my-workflow.toml") == config_before, name
             assert runtime_state(root) == before_runtime, name
             assert tree_state(outside) == before_outside, name
@@ -967,7 +915,7 @@ def test_sync_rejects_symlinked_local_sources_before_any_write() -> None:
 
 
 def test_sync_rejects_symlinked_root_before_any_external_write() -> None:
-    resolver = Path(__file__).resolve().parent.parent / ".agents/skills/workflow-config/scripts/workflow_config.py"
+    resolver = Path(__file__).resolve().parent.parent / ".agents/skills/wtk-config/scripts/workflow_config.py"
 
     target = make_root()
     link_parent = Path(tempfile.mkdtemp())
@@ -987,7 +935,7 @@ def test_sync_rejects_symlinked_root_before_any_external_write() -> None:
         )
         assert result.returncode == 2
         assert result.stdout == ""
-        assert result.stderr == f"workflow-config: root {linked_root.absolute()} must not be a symlink\n"
+        assert result.stderr == f"wtk-config: root {linked_root.absolute()} must not be a symlink\n"
         assert not (target / ".my-workflow.toml").exists()
         assert runtime_state(target) == before_runtime
         assert tree_state(target) == before_target
@@ -1008,7 +956,7 @@ def test_sync_rejects_symlinked_root_before_any_external_write() -> None:
         )
         assert result.returncode == 2
         assert result.stdout == ""
-        assert result.stderr == f"workflow-config: root {dangling_root.absolute()} must not be a symlink\n"
+        assert result.stderr == f"wtk-config: root {dangling_root.absolute()} must not be a symlink\n"
         assert not missing_target.exists()
         assert list(dangling_parent.iterdir()) == [dangling_root]
     finally:
@@ -1019,14 +967,14 @@ def test_sync_rebuilds_runtime_from_immutable_templates() -> None:
     root = make_packet_root()
     try:
         workflow_config.sync_agents(root)
-        template = root / ".agents/skills/workflow-config/assets/agents/claude/planner.md"
+        template = root / ".agents/skills/wtk-config/assets/agents/claude/planner.md"
         template_before = template.read_bytes()
         runtime = root / ".claude/agents/planner.md"
         runtime.write_bytes(runtime.read_bytes().replace(b"Instructions for planner.", b"Disposable runtime edit."))
         result = workflow_config.sync_agents(root)
         assert ".claude/agents/planner.md" in result["changed"]
         expected = workflow_config.render_agent_packet(
-            "claude", template_before, MODELS["claude"]["planner"], Path(".agents/skills/workflow-config/assets/agents/claude/planner.md")
+            "claude", template_before, MODELS["claude"]["planner"], Path(".agents/skills/wtk-config/assets/agents/claude/planner.md")
         )
         assert runtime.read_bytes() == expected
         assert template.read_bytes() == template_before
@@ -1049,7 +997,7 @@ def test_sync_preserves_non_model_bytes() -> None:
 def test_sync_rejects_malformed_packet_before_any_write() -> None:
     root = make_packet_root()
     try:
-        target = root / ".agents/skills/workflow-config/assets/agents/cursor/verifier.md"
+        target = root / ".agents/skills/wtk-config/assets/agents/cursor/verifier.md"
         target.write_text(target.read_text(encoding="utf-8").replace("model:", "model-old:"), encoding="utf-8")
         before = {
             path: path.read_bytes()
@@ -1070,7 +1018,7 @@ def test_sync_rejects_malformed_packet_before_any_write() -> None:
 def test_cli_errors_use_public_prefix_exit_two_and_empty_stdout() -> None:
     root = make_packet_root()
     try:
-        resolver = Path(__file__).resolve().parent.parent / ".agents/skills/workflow-config/scripts/workflow_config.py"
+        resolver = Path(__file__).resolve().parent.parent / ".agents/skills/wtk-config/scripts/workflow_config.py"
         config = root / ".my-workflow.toml"
         config.write_text(config.read_text(encoding="utf-8").replace('model = "codex-verifier"', 'model = ""', 1), encoding="utf-8")
         result = subprocess.run(
@@ -1079,7 +1027,7 @@ def test_cli_errors_use_public_prefix_exit_two_and_empty_stdout() -> None:
         )
         assert result.returncode == 2
         assert result.stdout == ""
-        assert result.stderr.startswith("workflow-config:")
+        assert result.stderr.startswith("wtk-config:")
 
         invalid = subprocess.run(
             [sys.executable, str(resolver), "--root", str(root), "--feature", "bad", "--slices", "0", "--native-provider", "codex"],
@@ -1087,7 +1035,7 @@ def test_cli_errors_use_public_prefix_exit_two_and_empty_stdout() -> None:
         )
         assert invalid.returncode == 2
         assert invalid.stdout == ""
-        assert invalid.stderr.startswith("workflow-config:")
+        assert invalid.stderr.startswith("wtk-config:")
 
         conflict = subprocess.run(
             [sys.executable, str(resolver), "--root", str(root), "--sync-agents", "--feature", "conflict", "--slices", "1", "--native-provider", "codex"],
@@ -1095,7 +1043,7 @@ def test_cli_errors_use_public_prefix_exit_two_and_empty_stdout() -> None:
         )
         assert conflict.returncode == 2
         assert conflict.stdout == ""
-        assert conflict.stderr == "workflow-config: --sync-agents cannot be combined with feature-resolution arguments\n"
+        assert conflict.stderr == "wtk-config: --sync-agents cannot be combined with feature-resolution arguments\n"
     finally:
         shutil.rmtree(root)
 
@@ -1115,7 +1063,7 @@ def test_sync_invalid_config_and_duplicate_metadata_write_no_packets() -> None:
         assert {path: path.read_bytes() for path in before} == before
 
         write_config(root)
-        duplicate = root / ".agents/skills/workflow-config/assets/agents/claude/verifier.md"
+        duplicate = root / ".agents/skills/wtk-config/assets/agents/claude/verifier.md"
         duplicate.write_text(
             duplicate.read_text(encoding="utf-8").replace(
                 "model: old-model\n", "model: old-model\nmodel: duplicate\n", 1
@@ -1140,7 +1088,7 @@ def test_cli_rejects_non_roundtrip_model_identifier_before_writes() -> None:
         before = {path: path.read_bytes() for path in packet_paths(root)}
         config = root / ".my-workflow.toml"
         config.write_text(config.read_text(encoding="utf-8").replace('model = "claude-planner"', 'model = "claude planner"', 1), encoding="utf-8")
-        resolver = Path(__file__).resolve().parent.parent / ".agents/skills/workflow-config/scripts/workflow_config.py"
+        resolver = Path(__file__).resolve().parent.parent / ".agents/skills/wtk-config/scripts/workflow_config.py"
         result = subprocess.run(
             [sys.executable, str(resolver), "--root", str(root), "--sync-agents"],
             text=True, capture_output=True, check=False,
@@ -1164,7 +1112,7 @@ def test_cli_rejects_codex_backslash_model_identifier_before_writes() -> None:
             ),
             encoding="utf-8",
         )
-        resolver = Path(__file__).resolve().parent.parent / ".agents/skills/workflow-config/scripts/workflow_config.py"
+        resolver = Path(__file__).resolve().parent.parent / ".agents/skills/wtk-config/scripts/workflow_config.py"
         result = subprocess.run(
             [sys.executable, str(resolver), "--root", str(root), "--sync-agents"],
             text=True, capture_output=True, check=False,
@@ -1185,7 +1133,7 @@ def test_sync_requires_native_header_metadata_for_every_provider() -> None:
                 role = "planner"
                 agent_name = workflow_config.AGENT_NAMES.get(role, role)
                 extension = "toml" if provider == "codex" else "md"
-                packet = root / ".agents" / "skills" / "workflow-config" / "assets" / "agents" / provider / f"{agent_name}.{extension}"
+                packet = root / ".agents" / "skills" / "wtk-config" / "assets" / "agents" / provider / f"{agent_name}.{extension}"
                 text = packet.read_text(encoding="utf-8")
                 if provider == "claude":
                     if duplicate:
@@ -1236,7 +1184,7 @@ def test_sync_preserves_crlf_packet_bytes_for_all_providers() -> None:
 def test_codex_ignores_model_like_lines_inside_multiline_toml_text() -> None:
     root = make_packet_root()
     try:
-        packet = root / ".agents/skills/workflow-config/assets/agents/codex/planner.toml"
+        packet = root / ".agents/skills/wtk-config/assets/agents/codex/planner.toml"
         packet.write_bytes(
             (
                 'name = "planner"\n'
@@ -1606,7 +1554,7 @@ def test_cli_adapter_and_invalid_slice_count() -> None:
     try:
         workflow_config.sync_agents(root)
         git_root(root)
-        resolver = Path(__file__).resolve().parent.parent / ".agents/skills/workflow-config/scripts/workflow_config.py"
+        resolver = Path(__file__).resolve().parent.parent / ".agents/skills/wtk-config/scripts/workflow_config.py"
         write_derived_tasks(root, "cli", 2)
         result = subprocess.run(
             [sys.executable, str(resolver), "--root", str(root), "--feature", "cli", "--slices", "2", "--native-provider", "codex", "--override", "verifier=claude"],
@@ -1623,7 +1571,7 @@ def test_cli_adapter_and_invalid_slice_count() -> None:
         )
         assert invalid.returncode == 2
         assert invalid.stdout == ""
-        assert "workflow-config: slice count must be at least 1" in invalid.stderr
+        assert "wtk-config: slice count must be at least 1" in invalid.stderr
     finally:
         shutil.rmtree(root)
 
@@ -1633,7 +1581,7 @@ def test_cli_loads_configured_cadence_into_json_and_snapshot() -> None:
     try:
         workflow_config.sync_agents(root)
         git_root(root)
-        resolver = Path(__file__).resolve().parent.parent / ".agents/skills/workflow-config/scripts/workflow_config.py"
+        resolver = Path(__file__).resolve().parent.parent / ".agents/skills/wtk-config/scripts/workflow_config.py"
         cases = (
             ("slice", 4, [[1], [2], [3], [4]], "", 3),
             ("feature", 4, [[1, 2, 3, 4]], "\n[remediation]\nstall_attempts = 5\n", 5),
@@ -1729,7 +1677,7 @@ def test_invalid_frozen_agent_paths_exit_two_without_snapshot_mutation() -> None
         workflow_config.resolve(root=root, feature="invalid-frozen-path", slice_count=1, native_provider="codex")
         snapshot_path = root / ".specs/features/invalid-frozen-path/workflow.json"
         original = snapshot_path.read_bytes()
-        resolver = Path(__file__).resolve().parent.parent / ".agents/skills/workflow-config/scripts/workflow_config.py"
+        resolver = Path(__file__).resolve().parent.parent / ".agents/skills/wtk-config/scripts/workflow_config.py"
         cases = (".codex/agents/verifier.toml", ".codex/agents/implementer.toml")
         for invalid_path in cases:
             if invalid_path.endswith("verifier.toml"):
@@ -1755,7 +1703,7 @@ def test_invalid_frozen_agent_paths_exit_two_without_snapshot_mutation() -> None
             )
             assert result.returncode == 2
             assert result.stdout == ""
-            assert result.stderr.startswith("workflow-config:")
+            assert result.stderr.startswith("wtk-config:")
             if invalid_path.endswith("verifier.toml"):
                 assert "role 'implementer' has an invalid agent_file" in result.stderr
             else:
@@ -1786,9 +1734,9 @@ def make_preload_root() -> Path:
     write_config(root)
     write_packets(root, runtime=False)
     for provider in ("claude", "codex", "cursor"):
-        src = ROOT / ".agents" / "skills" / "workflow-config" / "assets" / "agents" / provider
+        src = ROOT / ".agents" / "skills" / "wtk-config" / "assets" / "agents" / provider
         if src.is_dir():
-            shutil.copytree(src, root / ".agents" / "skills" / "workflow-config" / "assets" / "agents" / provider, dirs_exist_ok=True)
+            shutil.copytree(src, root / ".agents" / "skills" / "wtk-config" / "assets" / "agents" / provider, dirs_exist_ok=True)
     for role in workflow_config.ROLES:
         template = root / workflow_config._template_relative("claude", role)
         header, _ = workflow_config._header("claude", template.read_text(encoding="utf-8"), template)
@@ -1803,13 +1751,13 @@ def test_sync_passes_preload_keys_through_untouched() -> None:
     root = make_preload_root()
     try:
         workflow_config.sync_agents(root)
-        template = (root / ".agents/skills/workflow-config/assets/agents/claude/implementer.md").read_text(encoding="utf-8")
+        template = (root / ".agents/skills/wtk-config/assets/agents/claude/implementer.md").read_text(encoding="utf-8")
         generated = (root / ".claude/agents/implementer.md").read_text(encoding="utf-8")
         setting = MODELS["claude"]["implementer"]
         assert generated == template.replace(
             "model: opus\neffort: medium\n", f"model: {setting['model']}\neffort: {setting['effort']}\n"
         ), "generated implementer differs from its template beyond model and effort"
-        for key in ("skills: [wimplement, ponytail]", "disallowedTools: Skill"):
+        for key in ("skills: [ponytail]", "disallowedTools: Skill"):
             assert key in template and key in generated, f"{key!r} did not survive rendering"
     finally:
         shutil.rmtree(root)
@@ -1817,22 +1765,22 @@ def test_sync_passes_preload_keys_through_untouched() -> None:
 
 def assert_sync_rejects_preload_skill(root: Path, name: str) -> None:
     """Sync must fail loudly on a preload name that resolves to no SKILL.md, before any write."""
-    template = root / ".agents/skills/workflow-config/assets/agents/claude/implementer.md"
+    template = root / ".agents/skills/wtk-config/assets/agents/claude/implementer.md"
     template.write_text(
         template.read_text(encoding="utf-8").replace(
-            "skills: [wimplement, ponytail]", f"skills: [wimplement, {name}]"
+            "skills: [ponytail]", f"skills: [ponytail, {name}]"
         ),
         encoding="utf-8",
     )
     before = tree_state(root)
     completed = subprocess.run(
-        [sys.executable, str(ROOT / ".agents/skills/workflow-config/scripts/workflow_config.py"),
+        [sys.executable, str(ROOT / ".agents/skills/wtk-config/scripts/workflow_config.py"),
          "--root", str(root), "--sync-agents"],
         capture_output=True, text=True,
     )
     assert completed.returncode != 0, f"sync accepted preload skill {name!r}"
     assert completed.stdout == "", f"sync wrote stdout: {completed.stdout!r}"
-    assert ".agents/skills/workflow-config/assets/agents/claude/implementer.md" in completed.stderr, completed.stderr
+    assert ".agents/skills/wtk-config/assets/agents/claude/implementer.md" in completed.stderr, completed.stderr
     assert name in completed.stderr, completed.stderr
     for provider in workflow_config.PROVIDERS:
         directory = root / f".{provider}" / "agents"
@@ -1875,12 +1823,12 @@ def test_it001_sync_renders_designer_packets() -> None:
     try:
         shutil.copy(ROOT / ".my-workflow.toml.example", root / ".my-workflow.toml")
         completed = subprocess.run(
-            [sys.executable, str(ROOT / ".agents/skills/workflow-config/scripts/workflow_config.py"),
+            [sys.executable, str(ROOT / ".agents/skills/wtk-config/scripts/workflow_config.py"),
              "--root", str(root), "--sync-agents"],
             capture_output=True, text=True,
         )
         assert completed.returncode == 0, completed.stderr
-        claude_designer = root / ".agents/skills/workflow-config/assets/agents/claude/designer.md"
+        claude_designer = root / ".agents/skills/wtk-config/assets/agents/claude/designer.md"
         claude_runtime_path = root / ".claude/agents/designer.md"
         codex_runtime_path = root / ".codex/agents/designer.toml"
         cursor_runtime_path = root / ".cursor/agents/designer.md"
@@ -1890,7 +1838,7 @@ def test_it001_sync_renders_designer_packets() -> None:
         claude_runtime = claude_runtime_path.read_text(encoding="utf-8")
         codex_runtime = codex_runtime_path.read_text(encoding="utf-8")
         cursor_runtime = cursor_runtime_path.read_text(encoding="utf-8")
-        assert "skills: [wdesign, ponytail]" in claude_runtime
+        assert "skills: [wtk-plan, ponytail]" in claude_runtime
         claude_designer_skills = [line for line in claude_designer.read_text(encoding="utf-8").splitlines() if line.startswith("skills:")][0]
         claude_runtime_skills = [line for line in claude_runtime.splitlines() if line.startswith("skills:")][0]
         assert claude_designer_skills == claude_runtime_skills
@@ -1920,7 +1868,7 @@ def test_it002_sync_rejects_missing_designer_table_or_template() -> None:
             config_path.write_text(new_config, encoding="utf-8")
             before = tree_state(root)
             completed = subprocess.run(
-                [sys.executable, str(ROOT / ".agents/skills/workflow-config/scripts/workflow_config.py"),
+                [sys.executable, str(ROOT / ".agents/skills/wtk-config/scripts/workflow_config.py"),
                  "--root", str(root), "--sync-agents"],
                 capture_output=True, text=True,
             )
@@ -1936,17 +1884,17 @@ def test_it002_sync_rejects_missing_designer_table_or_template() -> None:
     try:
         write_config(root2)
         write_packets(root2, runtime=False)
-        designer_template = root2 / ".agents/skills/workflow-config/assets/agents/claude/designer.md"
+        designer_template = root2 / ".agents/skills/wtk-config/assets/agents/claude/designer.md"
         if designer_template.exists():
             designer_template.unlink()
         before2 = tree_state(root2)
         completed2 = subprocess.run(
-            [sys.executable, str(ROOT / ".agents/skills/workflow-config/scripts/workflow_config.py"),
+            [sys.executable, str(ROOT / ".agents/skills/wtk-config/scripts/workflow_config.py"),
              "--root", str(root2), "--sync-agents"],
             capture_output=True, text=True,
         )
         assert completed2.returncode != 0
-        assert ".agents/skills/workflow-config/assets/agents/claude/designer.md" in completed2.stderr
+        assert ".agents/skills/wtk-config/assets/agents/claude/designer.md" in completed2.stderr
         assert tree_state(root2) == before2
         for runtime_provider in workflow_config.PROVIDERS:
             assert not (root2 / f".{runtime_provider}" / "agents").exists()

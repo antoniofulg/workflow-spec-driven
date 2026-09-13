@@ -250,7 +250,7 @@ describe("external security skill installation", { timeout: 30_000 }, () => {
   it("keeps security skills separate from the guided installer", () => {
     const fixture = mkdtempSync(join(tmpdir(), "my-workflow-adopt-"));
     try {
-      const result = spawnSync(process.execPath, [join(repositoryRoot, "bin/workflow-spec-driven.js"), "--help"], {
+      const result = spawnSync(process.execPath, [join(repositoryRoot, "bin/wtk.js"), "--help"], {
         cwd: repositoryRoot,
         encoding: "utf8",
       });
@@ -259,7 +259,7 @@ describe("external security skill installation", { timeout: 30_000 }, () => {
         expect(existsSync(join(fixture, ".agents/skills", name))).toBe(false);
       }
       expect(readFileSync(join(repositoryRoot, "README.md"), "utf8")).toContain("install_security_skills.py");
-      expect(result.stdout).toContain("workflow-spec-driven install");
+      expect(result.stdout).toContain("wtk install");
     } finally {
       rmSync(fixture, { recursive: true, force: true });
     }

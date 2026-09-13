@@ -11,12 +11,12 @@ and filed Trivials make review end.
 | Stage | Asks | Cap |
 | --- | --- | --- |
 | **Technical Verifier** (every slice that changes code) | Do the tests actually prove the acceptance criteria? | Same-fingerprint live threshold |
-| **deep-review** (resolved implementation groups) | Is the code correct, safe and maintainable? | Discovery once; one remediation check per batch until no Critical/Major is open or `stall_attempts` halts |
-| **QA session** (feature closing step) | Does the finished feature work for a real user? | One `qa-plan` and one `qa-execute` session |
-The provider `verifier` executes exactly one phase per packet: `technical`, `qa-plan`, or
-`qa-execute`. The orchestrator dispatches a technical packet per code-changing slice and the QA
+| **wtk-deep-review** (resolved implementation groups) | Is the code correct, safe and maintainable? | Discovery once; one remediation check per batch until no Critical/Major is open or `stall_attempts` halts |
+| **QA session** (feature closing step) | Does the finished feature work for a real user? | One `wtk-qa-plan` and one `wtk-qa-execute` session |
+The provider `verifier` executes exactly one phase per packet: `technical`, `wtk-qa-plan`, or
+`wtk-qa-execute`. The orchestrator dispatches a technical packet per code-changing slice and the QA
 packets once, at feature close; no slice runs QA. Deep-review is a separate orchestrator stage, not a Verifier phase.
-The QA session reads `docs/guidelines/QA-SCENARIOS.md`; it owns fields and statuses. Each stage answers a question the others cannot, so none is redundant. Direct corrections follow `.agents/skills/workflow-spec-driven/SKILL.md`: scoped validation closes them, with no fresh Verifier, deep-review, or QA.
+The QA session reads `docs/guidelines/QA-SCENARIOS.md`; it owns fields and statuses. Each stage answers a question the others cannot, so none is redundant. Direct corrections follow `.agents/skills/wtk/SKILL.md`: scoped validation closes them, with no fresh Verifier, wtk-deep-review, or QA.
 
 Intent vocabulary is routing input, not a keyword bypass: `feature` starts at Small, `cross-feature change` at Medium, `direct correction`/`UI-only correction` use the fast path only when the repository predicate passes, and `issue` is neutral. State tier, facts, and validation before dispatch; escalation requires newly discovered named evidence, not file count or UI presence.
 
@@ -25,23 +25,23 @@ Intent vocabulary is routing input, not a keyword bypass: `feature` starts at Sm
 A discovery review reads the whole change, so its cost explodes with the diff. The remediation check
 reads only `reviewed_head..HEAD`, so remediation cost tracks the fix, not the feature.
 
-Read `.agents/skills/workflow-config/SKILL.md` before dispatch; its resolver owns cadence modes,
+Read `.agents/skills/wtk-config/SKILL.md` before dispatch; its resolver owns cadence modes,
 default, and balanced groups. One pull request and one actor per role remain unchanged.
 
-**Stages do not loop back into each other.** A deep-review finding never sends work back to
+**Stages do not loop back into each other.** A wtk-deep-review finding never sends work back to
 Technical Verifier. A clean remediation check or the stall bound ends the loop; neither revokes the
 approval for local remediation already in progress. The post-fix gate and escalation rule below
 decide whether the slice is done.
 
-Before final QA, complete the final pending implementation deep-review group; cadence `skip` resolves no groups, so nothing waits for deep-review. For QA code remediation, review only `reviewed_head..HEAD`, then re-walk affected scenario rows.
+Before final QA, complete the final pending implementation wtk-deep-review group; cadence `skip` resolves no groups, so nothing waits for wtk-deep-review. For QA code remediation, review only `reviewed_head..HEAD`, then re-walk affected scenario rows.
 
 ## The feature closing step
 
 A feature's closing step is the **QA session**, after the final implementation review group. It
-needs the whole feature and cannot run on part of one. The `qa-plan` and `qa-execute` skills own it.
+needs the whole feature and cannot run on part of one. The `wtk-qa-plan` and `wtk-qa-execute` skills own it.
 
-It writes no product code, so it gets no technical Verifier or deep-review. It receives distinct
-fresh packets, `qa-plan` and `qa-execute`, and walks every scenario the feature flagged.
+It writes no product code, so it gets no technical Verifier or wtk-deep-review. It receives distinct
+fresh packets, `wtk-qa-plan` and `wtk-qa-execute`, and walks every scenario the feature flagged.
 
 ## Hard rules
 
@@ -49,9 +49,9 @@ fresh packets, `qa-plan` and `qa-execute`, and walks every scenario the feature 
    ledger. A pending, accepted, or already-resolved issue is never re-raised. This is what makes the
    loop monotonic and therefore finite.
 
-   `workflow-spec-driven` points here for remediation identity and counting; this rule prevents a renamed
+   `wtk` points here for remediation identity and counting; this rule prevents a renamed
    finding from resetting its history while allowing a distinct finding to proceed.
-2. **Nitpicks never trigger a review.** Fix every confirmed deep-review defect in the active feature run. Critical and Major findings trigger one remediation batch, then one remediation check: a one-job incremental deep-review over `reviewed_head..HEAD` that dispositions every open prior finding and reviews the fix. Repeat batch + check until no Critical/Major is open or `[remediation].stall_attempts` halts. Minor findings join that batch, or close together in one Minor-only batch with one scoped gate and one commit; a Minor-only batch starts no fresh Technical Verifier, QA phase, or remediation check. Trivials and advisories go to the pull request follow-up list. **In an active, already-approved review loop, fix blocking findings without new human approval and run the scoped gate after each correction; escalate only if the post-fix gate fails or the stall threshold is reached for the same fingerprint.** Local fixes only; remote actions retain separate approval requirements.
+2. **Nitpicks never trigger a review.** Fix every confirmed wtk-deep-review defect in the active feature run. Critical and Major findings trigger one remediation batch, then one remediation check: a one-job incremental wtk-deep-review over `reviewed_head..HEAD` that dispositions every open prior finding and reviews the fix. Repeat batch + check until no Critical/Major is open or `[remediation].stall_attempts` halts. Minor findings join that batch, or close together in one Minor-only batch with one scoped gate and one commit; a Minor-only batch starts no fresh Technical Verifier, QA phase, or remediation check. Trivials and advisories go to the pull request follow-up list. **In an active, already-approved review loop, fix blocking findings without new human approval and run the scoped gate after each correction; escalate only if the post-fix gate fails or the stall threshold is reached for the same fingerprint.** Local fixes only; remote actions retain separate approval requirements.
 3. **Deduplicate by root cause, not by occurrence.** One missing null check repeated in six files is
    one finding that lists six files — not six findings.
 4. **Verify before flagging.** Check for an adjacent comment explaining the choice, a decision in
@@ -66,7 +66,7 @@ identity and buys the same independence.
    Verifier and Deep Reviewer receive fresh role packets. They do not inherit the Implementer's
    transcript or operator handoff. Their conclusions must come from the spec, diff, tests, and
    assigned evidence.
-8. **Documentation and instruction changes follow the proportional classifier in `GATES.md`.** Pure maintenance and bounded instruction changes do not start deep-review or QA by default; mixed changes run canonical checks for changed executable behavior. Named concrete risk or changed public promise can select stronger review; file count and the word "feature" do not escalate them.
+8. **Documentation and instruction changes follow the proportional classifier in `GATES.md`.** Pure maintenance and bounded instruction changes do not start wtk-deep-review or QA by default; mixed changes run canonical checks for changed executable behavior. Named concrete risk or changed public promise can select stronger review; file count and the word "feature" do not escalate them.
 8. **A passing verdict on a failing tree is void.** Re-run the scoped gate after remediation; a green
    review over a red gate is not a review.
 9. **A new control for an unobserved failure is Major (YAGNI) unless the spec named it.** A
@@ -92,7 +92,7 @@ Every finding states, in this order:
 A finding without a failure path is an advisory, not a defect. Advisories state
 **Premise → Improvement → Fix** and never block.
 
-Severity uses the scheme tlc's validation report already ships, so the Verifier and deep-review speak
+Severity uses the scheme tlc's validation report already ships, so the Verifier and wtk-deep-review speak
 one vocabulary:
 
 | Severity | Meaning | Action | Remediation check | Blocks delivery |
@@ -102,7 +102,7 @@ one vocabulary:
 | `Minor` | A spec edge case is unhandled, or a real maintenance hazard | Fix in the active feature batch | no | until fixed |
 | `Trivial` | Style, naming, structure — a nitpick by definition | File an issue | no | no |
 
-Every confirmed deep-review defect is fixed before feature delivery. An unfixed `Critical` or `Major`
+Every confirmed wtk-deep-review defect is fixed before feature delivery. An unfixed `Critical` or `Major`
 means the verdict is `FIX_BEFORE_SHIP`, and only those severities trigger a remediation check. Every
 `Minor` closes in the current remediation batch; the scoped gate and one commit close it without
 another proof cycle. Trivials and advisories become follow-ups and never hold a pull request.
@@ -112,7 +112,7 @@ Filed Trivial issues are real work, not a disposal bin. They enter the backlog l
 ## Fixing a filed issue
 
 **A filed Trivial issue does not re-enter the loop above.** It was already reviewed — that is how it
-came to be filed — so a verifier, a QA pass and a deep-review would re-do work that is already
+came to be filed — so a verifier, a QA pass and a wtk-deep-review would re-do work that is already
 done. Minor findings never enter this path; they close inside their originating feature run.
 
 Fix one, or a batch of them, as a small change:
@@ -121,7 +121,7 @@ Fix one, or a batch of them, as a small change:
 implement → scoped gate → one commit for the batch
 ```
 
-No spec, no tasks file, no verifier, no deep-review round. `workflow-spec-driven` already sizes this way:
+No spec, no tasks file, no verifier, no wtk-deep-review round. `wtk` already sizes this way:
 a change of a few files with an obvious outcome skips planning entirely.
 
 Three things still apply, because they are about the change and not about the review:
@@ -139,7 +139,7 @@ Batch aggressively. One commit per remediation batch is already the commit rule,
 ## Escalation
 
 While a remediation check leaves a Critical/Major open, finish approved remediation and run its scoped gate after every attempt; the fix needs no new approval. Each attempt derives a stable signature from sorted failing-test identifiers after removing timings, absolute paths, and line numbers; a current failing-test set that is a strict subset of the running minimum failing-test set resets the counter, while an equal-size set, including one with different members, or a larger set increments it, and `stall_attempts = 0` is unbounded.
-If the gate is unavailable, halt immediately without another remediation check; when a nonzero threshold is reached, halt with the repeated signature, attempt count, and fixes tried. An open Critical alone does not halt while attempts establish new minima; autonomous uses the same unavailable-gate or reached-threshold halt contract.
+If the gate is unavailable, halt immediately without another remediation check; when a nonzero threshold is reached, halt with the repeated signature, attempt count, and fixes tried. An open Critical alone does not halt while attempts establish new minima; wtk-ship uses the same unavailable-gate or reached-threshold halt contract.
 
 ## Requirement and contract parity
 

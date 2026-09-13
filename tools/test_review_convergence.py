@@ -10,12 +10,12 @@ import tempfile
 from copy import deepcopy
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / ".agents/skills/workflow-spec-driven/scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / ".agents/skills/wtk-ship/scripts"))
 import review_convergence
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parent.parent
-CONVERGENCE_CLI = REPOSITORY_ROOT / ".agents/skills/workflow-spec-driven/scripts/review_convergence.py"
+CONVERGENCE_CLI = REPOSITORY_ROOT / ".agents/skills/wtk-ship/scripts/review_convergence.py"
 
 
 def configured_root(stall_attempts: int = 3) -> Path:

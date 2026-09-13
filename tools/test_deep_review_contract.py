@@ -18,7 +18,7 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 
-SCRIPTS = Path(__file__).resolve().parents[1] / ".agents/skills/deep-review/scripts"
+SCRIPTS = Path(__file__).resolve().parents[1] / ".agents/skills/wtk-deep-review/scripts"
 BUILD_MANIFEST = SCRIPTS / "build_manifest.py"
 BUILD_JOBS = SCRIPTS / "build_jobs.py"
 MERGE_FINDINGS = SCRIPTS / "merge_findings.py"
@@ -28,7 +28,7 @@ RENDER_HTML = SCRIPTS / "render_html.py"
 BUILD_KNOWLEDGE = SCRIPTS / "build_knowledge.py"
 PUBLISH_RECIPE = (
     Path(__file__).resolve().parents[1]
-    / ".agents/skills/deep-review/references/publish-github.md"
+    / ".agents/skills/wtk-deep-review/references/publish-github.md"
 )
 sys.path.insert(0, str(SCRIPTS))
 
@@ -62,7 +62,7 @@ def init_repo(raw: str) -> Path:
     root = Path(raw)
     git(root, "init", "-q")
     git(root, "config", "user.email", "test@example.com")
-    git(root, "config", "user.name", "deep-review tests")
+    git(root, "config", "user.name", "wtk-deep-review tests")
     (root / "source.txt").write_text("a\n", encoding="utf-8")
     git(root, "add", "source.txt")
     git(root, "commit", "-qm", "initial")
@@ -79,7 +79,7 @@ def valid_payload() -> dict:
 
 
 def write_job_round(root: Path, *, payload: dict | None = None, job: dict | None = None) -> Path:
-    out = root / ".deep-review" / "out"
+    out = root / ".wtk-deep-review" / "out"
     out.mkdir(parents=True)
     head = git(root, "rev-parse", "HEAD")
     (out / "manifest.json").write_text(
@@ -134,7 +134,7 @@ def validate_status(root: Path, out: Path) -> tuple[subprocess.CompletedProcess[
 
 
 def render_fixture(root: Path, findings: list[dict]) -> Path:
-    out = root / ".deep-review" / "render"
+    out = root / ".wtk-deep-review" / "render"
     out.mkdir(parents=True)
     head = git(root, "rev-parse", "HEAD")
     (out / "manifest.json").write_text(
@@ -234,7 +234,7 @@ def full_fixture(root: Path, plan: dict, *, files: int = 3, lines: int = 1) -> t
         (root / name).write_text("changed\n" * lines, encoding="utf-8")
     git(root, "add", *names)
     git(root, "commit", "-qm", "feat: three files")
-    out = root / ".deep-review" / "full"
+    out = root / ".wtk-deep-review" / "full"
     manifest = run_script(BUILD_MANIFEST, root, "--out", str(out), "--base", base)
     assert manifest.returncode == 0, manifest.stdout + manifest.stderr
     (out / "plan.json").write_text(json.dumps({"sweeps": [], **plan}), encoding="utf-8")
@@ -253,7 +253,7 @@ def knowledge_round_one(root: Path) -> tuple[Path, str]:
     (root / "source.txt").write_text("a\nb\n", encoding="utf-8")
     git(root, "add", "source.txt")
     git(root, "commit", "-qm", "feat: change")
-    out = root / ".deep-review" / "out"
+    out = root / ".wtk-deep-review" / "out"
     result = run_script(BUILD_MANIFEST, root, "--out", str(out), "--base", base)
     assert result.returncode == 0, result.stdout + result.stderr
     (out / "rules.json").write_text(json.dumps({
@@ -416,7 +416,7 @@ class DeepReviewContractTests(unittest.TestCase):
 
     def test_walkthrough_publish_is_one_idempotent_upsert(self) -> None:
         recipe = publish_walkthrough_recipe()
-        self.assertIn("--jq '[.[] | select(.body | contains(\"<!-- deep-review:walkthrough -->\"))][0].id // empty'", recipe)
+        self.assertIn("--jq '[.[] | select(.body | contains(\"<!-- wtk-deep-review:walkthrough -->\"))][0].id // empty'", recipe)
         self.assertIn('if [ -n "$CID" ]; then', recipe)
         self.assertNotIn("/comments/null", recipe)
 
@@ -473,7 +473,7 @@ class DeepReviewContractTests(unittest.TestCase):
                     calls.append(current)
                 return calls
 
-            list_call = ["api", "repos/owner/repo/issues/17/comments", "--paginate", "--jq", "[.[] | select(.body | contains(\"<!-- deep-review:walkthrough -->\"))][0].id // empty"]
+            list_call = ["api", "repos/owner/repo/issues/17/comments", "--paginate", "--jq", "[.[] | select(.body | contains(\"<!-- wtk-deep-review:walkthrough -->\"))][0].id // empty"]
             body_arg = f"body=@{walkthrough}"
             self.assertEqual(
                 run_publish("empty"),
@@ -535,7 +535,7 @@ class DeepReviewContractTests(unittest.TestCase):
             git(root, "add", "source.txt")
             git(root, "commit", "-qm", "first change")
             first = git(root, "rev-parse", "HEAD")
-            out = root / ".deep-review" / "out"
+            out = root / ".wtk-deep-review" / "out"
             first_run = run_script(BUILD_MANIFEST, root, "--out", str(out), "--base", base, "--head", first)
             self.assertEqual(first_run.returncode, 0, first_run.stdout + first_run.stderr)
             (root / "source.txt").write_text("a\nb\nc\n", encoding="utf-8")
@@ -559,7 +559,7 @@ class DeepReviewContractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             init_repo(raw)
-            out = root / ".deep-review" / "default"
+            out = root / ".wtk-deep-review" / "default"
             result = run_script(BUILD_MANIFEST, root, "--out", str(out), "--base", "HEAD", "--head", "HEAD")
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertEqual(json.loads((out / "manifest.json").read_text())["concurrency"], 3)
@@ -567,21 +567,21 @@ class DeepReviewContractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             init_repo(raw)
-            (root / ".deep-review.yaml").write_text("concurrency: 5\n", encoding="utf-8")
-            out = root / ".deep-review" / "config"
+            (root / ".wtk-deep-review.yaml").write_text("concurrency: 5\n", encoding="utf-8")
+            out = root / ".wtk-deep-review" / "config"
             result = run_script(BUILD_MANIFEST, root, "--out", str(out), "--base", "HEAD", "--head", "HEAD")
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertEqual(json.loads((out / "manifest.json").read_text())["concurrency"], 5)
-            override = root / ".deep-review" / "override"
+            override = root / ".wtk-deep-review" / "override"
             result = run_script(BUILD_MANIFEST, root, "--out", str(override), "--base", "HEAD", "--head", "HEAD", "--concurrency", "2")
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertEqual(json.loads((override / "manifest.json").read_text())["concurrency"], 2)
-            (root / ".deep-review.yaml").write_text("concurrency: 1\n", encoding="utf-8")
-            one = root / ".deep-review" / "one"
+            (root / ".wtk-deep-review.yaml").write_text("concurrency: 1\n", encoding="utf-8")
+            one = root / ".wtk-deep-review" / "one"
             result = run_script(BUILD_MANIFEST, root, "--out", str(one), "--base", "HEAD", "--head", "HEAD")
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertEqual(json.loads((one / "manifest.json").read_text())["concurrency"], 1)
-            six = root / ".deep-review" / "six"
+            six = root / ".wtk-deep-review" / "six"
             result = run_script(BUILD_MANIFEST, root, "--out", str(six), "--base", "HEAD", "--head", "HEAD", "--concurrency", "6")
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertEqual(json.loads((six / "manifest.json").read_text())["concurrency"], 6)
@@ -590,8 +590,8 @@ class DeepReviewContractTests(unittest.TestCase):
             with self.subTest(raw_value=raw_value), tempfile.TemporaryDirectory() as raw:
                 root = Path(raw)
                 init_repo(raw)
-                (root / ".deep-review.yaml").write_text(f"concurrency: {raw_value}\n", encoding="utf-8")
-                result = run_script(BUILD_MANIFEST, root, "--out", str(root / ".deep-review/out"), "--base", "HEAD", "--head", "HEAD")
+                (root / ".wtk-deep-review.yaml").write_text(f"concurrency: {raw_value}\n", encoding="utf-8")
+                result = run_script(BUILD_MANIFEST, root, "--out", str(root / ".wtk-deep-review/out"), "--base", "HEAD", "--head", "HEAD")
                 self.assertNotEqual(result.returncode, 0)
 
     def test_runner_rejects_removed_workers_option(self) -> None:
@@ -612,14 +612,14 @@ class DeepReviewContractTests(unittest.TestCase):
                 BUILD_MANIFEST,
                 root,
                 "--out",
-                str(root / ".deep-review" / "out"),
+                str(root / ".wtk-deep-review" / "out"),
                 "--base",
                 "HEAD",
                 "--worktree",
             )
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             manifest = json.loads(
-                (root / ".deep-review/out/manifest.json").read_text(encoding="utf-8")
+                (root / ".wtk-deep-review/out/manifest.json").read_text(encoding="utf-8")
             )
             regular = next(item for item in manifest["files"] if item["path"] == "regular.txt")
             link = next(item for item in manifest["files"] if item["path"] == "link.txt")
@@ -663,7 +663,7 @@ class DeepReviewContractTests(unittest.TestCase):
             self.assertNotIn("Prompt for AI Agents", review)
 
             def repair_plan(item: dict) -> str:
-                before = review.split(f"<!-- deep-review:fp:{item['fingerprint']} -->", 1)[0]
+                before = review.split(f"<!-- wtk-deep-review:fp:{item['fingerprint']} -->", 1)[0]
                 finding_block = before.rsplit(f"**{item['title']}.**", 1)[1]
                 self.assertIn("<summary>🛠️ Repair plan</summary>", finding_block)
                 plan = finding_block.rsplit("<summary>🛠️ Repair plan</summary>", 1)[1]
@@ -827,7 +827,7 @@ class DeepReviewContractTests(unittest.TestCase):
             self.assertEqual(rendered.returncode, 0, rendered.stdout + rendered.stderr)
             review = (out / "review.md").read_text(encoding="utf-8")
             self.assertIn("**Verdict: FIX_BEFORE_SHIP**", review)
-            self.assertIn(f"<!-- deep-review:fp:{new[0]['fingerprint']} -->", review)
+            self.assertIn(f"<!-- wtk-deep-review:fp:{new[0]['fingerprint']} -->", review)
             duplicates = review.split("## Duplicates", 1)[1].split("## Advisories", 1)[0]
             self.assertIn(info["major"]["title"], duplicates)
             state = json.loads((out / "state.json").read_text(encoding="utf-8"))["ledger"]
@@ -1113,7 +1113,7 @@ class DeepReviewContractTests(unittest.TestCase):
             (root / "source.txt").write_text("a\nb\n", encoding="utf-8")
             git(root, "add", ".agents", "source.txt")
             git(root, "commit", "-qm", "feat: change")
-            out = root / ".deep-review" / "out"
+            out = root / ".wtk-deep-review" / "out"
             manifest = run_script(BUILD_MANIFEST, root, "--out", str(out), "--base", base)
             self.assertEqual(manifest.returncode, 0, manifest.stdout + manifest.stderr)
             result = run_script(BUILD_KNOWLEDGE, root, "--out", str(out))
@@ -1183,7 +1183,7 @@ class DeepReviewContractTests(unittest.TestCase):
                 package.write_text(json.dumps({"version": "0.10.1"}), encoding="utf-8")
                 (root / ".gitignore").write_text("node_modules/\nshim/\ngraft-invoked\n", encoding="utf-8")
                 if opt_in:
-                    (root / ".deep-review.yaml").write_text("graft: true\n", encoding="utf-8")
+                    (root / ".wtk-deep-review.yaml").write_text("graft: true\n", encoding="utf-8")
                 git(root, "add", "-A")
                 git(root, "commit", "-qm", "chore: shim")
                 env = {**os.environ, "PATH": f"{shim_dir}:{os.environ['PATH']}"}

@@ -1,15 +1,14 @@
 # The loop
 
-`workflow-spec-driven` owns four phases: Specify, Design, Tasks, Execute. This pack **increments** that
-loop. It does not replace it. Auto-size still holds: a one-line change gets no spec; a
-multi-component feature gets full planning.
+`wtk` routes discovery, integrated Lean, and distinct modular entries. Auto-size still holds:
+a one-line change gets no feature artifacts; a multi-component feature gets full planning.
 
 Workflow work starts with `ponytail` at `full`; `AGENTS.md` carries the activation and session
 persistence rule, while the [Ponytail skill](../../.agents/skills/ponytail/SKILL.md) owns its
 explicit stop commands. The same instinct as “delete rather than bridge” and “no test without an
 invariant”.
 
-Public hierarchy: `Feature -> Vertical Slice -> Task`. Resolve cadence with `workflow-config` before dispatch.
+Public hierarchy: `Feature -> Slice -> Check`. Resolve cadence with `wtk-config` before dispatch.
 
 ## Stages
 
@@ -18,19 +17,19 @@ last column.
 
 | # | Stage | What it is for | Skip when | Rule |
 | --- | --- | --- | --- | --- |
-| 1 | **Specify / Design / Tasks** | Name the behaviour, freeze surfaces, enumerate test ids | Auto-sized skip (tiny, obvious change) | `workflow-spec-driven` |
-| 2 | **Slice** | One observable behaviour plus the tests that prove it | — | `AGENTS.md` |
-| 3 | **Implement** | The cheapest code that makes the slice true | — | `ponytail` |
+| 1 | **Plan / Checks** | Freeze `plan.md`, `checks.md`, and proof selectors | Auto-sized skip (tiny, obvious change) | `wtk-lean` |
+| 2 | **Slice** | One observable behaviour plus the checks that prove it | — | `AGENTS.md` |
+| 3 | **Build** | The cheapest code that makes the slice true | — | `ponytail` |
 | 4 | **Scoped gate** | Prove *this* diff, not the whole product | Escalate if the selector cannot scope it | [GATES.md](../guidelines/GATES.md) |
-| 5 | **Atomic commit** | One Conventional Commit; update `tasks.md` when present, or the inline execution plan when Tasks is skipped, first | — | `AGENTS.md` |
+| 5 | **Atomic commit** | One Conventional Commit after the applicable Lean check state is current | — | `AGENTS.md` |
 | 6 | **Technical Verifier** | Do the tests prove the acceptance criteria? Mutants must die | Filed-issue path; no code in final QA session | [REVIEW-ROUNDS.md](../guidelines/REVIEW-ROUNDS.md) |
-| 7 | **Deep-review** | Correct, safe, maintainable — resolved groups, blocking findings only | Cadence `skip` (no groups; human runs `wreview` later), or proportional classifier selects scoped validation | [REVIEW-ROUNDS.md](../guidelines/REVIEW-ROUNDS.md) |
-| 8 | **QA session** | The finished feature, as a person meets it: one `qa-plan` and one `qa-execute` packet | Feature has no user-visible change | [QA-EXECUTION.md](../guidelines/QA-EXECUTION.md) |
+| 7 | **Deep-review** | Correct, safe, maintainable — resolved groups, blocking findings only | Cadence `skip` (no groups; human runs `wtk-deep-review` later), or proportional classifier selects scoped validation | [REVIEW-ROUNDS.md](../guidelines/REVIEW-ROUNDS.md) |
+| 8 | **QA session** | The finished feature, as a person meets it: one `wtk-qa-plan` and one `wtk-qa-execute` packet | Feature has no user-visible change | [QA-EXECUTION.md](../guidelines/QA-EXECUTION.md) |
 | 9 | **Full gate** | The product gate, once, when the proportional classifier selects it | Scoped gate is sufficient | [GATES.md](../guidelines/GATES.md) |
-| 10 | **Remote delivery** | `autonomous` authorizes the feature-branch push, one pull request, and merge after readiness is rechecked | Readiness is evidence, not authorization for deploy/release, production mutations, force-push, direct `main` push, and unrelated remote actions; those need explicit instruction | [VERIFICATION-EVIDENCE.md](../guidelines/VERIFICATION-EVIDENCE.md) |
+| 10 | **Remote delivery** | `wtk-ship` authorizes the feature-branch push, one pull request, and merge after readiness is rechecked | Readiness is evidence, not authorization for deploy/release, production mutations, force-push, direct `main` push, and unrelated remote actions; those need explicit instruction | [VERIFICATION-EVIDENCE.md](../guidelines/VERIFICATION-EVIDENCE.md) |
 
 The feature-closing step is the QA session when the proportional classifier selects a public walk;
-no slice runs QA. Implementation slices remain vertical and independently verified; deep-review follows resolved
+no slice runs QA. Implementation slices remain vertical and independently verified; wtk-deep-review follows resolved
 groups when selected, then QA and the full/scoped gate follow the route rather than file count or feature wording.
 
 The selected route records its gate and limitation in the handoff.
@@ -52,7 +51,7 @@ itself at integration.
 | Work | Path |
 | --- | --- |
 | **Feature** — a capability the product lacks | The full table above |
-| **Direct correction** — one exact, unambiguous invariant | The auto-sized `workflow-spec-driven` correction path |
+| **Direct correction** — one exact, unambiguous invariant | The auto-sized `wtk` correction path |
 | **Filed issue** — already reviewed, then parked | `implement → scoped gate → one commit` |
 | **Credential-free declarative agent-tool configuration** | The local light path in [GATES.md](../guidelines/GATES.md) |
 

@@ -19,7 +19,7 @@ docs/qa/
 ├── README.md                          area codes, entry points, how to reach the product
 ├── personas.md                        who walks the journeys
 ├── journeys/J-<slug>.md               journey maps and flows
-│                                      (optional `**Tags:** <flow>` line; `/wqa <flow>` selects by it)
+│                                      (optional `**Tags:** <flow>` line; `/wtk-qa <flow>` selects by it)
 ├── scenarios/<AREA>-<slug>.md         the tracker — one file per promise
 ├── bugs/BUG-<YYYYMMDD>-<slug>.md      registry, deduplicated by symptom
 ├── charters/CH-<slug>.md              session missions, immutable once written
@@ -136,7 +136,7 @@ When QA runs, point the report at the feature `uiux.md` reference rows and retai
 Then walk them in the feature-closing QA session, per `docs/guidelines/QA-EXECUTION.md`. A flag
 without a walk is `untested` debt that no cycle is guaranteed to clear. A slice flags; it never walks.
 
-The feature-closing QA session runs after the final implementation deep-review group, per
+The feature-closing QA session runs after the final implementation wtk-deep-review group, per
 `docs/guidelines/QA-EXECUTION.md` and `docs/guidelines/REVIEW-ROUNDS.md`. It walks every scenario
 the feature's slices flagged.
 

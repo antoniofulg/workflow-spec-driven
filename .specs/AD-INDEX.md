@@ -3,7 +3,7 @@
 One line per `AD-NNN`. The append-only body lives in `.specs/STATE.md`.
 
 Body: `rg -A 20 '^### AD-NNN' .specs/STATE.md`. Resume: `rg -A 20 '^## Handoff' .specs/STATE.md`.
-When recording an `AD-NNN`, run the bundled workflow-spec-driven ad-index.py in the same commit.
+When recording an `AD-NNN`, run the bundled wtk-config ad-index.py in the same commit.
 
 | ID | Status | Decision |
 | --- | --- | --- |
@@ -13,15 +13,15 @@ When recording an `AD-NNN`, run the bundled workflow-spec-driven ad-index.py in 
 | `AD-004` | superseded by AD-034 | Workflow routing is consumer-configurable in `.my-workflow.toml`. |
 | `AD-005` | superseded by AD-033 | Keep the optional, checkout-local Graft `0.10.1` integration as the deep-review context aid. |
 | `AD-006` | superseded by AD-033 | Keep the workflow stack- and tool-agnostic while allowing optional capability integrations. |
-| `AD-007` | active | `.specs/features/` is versioned, durable workflow state. |
+| `AD-007` | superseded by AD-037 | `.specs/features/` is versioned, durable workflow state. |
 | `AD-008` | superseded by AD-019 | Adopt upstream ai-memory `1.31.0` only as an opt-in, transient handoff transport between Claude Code, Codex, and Cursor. |
 | `AD-009` | superseded by AD-010 | `.my-workflow.toml` is the single editable source for bundled Claude, Codex, and Cursor agent models and efforts. |
 | `AD-010` | active | Track `.my-workflow.toml.example` and provider packet templates, while keeping `.my-workflow.toml` and generated `.claude`, `.codex`, and `… |
 | `AD-011` | superseded by AD-015 | Parallelization is an opt-in inter-slice orchestration layer above unchanged TLC; `disabled` is the default, `safe` consumes independent or… |
-| `AD-012` | active | Parallel execution uses a provider-neutral deterministic coordinator whose adapters own external effects. |
-| `AD-013` | active | The provider-neutral coordinator derives and validates a deterministic sibling Git worktree destination, creates that checkout with fixed a… |
+| `AD-012` | superseded by AD-036 | Parallel execution uses a provider-neutral deterministic coordinator whose adapters own external effects. |
+| `AD-013` | superseded by AD-036 | The provider-neutral coordinator derives and validates a deterministic sibling Git worktree destination, creates that checkout with fixed a… |
 | `AD-014` | superseded by AD-016 | Technical Verifier remediation is bounded per blocker fingerprint, defined by the requirement, root cause, and concrete failure path. |
-| `AD-015` | active | Replace the vendored TLC phase-batch delegation with a workflow-owned, CC-BY-4.0-attributed spec-driven skill that dispatches vertical slic… |
+| `AD-015` | superseded by AD-036 | Replace the vendored TLC phase-batch delegation with a workflow-owned, CC-BY-4.0-attributed spec-driven skill that dispatches vertical slic… |
 | `AD-016` | active | A halted blocker fingerprint may resume only after explicit human authorization creates a new audit generation under that same fingerprint. |
 | `AD-017` | active | Heavy test commands use an explicit named kernel lock separate from lane-wide resource-provider leases. |
 | `AD-018` | active | The gate fingerprint is `sha256` over the gate label, the exact command argv, and the Git tree object written from a temporary index seeded… |
@@ -34,10 +34,13 @@ When recording an `AD-NNN`, run the bundled workflow-spec-driven ad-index.py in 
 | `AD-025` | active | One `Review-Signal` trailer per delivered pull request, carried on its merge commit, aggregating the feature through `slices=<n> verified=<… |
 | `AD-026` | active | `check_commit.py` validates the `Review-Signal` trailer only when present; it never requires one. |
 | `AD-027` | active | Round 2's Finding 1 is resolved as documentation, not code. |
-| `AD-028` | active | Each workflow phase (Specify, Design, Tasks, Implement, Verify) is its own skill (`wspecify`, `wdesign`, `wtasks`, `wimplement`, `wverify`)… |
+| `AD-028` | superseded by AD-036 | Each workflow phase (Specify, Design, Tasks, Implement, Verify) is its own skill (`wspecify`, `wdesign`, `wtasks`, `wimplement`, `wverify`)… |
 | `AD-029` | active | `designer` is a delegated matrix role that owns mockups and `uiux-review.md`; Claude runs it on `inherit`. |
-| `AD-030` | active | The canonical consumer installer is the unscoped `workflow-spec-driven` npm package and homonymous Node.js 18 executable. |
+| `AD-030` | superseded by AD-036 | The canonical consumer installer is the unscoped `workflow-spec-driven` npm package and homonymous Node.js 18 executable. |
 | `AD-031` | active | Deep-review runs one discovery review per implementation group. |
 | `AD-032` | active | `one-round-deep-review` is delivered with `bun run test:all` red only on `tests/installer` `IT-011` (frozen canonical packet bytes) and `IT… |
 | `AD-033` | active | Graphify Labs `graphifyy` `0.9.14` and Nanonets Graft `0.10.1` are the workflow's standard repository-intelligence tools. |
 | `AD-034` | active | Deep Review defaults to on demand. |
+| `AD-035` | active | Adopt the upstream TLC Lean artifact names and formats (`plan.md`, `checks.md`, and `verification.md`). |
+| `AD-036` | active | Replace the task-granular workflow with Workflow Toolkit: package `workflow-toolkit` version `1.0.0`, CLI and on-demand entry `wtk`, and pr… |
+| `AD-037` | active | Feature planning and verification artifacts are transient. |

@@ -1,7 +1,7 @@
 version = 3
 
 [parallelization]
-mode = "assisted" # assisted or disabled
+mode = "disabled" # the Lean builder is sequential; resource serialization remains opt-in
 max_workers = "auto" # auto starts at 2 and scales to 4 when healthy
 # Optional repository-relative executable for resource-bearing lanes.
 # resource_provider = "tools/workflow_resources"

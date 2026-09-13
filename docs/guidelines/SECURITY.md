@@ -55,7 +55,7 @@ rename them.
 | S10 | Persistence whose confidentiality or integrity affects product authority |
 | S11 | Deployment, processes or isolation |
 
-`## Security Surfaces` goes in `spec.md`. One row per applicable surface, naming the control and the
+`## Security Surfaces` goes in `plan.md`. One row per applicable surface, naming the control and the
 `SEC-NNN` requirements that prove it:
 
 ```markdown
@@ -73,7 +73,7 @@ are simply absent — do not write a row to say so.
 
 ## 3. At the test contract — abuse cases get IDs
 
-Every control becomes one or more `SEC-` cases in `.specs/features/<feature>/tests.md`, in the same
+Every control becomes one or more `SEC-` cases in `.specs/features/<feature>/checks.md`, in the same
 shape as every other case, assigned to exactly one task, audited for orphans like the rest. See
 `docs/guidelines/TEST-CONTRACT.md`.
 

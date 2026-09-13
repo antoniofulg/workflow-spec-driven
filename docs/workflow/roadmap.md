@@ -1,7 +1,7 @@
 # Modular workflow roadmap
 
 Shaping notes from 2026-09-03. Not a spec. Each slice below becomes its own feature through
-`workflow-spec-driven`. Decisions here are provisional until an `AD-NNN` records them.
+`wtk`. Decisions here are provisional until an `AD-NNN` records them.
 
 ## Goal
 
@@ -11,14 +11,14 @@ skills it needs, and model or effort changes happen once, globally, for every pr
 
 ## Decisions so far
 
-- Phase skills: `workflow-spec-driven` (router: sizing, chain, resume), `wspecify`, `wdesign`,
-  `wtasks`, `wimplement`, `wverify`, `qualify`. A phase SKILL.md carries its procedure
+- Phase skills: `wtk` (router: sizing, chain, resume), `wtk-discover`, `wtk-plan`,
+  `wtk-plan`, `wtk-implement`, `wtk-lean`, `qualify`. A phase SKILL.md carries its procedure
   under 200 lines, with templates and long examples underneath in its own `references/`. Validators and
   the shared references stay in the router and are cited by path. Critical rules live only in
   `AGENTS.md`.
 - Scoping: agent frontmatter `skills:` preloads; agents without the `Skill` tool see only the
-  preload. Phase skills must not set `disable-model-invocation: true`: it blocks `skills:` preload (verified 2026-09-03). Their descriptions steer the main chat instead. Entry points `/wspecify`, `/wdesign`,
-  `/wtasks`, `/wimplement`, `/wverify`, `/wqualify` use `context: fork` + `agent:`.
+  preload. Phase skills must not set `disable-model-invocation: true`: it blocks `skills:` preload (verified 2026-09-03). Their descriptions steer the main chat instead. Entry points `/wtk-discover`, `/wtk-plan`,
+  `/wtk-plan`, `/wtk-implement`, `/wtk-lean`, `/wqualify` use `context: fork` + `agent:`.
 - `uiux.md` moves to Specify. It maps every screen, every user action, and every blocker that
   stops the user from completing the action. Design consumes it.
 - Specify also writes an `## Impact` section in `spec.md`: shared entities the feature touches,
@@ -71,7 +71,7 @@ The runner is a shell script, not an agent, so no context accumulates:
 
 ```
 for ticket in linear(state=Ready, order=priority):
-    orca spawn claude -p "/autonomous TICKET" in fresh worktree
+    orca spawn claude -p "/wtk-ship TICKET" in fresh worktree
     wait; mark Done or Blocked; continue
 ```
 
@@ -123,18 +123,18 @@ runtime. Also publish to PyPI for `uvx my-workflow`.
 ## Slices
 
 1. Skill split, preload, materializer renders `skills:`. No behaviour change. (done)
-2. Slash entry points with `context: fork`: `/wspecify`, `/wdesign`, `/wtasks`, `/wimplement`,
-   `/wverify`, plus `wreview` (forks into the planner, which dispatches deep-reviewer jobs, and
-   never publishes) and `wqa` (forks into a fresh verifier; `[plan] <flow>` runs exactly one QA
+2. Slash entry points with `context: fork`: `/wtk-discover`, `/wtk-plan`, `/wtk-plan`, `/wtk-implement`,
+   `/wtk-lean`, plus `wtk-deep-review` (forks into the planner, which dispatches wtk-deep-reviewer jobs, and
+   never publishes) and `wtk-qa` (forks into a fresh verifier; `[plan] <flow>` runs exactly one QA
    phase over journeys tagged with the flow and stops when none carries the tag; no exploratory
-   charter is added by the entry point). `deep-review`, `qa-plan`, and `qa-execute` keep their
+   charter is added by the entry point). `wtk-deep-review`, `wtk-qa-plan`, and `wtk-qa-execute` keep their
    names; the entry points wrap them. Defects file into Linear Triage once slice 7 lands. (done)
 3. `uiux.md` and impact map to Specify; gap-hunt question; designer agent. (done)
 4. Mockup fidelity rule, reuse inventory, lint on raw elements, token extraction, visual diff gate.
 5. Global config file, defaults, worktree walker, spawn-time sync hook.
 6. Qualifier role, `qualify` skill, bug spec template, shadow mode, manual `/qualify`.
 7. Linear module: MCP config, standard states and labels with a setup script, ticket link, PR attach.
-8. Autofix consumer on `autonomous`, PR only, human gate.
+8. Autofix consumer on `wtk-ship`, PR only, human gate.
 9. Runner script, PreCompact successor hook, morning report, agreement metric, kill switch.
 
 ## Later: telemetry intake
