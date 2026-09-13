@@ -33,16 +33,17 @@ Proof: `bun test tools/shared/tests/workflow-config.test.ts -t "defaults to stan
 ### S2 - Install Workflow Toolkit as a clean replacement · installer contract · under 150k
 
 **C7** - Package identity is `workflow-toolkit`, executable is `wtk`, and the CLI exposes `wtk install` (WTK-02, AC 8)
-Proof: `node --test --test-name-pattern "publishes Workflow Toolkit with the wtk executable" tests/installer/package.test.js tests/installer/cli.test.js`
+Proof: `node --test --test-name-pattern "IT-019 package exposes the unscoped executable only" tests/installer/package.test.js`
+Proof: `node --test --test-name-pattern "IT-018 help documents canonical install" tests/installer/cli.test.js`
 
 **C8** - Core installs the router, Lean, modular TLC entries, configuration, and required agent packets (WTK-02, AC 9)
-Proof: `node --test --test-name-pattern "installs the Workflow Toolkit core catalog" tests/installer/acceptance.test.js tests/installer/packets.test.js`
+Proof: `node --test --test-name-pattern "IT-023 core install publishes explicit public skills and provider packets" tests/installer/terminal.test.js`
 
 **C9** - Quality installs the namespaced Deep Review and QA entries with independent role packets (WTK-02, AC 10)
-Proof: `node --test --test-name-pattern "installs namespaced quality capabilities" tests/installer/acceptance.test.js tests/installer/packets.test.js`
+Proof: `node --test --test-name-pattern "IT-024 quality install publishes explicit capabilities and provider packets" tests/installer/terminal.test.js`
 
 **C10** - Replacement retires owned old paths without aliases and conflicts on consumer-modified or unknown destinations (WTK-02, AC 11)
-Proof: `node --test --test-name-pattern "retires pristine legacy workflow paths without aliases" tests/installer/engine.test.js tests/installer/acceptance.test.js`
+Proof: `node --test --test-name-pattern "IT-025 replacement retires pristine legacy paths and protects modified or unknown destinations" tests/installer/terminal.test.js`
 
 **C11** - Cancellation, non-interactive refusal, conflict, interrupted publication, restoration, and idempotent re-adoption preserve exit and transaction guarantees (WTK-02, AC 12)
 Proof: `node --test --test-name-pattern "IT-001 cancellation before preview writes nothing" tests/installer/terminal.test.js`
@@ -50,6 +51,8 @@ Proof: `node --test --test-name-pattern "IT-009 rejects non-interactive install 
 Proof: `node --test --test-name-pattern "IT-006 conflict cancellation preserves complete target tree" tests/installer/terminal.test.js`
 Proof: `node --test --test-name-pattern "IT-008 publication failure restores bytes, modes, adoption, and clears journal" tests/installer/transaction.test.js`
 Proof: `node --test --test-name-pattern "IT-020 no-op transaction creates no backup" tests/installer/transaction.test.js`
+Proof: `node --test --test-name-pattern "IT-022 extras catalog retains each third-party Ponytail name" tests/installer/package.test.js`
+Proof: `node --test --test-name-pattern "IT-002 extras install publishes the complete catalog and manifest parity" tests/installer/terminal.test.js`
 
 ### S3 - Retain local quality and delivery controls on demand · quality contract · under 150k
 
@@ -60,7 +63,9 @@ Proof: `python3 -m unittest -k test_conditional_integrations tools.test_wtk_forw
 Proof: `python3 -m unittest -k test_namespaced_review_boundary tools.test_wtk_deep_review_contract`
 
 **C14** - The generated route and provider packets preserve independent implementer, verifier, deep-reviewer, QA, explorer, and designer responsibilities (WTK-03, AC 13, AC 14)
-Proof: `bun test tools/shared/tests/workflow-config.test.ts tools/shared/tests/qa-skills.test.ts -t "generates independent Workflow Toolkit role packets"`
+Proof: `bun test tools/shared/tests/workflow-config.test.ts -t "identifies a complete agent definition for every supported role and provider"`
+Proof: `bun test tools/shared/tests/qa-skills.test.ts -t "IT-018 keeps the three harness matrices and dedicated Deep Review agents aligned"`
+Proof: `bun test tools/shared/tests/qa-skills.test.ts -t "IT-001 exposes model-invoked skills with matching names"`
 
 **C15** - `wtk-ship` permits only authorized feature-branch push, one pull request, and merge, while stronger remote actions remain separately authorized (WTK-03, AC 15)
 Proof: `bun test tools/shared/tests/autonomous-permissions.test.ts -t "preserves Workflow Toolkit delivery authorization boundaries"`
