@@ -11,8 +11,9 @@ sources:
     resource: ../../../docs/product/AGENT-CONTEXT.md
     title: Source-pack and consumer ownership boundary
   - id: adoption-provenance
-    resource: ../../../scripts/adopt.py
-    title: Manifest ownership and retirement checks
+    resource: ../../../scripts/installer/engine.js
+    title: Installer ownership, provenance, and retirement checks
+    last_modified: 2026-09-12
 ---
 
 # Workflow runtime ownership
@@ -29,10 +30,15 @@ A directory name alone never grants deletion authority. Cleanup must identify th
 files through manifest provenance and leave modified or unrelated product files safe. Empty old
 workflow directories may disappear after their owned files are removed.[^consumer-footprint][^adoption-provenance]
 
+The [Workflow Toolkit contract](/decisions/workflow-toolkit-contract.md) changes the public
+namespace, planning artifacts, and execution topology without changing this ownership boundary.
+Installer retirement remains provenance-based; feature-artifact cleanup remains exact-feature and
+promotion-based.
+
 [Design reference fidelity](/design/design-reference-fidelity.md) depends on retaining the product's
 chosen source and comparison evidence. An approved HTML reference is therefore not equivalent to a
 generic installer scaffold merely because both may be called a template.
 
 [^consumer-footprint]: Approved observation and correction in the maintainer conversation.
 [^product-boundary]: The source-pack context requires product neutrality and consumer-owned context preservation.
-[^adoption-provenance]: The adopter records ownership and source/installed hashes before reconciling retired files.
+[^adoption-provenance]: The installer engine records ownership and source/installed hashes before reconciling retired files.

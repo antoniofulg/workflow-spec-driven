@@ -1,5 +1,11 @@
 # Update log
 
+## 2026-09-12
+
+* **Ingestion**: Added [Workflow Toolkit contract](/decisions/workflow-toolkit-contract.md), connecting the replacement identity and upstream pin to its Lean/modular shapes, sequential proof topology, conditional capabilities, configuration names, and transient-artifact boundary.
+* **Lint**: Updated [Deep review cadence](/decisions/deep-review-cadence.md) and [QA at feature close](/decisions/qa-at-feature-close.md) to distinguish their 2026-09-10 decisions from Workflow Toolkit's current capability names and full-feature Verifier.
+* **Lint**: Repointed [Workflow runtime ownership](/architecture/workflow-runtime-ownership.md) at the current installer engine and corrected the knowledge schema's adopted-workflow pointer.
+
 ## 2026-09-10
 
 * **Ingestion**: Added [QA at feature close](/decisions/qa-at-feature-close.md) from the maintainer's delivery-speed decision and PR #98; per-slice QA traced to the initial extraction, never requested.

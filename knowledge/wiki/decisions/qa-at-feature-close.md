@@ -1,10 +1,10 @@
 ---
 type: Decision
 title: QA at feature close
-description: QA runs once, over the integrated feature, as a real user walks it; no slice runs QA Plan or QA Execute, and the per-slice Technical Verifier stays.
+description: Qualifying public changes receive one QA cycle over the integrated feature; no slice runs QA, and one independent Verifier proves the complete feature first.
 tags: [qa, cadence, delivery-speed, verifier]
 status: stable
-generated: { by: claude-fable-5-1, at: 2026-09-10T22:55:00Z }
+generated: { by: codex/gpt-5, at: 2026-09-13T02:16:58Z }
 sources:
   - id: skip-review
     resource: ../../raw/2026-09-10-feature-close-qa-and-skip-review.md
@@ -13,14 +13,18 @@ sources:
   - id: review-rounds
     resource: ../../../docs/guidelines/REVIEW-ROUNDS.md
     title: Review Rounds — stage table
-    last_modified: 2026-09-10
+    last_modified: 2026-09-12
   - id: qa-execution
     resource: ../../../docs/guidelines/QA-EXECUTION.md
     title: QA Execution — when QA runs
-    last_modified: 2026-09-10
+    last_modified: 2026-09-12
   - id: state-ad-002
     resource: ../../../.specs/STATE.md
     title: STATE.md — AD-002
+  - id: state-ad-036
+    resource: ../../../.specs/STATE.md
+    title: STATE.md — AD-036
+    last_modified: 2026-09-12
 ---
 
 # QA at feature close
@@ -37,20 +41,28 @@ Per-slice QA came from the initial extraction (`eddecdbe`) and was doubled by AD
 fresh Verifier sessions for QA without deciding whether QA should run per slice.[^skip-review][^state-ad-002]
 The maintainer named it a misinterpretation; PR #98 removed it.[^skip-review]
 
-## What holds now
+## What the 2026-09-10 correction still controls
 
-- QA is the feature-closing step: one `qa-plan` and one `qa-execute` packet over the integrated
-  tree. No slice runs QA.[^review-rounds][^qa-execution]
+- A qualifying public change receives one `wtk-qa-plan` and one `wtk-qa-execute` cycle over the
+  integrated tree. No slice runs QA.[^review-rounds][^qa-execution]
 - AD-002 still holds for that session: QA skills stay provider-neutral and run in fresh Verifier
   sessions.[^state-ad-002]
-- The **Technical Verifier per code-changing slice is unchanged.** It answers one question, do the
-  slice's tests prove the acceptance criteria, and does not walk the UI. The maintainer kept it
-  deliberately.[^skip-review]
+- QA is conditional, not universally optional: its owning surface trigger decides whether it runs.
+  UI, API, CLI, adoption, and other changed public promises qualify; an internal or narrower
+  correction can close at its proportional technical proof.[^qa-execution]
+
+## What Workflow Toolkit supersedes
+
+The 2026-09-10 decision kept a Technical Verifier per code-changing slice. AD-036 later replaces
+that task-era topology with one fresh independent Verifier over the complete feature. This changes
+technical proof cadence, not the prohibition on per-slice QA and not the feature-level QA trigger
+for qualifying public changes.[^skip-review][^state-ad-036]
 
 ## What is given up
 
-A UI defect in slice 1 is now found after slice 3 is built on it, not before. Accepted for a
-pre-launch product; the closing session still finds it.[^skip-review]
+A UI defect in an early slice may now survive until full-feature verification or the feature QA
+cycle. That later detection is the deliberate cost of sequential whole-slice building with one
+independent full-feature Verifier.[^state-ad-036]
 
 ## Related
 
@@ -61,3 +73,4 @@ merge path with `cadence = "skip"`. The two decisions together are what makes de
 [^review-rounds]: Stage table after PR #98: Technical Verifier, deep-review, QA session.
 [^qa-execution]: QA dispatched once, at feature close.
 [^state-ad-002]: QA planning and execution as separate provider-neutral skills in fresh Verifier sessions.
+[^state-ad-036]: Workflow Toolkit replaces per-slice Technical Verification with one fresh independent Verifier over the complete feature.

@@ -26,8 +26,9 @@ Add a concept when a source earns one.
 
 # Concepts
 
-* [Deep review cadence](decisions/deep-review-cadence.md) - Deep review is a merge gate only when the product phase can afford it; `cadence = "skip"` merges without it and the human runs `wreview` over several delivered features on demand.
-* [QA at feature close](decisions/qa-at-feature-close.md) - QA runs once, over the integrated feature, as a real user walks it; no slice runs QA Plan or QA Execute, and the per-slice Technical Verifier stays.
+* [Workflow Toolkit contract](decisions/workflow-toolkit-contract.md) - Workflow Toolkit replaces the task pipeline with upstream-shaped Lean and modular routes, sequential whole-slice builds, one full-feature Verifier, and transient feature artifacts.
+* [Deep review cadence](decisions/deep-review-cadence.md) - Deep Review defaults to `cadence = "skip"`, stays outside the delivery path, and runs through `wtk-deep-review` when requested.
+* [QA at feature close](decisions/qa-at-feature-close.md) - Qualifying public changes receive one QA cycle over the integrated feature; no slice runs QA, and one independent Verifier proves the complete feature first.
 * [Workflow runtime ownership](architecture/workflow-runtime-ownership.md) - Keep installer inputs in the package and reusable runtime with its owning skill, preserving product-owned content.
 * [Design reference fidelity](design/design-reference-fidelity.md) - How HTML exports connect visual authority, component reuse, and proportional verification.
 * [Interaction efficiency](design/interaction-efficiency.md) - Connect common completion paths, native form semantics, acceptance criteria, and QA evidence.

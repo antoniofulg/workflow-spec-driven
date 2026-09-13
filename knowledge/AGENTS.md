@@ -17,8 +17,8 @@ CONTEXT.md, docs/, .specs/  ──ingest──>  knowledge/
 ```
 
 The bundle never writes back to `.specs/`, and no tool outside this directory is modified to serve
-it. `workflow-spec-driven` is the adopted workflow-owned skill; it does not know this bundle exists
-and must not be taught to. `.specs/STATE.md`, `.specs/features/<f>/`,
+it. Workflow Toolkit's `wtk` router and `wtk-*` skills do not know this bundle exists and must not
+be taught to. `.specs/STATE.md`, `.specs/features/<f>/`,
 `.specs/lessons.json` and `.specs/LESSONS.md` stay exactly where the skill expects them.
 
 When the bundle and a source disagree, **the source wins** and the concept is corrected. A previous
