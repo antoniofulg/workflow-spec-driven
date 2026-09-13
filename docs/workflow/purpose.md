@@ -14,15 +14,15 @@ The pack is the floor plus the end condition.
 
 ## What “balance” means here
 
-**Delivery** is: a change small enough to implement and verify by vertical slice, a gate cheap
-enough to run per slice, review cadence selected by wtk-config, and merge authority that stays
-with the human.
+**Delivery** is: a change small enough to implement by vertical slice, a gate cheap enough to run
+per slice, one fresh independent Verifier over the complete feature, review cadence selected by
+wtk-config, and merge authority that stays with the human.
 
 **Reliability** is: tests derived from acceptance criteria, security surfaces named and given
-`SEC-` cases, a Verifier that is not the author, a persona walk for anything a user can see when the
-classifier selects it, and a full gate once when the classifier selects it.
+`SEC-` cases, one Verifier that is not the author over the complete feature, a persona walk for
+anything a user can see when the classifier selects it, and a full gate once when the classifier selects it.
 
-Neither side is optional for feature slices. A feature slice that skips the Verifier is not this
+Neither side is optional for features. A feature that skips the final Verifier is not this
 workflow; neither is one that re-reviews Trivials until the diff stops moving. Credential-free
 declarative agent-tool configuration is a separate maintenance path defined by
 [`GATES.md`](../guidelines/GATES.md).
@@ -31,7 +31,7 @@ declarative agent-tool configuration is a separate maintenance path defined by
 
 | Cap | Protects |
 | --- | --- |
-| Verifier fingerprint cap, then escalate | Stops a repeated blocker from eating the week |
+| One fresh full-feature Verifier | Stops self-certified or incomplete proof from reaching delivery |
 | Deep-review once, remediation check per batch, Critical/Major only | Stops nitpick churn from being called “quality” |
 | Stages do not loop into each other | Review groups bound repeated reading, then a human |
 | Proportional gate selection | Stops low-risk maintenance from paying for unrelated product checks |

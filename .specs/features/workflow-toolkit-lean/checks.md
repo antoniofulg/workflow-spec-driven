@@ -29,6 +29,7 @@ Proof: `python3 -m unittest -k test_build_and_verify_boundaries tools.test_wtk_c
 **C6** - `light`, `standard`, and `ui` retain upstream semantics, `standard` is the project default, and profile mismatch fails (WTK-01, AC 7)
 Proof: `python3 .agents/skills/wtk-lean/scripts/selftest.py`
 Proof: `bun test tools/shared/tests/workflow-config.test.ts -t "defaults to standard and accepts all upstream Lean profiles"`
+Proof: `python3 -m unittest -k default_verification_profile_is_standard_and_stays_pinned_on_resume tools.test_workflow_config`
 
 ### S2 - Install Workflow Toolkit as a clean replacement · installer contract · under 150k
 
@@ -54,6 +55,10 @@ Proof: `node --test --test-name-pattern "IT-020 no-op transaction creates no bac
 Proof: `node --test --test-name-pattern "IT-022 extras catalog retains each third-party Ponytail name" tests/installer/package.test.js`
 Proof: `node --test --test-name-pattern "IT-002 extras install publishes the complete catalog and manifest parity" tests/installer/terminal.test.js`
 
+**C19** - The package and resolver use tracked `.wtk.toml.example` plus ignored local `.wtk.toml`, preserve local configuration bytes, and reject obsolete config names without aliases (WTK-02, AC 19)
+Proof: `python3 -m unittest -k canonical_config_paths_without_legacy_reader tools.test_workflow_config`
+Proof: `bun test tools/shared/tests/workflow-config.test.ts -t "keeps local config/runtimes ignored and packages only example/templates"`
+
 ### S3 - Retain local quality and delivery controls on demand · quality contract · under 150k
 
 **C12** - Security, UI, QA, review, configuration, and delivery instructions load only when their routing condition applies (WTK-03, AC 13)
@@ -72,12 +77,14 @@ Proof: `bun test tools/shared/tests/autonomous-permissions.test.ts -t "preserves
 
 ### S4 - Close features without retaining transient planning state · lifecycle contract · under 150k
 
-**C16** - Feature close refuses cleanup while a required normal decision, lesson, documentation, or QA workflow remains pending (WTK-04, AC 16)
+**C16** - Feature close requires explicit confirmation that required decision, lesson, documentation, or QA promotion completed through its normal owner before cleanup (WTK-04, AC 16)
 Proof: `python3 -m unittest -k test_cleanup_waits_for_required_promotions tools.test_wtk_lifecycle`
 
 **C17** - A verified completed feature deletes its entire `.specs/features/<feature>/` directory instead of retaining or archiving it, and cleanup refuses unverified, profile-mismatched, pending, unpromoted, symlinked, or escaping targets (WTK-04, AC 17)
 Proof: `python3 -m unittest -k test_verified_feature_is_deleted tools.test_wtk_lifecycle`
 Proof: `python3 -m unittest -k test_cleanup_refuses_unsafe_states tools.test_wtk_lifecycle`
+Proof: `python3 -m unittest -k test_cleanup_validates_the_intended_feature_directory tools.test_wtk_lifecycle`
+Proof: `python3 -m unittest -k test_cleanup_waits_for_required_promotions tools.test_wtk_lifecycle`
 
 **C18** - An unrelated pending legacy feature remains byte-for-byte unchanged unless adaptation was explicitly requested (WTK-04, AC 18)
 Proof: `python3 -m unittest -k test_unrequested_legacy_feature_is_untouched tools.test_wtk_lifecycle`
@@ -95,10 +102,11 @@ Proof: `python3 -m unittest -k test_unrequested_legacy_feature_is_untouched tool
 | installer modules (3) | `core` C8 · `quality` C9 · `extras` C11 | - |
 | `wtk install` exit classes (3) | `0` success/cancel C11 · `1` invalid/conflict/transaction failure C11 · `2` non-interactive refusal C11 | - |
 | installer managed-path outcomes (4) | add/update C8 · retire pristine C10 · preserve unknown C10 · conflict modified C10 | - |
-| feature-close stores (5) | decisions C16 · lessons C16 · product/architecture docs C16 · QA scenarios/reports C16 · feature artifacts removed C17 | - |
+| config filenames (2) | tracked example `.wtk.toml.example` C19 · ignored local source `.wtk.toml` C19 | - |
+| feature-close promotion boundary (1) | explicit confirmation after each normal owning workflow completes C16 | - |
 | cleanup refusal states (6) | unverified C17 · profile mismatch C17 · pending checks C17 · required promotion pending C16, C17 · symlink target C17 · path escape C17 | - |
 
-- Claims naming a CLI result, route, profile, or artifact path: C3, C4, C6, C7, C8, C9, C10, C11, C13, C15, C16, C17, C18 - each proof crosses the owning contract boundary
+- Claims naming a CLI result, route, profile, or artifact path: C3, C4, C6, C7, C8, C9, C10, C11, C13, C15, C16, C17, C18, C19 - each proof crosses the owning contract boundary
 - No other check claims more than the single case its proof exercises
 
 ## Test policy

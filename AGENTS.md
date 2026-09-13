@@ -16,7 +16,7 @@ Specify + Design + Tasks here. After approval, dispatch **implementer** and stay
 **new** session — never the implementer's chat, never this one if it wrote the code.
 
 Spawn the named agent; do not override its model. A search or trace is `explorer`; do not search the
-product tree in the parent chat. Local `.my-workflow.toml` owns model/effort choices; tracked
+product tree in the parent chat. Local `.wtk.toml` owns model/effort choices; tracked
 `.agents/skills/wtk-config/assets/agents/` bodies and generated ignored provider runtimes materialize native metadata, and
 feature snapshots freeze delegated settings. Cursor also sees `.claude/` and `.codex/`; the same
 `name` resolves to `.cursor/`. Real files, no symlinks.

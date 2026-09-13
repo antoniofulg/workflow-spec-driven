@@ -18,16 +18,16 @@ Remediation identity, independent counters, and halt behavior follow `REVIEW-ROU
 
 | Reviewer | Question only it can answer | Cap |
 | --- | --- | --- |
-| **Technical Verifier** | Do the tests actually prove the spec? | Fingerprint-scoped; halt on third failed remediation |
+| **Technical Verifier** (feature close) | Does one fresh independent pass prove every check over the complete feature range? | One full-feature pass after the last code-changing slice |
 | **Deep-review** (resolved groups; none under cadence `skip`) | Is the code correct, safe, maintainable? | Discovery once; remediation checks until no Critical/Major is open or `stall_attempts` halts |
-| **QA session** (feature closing step) | Does the finished feature feel right, through the declared adapter? | One `wtk-qa-plan` and one `wtk-qa-execute` session; no slice runs QA |
+| **QA session** (feature closing step when the public surface changes) | Does the finished feature feel right, through the declared adapter? | One `wtk-qa-plan` and one `wtk-qa-execute` session; no slice runs QA |
 
 A documentation-only slice follows the proportional classifier in [GATES.md](../guidelines/GATES.md):
 accuracy and affected-link checks close pure maintenance, while mixed changes run canonical tests for
 changed executable behavior. Deep-review and QA require named concrete risk or changed public promise;
 file count and the word "feature" do not escalate them.
 
-Technical Verifier reads the slice's private writer checkpoint. Deep-review reads the integrated
+Technical Verifier reads the integrated final tree over the complete feature range. Deep-review reads the integrated
 commit range, and the closing session's fresh QA Plan/Execute packets read the integrated final tree. The coordinator records
 distinct author and proof identities; the last implementer supplies a handoff and never certifies
 the integrated result.
@@ -59,12 +59,12 @@ change is a feature.
 
 ## Why the Verifier is not the author
 
-A model that implemented the change will defend it. The Verifier re-derives coverage from the spec
-and injects behavioural mutants. Enumerated cases in `tests.md` prove coverage *exists*; mutants
+A model that implemented the change will defend it. The Verifier re-derives coverage from `plan.md` and
+`checks.md` and injects behavioural mutants. Enumerated cases in `checks.md` prove coverage *exists*; mutants
 prove it is *real*.
 
-A green gate is not a met requirement. Reviewers compare the deliverable to `spec.md`, `tests.md`,
-and `uiux.md` / `dx.md` field by field. Paraphrase is not parity.
+A green gate is not a met requirement. Reviewers compare the deliverable to `plan.md`, `checks.md`,
+`verification.md`, and `uiux.md` / `dx.md` field by field. Paraphrase is not parity.
 
 ## Evidence
 

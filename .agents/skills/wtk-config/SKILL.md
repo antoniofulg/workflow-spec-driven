@@ -10,9 +10,9 @@ orchestrator dispatch the frozen route.
 
 ## Synchronize agent metadata
 
-`.my-workflow.toml` is the checkout-local single editable source for every Claude, Codex, and Cursor
+`.wtk.toml` is the checkout-local single editable source for every Claude, Codex, and Cursor
 model and effort across planner, implementer, verifier, explorer, and deep reviewer. The tracked
-`.my-workflow.toml.example` initializes it, and tracked `.agents/skills/wtk-config/assets/agents/` bodies are the source
+`.wtk.toml.example` initializes it, and tracked `.agents/skills/wtk-config/assets/agents/` bodies are the source
 for ignored generated runtime packets. Native packet fields are generated output; edit templates
 for instruction changes.
 
@@ -66,7 +66,7 @@ has accepted every selected provider.
 ## Resume
 
 Read the existing feature snapshot before dispatch. Use its `parallelization`, `deep_review`, `roles`, and `git_head`
-values even when `.my-workflow.toml` has changed. Re-read the current `[remediation]` threshold on
+values even when `.wtk.toml` has changed. Re-read the current `[remediation]` threshold on
 every resume; it is deliberately live. Current packet metadata must match each frozen delegated
 model and effort; otherwise synchronize and explicitly refresh. Do not silently re-resolve an active
 feature.

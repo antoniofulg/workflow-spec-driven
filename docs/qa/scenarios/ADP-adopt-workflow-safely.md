@@ -17,7 +17,7 @@ overlaps:
 ---
 
 Covers `CWF-ADOPT-1` through `CWF-ADOPT-3`: resolver installation, tracked-source discovery,
-managed-path review, initial profile creation, preservation of `.my-workflow.toml` and templates,
+managed-path review, initial profile creation, preservation of `.wtk.toml` and templates,
 runtime regeneration, and the installed hierarchy/resolution instructions when adopted again.
 
 Release 0.9.1 adjacent QA passed the real 0.8.0 migration and fresh full adoption. Seven phase
@@ -39,7 +39,7 @@ QA on 2026-08-22 confirmed fresh installation and identical SHA-256 before and a
 a consumer-modified skill-owned AD index. The bundled-skill and release-contract canaries also passed.
 
 QA for issue #39 confirmed initial adoption and re-adoption install byte-identical workflow validator
-CLIs while preserving consumer-owned `.my-workflow.toml` and `docs/qa/README.md` byte-for-byte. The
+CLIs while preserving consumer-owned `.wtk.toml` and `docs/qa/README.md` byte-for-byte. The
 deterministic package path extends that preservation to consumer knowledge and neutral fresh scaffolds.
 
 For issue #41, adoption documents Ponytail activation at workflow start and points to `AGENTS.md`
@@ -48,7 +48,7 @@ skill, and workflow loop keep that contract through every TLC and review stage, 
 explicit exits, and survive re-adoption without an implementation-only competing rule.
 
 QA for issue #27 confirmed adoption and re-adoption install a validator byte-identical to the source
-while preserving a consumer-owned `.my-workflow.toml` byte-for-byte.
+while preserving a consumer-owned `.wtk.toml` byte-for-byte.
 
 Issue #28 requires a fresh adoption against a target that already ignores `.deep-review/`: the
 durable `.deep-review/learnings.md` must be eligible for Git while other Deep Review artifacts stay

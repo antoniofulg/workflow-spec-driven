@@ -7,7 +7,7 @@ __pycache__/
 .env
 .env.*
 !.env.example
-.my-workflow.toml
+.wtk.toml
 .claude/agents/
 .codex/agents/
 .cursor/agents/

@@ -22,7 +22,7 @@ review the complete plan before approval. Repeat the same selection after an ind
 require `Selected modules are up to date. No files will change.` with zero target writes. Use a prior
 manifest fixture to exercise managed provider-template promotion and runtime regeneration.
 
-Preserve consumer product context, local `.my-workflow.toml`, package metadata, an existing QA
+Preserve consumer product context, local `.wtk.toml`, package metadata, an existing QA
 profile, and non-empty wiki/raw knowledge byte-for-byte. Confirm a fresh target receives only generic
 managed knowledge instructions and neutral consumer-owned indexes, while source concepts and dated raw
 observations remain absent. Confirm edited provider templates and retired workflow files become

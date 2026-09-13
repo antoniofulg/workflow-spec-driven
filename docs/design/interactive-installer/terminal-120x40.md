@@ -31,7 +31,7 @@ Plan for /work/acme-api
   ADD        parallel    .agents/skills/autonomous/SKILL.md
   UPDATE     core        .agents/skills/workflow-spec-driven/SKILL.md
   ADOPT      core        docs/qa/README.md (file unchanged; ownership record added)
-  PRESERVE   core        .my-workflow.toml (consumer-owned file unchanged)
+  PRESERVE   core        .wtk.toml (consumer-owned file unchanged)
   NO CHANGE  core        docs/qa/scenarios/README.md
   CONFLICT   core        AGENTS.md (consumer content requires a decision)
   REMOVE     core        .agents/skills/retired-helper/SKILL.md

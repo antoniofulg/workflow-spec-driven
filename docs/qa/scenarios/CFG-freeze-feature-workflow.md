@@ -5,7 +5,7 @@ title: Freeze and safely resume a feature workflow
 persona: Workflow adopter
 journey: J-configure-feature-workflow
 expected: Resolution and resume report the live remediation stall bound without persisting it, while model/effort routes, cadence, selected parallelization mode, and safe optional resource provider remain frozen until an explicit refresh; packet drift still requires explicit synchronization and refresh.
-entry_points: .my-workflow.toml.example; .my-workflow.toml; .claude/agents/; .codex/agents/; .cursor/agents/; .agents/skills/workflow-config/scripts/workflow_config.py; .specs/features/<slug>/workflow.json; .agents/skills/workflow-config/SKILL.md
+entry_points: .wtk.toml.example; .wtk.toml; .claude/agents/; .codex/agents/; .cursor/agents/; .agents/skills/workflow-config/scripts/workflow_config.py; .specs/features/<slug>/workflow.json; .agents/skills/workflow-config/SKILL.md
 qa_status: pass
 bug_ids:
 fix_status:

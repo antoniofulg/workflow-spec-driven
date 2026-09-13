@@ -101,16 +101,16 @@ const path = `.agents/skills/wtk-config/assets/agents/${provider}/${role}.${exte
   });
 
   it("keeps local config/runtimes ignored and packages only example/templates", () => {
-    expect(execFileSync("git", ["ls-files", "--", ".my-workflow.toml"], {
+    expect(execFileSync("git", ["ls-files", "--", ".wtk.toml"], {
       cwd: repositoryRoot,
       encoding: "utf8",
     }).trim()).toBe("");
-    expect(execFileSync("git", ["ls-files", "--", ".my-workflow.toml.example", ".agents/skills/wtk-config/assets/agents"], {
+    expect(execFileSync("git", ["ls-files", "--", ".wtk.toml.example", ".agents/skills/wtk-config/assets/agents"], {
       cwd: repositoryRoot,
       encoding: "utf8",
-    })).toContain(".my-workflow.toml.example");
+    })).toContain(".wtk.toml.example");
     for (const relativePath of [
-      ".my-workflow.toml",
+      ".wtk.toml",
       ".claude/agents/planner.md",
       ".codex/agents/planner.toml",
       ".cursor/agents/planner.md",
@@ -118,18 +118,18 @@ const path = `.agents/skills/wtk-config/assets/agents/${provider}/${role}.${exte
       expect(isIgnored(relativePath), relativePath).toBe(true);
     }
     const packaged = packagedFiles();
-    expect(packaged).toContain(".my-workflow.toml.example");
+    expect(packaged).toContain(".wtk.toml.example");
     expect(packaged).toContain(".agents/skills/wtk-config/assets/agents/claude/planner.md");
     expect(packaged).toContain(".agents/skills/wtk-config/assets/agents/codex/planner.toml");
     expect(packaged).toContain(".agents/skills/wtk-config/assets/agents/cursor/planner.md");
-    expect(packaged).not.toContain(".my-workflow.toml");
+    expect(packaged).not.toContain(".wtk.toml");
     expect(packaged.some((path) => path.startsWith(".claude/agents/"))).toBe(false);
     expect(packaged.some((path) => path.startsWith(".codex/agents/"))).toBe(false);
     expect(packaged.some((path) => path.startsWith(".cursor/agents/"))).toBe(false);
   }, 30_000);
 
   it("resolves the shipped mixed profile to its exact provider routes", () => {
-    const example = readRepositoryFile(".my-workflow.toml.example");
+    const example = readRepositoryFile(".wtk.toml.example");
     expect(example).toContain(
       "[profiles.mixed]\nimplementer = \"claude\"\nverifier = \"codex\"\nexplorer = \"cursor\"\ndeep_reviewer = \"codex\"",
     );
@@ -139,7 +139,7 @@ const path = `.agents/skills/wtk-config/assets/agents/${provider}/${role}.${exte
       cpSync(join(repositoryRoot, ".agents/skills"), join(temporaryRoot, ".agents/skills"), {
         recursive: true,
       });
-      cpSync(join(repositoryRoot, ".my-workflow.toml.example"), join(temporaryRoot, ".my-workflow.toml.example"));
+      cpSync(join(repositoryRoot, ".wtk.toml.example"), join(temporaryRoot, ".wtk.toml.example"));
       execFileSync("git", ["init", "-q"], { cwd: temporaryRoot });
       execFileSync(
         "git",
@@ -187,7 +187,7 @@ const path = `.agents/skills/wtk-config/assets/agents/${provider}/${role}.${exte
       cpSync(join(repositoryRoot, ".agents/skills"), join(temporaryRoot, ".agents/skills"), {
         recursive: true,
       });
-      cpSync(join(repositoryRoot, ".my-workflow.toml.example"), join(temporaryRoot, ".my-workflow.toml.example"));
+      cpSync(join(repositoryRoot, ".wtk.toml.example"), join(temporaryRoot, ".wtk.toml.example"));
       execFileSync("git", ["init", "-q"], { cwd: temporaryRoot });
       execFileSync(
         "git",

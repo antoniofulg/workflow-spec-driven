@@ -20,8 +20,8 @@ initializes a neutral, consumer-owned `docs/product/AGENT-CONTEXT.md` index; fil
 identity and routes to existing docs only as the product earns them. For an existing project,
 preserve its filled product paragraph. Before deliberately replacing a legacy `AGENTS.md`, extract
 its product rules into that index and review the complete diff; adoption does not infer or perform
-that migration. Preserve an existing local `.my-workflow.toml` byte-for-byte. Install missing
-`.my-workflow.toml.example` and `.agents/skills/wtk-config/assets/agents/`. The guided installer
+that migration. Preserve an existing local `.wtk.toml` byte-for-byte. Install missing
+`.wtk.toml.example` and `.agents/skills/wtk-config/assets/agents/`. The guided installer
 synchronizes ignored provider packets from tracked templates and local config.
 
 If the preview reports conflicts, review every conflict in the wizard. Choose `Back up and replace`,

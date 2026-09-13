@@ -1,6 +1,6 @@
 name = "designer"
 description = "UI and UX designer. Produce mockups and review notes for UI-bearing features. Does not implement product code."
-model = "gpt-5.6-sol"
+model = "gpt-6-astra"
 model_reasoning_effort = "high"
 
 developer_instructions = """

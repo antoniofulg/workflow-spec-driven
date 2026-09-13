@@ -5,7 +5,7 @@ title: Fall back when parallel execution is unproven
 persona: Workflow adopter
 journey: J-execute-parallel-slices
 expected: Disabled mode, unsupported Orca capability, missing resource metadata, or a resource-bearing lane without a provider reports the decisive serial reason and creates no worktree, worker, event, Git, or resource effect.
-entry_points: .my-workflow.toml; .agents/skills/workflow-config/scripts/workflow_config.py; .agents/skills/autonomous/scripts/parallel_execute.py start; .agents/skills/autonomous/scripts/parallel_execute.py status
+entry_points: .wtk.toml; .agents/skills/workflow-config/scripts/workflow_config.py; .agents/skills/autonomous/scripts/parallel_execute.py start; .agents/skills/autonomous/scripts/parallel_execute.py status
 qa_status: pass
 bug_ids: BUG-20260824-parallel-executor-worker-start-fallback-leaks-worktree
 fix_status: fixed

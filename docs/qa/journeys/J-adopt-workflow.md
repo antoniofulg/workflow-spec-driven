@@ -30,7 +30,7 @@
    prints their separate authorized installation command. Import the installed probe with a fake
    `orca` on `PATH` and confirm it performs no call; run the installed knowledge CLI with Bun without
    consumer Node packages.
-5. Re-adopt a valid target with a consumer-owned `.my-workflow.toml`, QA profile, model settings,
+5. Re-adopt a valid target with a consumer-owned `.wtk.toml`, QA profile, model settings,
    knowledge concepts/raw records, product files inside old root directories, and unrelated ignore
    entries. Prepare isolated refusal copies with edited or unproven old runtime bytes.
 6. Confirm the valid target's local config, QA profile, consumer knowledge, and product files survive

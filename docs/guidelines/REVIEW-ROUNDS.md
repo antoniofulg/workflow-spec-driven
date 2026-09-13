@@ -10,15 +10,21 @@ and filed Trivials make review end.
 
 | Stage | Asks | Cap |
 | --- | --- | --- |
-| **Technical Verifier** (every slice that changes code) | Do the tests actually prove the acceptance criteria? | Same-fingerprint live threshold |
+| **Technical Verifier** (feature closing step) | Does one fresh independent pass prove every check over the complete feature range? | One full-feature pass after the last code-changing slice |
 | **wtk-deep-review** (resolved implementation groups) | Is the code correct, safe and maintainable? | Discovery once; one remediation check per batch until no Critical/Major is open or `stall_attempts` halts |
-| **QA session** (feature closing step) | Does the finished feature work for a real user? | One `wtk-qa-plan` and one `wtk-qa-execute` session |
+| **QA session** (feature closing step when the public surface changes) | Does the finished feature work for a real user? | One `wtk-qa-plan` and one `wtk-qa-execute` session |
 The provider `verifier` executes exactly one phase per packet: `technical`, `wtk-qa-plan`, or
-`wtk-qa-execute`. The orchestrator dispatches a technical packet per code-changing slice and the QA
-packets once, at feature close; no slice runs QA. Deep-review is a separate orchestrator stage, not a Verifier phase.
-The QA session reads `docs/guidelines/QA-SCENARIOS.md`; it owns fields and statuses. Each stage answers a question the others cannot, so none is redundant. Direct corrections follow `.agents/skills/wtk/SKILL.md`: scoped validation closes them, with no fresh Verifier, wtk-deep-review, or QA.
+`wtk-qa-execute`. The orchestrator dispatches one technical packet over the complete feature range after
+the last code-changing slice and QA packets once, at feature close, when the feature changes public,
+UI, API, CLI, or adoption behaviour; no slice runs QA. Deep-review is a separate orchestrator stage, not a Verifier phase.
+The QA session reads `docs/guidelines/QA-SCENARIOS.md`; it owns fields and
+statuses. Each stage answers a question the others cannot, so none is redundant.
 
-Intent vocabulary is routing input, not a keyword bypass: `feature` starts at Small, `cross-feature change` at Medium, `direct correction`/`UI-only correction` use the fast path only when the repository predicate passes, and `issue` is neutral. State tier, facts, and validation before dispatch; escalation requires newly discovered named evidence, not file count or UI presence.
+Intent vocabulary is routing input, not a keyword bypass. `wtk` selects discovery, integrated Lean,
+modular planning/implementation, diagnosis, or an explicitly named capability from the request and
+repository state. State facts and validation before dispatch; escalation requires newly discovered
+named evidence, not file count or UI presence. An `issue` is neutral until repository evidence
+identifies its applicable route.
 
 ## Why resolved groups, not a rigid interval
 
@@ -31,17 +37,19 @@ default, and balanced groups. One pull request and one actor per role remain unc
 **Stages do not loop back into each other.** A wtk-deep-review finding never sends work back to
 Technical Verifier. A clean remediation check or the stall bound ends the loop; neither revokes the
 approval for local remediation already in progress. The post-fix gate and escalation rule below
-decide whether the slice is done.
+decide whether the feature's selected review route is done.
 
 Before final QA, complete the final pending implementation wtk-deep-review group; cadence `skip` resolves no groups, so nothing waits for wtk-deep-review. For QA code remediation, review only `reviewed_head..HEAD`, then re-walk affected scenario rows.
 
 ## The feature closing step
 
-A feature's closing step is the **QA session**, after the final implementation review group. It
-needs the whole feature and cannot run on part of one. The `wtk-qa-plan` and `wtk-qa-execute` skills own it.
+A feature's closing step is the **QA session** when its public, UI, API, CLI, or adoption surface
+requires a user walk, after the final implementation review group. It needs the whole feature and
+cannot run on part of one. The `wtk-qa-plan` and `wtk-qa-execute` skills own it.
 
-It writes no product code, so it gets no technical Verifier or wtk-deep-review. It receives distinct
-fresh packets, `wtk-qa-plan` and `wtk-qa-execute`, and walks every scenario the feature flagged.
+It writes no product code and does not replace the feature's technical Verifier or wtk-deep-review.
+It receives distinct fresh packets, `wtk-qa-plan` and `wtk-qa-execute`, and walks every scenario the
+feature flagged.
 
 ## Hard rules
 
@@ -144,10 +152,9 @@ If the gate is unavailable, halt immediately without another remediation check; 
 ## Requirement and contract parity
 
 A green gate proves the code compiles, lints and passes its tests. It does not prove the code matches
-the spec. Every reviewer additionally compares the deliverable against the canonical artifacts —
-`spec.md` acceptance criteria, `tests.md` cases, and the `uiux.md` / `dx.md` surface contracts when
-they exist — field by field, not by paraphrase.
+the feature contract. Every reviewer additionally compares the deliverable against the canonical
+artifacts — `plan.md` acceptance criteria, `checks.md` cases, the independent `verification.md` report,
+and the `uiux.md` / `dx.md` surface contracts when they exist — field by field, not by paraphrase.
 
 The failure this prevents is specific: a change can pass many review rounds while contradicting the
-spec's canonical contract, because every round measured engineering quality against the task file's
-paraphrase and nothing ever compared it to the source.
+plan and checks, because every round measured engineering quality against an implementation paraphrase and nothing ever compared it to the source.

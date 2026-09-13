@@ -14,12 +14,27 @@ def make_feature(root: Path, name: str = "fixture") -> Path:
     shutil.copy2(ROOT / ".agents/skills/wtk-lean/scripts/validate_verification.py", validator)
     target = root / ".specs" / "features" / name
     target.mkdir(parents=True)
-    (target / "checks.md").write_text("# Checks\n\nProfile: light\n\n### C1 - done\n", encoding="utf-8")
-    (target / "verification.md").write_text(
-        "# Verification\n\nVerdict: PASS\nProfile: light\nRound: initial\n\nEvidence: checks.md:1\n",
-        encoding="utf-8",
-    )
+    fixtures = ROOT / ".agents" / "skills" / "wtk-lean" / "scripts" / "fixtures"
+    for filename in ("checks.md", "verification.md"):
+        shutil.copy2(fixtures / filename, target / filename)
     return target
+
+
+def tree_state(root: Path) -> dict[Path, tuple[str, bytes | str | None]]:
+    if root.is_symlink():
+        return {Path("."): ("symlink", str(root.readlink()))}
+    if root.is_file():
+        return {Path("."): ("file", root.read_bytes())}
+    state: dict[Path, tuple[str, bytes | str | None]] = {}
+    for path in sorted(root.rglob("*")):
+        relative = path.relative_to(root)
+        if path.is_symlink():
+            state[relative] = ("symlink", str(path.readlink()))
+        elif path.is_file():
+            state[relative] = ("file", path.read_bytes())
+        elif path.is_dir():
+            state[relative] = ("directory", None)
+    return state
 
 
 def load_module():
@@ -37,12 +52,20 @@ class WtkLifecycleTests(unittest.TestCase):
     def test_cleanup_waits_for_required_promotions(self) -> None:
         module = load_module()
         root = Path(tempfile.mkdtemp())
+        outside = Path(tempfile.mkdtemp())
         try:
-            make_feature(root)
+            target = make_feature(root)
+            (target / "target-sentinel").write_bytes(b"target sentinel")
+            (outside / "outside-sentinel").write_bytes(b"outside sentinel")
+            before_target = tree_state(target)
+            before_outside = tree_state(outside)
             with self.assertRaisesRegex(ValueError, "promotion receipt is required"):
                 module.close_feature(root, "fixture")
+            self.assertEqual(tree_state(target), before_target)
+            self.assertEqual(tree_state(outside), before_outside)
         finally:
             shutil.rmtree(root)
+            shutil.rmtree(outside)
 
     def test_verified_feature_is_deleted(self) -> None:
         module = load_module()
@@ -57,47 +80,98 @@ class WtkLifecycleTests(unittest.TestCase):
 
     def test_cleanup_refuses_unsafe_states(self) -> None:
         module = load_module()
-        root = Path(tempfile.mkdtemp())
-        outside = Path(tempfile.mkdtemp())
-        try:
-            (root / ".specs" / "features").mkdir(parents=True)
-            (outside / "sentinel").write_text("keep", encoding="utf-8")
-            (root / ".specs" / "features" / "fixture").symlink_to(outside, target_is_directory=True)
-            with self.assertRaisesRegex(ValueError, "must not be a symlink"):
-                module.close_feature(root, "fixture", promoted=True)
-            self.assertTrue((outside / "sentinel").exists())
-
-            (root / ".specs" / "features" / "fixture").unlink()
-            target = root / ".specs" / "features" / "real"
-            target.mkdir()
-            (target / "sentinel").write_text("keep", encoding="utf-8")
-            (root / ".specs" / "features" / "fixture").symlink_to(target, target_is_directory=True)
-            with self.assertRaisesRegex(ValueError, "must not be a symlink"):
-                module.close_feature(root, "fixture", promoted=True)
-            self.assertTrue((target / "sentinel").exists())
-        finally:
-            shutil.rmtree(root)
-            shutil.rmtree(outside)
+        cases = (
+            (
+                "missing verification",
+                lambda target, outside: (target / "verification.md").unlink(),
+                "verification.md is required",
+                "fixture",
+            ),
+            (
+                "failed verification",
+                lambda target, outside: (target / "verification.md").write_text(
+                    (target / "verification.md").read_text(encoding="utf-8").replace(
+                        "**Verdict**: PASS", "**Verdict**: FAIL", 1
+                    ),
+                    encoding="utf-8",
+                ),
+                "verdict is FAIL",
+                "fixture",
+            ),
+            (
+                "profile mismatch",
+                lambda target, outside: (target / "verification.md").write_text(
+                    (target / "verification.md").read_text(encoding="utf-8").replace(
+                        "**Profile**: standard", "**Profile**: light", 1
+                    ),
+                    encoding="utf-8",
+                ),
+                "checks.md was approved under",
+                "fixture",
+            ),
+            (
+                "pending checks",
+                lambda target, outside: (target / "checks.md").unlink(),
+                "checks.md is required",
+                "fixture",
+            ),
+            (
+                "symlink target",
+                lambda target, outside: (
+                    shutil.rmtree(target),
+                    target.symlink_to(outside, target_is_directory=True),
+                ),
+                "must not be a symlink",
+                "fixture",
+            ),
+            (
+                "path escape",
+                lambda target, outside: None,
+                "feature must be a lowercase slug",
+                "../outside",
+            ),
+        )
+        for name, mutate, message, feature in cases:
+            with self.subTest(name=name):
+                root = Path(tempfile.mkdtemp())
+                outside = Path(tempfile.mkdtemp())
+                try:
+                    target = make_feature(root)
+                    (target / "target-sentinel").write_bytes(b"target sentinel")
+                    (outside / "outside-sentinel").write_bytes(b"outside sentinel")
+                    mutate(target, outside)
+                    before_target = tree_state(target)
+                    before_outside = tree_state(outside)
+                    with self.assertRaisesRegex(ValueError, message):
+                        module.close_feature(root, feature, promoted=True)
+                    self.assertEqual(tree_state(target), before_target)
+                    self.assertEqual(tree_state(outside), before_outside)
+                finally:
+                    shutil.rmtree(root)
+                    shutil.rmtree(outside)
 
     def test_cleanup_validates_the_intended_feature_directory(self) -> None:
         module = load_module()
         root = Path(tempfile.mkdtemp())
         try:
             target = make_feature(root)
+            (target / "target-sentinel").write_bytes(b"target sentinel")
             (target / "verification.md").write_text(
-                "# Verification\n\nVerdict: FAIL\nProfile: light\nRound: initial\n\nEvidence: checks.md:1\n",
+                "# Verification\n\nVerdict: FAIL\nProfile: standard\nRound: initial\n\nEvidence: checks.md:1\n",
                 encoding="utf-8",
             )
             decoy = root / "fixture"
             decoy.mkdir()
-            (decoy / "checks.md").write_text("# Checks\n\nProfile: light\n", encoding="utf-8")
-            (decoy / "verification.md").write_text(
-                "# Verification\n\nVerdict: PASS\nProfile: light\nRound: initial\n\nEvidence: checks.md:1\n",
-                encoding="utf-8",
-            )
+            fixtures = ROOT / ".agents" / "skills" / "wtk-lean" / "scripts" / "fixtures"
+            for filename in ("checks.md", "verification.md"):
+                shutil.copy2(fixtures / filename, decoy / filename)
+            (decoy / "decoy-sentinel").write_bytes(b"decoy sentinel")
+            before_target = tree_state(target)
+            before_decoy = tree_state(decoy)
             with self.assertRaisesRegex(ValueError, "verdict is FAIL"):
                 module.close_feature(root, "fixture", promoted=True)
-            self.assertTrue(target.exists())
+            self.assertEqual(tree_state(target), before_target)
+            self.assertEqual(tree_state(decoy), before_decoy)
         finally:
             shutil.rmtree(root)
 

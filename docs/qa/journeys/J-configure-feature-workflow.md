@@ -2,11 +2,11 @@
 
 **Persona:** Workflow adopter
 **Goal:** Configure, freeze, and inspect one feature's models, review, provider, remediation, and slice-dispatch policy.
-**Entry point:** `.my-workflow.toml.example` → local `.my-workflow.toml` → `workflow-config` resolver CLI
+**Entry point:** `.wtk.toml.example` → local `.wtk.toml` → `workflow-config` resolver CLI
 
 ## Flow
 
-1. Distinguish tracked `.my-workflow.toml.example` and skill-owned packet templates under `.agents/skills/workflow-config/assets/agents/` from ignored local config and generated runtimes; confirm the same ownership boundary.
+1. Distinguish tracked `.wtk.toml.example` and skill-owned packet templates under `.agents/skills/workflow-config/assets/agents/` from ignored local config and generated runtimes; confirm the same ownership boundary.
 2. Initialize local config, select the documented profile, edit model/effort pairs, run explicit sync, and confirm generated packets are stable for all six roles including designer, carrying each Claude role's `skills:` preload and `disallowedTools:` scope byte-identical to its template (designer: `skills: [wdesign, ponytail]`, no `disallowedTools`); confirm a missing `[models.<provider>.designer]` table or a template preloading a skill with no `SKILL.md` fails the sync by name and writes nothing.
 3. Exercise invalid config, template, metadata, destination, and symlink inputs; confirm each failure names its source and changes no bytes.
 4. Author `tasks.md` from the installed task template, declaring one `**Slice:**` field per primary task and one `## Vertical Slice Closure` row per used slice; confirm the template names the slice/phase/batch distinction and that `validate_tasks.py --slice-contract-json` reports the same membership the document declares.

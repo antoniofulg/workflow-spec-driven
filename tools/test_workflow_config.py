@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 import re
+import unittest
 from pathlib import Path
 import sys
 
@@ -49,7 +50,7 @@ def write_config(
     models: dict | None = None,
     cadence: str | None = "grouped.3",
     extra: str = "",
-    filename: str = ".my-workflow.toml",
+    filename: str = ".wtk.toml",
 ) -> None:
     lines = ["version = 3", ""]
     if cadence is not None:
@@ -686,7 +687,7 @@ def test_rejects_unknown_top_level_and_missing_config() -> None:
     root = make_root()
     try:
         write_config(root)
-        config_path = root / ".my-workflow.toml"
+        config_path = root / ".wtk.toml"
         config_path.write_text("bogus = true\n" + config_path.read_text(encoding="utf-8"), encoding="utf-8")
         try:
             workflow_config._read_config(root)
@@ -694,7 +695,7 @@ def test_rejects_unknown_top_level_and_missing_config() -> None:
             assert "unknown top-level key 'bogus'" in str(exc)
         else:
             raise AssertionError("expected unknown key failure")
-        (root / ".my-workflow.toml").unlink()
+        (root / ".wtk.toml").unlink()
         try:
             workflow_config._read_config(root)
         except workflow_config.ConfigError as exc:
@@ -735,16 +736,42 @@ def test_sync_renders_all_native_metadata_and_reports_changes() -> None:
 def test_sync_initializes_local_config_and_generates_eighteen_runtime_packets() -> None:
     root = make_root()
     try:
-        write_config(root, filename=".my-workflow.toml.example")
+        write_config(root, filename=".wtk.toml.example")
         write_packets(root, runtime=False)
-        example = (root / ".my-workflow.toml.example").read_bytes()
+        example = (root / ".wtk.toml.example").read_bytes()
         templates_before = {path: path.read_bytes() for path in template_paths(root)}
         result = workflow_config.sync_agents(root)
-        assert (root / ".my-workflow.toml").read_bytes() == example
+        assert (root / ".wtk.toml").read_bytes() == example
         assert len(result["changed"]) == 18
         assert result["unchanged"] == []
         assert {path: path.read_bytes() for path in template_paths(root)} == templates_before
         assert len(packet_paths(root)) == 18
+    finally:
+        shutil.rmtree(root)
+
+
+def test_sync_uses_canonical_config_paths_without_a_legacy_reader() -> None:
+    root = make_root()
+    try:
+        write_config(root, filename=".wtk.toml.example")
+        write_packets(root, runtime=False)
+        example = (root / ".wtk.toml.example").read_bytes()
+        legacy = root / ".my-workflow.toml"
+        legacy.write_bytes(b"legacy config must not be read")
+
+        workflow_config.sync_agents(root)
+        assert (root / ".wtk.toml").read_bytes() == example
+        assert legacy.read_bytes() == b"legacy config must not be read"
+
+        (root / ".wtk.toml").unlink()
+        (root / ".wtk.toml.example").unlink()
+        try:
+            workflow_config.sync_agents(root)
+        except workflow_config.ConfigError as exc:
+            assert ".wtk.toml.example is missing" in str(exc)
+        else:
+            raise AssertionError("expected missing canonical config failure")
+        assert legacy.read_bytes() == b"legacy config must not be read"
     finally:
         shutil.rmtree(root)
 
@@ -758,7 +785,7 @@ def test_sync_preflights_early_and_late_runtime_collisions_before_local_init() -
     for _, collision, kind in cases:
         root = make_root()
         try:
-            write_config(root, filename=".my-workflow.toml.example")
+            write_config(root, filename=".wtk.toml.example")
             write_packets(root)
             runtime_relatives = [
                 workflow_config._runtime_relative(provider, role)
@@ -798,7 +825,7 @@ def test_sync_preflights_early_and_late_runtime_collisions_before_local_init() -
                 assert str(exc) == expected
             else:
                 raise AssertionError(f"expected {kind} collision rejection")
-            assert not (root / ".my-workflow.toml").exists()
+            assert not (root / ".wtk.toml").exists()
             assert state() == before
         finally:
             shutil.rmtree(root)
@@ -824,9 +851,9 @@ def test_sync_rejects_symlinked_runtime_paths_before_local_init() -> None:
         root = make_packet_root()
         outside = Path(tempfile.mkdtemp())
         try:
-            config = root / ".my-workflow.toml"
-            (root / ".my-workflow.toml.example").write_bytes(config.read_bytes())
-            (root / ".my-workflow.toml").unlink()
+            config = root / ".wtk.toml"
+            (root / ".wtk.toml.example").write_bytes(config.read_bytes())
+            (root / ".wtk.toml").unlink()
             if collision in (Path(".claude"), Path(".codex/agents")):
                 shutil.rmtree(root / collision)
                 target = outside / collision.name
@@ -850,7 +877,7 @@ def test_sync_rejects_symlinked_runtime_paths_before_local_init() -> None:
             assert result.returncode == 2, name
             assert result.stdout == "", name
             assert result.stderr == f"wtk-config: {message}\n", name
-            assert not (root / ".my-workflow.toml").exists(), name
+            assert not (root / ".wtk.toml").exists(), name
             assert runtime_state(root) == before_runtime, name
             assert tree_state(outside) == before_outside, name
         finally:
@@ -860,8 +887,8 @@ def test_sync_rejects_symlinked_runtime_paths_before_local_init() -> None:
 
 def test_sync_rejects_symlinked_local_sources_before_any_write() -> None:
     cases = (
-        ("local config", Path(".my-workflow.toml"), "local config path .my-workflow.toml must not be a symlink"),
-        ("config example", Path(".my-workflow.toml.example"), "config example path .my-workflow.toml.example must not be a symlink"),
+        ("local config", Path(".wtk.toml"), "local config path .wtk.toml must not be a symlink"),
+        ("config example", Path(".wtk.toml.example"), "config example path .wtk.toml.example must not be a symlink"),
         (
             "agent template",
             Path(".agents/skills/wtk-config/assets/agents/claude/planner.md"),
@@ -873,21 +900,21 @@ def test_sync_rejects_symlinked_local_sources_before_any_write() -> None:
         root = make_packet_root()
         outside = Path(tempfile.mkdtemp())
         try:
-            if source.name == ".my-workflow.toml":
+            if source.name == ".wtk.toml":
                 target = outside / source.name
                 target.write_bytes((root / source).read_bytes())
                 (root / source).unlink()
                 (root / source).symlink_to(target)
             else:
-                example = root / ".my-workflow.toml"
-                if source.name == ".my-workflow.toml.example":
+                example = root / ".wtk.toml"
+                if source.name == ".wtk.toml.example":
                     target = outside / source.name
                     target.write_bytes(example.read_bytes())
                     example.unlink()
                     (root / source).symlink_to(target)
                 else:
-                    config = root / ".my-workflow.toml"
-                    (root / ".my-workflow.toml.example").write_bytes(config.read_bytes())
+                    config = root / ".wtk.toml"
+                    (root / ".wtk.toml.example").write_bytes(config.read_bytes())
                     config.unlink()
                     target = outside / source.name
                     target.parent.mkdir(parents=True, exist_ok=True)
@@ -896,7 +923,7 @@ def test_sync_rejects_symlinked_local_sources_before_any_write() -> None:
                     (root / source).symlink_to(target)
             before_runtime = runtime_state(root)
             before_outside = tree_state(outside)
-            config_before = path_state(root / ".my-workflow.toml")
+            config_before = path_state(root / ".wtk.toml")
             result = subprocess.run(
                 [sys.executable, str(resolver), "--root", str(root), "--sync-agents"],
                 text=True,
@@ -906,7 +933,7 @@ def test_sync_rejects_symlinked_local_sources_before_any_write() -> None:
             assert result.returncode == 2, name
             assert result.stdout == "", name
             assert result.stderr == f"wtk-config: {message}\n", name
-            assert path_state(root / ".my-workflow.toml") == config_before, name
+            assert path_state(root / ".wtk.toml") == config_before, name
             assert runtime_state(root) == before_runtime, name
             assert tree_state(outside) == before_outside, name
         finally:
@@ -920,7 +947,7 @@ def test_sync_rejects_symlinked_root_before_any_external_write() -> None:
     target = make_root()
     link_parent = Path(tempfile.mkdtemp())
     try:
-        write_config(target, filename=".my-workflow.toml.example")
+        write_config(target, filename=".wtk.toml.example")
         write_packets(target, runtime=False)
         (target / "sentinel.txt").write_bytes(b"external sentinel")
         linked_root = link_parent / "linked-checkout"
@@ -936,7 +963,7 @@ def test_sync_rejects_symlinked_root_before_any_external_write() -> None:
         assert result.returncode == 2
         assert result.stdout == ""
         assert result.stderr == f"wtk-config: root {linked_root.absolute()} must not be a symlink\n"
-        assert not (target / ".my-workflow.toml").exists()
+        assert not (target / ".wtk.toml").exists()
         assert runtime_state(target) == before_runtime
         assert tree_state(target) == before_target
     finally:
@@ -1019,7 +1046,7 @@ def test_cli_errors_use_public_prefix_exit_two_and_empty_stdout() -> None:
     root = make_packet_root()
     try:
         resolver = Path(__file__).resolve().parent.parent / ".agents/skills/wtk-config/scripts/workflow_config.py"
-        config = root / ".my-workflow.toml"
+        config = root / ".wtk.toml"
         config.write_text(config.read_text(encoding="utf-8").replace('model = "codex-verifier"', 'model = ""', 1), encoding="utf-8")
         result = subprocess.run(
             [sys.executable, str(resolver), "--root", str(root), "--sync-agents"],
@@ -1052,7 +1079,7 @@ def test_sync_invalid_config_and_duplicate_metadata_write_no_packets() -> None:
     root = make_packet_root()
     try:
         before = {path: path.read_bytes() for path in packet_paths(root)}
-        config = root / ".my-workflow.toml"
+        config = root / ".wtk.toml"
         config.write_text(config.read_text(encoding="utf-8").replace('model = "codex-verifier"', 'model = ""', 1), encoding="utf-8")
         try:
             workflow_config.sync_agents(root)
@@ -1086,7 +1113,7 @@ def test_cli_rejects_non_roundtrip_model_identifier_before_writes() -> None:
     root = make_packet_root()
     try:
         before = {path: path.read_bytes() for path in packet_paths(root)}
-        config = root / ".my-workflow.toml"
+        config = root / ".wtk.toml"
         config.write_text(config.read_text(encoding="utf-8").replace('model = "claude-planner"', 'model = "claude planner"', 1), encoding="utf-8")
         resolver = Path(__file__).resolve().parent.parent / ".agents/skills/wtk-config/scripts/workflow_config.py"
         result = subprocess.run(
@@ -1105,7 +1132,7 @@ def test_cli_rejects_codex_backslash_model_identifier_before_writes() -> None:
     root = make_packet_root()
     try:
         before = {path: path.read_bytes() for path in packet_paths(root)}
-        config = root / ".my-workflow.toml"
+        config = root / ".wtk.toml"
         config.write_text(
             config.read_text(encoding="utf-8").replace(
                 'model = "codex-planner"', 'model = "foo\\\\bar"', 1
@@ -1458,10 +1485,32 @@ def test_skip_cadence_freezes_empty_groups_and_validates_snapshot() -> None:
         shutil.rmtree(root)
 
 
+def test_default_verification_profile_is_standard_and_stays_pinned_on_resume() -> None:
+    root = make_repo()
+    try:
+        write_tasks(
+            root,
+            "# Fixture checks\n\nProfile: standard\n\n### S1 - Capability works.\n",
+            "profile-pinned",
+        )
+        first = workflow_config.resolve(
+            root=root, feature="profile-pinned", native_provider="codex"
+        )
+        assert first["verification_profile"] == "standard"
+        write_config(root, cadence="feature")
+        resumed = workflow_config.resolve(
+            root=root, feature="profile-pinned", native_provider="cursor"
+        )
+        assert resumed["verification_profile"] == "standard"
+        assert resumed["deep_review"] == first["deep_review"]
+    finally:
+        shutil.rmtree(root)
+
+
 def test_profile_precedence_and_partial_defaults() -> None:
     root = make_packet_root()
     try:
-        path = root / ".my-workflow.toml"
+        path = root / ".wtk.toml"
         contents = path.read_text(encoding="utf-8")
         marker = "[models.claude.planner]"
         path.write_text(
@@ -1809,11 +1858,11 @@ def test_ut005_roles_matrix_includes_designer() -> None:
     """UT-005: Roles matrix includes designer (SID-03 AC1)."""
     assert "designer" in workflow_config.ROLES
     assert "designer" in workflow_config.DELEGATED_ROLES
-    example_path = ROOT / ".my-workflow.toml.example"
-    example_config = workflow_config._load_config(example_path, ".my-workflow.toml.example")
+    example_path = ROOT / ".wtk.toml.example"
+    example_config = workflow_config._load_config(example_path, ".wtk.toml.example")
     models = example_config.get("models", {})
     assert models.get("claude", {}).get("designer") == {"model": "inherit", "effort": "high"}
-    assert models.get("codex", {}).get("designer") == {"model": "gpt-5.6-sol", "effort": "high"}
+    assert models.get("codex", {}).get("designer") == {"model": "gpt-6-astra", "effort": "high"}
     assert models.get("cursor", {}).get("designer") == {"model": "claude-fable-5-1-thinking-high", "effort": "high"}
 
 
@@ -1821,7 +1870,7 @@ def test_it001_sync_renders_designer_packets() -> None:
     """IT-001: Sync renders designer packets (SID-03 AC3)."""
     root = make_preload_root()
     try:
-        shutil.copy(ROOT / ".my-workflow.toml.example", root / ".my-workflow.toml")
+        shutil.copy(ROOT / ".wtk.toml.example", root / ".wtk.toml")
         completed = subprocess.run(
             [sys.executable, str(ROOT / ".agents/skills/wtk-config/scripts/workflow_config.py"),
              "--root", str(root), "--sync-agents"],
@@ -1844,7 +1893,7 @@ def test_it001_sync_renders_designer_packets() -> None:
         assert claude_designer_skills == claude_runtime_skills
         assert "model: inherit" in claude_runtime
         assert "effort: high" in claude_runtime
-        assert 'model = "gpt-5.6-sol"' in codex_runtime
+        assert 'model = "gpt-6-astra"' in codex_runtime
         assert 'model_reasoning_effort = "high"' in codex_runtime
         assert "model: claude-fable-5-1-thinking-high[effort=high]" in cursor_runtime
     finally:
@@ -1858,7 +1907,7 @@ def test_it002_sync_rejects_missing_designer_table_or_template() -> None:
         try:
             write_config(root)
             write_packets(root, runtime=False)
-            config_path = root / ".my-workflow.toml"
+            config_path = root / ".wtk.toml"
             config_text = config_path.read_text(encoding="utf-8")
             table_pattern = re.compile(
                 rf"\[models\.{re.escape(provider)}\.designer\][\s\S]*?(?=\n\[|\Z)",
@@ -1900,6 +1949,14 @@ def test_it002_sync_rejects_missing_designer_table_or_template() -> None:
             assert not (root2 / f".{runtime_provider}" / "agents").exists()
     finally:
         shutil.rmtree(root2)
+
+
+class WtkWorkflowConfigContractTests(unittest.TestCase):
+    def test_canonical_config_paths_without_legacy_reader(self) -> None:
+        test_sync_uses_canonical_config_paths_without_a_legacy_reader()
+
+    def test_default_verification_profile_is_standard_and_stays_pinned_on_resume(self) -> None:
+        test_default_verification_profile_is_standard_and_stays_pinned_on_resume()
 
 
 if __name__ == "__main__":

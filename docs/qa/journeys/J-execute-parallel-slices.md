@@ -2,7 +2,7 @@
 
 **Persona:** Workflow operator
 **Goal:** Advance eligible slices through the assisted workflow while preserving independent proof and safe serial fallback.
-**Entry point:** `.my-workflow.toml` → `parallel_execute.py start|status|resume` → `orca_assisted_probe.py dispatch|inspect|cleanup`
+**Entry point:** `.wtk.toml` → `parallel_execute.py start|status|resume` → `orca_assisted_probe.py dispatch|inspect|cleanup`
 
 ## Flow
 

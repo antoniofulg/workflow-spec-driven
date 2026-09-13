@@ -37,7 +37,7 @@ artifacts, and explicit handoff prompts remain the durable semantic context.
 
 ```
 per slice    implement → scoped gate → atomic commit
-             Verifier fingerprint cap
+feature      one fresh Technical Verifier over the complete feature range
 resolved     wtk-deep-review groups from wtk-config, before QA
 
 feature      selected QA session (no product code)

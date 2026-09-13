@@ -137,10 +137,10 @@ def _load_config(path: Path, label: str) -> dict[str, Any]:
 
 
 def _read_config(root: Path) -> dict[str, Any]:
-    path = root / ".my-workflow.toml"
+    path = root / ".wtk.toml"
     if not path.exists():
-        raise _error("version must be integer 3; refresh the project configuration; .my-workflow.toml is missing")
-    return _load_config(path, ".my-workflow.toml")
+        raise _error("version must be integer 3; refresh the project configuration; .wtk.toml is missing")
+    return _load_config(path, ".wtk.toml")
 
 
 def _cadence(config: dict[str, Any]) -> str:
@@ -568,13 +568,13 @@ def _preflight_path(root: Path, path: Path, label: str) -> None:
 
 
 def _sync_config(root: Path) -> tuple[dict[str, Any], bytes | None]:
-    local = root / ".my-workflow.toml"
+    local = root / ".wtk.toml"
     _preflight_path(root, local, "local config")
     if local.exists():
         return _read_config(root), None
-    example = root / ".my-workflow.toml.example"
+    example = root / ".wtk.toml.example"
     _preflight_path(root, example, "config example")
-    config = _load_config(example, ".my-workflow.toml.example")
+    config = _load_config(example, ".wtk.toml.example")
     return config, example.read_bytes()
 
 
@@ -585,7 +585,7 @@ def sync_agents(root: Path) -> dict[str, list[str]]:
         raise _error(f"root {root} must not be a symlink")
     if not root.is_dir():
         raise _error(f"root is not a directory: {root}")
-    local_config = root / ".my-workflow.toml"
+    local_config = root / ".wtk.toml"
     _preflight_path(root, local_config, "local config")
     _preflight_destination(root, local_config, "local config")
     config, config_bytes = _sync_config(root)

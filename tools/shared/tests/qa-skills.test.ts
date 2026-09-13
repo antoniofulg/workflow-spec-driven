@@ -723,7 +723,7 @@ describe("configurable review policy", () => {
     const finalGroupInstruction =
       "Before final QA, complete the final pending implementation wtk-deep-review group; cadence `skip` resolves no groups, so nothing waits for wtk-deep-review.";
     expect(readme).toContain("- `skip`: no groups (`[]`)");
-    expect(readRepositoryFile(".my-workflow.toml.example")).toMatch(/^cadence = "skip".*\bon demand\b/m);
+    expect(readRepositoryFile(".wtk.toml.example")).toMatch(/^cadence = "skip".*\bon demand\b/m);
     const qaHeading = "## The feature closing step";
     const remediationInstruction =
       "For QA code remediation, review only `reviewed_head..HEAD`, then re-walk affected scenario rows.";
@@ -836,7 +836,7 @@ describe("agent configuration", () => {
     const value = (source: string, format: "frontmatter" | "toml", key: string): string =>
       format === "toml" ? tomlValue(source, key) : frontmatterValue(source, key);
 
-    const config = readRepositoryFile(".my-workflow.toml.example");
+    const config = readRepositoryFile(".wtk.toml.example");
     const settings = new Map<string, { model: string; effort: string }>();
     const section = /\[models\.(claude|codex|cursor)\.(planner|implementer|verifier|explorer|deep_reviewer|designer)\]\s+model = "([^"]+)"\s+effort = "([^"]+)"/g;
     for (const match of config.matchAll(section)) {
@@ -969,7 +969,7 @@ describe("adoption and public setup", () => {
     expect(prompt).toContain("no user-visible change");
     expect(adopt).toContain("'.agents/skills/wtk-qa-plan'");
     expect(adopt).toContain("'.agents/skills/wtk-qa-execute'");
-    expect(adopt).toContain("'.my-workflow.toml.example'");
+    expect(adopt).toContain("'.wtk.toml.example'");
     expect(adopt).toContain("'.agents/skills/wtk-config'");
   });
 

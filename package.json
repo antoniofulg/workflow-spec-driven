@@ -19,7 +19,7 @@
     "skills-lock.json",
     "NOTICE.md",
     "AGENTS.md",
-    ".my-workflow.toml.example",
+    ".wtk.toml.example",
     "knowledge/AGENTS.md",
     "knowledge/raw/README.md",
     "templates/adoption",

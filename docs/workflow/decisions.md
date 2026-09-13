@@ -20,7 +20,7 @@ Promote before the pull request, per [ARTIFACT-LIFECYCLE.md](../guidelines/ARTIF
 - Must outlive it as an invariant → the architecture docs
 - Must outlive it as an agent rule → `docs/guidelines/`
 
-Feature workflow state (`spec.md`, `design.md`, `tasks.md`, and validation) stays under the versioned
+Feature workflow state (`plan.md`, `checks.md`, and `verification.md`) stays under the versioned
 `.specs/features/<slug>/` tree. Workflow memory remains disposable local state.
 
 ## Halt vs decide

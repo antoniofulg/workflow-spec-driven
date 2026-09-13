@@ -8,7 +8,7 @@ export const WORKFLOW_VERSION = '1.0.0';
 export const LAYERS = ['core', 'quality', 'extras'];
 export const DEPENDENCIES = { core: [], quality: ['core'], extras: ['core'] };
 export const BLOCK_LAYERS = ['core', 'quality'];
-export const WORKFLOW_GITIGNORE_ENTRIES = ['.my-workflow.toml', '.claude/agents/', '.codex/agents/', '.cursor/agents/', '!.wtk-deep-review/', '.wtk-deep-review/*', '!.wtk-deep-review/learnings.md', 'graft/', 'graphify-out/', '.repository-intelligence/'];
+export const WORKFLOW_GITIGNORE_ENTRIES = ['.wtk.toml', '.claude/agents/', '.codex/agents/', '.cursor/agents/', '!.wtk-deep-review/', '.wtk-deep-review/*', '!.wtk-deep-review/learnings.md', 'graft/', 'graphify-out/', '.repository-intelligence/'];
 export const LEGACY_WORKFLOW_GITIGNORE_ENTRIES = ['.specs/features/', '!.deep-review/', '.deep-review/*', '!.deep-review/learnings.md'];
 export const WORKFLOW_SEARCHIGNORE_ENTRIES = ['!graft/', 'graft/.cache/', 'graft/.graph/', 'graphify-out/', '.repository-intelligence/'];
 export const RUNTIME_PATHS = ['claude', 'codex', 'cursor'].flatMap((provider) => ['planner', 'implementer', 'verifier', 'explorer', 'deep-reviewer', 'designer'].map((role) => `.${provider}/agents/${role}.${provider === 'codex' ? 'toml' : 'md'}`));
@@ -29,7 +29,7 @@ export const CLAUDE_SKILL_LINKS = {
   quality: ['wtk-deep-review', 'wtk-qa', 'wtk-qa-plan', 'wtk-qa-execute'],
   extras: ['ponytail-audit', 'ponytail-debt', 'ponytail-gain', 'ponytail-help', 'ponytail-review'],
 };
-export const LAYER_MISSING_PATHS = { core: ['.my-workflow.toml.example'], quality: [], extras: [] };
+export const LAYER_MISSING_PATHS = { core: ['.wtk.toml.example'], quality: [], extras: [] };
 export const CONSUMER_MISSING_SOURCES = {
   'docs/product/AGENT-CONTEXT.md': 'templates/adoption/product/AGENT-CONTEXT.md',
   'knowledge/wiki/index.md': 'templates/adoption/knowledge/wiki/index.md',

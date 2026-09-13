@@ -183,8 +183,8 @@ remains visible to Git. Adoption removes only the exact legacy `.specs/features/
 including duplicates, preserves consumer-owned lines and comments, and never stages or commits files
 from the transient feature tree.
 
-The tracked `.my-workflow.toml.example` documents the complete v3 matrix and `mixed` profile. Each
-checkout owns an ignored `.my-workflow.toml`, initialized from that example by adoption without
+The tracked `.wtk.toml.example` documents the complete v3 matrix and `mixed` profile. Each
+checkout owns an ignored `.wtk.toml`, initialized from that example by adoption without
 `--skip-agents` or by explicit sync;
 it is the single editable source for all Claude, Codex, and Cursor model and effort choices. The
 tracked `.agents/skills/wtk-config/assets/agents/` trees hold canonical instruction bodies, while sync generates the
@@ -197,9 +197,9 @@ python3 .agents/skills/wtk-config/scripts/workflow_config.py \
   --root /path/to/target-project --sync-agents
 ```
 
-Edit the `[models.<provider>.<role>]` tables in the local `.my-workflow.toml`, then run the explicit
+Edit the `[models.<provider>.<role>]` tables in the local `.wtk.toml`, then run the explicit
 sync command. If the local file is missing, sync validates and copies
-`.my-workflow.toml.example` first. It reports changed and unchanged runtime packet paths and is
+`.wtk.toml.example` first. It reports changed and unchanged runtime packet paths and is
 idempotent. Native `model`, `effort`, and `model_reasoning_effort` fields are generated output; do
 not edit runtime packets manually. Runtime edits are disposable; edit tracked templates when
 changing instruction bodies.
@@ -245,7 +245,7 @@ python3 .agents/skills/wtk-config/scripts/workflow_config.py \
   --root /path/to/target-project --feature register-user-native \
   --native-provider codex
 
-# Named profile: use the [profiles.mixed] routes from .my-workflow.toml.
+# Named profile: use the [profiles.mixed] routes from .wtk.toml.
 python3 .agents/skills/wtk-config/scripts/workflow_config.py \
   --root /path/to/target-project --feature register-user-profile \
   --native-provider codex --profile mixed
@@ -301,12 +301,12 @@ after installation. The package identity for this release is `workflow-toolkit@1
 ## Managed paths
 
 Review the managed paths and the installer's per-file actions. Installation updates only workflow-owned files,
-preserves unknown consumer files, creates `.my-workflow.toml.example` and skill-owned runtime, and records ownership in `.my-workflow/adoption.json`. It never removes an
+preserves unknown consumer files, creates `.wtk.toml.example` and skill-owned runtime, and records ownership in `.my-workflow/adoption.json`. It never removes an
 installed layer or consumer file. Product documentation, `.specs/`, `package.json`, `bun.lock`, an
-existing local `.my-workflow.toml`, and an existing `docs/qa/README.md` remain consumer-owned.
+existing local `.wtk.toml`, and an existing `docs/qa/README.md` remain consumer-owned.
 
 The local config is the source for generated provider packets. Installation preserves an existing
-`.my-workflow.toml` and installs tracked templates when missing. The guided command synchronizes and
+`.wtk.toml` and installs tracked templates when missing. The guided command synchronizes and
 regenerates the ignored `.claude/agents/`,
 `.codex/agents/`, and `.cursor/agents/` packets from the templates and config. Edit the config or
 tracked templates, not generated runtime packets.
@@ -323,7 +323,7 @@ the vendored `.agents/skills/wtk-config/scripts/...` path.
 **Claude skill symlinks point nowhere.** Re-run `npx wtk install`; it recreates the `.claude/skills/`
 links into `.agents/skills/`.
 
-**A runtime packet has the wrong model or effort.** Edit the local `.my-workflow.toml`, then run
+**A runtime packet has the wrong model or effort.** Edit the local `.wtk.toml`, then run
 `npx wtk install`. Runtime packets are generated output.
 
 ## Repository intelligence

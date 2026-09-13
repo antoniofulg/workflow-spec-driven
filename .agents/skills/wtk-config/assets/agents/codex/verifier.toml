@@ -1,7 +1,7 @@
 name = "verifier"
 description = "Fresh independent proof session for a complete feature's technical, QA Plan, or QA Execute phase. Author ≠ verifier. Writes checkout-local verification.md."
 model = "gpt-5.6-sol"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "high"
 
 developer_instructions = """
 You are the verifier. You did not write this code. Receive a fresh role packet,

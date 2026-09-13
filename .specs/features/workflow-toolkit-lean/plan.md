@@ -67,6 +67,7 @@ controls without carrying the old structured workflow.
 10. WHEN `quality` is selected THEN the installer SHALL install `wtk-deep-review`, `wtk-qa`, `wtk-qa-plan`, and `wtk-qa-execute` and preserve independent reviewer and QA roles
 11. WHEN an existing owned workflow is replaced THEN the installer SHALL retire managed old workflow paths without aliases while preserving unknown or consumer-modified files as conflicts
 12. IF installation is cancelled, non-interactive, conflicts, or fails after publication begins THEN the installer SHALL preserve its current transactional outcomes and exit with `0`, `2`, `1`, or verified recovery respectively
+19. WHEN a consumer configures Workflow Toolkit THEN the tracked bootstrap file SHALL be `.wtk.toml.example`, the ignored checkout-local source SHALL be `.wtk.toml`, and the resolver SHALL reject the obsolete `.my-workflow.toml` names without aliases
 
 **Independent test:** install each module selection into temporary consumers, verify exact managed paths and links, then exercise cancellation, conflict, idempotence, and recovery fixtures.
 
@@ -95,7 +96,7 @@ controls without carrying the old structured workflow.
 | ID | Slice | Criteria | Status |
 | --- | --- | --- | --- |
 | WTK-01 | S1 | 1, 2, 3, 4, 5, 6, 7 | Pending |
-| WTK-02 | S2 | 8, 9, 10, 11, 12 | Pending |
+| WTK-02 | S2 | 8, 9, 10, 11, 12, 19 | Pending |
 | WTK-03 | S3 | 13, 14, 15 | Pending |
 | WTK-04 | S4 | 16, 17, 18 | Pending |
 
@@ -108,6 +109,7 @@ controls without carrying the old structured workflow.
 | command `wtk install` | output and preview | existing - transactional installer preview remains the authority |
 | command `wtk install` | cancellation and failure exit codes | AC 12 |
 | command `wtk install` | partial failure and recovery | AC 12 |
+| configuration files | canonical tracked example and ignored local source names | AC 19 |
 | skill collection | grouping and naming | AC 9, AC 10, AC 13 |
 | skill collection | ordering | n/a - skills are selected by intent, not presented as an ordered list |
 | skill collection | duplicate names | AC 11 |
@@ -158,6 +160,7 @@ None - no HTTP route or externally consumed data interface; the CLI signature an
 | Verification default | `standard`; accepted values `light`, `standard`, `ui` with upstream meanings | local profile vocabulary - breaks direct comparison and upstream updates |
 | Builder scheduling | one builder, sequential whole-slice handoffs under the declared context budget | retain task-DAG parallel orchestration - keeps the largest local divergence in the first release |
 | Installer module catalog | `core`, `quality`, `extras`; no `parallel` module | install a dormant parallel layer - exposes behavior the Lean route does not use |
+| Local configuration identity | tracked `.wtk.toml.example`, ignored `.wtk.toml`, and no obsolete config reader | retain `.my-workflow.toml` names as aliases - keeps the replaced public contract alive |
 | Completed feature lifecycle | validate, promote durable facts, then delete `.specs/features/<feature>/` | keep or archive completed feature planning state - preserves a drifting second source of truth |
 
 - Nothing else in this change is hard to reverse.
@@ -170,5 +173,6 @@ None - no HTTP route or externally consumed data interface; the CLI signature an
 | domain | existing term: `task` stops being a public implementation unit; observable `slice` plus proof-backed `check` become the planning and completion units |
 | domain | existing term: `Technical Verifier` moves from every code-changing slice to one fresh independent pass over the complete feature |
 | public package | `workflow-spec-driven` and executable of the same name become `workflow-toolkit` and `wtk`; no alias remains |
+| local configuration | `.my-workflow.toml.example` and `.my-workflow.toml` become `.wtk.toml.example` and `.wtk.toml`; no old reader remains |
 | consumer install | old managed skill paths are retired only when ownership proves they are pristine; consumer modifications remain conflicts |
 | stored data | no product data migration; active old feature directories remain untouched unless the user requests adaptation |

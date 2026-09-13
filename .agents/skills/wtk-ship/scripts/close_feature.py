@@ -52,7 +52,7 @@ def close_feature(root: Path, feature: str, *, promoted: bool = False) -> Path:
         raise ValueError("checks.md is required before cleanup")
     validator = root / ".agents" / "skills" / "wtk-lean" / "scripts" / "validate_verification.py"
     result = subprocess.run(
-        [sys.executable, str(validator), str(target), "--root", str(root)],
+        [sys.executable, str(validator), str(target.resolve()), "--root", str(root)],
         cwd=root,
         text=True,
         capture_output=True,

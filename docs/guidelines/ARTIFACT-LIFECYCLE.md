@@ -21,7 +21,7 @@ is never "is this useful" — it is "is this useful *after the feature ships*".
 | `docs/` — product, architecture, engineering, design | |
 | Durable lessons | |
 
-The principle behind the line: **feature workflow state travels with the work.** Specs, tasks, and
+The principle behind the line: **feature workflow state travels with the work.** Plan, checks, and
 verification state keep worktrees, gates, and reviewers aligned.
 
 A verification artifact's job is never finished, because it answers a question about the *present*
@@ -78,5 +78,5 @@ while something still cites them as a `resource`.
 
 Work identified but not done becomes ordinary features with ordinary specs. It is not carried as an
 ambient intention in an instruction file. A model that counts is a model that miscounts — scripts
-that audit `tests.md` ids, validate QA frontmatter, or cache gate fingerprints belong as features of
+that audit `checks.md` ids, validate QA frontmatter, or cache gate fingerprints belong as features of
 the consuming project, not as extra guidelines here.
