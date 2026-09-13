@@ -101,7 +101,7 @@ test('IT-010 and IT-015 packed executable performs Node-only install and public 
   assert.deepEqual(manifest.files, expected.files);
   assert.equal(fs.existsSync(path.join(noPython, 'python')), false);
   assert.equal(fs.existsSync(path.join(noPython, 'python3')), false);
-  for (const skill of ['security-best-practices', 'security-threat-model', 'security-review']) {
+  for (const skill of ['security-implementation', 'security-review', 'security-spec', 'security-threat-model']) {
     assert.equal(fs.existsSync(path.join(clean, '.agents/skills', skill)), false, skill);
   }
   assert.equal(env.PATH, `${noPython}:${toolchain}`);

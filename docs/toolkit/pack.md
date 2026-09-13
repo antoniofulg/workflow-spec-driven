@@ -24,7 +24,8 @@ Canonical copies: `.agents/skills/`. Claude: symlinks in `.claude/skills/`. Curs
 OpenCode consume `.agents`. Do not add `.cursor/skills`.
 
 The security skills are external dependencies, not bundled capabilities. The pinned entries for
-`security-best-practices`, `security-threat-model`, and `security-review` live in `skills-lock.json`.
+`security-spec`, `security-threat-model`, `security-implementation`, and `security-review` live in
+`skills-lock.json`.
 The lock also pins the CLI version (`1.5.23`). Adoption prints a separate command for their
 explicitly authorized installation into the same `.agents/skills/` tree. The command uses reviewed
 commit refs and hashes; it does not install

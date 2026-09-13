@@ -115,10 +115,11 @@ authors and communities:
 The QA skills use their own wording and structure for this workflow; the links above identify the
 inspiration and do not claim upstream authorship.
 
-The workflow references three external security skills:
+The workflow references four external security skills:
 
-- `security-best-practices` for secure-by-default language and framework guidance;
-- `security-threat-model` for repository-grounded threat models;
+- `security-spec` for security requirements and negative tests during Specify;
+- `security-threat-model` for repository-grounded threats and trust boundaries;
+- `security-implementation` for secure-by-default implementation and hardening;
 - `security-review` for high-confidence residual vulnerability reviews.
 
 They are not bundled in this pack. Their GitHub source, canonical path, reviewed commit, CLI
@@ -393,7 +394,7 @@ project-owned `wtk-qa-plan` and `wtk-qa-execute` skills use the consuming projec
 skills (`wtk-lean`, `wtk-discover`, `wtk-plan`, `wtk-implement`), Ponytail, Deep
 Review, QA, wtk-config, and wtk-ship skills. Keep those canonical copies in
 `.agents/skills/` and the Claude Code
-symlinks in `.claude/skills/`. The three external security skills are a separate authorized step:
+symlinks in `.claude/skills/`. The four external security skills are a separate authorized step:
 
 ```bash
 python3 /path/to/workflow-toolkit/scripts/install_security_skills.py \

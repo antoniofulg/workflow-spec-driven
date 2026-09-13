@@ -20,20 +20,25 @@ CLI_VERSION = "1.5.23"
 LOCK_VERSION = 1
 FIXED_SYSTEM_BIN_DIRS = ("/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin")
 SKILLS = {
-    "security-best-practices": (
-        "openai/skills",
-        "skills/.curated/security-best-practices/SKILL.md",
-        "49f948faa9258a0c61caceaf225e179651397431",
-    ),
-    "security-threat-model": (
-        "openai/skills",
-        "skills/.curated/security-threat-model/SKILL.md",
-        "49f948faa9258a0c61caceaf225e179651397431",
+    "security-implementation": (
+        "antoniofulg/security-lifecycle",
+        "skills/security-implementation/SKILL.md",
+        "8b356c2c8f17a788cb14db86316b3add39f620e1",
     ),
     "security-review": (
-        "github/awesome-copilot",
+        "antoniofulg/security-lifecycle",
         "skills/security-review/SKILL.md",
-        "83561bd7d8a46fcda0581aedabdf8eac7cb196b6",
+        "8b356c2c8f17a788cb14db86316b3add39f620e1",
+    ),
+    "security-spec": (
+        "antoniofulg/security-lifecycle",
+        "skills/security-spec/SKILL.md",
+        "8b356c2c8f17a788cb14db86316b3add39f620e1",
+    ),
+    "security-threat-model": (
+        "antoniofulg/security-lifecycle",
+        "skills/security-threat-model/SKILL.md",
+        "8b356c2c8f17a788cb14db86316b3add39f620e1",
     ),
 }
 

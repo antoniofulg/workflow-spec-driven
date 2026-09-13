@@ -22,19 +22,17 @@ files and never delete them automatically.
 
 ## 1. Before coding — build with the right guidance loaded
 
-1. Invoke the installed `security-best-practices` skill (or the closest equivalent) in
-   **secure-by-default mode**, not reporting mode. Reporting mode is for an explicit review request;
-   during feature work, apply its guidance directly and surface any Critical or High finding
-   immediately.
-2. Identify every affected language and framework, and read every matching reference the skill
-   requires.
-3. Invoke every installed security skill whose scope matches the change.
-4. **Convert that guidance into security outcomes in the spec and the test contract.** Outcomes, not
+1. Apply the installed `security-implementation` skill to secure-by-default implementation and
+   hardening. It is not an audit; surface any Critical or High concern encountered immediately.
+2. During Specify, invoke the installed `security-spec` skill to define security requirements and
+   negative tests.
+3. During Specify or Design when section 4's surfaces apply, invoke `security-threat-model` to map
+   assets, boundaries and threats.
+4. Identify affected languages, frameworks and versions; load the applicable concept references.
+   Verify framework APIs and defaults using the consumer's documentation tools and current official
+   docs for the installed version. Use a matching framework skill when available; record uncertainty.
+5. **Convert that guidance into security outcomes in the spec and the test contract.** Outcomes, not
    controls: a test asserts the required *result*, never the presence of a particular implementation.
-
-If no reference exists for an affected framework, use the closest language reference, the
-framework-specific skill when installed, and current official documentation. Record what stays
-uncertain.
 
 ## 2. At Specify — declare the surfaces
 
@@ -116,10 +114,10 @@ change. Behaviour-preserving refactors do not need one.
 With surfaces declared and controls tested, review looks for what the table missed rather than
 rediscovering the table.
 
-The independent verifier reviews the complete feature diff. It detects flaws in code that now exists
-— injection, exposed secrets, broken access control, vulnerable dependencies — which the
-before-coding skills cannot catch, because they ran before the code was written. Both are needed;
-neither replaces the other.
+The independent verifier uses the installed `security-review` skill to review the complete feature
+diff. It detects flaws in code that now exists — injection, exposed secrets, broken access control,
+vulnerable dependencies — which the before-coding skills cannot catch because they ran before the
+code was written. Both are needed; neither replaces the other.
 
 Findings carry the same weight as any other: **unresolved Critical or High blocks completion**,
 regardless of any project priority label. Accepting a risk requires your explicit approval and an

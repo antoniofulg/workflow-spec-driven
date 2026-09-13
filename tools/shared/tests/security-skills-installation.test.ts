@@ -18,23 +18,29 @@ import { describe, expect, it } from "bun:test";
 
 const repositoryRoot = process.cwd();
 const securitySkills = {
-  "security-best-practices": {
-    source: "openai/skills",
-    skillPath: "skills/.curated/security-best-practices/SKILL.md",
-    ref: "49f948faa9258a0c61caceaf225e179651397431",
-    computedHash: "7bd6c2cc8083d90f5d5489c80887ed5399e167d3e7323c7f294035e1e586b689",
-  },
-  "security-threat-model": {
-    source: "openai/skills",
-    skillPath: "skills/.curated/security-threat-model/SKILL.md",
-    ref: "49f948faa9258a0c61caceaf225e179651397431",
-    computedHash: "a262f878637565892051aa945c88e8748e743896c20925b59c5c2d7d79e061a7",
+  "security-implementation": {
+    source: "antoniofulg/security-lifecycle",
+    skillPath: "skills/security-implementation/SKILL.md",
+    ref: "8b356c2c8f17a788cb14db86316b3add39f620e1",
+    computedHash: "ddf57fe08fdb0fe021d1de88feb8886d383659672be226766e2874f450c29fae",
   },
   "security-review": {
-    source: "github/awesome-copilot",
+    source: "antoniofulg/security-lifecycle",
     skillPath: "skills/security-review/SKILL.md",
-    ref: "83561bd7d8a46fcda0581aedabdf8eac7cb196b6",
-    computedHash: "a0fc25587c016178c9cf6238ac8702695fa761694965192472487f92093db571",
+    ref: "8b356c2c8f17a788cb14db86316b3add39f620e1",
+    computedHash: "1db6b0cb15f2d87b4443e548a89b89e3bbe105ef8545931ce636e6fdc5fc7cd9",
+  },
+  "security-spec": {
+    source: "antoniofulg/security-lifecycle",
+    skillPath: "skills/security-spec/SKILL.md",
+    ref: "8b356c2c8f17a788cb14db86316b3add39f620e1",
+    computedHash: "8df258cc7ecea5578b44642f264ad9a68afe21be5bf2a1a89305ffd73feff3f5",
+  },
+  "security-threat-model": {
+    source: "antoniofulg/security-lifecycle",
+    skillPath: "skills/security-threat-model/SKILL.md",
+    ref: "8b356c2c8f17a788cb14db86316b3add39f620e1",
+    computedHash: "b75faf328ac069d5f163a10936516b2a5ef57e7dba97f2932e53a8d0791b169a",
   },
 } as const;
 
@@ -265,14 +271,15 @@ describe("external security skill installation", { timeout: 30_000 }, () => {
     }
   });
 
-  it("keeps only pinned external provenance and no vendored security trees", () => {
+  it("keeps only pinned external provenance without vendoring security trees", () => {
     const lock = JSON.parse(readFileSync(join(repositoryRoot, "skills-lock.json"), "utf8"));
+    const packageManifest = JSON.parse(readFileSync(join(repositoryRoot, "package.json"), "utf8"));
     for (const [name, expected] of Object.entries(securitySkills)) {
       expect(lock.skills[name]).toMatchObject({ ...expected, sourceType: "github" });
       expect(lock.skills[name].cliVersion).toBe("1.5.23");
       expect(expected.ref).toMatch(/^[0-9a-f]{40}$/);
       expect(expected.computedHash).toMatch(/^[0-9a-f]{64}$/);
-      expect(existsSync(join(repositoryRoot, ".agents/skills", name))).toBe(false);
+      expect(packageManifest.files).not.toContain(`.agents/skills/${name}`);
     }
   });
 
@@ -283,7 +290,7 @@ describe("external security skill installation", { timeout: 30_000 }, () => {
       const result = runInstaller(fixture);
       expect(result.status).toBe(2);
       expect(result.stdout).toContain("no network access and no target writes");
-      expect(result.stdout).toContain("49f948faa9258a0c61caceaf225e179651397431");
+      expect(result.stdout).toContain("8b356c2c8f17a788cb14db86316b3add39f620e1");
       expect(
         result.stdout
           .split("\n")
@@ -425,7 +432,7 @@ describe("external security skill installation", { timeout: 30_000 }, () => {
         .trim()
         .split("\n")
         .map((line) => line.split(" path=")[0]);
-      expect(commands).toHaveLength(4);
+      expect(commands).toHaveLength(5);
       expect(commands).toEqual(
         [
           "--bun --no-install skills --version",
@@ -514,7 +521,7 @@ describe("external security skill installation", { timeout: 30_000 }, () => {
       expect(existsSync(join(target, ".agents"))).toBe(false);
       expect(readFileSync(log, "utf8").split("\n").filter(Boolean).map((line) => line.split(" path=")[0])).toEqual([
         "--bun --no-install skills --version",
-        `--bun --no-install skills add openai/skills#${securitySkills["security-best-practices"].ref} --skill security-best-practices --agent universal --copy --yes`,
+        `--bun --no-install skills add ${securitySkills["security-implementation"].source}#${securitySkills["security-implementation"].ref} --skill security-implementation --agent universal --copy --yes`,
       ]);
     } finally {
       rmSync(fixture, { recursive: true, force: true });
@@ -617,7 +624,7 @@ describe("external security skill installation", { timeout: 30_000 }, () => {
           + "    except OSError:\n"
           + "        pass\n"
           + "    time.sleep(0.001)\n",
-        join(target, ".agents/skills/security-best-practices/SKILL.md"),
+        join(target, ".agents/skills/security-implementation/SKILL.md"),
         publicationMarker,
       ],
       { stdio: "ignore" },
@@ -916,7 +923,7 @@ describe("external security skill installation", { timeout: 30_000 }, () => {
       expect(result.status).toBe(0);
       expect(readFileSync(trustedGitMarker, "utf8")).toBe("trusted-git\n");
       const lines = readFileSync(log, "utf8").trim().split("\n");
-      expect(lines).toHaveLength(4);
+      expect(lines).toHaveLength(5);
       expect(lines.map((line) => line.split(" path=")[0])).toEqual([
         "--bun --no-install skills --version",
         ...Object.entries(securitySkills).map(
@@ -1124,7 +1131,7 @@ describe("external security skill installation", { timeout: 30_000 }, () => {
     try {
       expect(second.status).toBe(1);
       expect(firstStatus).toBe(0);
-      expect(existsSync(join(target, ".agents/skills/security-best-practices/SKILL.md"))).toBe(true);
+      expect(existsSync(join(target, ".agents/skills/security-implementation/SKILL.md"))).toBe(true);
     } finally {
       rmSync(fixture, { recursive: true, force: true });
     }
