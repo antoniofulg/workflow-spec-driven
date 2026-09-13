@@ -25,7 +25,7 @@ Provider definitions are real files, not symlinks.
 
 - Write all project artifacts in English: code, identifiers, comments, filenames, documentation,
   specs, commit messages, and PR titles/descriptions. Conversation may follow the user's language;
-  Portuguese messages do not change the artifact language.
+  non-English messages do not change the artifact language.
 - **Do not preserve backward compatibility.** Remove obsolete paths instead of adding compatibility
   layers, fallbacks, or migrations. A rename updates code, schema, API, tests and docs in one change.
 - **Never weaken, skip or delete a test to make a gate pass.**
