@@ -5,7 +5,7 @@ title: Enforce spec-anchored QA contracts
 persona: Workflow adopter
 journey: J-adopt-workflow
 expected: Each QA cycle creates a new dated charter, every test case maps to a spec acceptance criterion, and filed-issue QA runs only when the fix changes a public promise.
-entry_points: docs/toolkit/guidelines/QA-EXECUTION.md; docs/toolkit/guidelines/TEST-CONTRACT.md; docs/toolkit/guidelines/REVIEW-ROUNDS.md; .agents/skills/qa-plan/SKILL.md
+entry_points: docs/toolkit/guidelines/QA-EXECUTION.md; .agents/skills/wtk/references/test-contract.md; docs/toolkit/guidelines/REVIEW-ROUNDS.md; .agents/skills/qa-plan/SKILL.md
 qa_status: pass
 bug_ids:
 fix_status:

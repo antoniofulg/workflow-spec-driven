@@ -249,7 +249,7 @@ const verifierPacketPaths = [
 
 describe("QA workflow artifact policy", () => {
   it("IT-025 routes behavior-preserving UI corrections by intent and evidence", () => {
-    const gates = readRepositoryFile("docs/toolkit/guidelines/GATES.md");
+    const gates = readRepositoryFile(".agents/skills/wtk/references/validation.md");
     const qaExecution = readRepositoryFile("docs/toolkit/guidelines/QA-EXECUTION.md");
     const scenarios = readRepositoryFile("docs/toolkit/guidelines/QA-SCENARIOS.md");
     const review = readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md");
@@ -280,7 +280,7 @@ describe("QA workflow artifact policy", () => {
 
   it("IT-014 keeps feature workflow state versioned and documents legacy migration", () => {
     const readme = readRepositoryFile("README.md");
-    const artifactLifecycle = readRepositoryFile("docs/toolkit/guidelines/ARTIFACT-LIFECYCLE.md");
+    const artifactLifecycle = readRepositoryFile(".agents/skills/wtk/references/artifacts.md");
 
     expect(isIgnored(".specs/features/qa-skills/spec.md")).toBe(false);
     expect(isIgnored(".specs/STATE.md")).toBe(false);
@@ -623,7 +623,7 @@ describe("canonical QA skills", () => {
   it("IT-022 reconciles immutable QA charters, spec-anchored cases, and filed-issue QA", () => {
     const execution = readRepositoryFile("docs/toolkit/guidelines/QA-EXECUTION.md");
     const qaPlan = readRepositoryFile(".agents/skills/wtk-qa-plan/SKILL.md");
-    const testContract = readRepositoryFile("docs/toolkit/guidelines/TEST-CONTRACT.md");
+    const testContract = readRepositoryFile(".agents/skills/wtk/references/test-contract.md");
     const reviewRounds = readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md");
 
     for (const source of [execution, qaPlan]) {
@@ -637,7 +637,7 @@ describe("canonical QA skills", () => {
     expect(testContract).toContain("Every case maps to a spec acceptance criterion");
     expect(testContract).toContain("clarify the acceptance criterion before adding a case");
     expect(testContract).toContain("Never create a case solely because a");
-    expect(testContract).toContain(".agents/skills/wtk-lean/references/checks.md");
+    expect(testContract).toContain("[Lean checks reference](../../wtk-lean/references/checks.md)");
     expect(testContract).toContain("only schema and");
     expect(testContract).toContain("standard` and `ui` inject faults; `light` does not");
     expect(testContract).toContain("owning check or slice");
@@ -772,8 +772,8 @@ describe("configurable review policy", () => {
   it("bridges workflow resolution and feature-closing QA ordering", () => {
     const specDriven = readRepositoryFile(".agents/skills/wtk/SKILL.md");
     const qaScenarios = readRepositoryFile("docs/toolkit/guidelines/QA-SCENARIOS.md");
-    const gates = readRepositoryFile("docs/toolkit/guidelines/GATES.md");
-    const testContract = readRepositoryFile("docs/toolkit/guidelines/TEST-CONTRACT.md");
+    const gates = readRepositoryFile(".agents/skills/wtk/references/validation.md");
+    const testContract = readRepositoryFile(".agents/skills/wtk/references/test-contract.md");
     const normalizedTestContract = testContract.replace(/\s+/g, " ");
     expect(specDriven).toContain("wtk-config");
     expect(readRepositoryFile(".agents/skills/wtk-config/SKILL.md")).toContain("workflow.json");

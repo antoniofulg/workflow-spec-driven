@@ -61,7 +61,7 @@ Use plain intent in the request:
   broader mapping floor. A neutral Linear `issue` is classified from its concrete outcome, not its
   label.
 - Documentation maintenance, agent-instruction changes, and mixed executable changes automatically
-  use proportional checks from `GATES.md`. Named risk or changed public behavior selects stronger
+  use proportional checks from `.agents/skills/wtk/references/validation.md`. Named risk or changed public behavior selects stronger
   evidence. Confirmed wtk-deep-review defects are fixed inside their run; cosmetics become follow-up work.
 
 The feature path is Plan → Checks → Build → Verify. Builders use whole observable slices and
@@ -182,7 +182,7 @@ prerequisite; unrelated Python workflow tools remain available after installatio
 
 The preview is the review: inspect the complete action list and backup destination before confirming.
 
-Feature workflow state follows the [artifact lifecycle](docs/toolkit/guidelines/ARTIFACT-LIFECYCLE.md) and
+Feature workflow state follows the [artifact lifecycle](.agents/skills/wtk/references/artifacts.md) and
 remains visible to Git. Adoption removes only the exact legacy `.specs/features/` ignore line,
 including duplicates, preserves consumer-owned lines and comments, and never stages or commits files
 from the transient feature tree.

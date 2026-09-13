@@ -15,7 +15,7 @@ as a named gap; do not recurse through product/history directories.
 For features, Specify + Design + Tasks here. After approval, dispatch **implementer** and stay. Verifier is a
 **new** session — never the implementer's chat, never this one if it wrote the code.
 
-For bounded maintenance under `docs/toolkit/guidelines/GATES.md`, the active agent edits and validates directly; delegation
+For bounded maintenance under `.agents/skills/wtk/references/validation.md`, the active agent edits and validates directly; delegation
 is optional when it adds useful independent work, not a required handoff.
 Spawn the named agent without model overrides; use `explorer` for feature exploration and traces.
 Local `.wtk.toml` owns provider settings; `wtk-config` owns packet generation and frozen feature routes.
@@ -49,7 +49,7 @@ routine choices and fix failures caused by the change without asking again; ask 
 decisions or new authority. Planning-only requests still end at the reviewable plan.
 
 After a coherent edit batch, use the existing formatter on changed files, when configured, then the
-applicable validation. Keep successful formatter output silent. `docs/toolkit/guidelines/GATES.md`
+applicable validation. Keep successful formatter output silent. `.agents/skills/wtk/references/validation.md`
 owns check selection and evidence reuse; do not install a formatter solely for an edit.
 
 **Public hierarchy is `Feature -> Slice -> Check`.** A slice is observable end-to-end behaviour;
@@ -69,7 +69,7 @@ budget: 150k
 
 | When | Open |
 | --- | --- |
-| Writing, planning, or breaking a spec into tasks | `docs/toolkit/guidelines/TEST-CONTRACT.md` |
+| Writing, planning, or breaking a spec into tasks | `.agents/skills/wtk/references/test-contract.md` |
 | Starting a task in a multi-task feature | `docs/toolkit/guidelines/WORKFLOW-MEMORY.md` |
 | Specify touches a security surface | `docs/toolkit/guidelines/SECURITY.md` — `## 2. At Specify — declare the surfaces` |
 | Writing tests for an abuse case | `docs/toolkit/guidelines/SECURITY.md` — `## 3. At the test contract — abuse cases get IDs` |
@@ -82,10 +82,10 @@ budget: 150k
 | QA pass at the end of a feature | `docs/toolkit/guidelines/QA-EXECUTION.md` |
 | Reviewing, or acting on findings | `docs/toolkit/guidelines/REVIEW-ROUNDS.md` |
 | Resolving feature workflow | `.agents/skills/wtk-config/SKILL.md` |
-| About to claim done, or to commit | `docs/toolkit/guidelines/VERIFICATION-EVIDENCE.md` |
-| Choosing which gate to run | `docs/toolkit/guidelines/GATES.md` |
-| Branch or worktree | `docs/toolkit/guidelines/BRANCHING.md` |
-| Keep or discard an artifact | `docs/toolkit/guidelines/ARTIFACT-LIFECYCLE.md` |
+| About to claim done, or to commit | `.agents/skills/wtk/references/evidence.md` |
+| Choosing which gate to run | `.agents/skills/wtk/references/validation.md` |
+| Branch or worktree | `.agents/skills/wtk/references/git.md` |
+| Keep or discard an artifact | `.agents/skills/wtk/references/artifacts.md` |
 | A rule stated in more than one document | `knowledge/wiki/index.md`, then the concept |
 | Recording or verifying the bundle | `docs/toolkit/guidelines/KNOWLEDGE-WIKI.md` |
 | Editing this file or a guideline | `docs/toolkit/guidelines/CONTEXT-BUDGET.md` |

@@ -68,6 +68,6 @@ sets the context the task file must not duplicate.
 ## Lifecycle
 
 Memory is scratch. It lives and dies with the feature branch and is not a durable artifact — see
-`docs/toolkit/guidelines/ARTIFACT-LIFECYCLE.md`. Anything that must outlive the feature is promoted to a real
+`.agents/skills/wtk/references/artifacts.md`. Anything that must outlive the feature is promoted to a real
 home before the pull request: a project decision to `.specs/STATE.md` as `AD-NNN`, a durable lesson to
 the lessons layer, a product promise to `docs/qa/scenarios/`.

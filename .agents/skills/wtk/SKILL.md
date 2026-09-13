@@ -14,8 +14,18 @@ router loaded and load only the selected skill and its directly relevant referen
 
 ## Route
 
+Load shared references only for the current operation:
+
+| Operation | Reference |
+| --- | --- |
+| Choose checks or reuse evidence | [Validation](references/validation.md) |
+| Report completion or commit evidence | [Evidence](references/evidence.md) |
+| Derive tests or choose their layer | [Test contract](references/test-contract.md) |
+| Create a branch or isolate a checkout | [Git](references/git.md) |
+| Promote or remove workflow artifacts | [Artifacts](references/artifacts.md) |
+
 - An authorized bounded documentation, instruction-only skill, or direct correction: the active
-  agent applies the maintenance route in `docs/toolkit/guidelines/GATES.md`, including declarative
+  agent applies the maintenance route in `.agents/skills/wtk/references/validation.md`, including declarative
   registration in an existing installer. Complete its scoped checks and local commit without a
   mandatory agent handoff. Escalate for a substantive behavior or authority change, not merely a new
   skill name, registry entry, CLI label, or pending merge.

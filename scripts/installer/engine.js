@@ -37,7 +37,7 @@ export const CONSUMER_MISSING_SOURCES = {
   ...Object.fromEntries(['domain', 'product', 'architecture', 'design', 'decisions', 'research', 'open-questions'].map((group) => [`knowledge/wiki/${group}/index.md`, `templates/adoption/knowledge/wiki/${group}/index.md`])),
 };
 export const RETIRABLE_WORKFLOW_DIRS = ['.agents/skills/workflow-spec-driven/', '.agents/skills/workflow-config/', '.agents/skills/wspecify/', '.agents/skills/wdesign/', '.agents/skills/wtasks/', '.agents/skills/wimplement/', '.agents/skills/wverify/', '.agents/skills/wreview/', '.agents/skills/wqa/', '.agents/skills/autonomous/', '.agents/skills/deep-review/', '.agents/skills/qa-plan/', '.agents/skills/qa-execute/', '.agents/skills/ponytail-audit/', '.agents/skills/ponytail-debt/', '.agents/skills/ponytail-gain/', '.agents/skills/ponytail-help/', '.agents/skills/ponytail-review/', '.agents/skills/wtk-verify/', '.agents/skills/wtk-review/', 'docs/guidelines/', 'docs/workflow/', 'templates/agents/', 'templates/adoption/agents/', 'tools/knowledge/src/', 'tools/shared/src/'];
-export const RETIRABLE_WORKFLOW_FILES = ['tools/ad-index.py', 'tools/orca_assisted_probe.py', 'tools/qa_parallel_pilot.py', 'tools/resource_lock.py'];
+export const RETIRABLE_WORKFLOW_FILES = ['tools/ad-index.py', 'tools/orca_assisted_probe.py', 'tools/qa_parallel_pilot.py', 'tools/resource_lock.py', 'docs/toolkit/guidelines/GATES.md', 'docs/toolkit/guidelines/VERIFICATION-EVIDENCE.md', 'docs/toolkit/guidelines/TEST-CONTRACT.md', 'docs/toolkit/guidelines/BRANCHING.md', 'docs/toolkit/guidelines/ARTIFACT-LIFECYCLE.md'];
 
 export class InstallerError extends Error {}
 const fail = (message) => { throw new InstallerError(message); };

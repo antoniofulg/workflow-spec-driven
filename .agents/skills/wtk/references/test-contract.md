@@ -8,7 +8,7 @@ A test that mirrors the implementation, or exists only to raise coverage, proves
 ## The artifact
 
 Every integrated Lean feature has `.specs/features/<feature>/checks.md`. The native
-[Lean checks reference](../../../.agents/skills/wtk-lean/references/checks.md) is the only schema and
+[Lean checks reference](../../wtk-lean/references/checks.md) is the only schema and
 authoring source for that artifact: read it for `Profile`, check and proof syntax, `Coverage`,
 `Test policy`, `Swept`, and `Handoff`. This guideline supplies local test-case policy below; it does
 not define a second checks schema.

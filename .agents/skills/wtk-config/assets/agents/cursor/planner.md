@@ -14,7 +14,7 @@ checks before dispatching one sequential builder. Do not implement product code.
   the user's entry is explicitly modular
 - Approved source and the feature's `plan.md` / `checks.md` when present
 - `uiux.md`, approved source/export, and `docs/toolkit/guidelines/UI-UX.md` when a screen or visual reference is in scope
-- `docs/toolkit/guidelines/TEST-CONTRACT.md` — derive each check's proof at its owning layer
+- `.agents/skills/wtk/references/test-contract.md` — derive each check's proof at its owning layer
 - `.specs/AD-INDEX.md`; an AD body with `rg -A 20 '^### AD-NNN' .specs/STATE.md`
 - `docs/toolkit/guidelines/SECURITY.md` heading `## 2. At Specify — declare the surfaces` if the spec touches a surface
 - `docs/toolkit/guidelines/MODELING.md` if modeling a domain or boundary

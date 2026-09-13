@@ -15,7 +15,7 @@ sources:
     resource: ../../../docs/toolkit/guidelines/FRONTEND.md
     title: Front-End Engineering
   - id: scoped-validation
-    resource: ../../../docs/toolkit/guidelines/GATES.md
+    resource: ../../../.agents/skills/wtk/references/validation.md
     title: Gates
 ---
 

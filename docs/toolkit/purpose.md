@@ -25,7 +25,7 @@ anything a user can see when the classifier selects it, and a full gate once whe
 Neither side is optional for features. A feature that skips the final Verifier is not this
 workflow; neither is one that re-reviews Trivials until the diff stops moving. Credential-free
 declarative agent-tool configuration is a separate maintenance path defined by
-[`GATES.md`](guidelines/GATES.md).
+[`validation.md`](../../.agents/skills/wtk/references/validation.md).
 
 ## What the caps buy
 

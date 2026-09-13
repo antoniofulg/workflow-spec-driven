@@ -30,7 +30,8 @@ artifacts, and explicit handoff prompts remain the durable semantic context.
 | One paragraph per guideline | [guidelines.md](guidelines.md) |
 | What is vendored and what is not | [pack.md](pack.md) |
 | Graphify/Graft routing, setup, freshness, and benchmark | [repository-intelligence.md](repository-intelligence.md) |
-| The imperative rules | [`docs/toolkit/guidelines/`](guidelines/) |
+| Shared execution contracts | [`wtk/references/`](../../.agents/skills/wtk/references/) |
+| Surface-specific rules | [`docs/toolkit/guidelines/`](guidelines/) |
 | What agents load every turn | [`AGENTS.md`](../../AGENTS.md) |
 
 ## The loop at a glance
@@ -52,4 +53,4 @@ Repeated review blockers use the immutable fingerprint and independent counter i
 
 A filed issue skips the ceremony: `implement → scoped gate → one commit`.
 Credential-free declarative agent-tool configuration uses the local light path in
-[`GATES.md`](guidelines/GATES.md).
+[`validation.md`](../../.agents/skills/wtk/references/validation.md).

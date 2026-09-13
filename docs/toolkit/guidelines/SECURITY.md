@@ -74,7 +74,7 @@ are simply absent — do not write a row to say so.
 Every control becomes one or more `SEC-` cases in `.specs/features/<feature>/checks.md`. Each case
 uses the native checks contract: its claim has a concrete outcome and one or more named proofs, and
 each enumerated abuse-case member appears in `Coverage`. SEC IDs trace to native `C<n>` checks, not
-tasks, and are audited for orphaned claims like the rest. See `docs/toolkit/guidelines/TEST-CONTRACT.md` and
+tasks, and are audited for orphaned claims like the rest. See `.agents/skills/wtk/references/test-contract.md` and
 the [native Lean checks reference](../../../.agents/skills/wtk-lean/references/checks.md).
 
 Examples only — not a `checks.md` schema:

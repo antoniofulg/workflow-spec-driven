@@ -66,7 +66,7 @@ entrypoint.[^state-ad-036]
 | One discovery review, then one-job remediation checks until clean | `REVIEW-ROUNDS.md` rule 2; AD-031 | decided[^review-rounds][^state-ad-031] |
 | `cadence = "skip"`: no groups, no wait, manual `wtk-deep-review` later | `wtk-config` resolver; AD-034 | current default[^state-ad-034][^workflow-config] |
 | `slice`, `feature`, `grouped.N` | `wtk-config` resolver | explicit alternate cadences[^workflow-config] |
-| Skip deep review for `Small` features by tier | `GATES.md` classifier | open; `skip` makes it moot for the current phase |
+| Skip deep review for `Small` features by tier | `.agents/skills/wtk/references/validation.md` classifier | open; `skip` makes it moot for the current phase |
 
 ## What the morning arguments still say
 

@@ -1,10 +1,8 @@
 # Guidelines
 
-Each file in `docs/toolkit/guidelines/` is a **triggered** protocol. `AGENTS.md` dispatches; the guideline
-states the rule once. Do not copy these paragraphs into `AGENTS.md`.
-
-Every guideline now opens with **Why this exists** (the failure mode it prevents). This page is the
-catalog. The longer walk-through stays in this folder.
+Shared execution contracts live in `.agents/skills/wtk/references/`; the remaining surface-specific
+guidelines stay in `docs/toolkit/guidelines/`. Each is loaded by its condition. `AGENTS.md` and `wtk`
+dispatch to the owner; this page is the catalog, not a second copy of the rules.
 
 ## Instruction cost
 
@@ -16,17 +14,17 @@ catalog. The longer walk-through stays in this folder.
 
 | File | Why it exists |
 | --- | --- |
-| [BRANCHING.md](guidelines/BRANCHING.md) | `type/slug` names the behaviour, never `main`, delete after merge. Isolated checkouts must not share a runtime. |
-| [ARTIFACT-LIFECYCLE.md](guidelines/ARTIFACT-LIFECYCLE.md) | Planning artifacts are finished when the code exists. Durable store is code, `AD-NNN`, `docs/qa/`, product/architecture/design. The inverted arrangement gated drift on documents nobody read. |
+| [git.md](../../.agents/skills/wtk/references/git.md) | `type/slug` names the behaviour, never `main`, delete after merge. Isolated checkouts must not share a runtime. |
+| [artifacts.md](../../.agents/skills/wtk/references/artifacts.md) | Planning artifacts are finished when the code exists. Durable store is code, `AD-NNN`, `docs/qa/`, product/architecture/design. The inverted arrangement gated drift on documents nobody read. |
 | [WORKFLOW-MEMORY.md](guidelines/WORKFLOW-MEMORY.md) | Small slices are cheap to review and expensive to ramp. Shared memory is how reasoning survives the task boundary without becoming a second spec. |
-| [GATES.md](guidelines/GATES.md) | Proportional scoped gates; full gate only when selected. It also owns the credential-free declarative agent-tool configuration path. Never skip a test to go green. Cached evidence only for the exact tree. |
+| [validation.md](../../.agents/skills/wtk/references/validation.md) | Proportional scoped gates; full gate only when selected. It also owns the credential-free declarative agent-tool configuration path. Never skip a test to go green. Cached evidence only for the exact tree. |
 
 ## Proof
 
 | File | Why it exists |
 | --- | --- |
-| [TEST-CONTRACT.md](guidelines/TEST-CONTRACT.md) | “All branches covered” cannot be audited. `UT-001` assigned to one task can. Cases come from the spec; tests assert the contracted outcome. Coverage-only tests are forbidden. |
-| [VERIFICATION-EVIDENCE.md](guidelines/VERIFICATION-EVIDENCE.md) | Completion without a fresh command is a false report. Scope binds. Secrets in a diff are an absolute stop. |
+| [test-contract.md](../../.agents/skills/wtk/references/test-contract.md) | “All branches covered” cannot be audited. `UT-001` assigned to one task can. Cases come from the spec; tests assert the contracted outcome. Coverage-only tests are forbidden. |
+| [evidence.md](../../.agents/skills/wtk/references/evidence.md) | Completion without a fresh command is a false report. Scope binds. Secrets in a diff are an absolute stop. |
 | [REVIEW-ROUNDS.md](guidelines/REVIEW-ROUNDS.md) | See [reviews.md](reviews.md). Caps, monotonic findings, filed issues. |
 | [SECURITY.md](guidelines/SECURITY.md) | Security that lives only in a review at the end is theatre. Eleven surfaces, declared at Specify, become `SEC-` cases. Review looks for what the table missed. The lock icon on this filename is an editor convention, not extra secrecy. |
 

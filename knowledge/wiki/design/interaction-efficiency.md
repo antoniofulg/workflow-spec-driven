@@ -11,7 +11,7 @@ sources:
     resource: ../../../docs/toolkit/guidelines/UI-UX.md
     title: UI/UX Surface Map
   - id: test-contract
-    resource: ../../../docs/toolkit/guidelines/TEST-CONTRACT.md
+    resource: ../../../.agents/skills/wtk/references/test-contract.md
     title: Test Contract
   - id: qa-scenarios
     resource: ../../../docs/toolkit/guidelines/QA-SCENARIOS.md

@@ -11,6 +11,36 @@ const expectError = (fn, text) => assert.throws(fn, (error) => error instanceof 
 const writeResult = (root, result, includeManifest = true) => { for (const [relative, content] of Object.entries(result.staged)) { if (!includeManifest && relative === '.my-workflow/adoption.json') continue; const file = path.join(root, relative); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, content); } for (const [relative, target] of Object.entries(result.links || {})) { const file = path.join(root, relative); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.symlinkSync(target, file); } };
 const treeSnapshot = (root) => { const result = {}; const walk = (directory) => { for (const entry of fs.readdirSync(directory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) { const file = path.join(directory, entry.name); const relative = path.relative(root, file).split(path.sep).join('/'); if (entry.isSymbolicLink()) result[relative] = `symlink:${fs.readlinkSync(file)}`; else if (entry.isDirectory()) walk(file); else result[relative] = fs.readFileSync(file).toString('base64'); } }; walk(root); return result; };
 
+test('shared workflow references move with provenance-safe retirement', () => {
+  const pairs = [['GATES.md', 'validation.md'], ['VERIFICATION-EVIDENCE.md', 'evidence.md'], ['TEST-CONTRACT.md', 'test-contract.md'], ['BRANCHING.md', 'git.md'], ['ARTIFACT-LIFECYCLE.md', 'artifacts.md']];
+  for (const state of ['pristine', 'modified', 'unowned']) {
+    const consumer = target();
+    try {
+      const files = {};
+      for (const [oldName] of pairs) {
+        const relative = `docs/toolkit/guidelines/${oldName}`;
+        fs.mkdirSync(path.dirname(path.join(consumer, relative)), { recursive: true });
+        fs.writeFileSync(path.join(consumer, relative), state === 'pristine' ? 'original' : 'consumer edit');
+        if (state !== 'unowned') files[relative] = { layer: 'core', ownership: 'managed', source_sha256: sha256('original'), installed_sha256: sha256('original') };
+      }
+      fs.mkdirSync(path.join(consumer, '.my-workflow'));
+      fs.writeFileSync(path.join(consumer, '.my-workflow/adoption.json'), JSON.stringify({ schema: 1, workflow_version: '1.0.0', layers: ['core'], files, blocks: {} }));
+      const before = treeSnapshot(consumer);
+      const result = buildPlan({ sourceRoot, targetRoot: consumer, selectedModules: ['core'] });
+      for (const [oldName, newName] of pairs) {
+        const oldPath = `docs/toolkit/guidelines/${oldName}`;
+        const newPath = `.agents/skills/wtk/references/${newName}`;
+        assert.ok(result.staged[newPath], newPath);
+        assert.equal(result.staged[oldPath], undefined, oldPath);
+        assert.equal(result.plan.actions.find((action) => action.path === oldPath)?.kind, state === 'pristine' ? 'remove' : state === 'modified' ? 'conflict' : undefined);
+      }
+      assert.deepEqual(treeSnapshot(consumer), before);
+    } finally {
+      fs.rmSync(consumer, { recursive: true, force: true });
+    }
+  }
+});
+
 test('UT-001 dependency closure includes core once', () => assert.deepEqual(resolveModules(['quality', 'extras']), ['core', 'quality', 'extras']));
 test('UT-002 fresh target plans not installed modules', () => { const result = buildPlan({ sourceRoot, targetRoot: target(), selectedModules: ['core'] }).plan; assert.equal(result.assessments[0].status, 'not installed'); });
 test('UT-003 manifest loader accepts the empty schema', () => { const root = target(); assert.deepEqual(loadManifest(root).layers, []); });

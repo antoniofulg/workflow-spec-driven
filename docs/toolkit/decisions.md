@@ -13,7 +13,7 @@ project call, or a one-feature choice becomes “the way the system is”.
 
 Always cite **the file** with the label. The same letters in two files are not the same object.
 
-Promote before the pull request, per [ARTIFACT-LIFECYCLE.md](guidelines/ARTIFACT-LIFECYCLE.md):
+Promote before the pull request, per [artifacts.md](../../.agents/skills/wtk/references/artifacts.md):
 
 - Must outlive the feature as a project call → `AD-NNN`
 - Must outlive it as a product promise → `docs/qa/scenarios/`
