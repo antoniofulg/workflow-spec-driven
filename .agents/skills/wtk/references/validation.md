@@ -3,7 +3,8 @@
 **Read when:** selecting validation for the requested change.
 
 The consuming project owns commands: `make check`, when present, is the full gate; a documented
-selector is the scoped gate. Choose by changed behavior and named risk, not file count or task label.
+selector is the scoped gate. Select validation by causal impact since the last valid evidence for
+each proof or suite, not by file count, task label, commit identity or elapsed time.
 
 ## Scope and completion
 
@@ -35,23 +36,66 @@ artifacts. Escalation names the changed invariant and why the selected check can
 Unrelated findings become follow-ups unless they prevent the requested behavior or compromise a
 relevant security boundary. Do not grow a maintenance task into a repository certification.
 
-For feature work, use the task's proofs during iteration and the scoped gate at slice close. Run the
-full gate at initial feature close, or earlier when a migration, shared boundary or unclassified impact
-cannot be covered by the documented selector. Use the project's extended gate when its trigger applies.
+Feature verification still accounts for every approved check, using fresh or demonstrably reusable
+evidence. Feature close, review remediation and delivery do not automatically require a full gate.
+Full gates follow the impact conditions below, including at initial feature close.
 
 For reference-driven UI, include the comparison required by `docs/toolkit/guidelines/UI-UX.md`. QA flags and journeys follow
 `docs/toolkit/guidelines/QA-SCENARIOS.md`; scenario tags scope walks, not automated tests.
 
 ## Run and reuse evidence
 
-Run the selected check after changes to its inputs. Fix failures within the authorized scope and
-rerun the affected check; widen only when the failure exposes broader impact. A passing subset used
-for diagnosis does not replace the gate selected for completion.
+Before selecting or repeating tests, compare current inputs with each proof's last green baseline.
+Different suites may have different valid baselines. Trace changed files through imports and direct
+dependents, then relevant transitive consumers, affected invariants and journeys that use that path.
+Include shared fixtures, generated code, dynamic loading, configuration, dependency/lockfile changes,
+runtime and shared resource dependencies. Use existing selectors/tools or scoped manual tracing;
+missing graph tooling alone does not require building a graph or running the full suite.
 
-Reuse passing evidence when its code, configuration, dependencies and other relevant inputs are
-unchanged. A prose-only edit does not invalidate unrelated executable proofs; validate the prose.
-Record the command, scope and result. Where the project uses a gate cache, retain its fingerprint
-and log path; its invalidation rules still apply. A commit alone does not invalidate evidence.
+Select the corrected finding's regression, the owning module's canonical suite and affected consumer
+coverage. Deduplicate overlapping commands; one canonical invocation may cover several obligations.
+Declare the causal path or coverage reason for each selected command, not a separate ritual per test.
+
+Reuse prior results only when tested code, relevant transitive dependencies, fixtures, configuration,
+resolved dependency versions, command/selector and runtime inputs remain equivalent. Independently
+inspect recorded evidence and its inputs; an author's unsupported PASS is insufficient. Documentation,
+reports, evidence files, commits and branch names do not invalidate unrelated tests, but documents
+consumed as test inputs do. Keep existing cache invalidation rules: the current `gate_cache.py` keys
+the whole tree and does not implement impact-aware reuse. A cache miss is not a demand for a full gate.
+A cache hit still needs the runtime/input-equivalence checks above; otherwise run the selected
+command directly instead of treating that hit as valid evidence.
+
+After merging or rebasing main, examine the incoming delta as well as resolved conflicts, overlapping
+files and newly connected paths; disjoint files can still interact. Reuse unaffected evidence.
+A review finding invalidates evidence on its causal path, not every previously approved module.
+
+For example, a Members typography fix and a Dashboard mobile-card fix receive their own coverage.
+If only Dashboard needs another correction, rerun its affected checks and retain Members evidence.
+A shared style or layout primitive expands coverage to the consumers actually affected.
+
+## Full-gate conditions and failures
+
+Run a full gate when the human explicitly requests it or when a conservatively bounded impact scope
+cannot cover the change. Examples include shared infrastructure/runtime configuration, dependency
+changes or global primitives whose affected consumers cannot be covered by the selected boundaries.
+Inspect the actual lockfile/package delta first; merely touching a shared file does not prove global
+impact. Name the uncertainty or missing coverage rather than treating an incomplete global graph as
+automatic escalation.
+
+If a full run fails in an apparently unrelated test, rerun that test or the smallest relevant cohort
+to investigate order, isolation, resources and harness state. An isolated pass alone does not prove
+a flake or lack of causality. Preserve the failed full-run result, distinguish suspected instability
+from demonstrated flakiness, and record unresolved limits. Do not repeat the full gate automatically,
+or report it as green because targeted retests passed. Fixes reselect coverage from their own delta.
+
+## Selection and evidence record
+
+Before a meaningful validation batch, state the delta, reusable evidence and unchanged inputs,
+invalidated tests with their causal edges, and the minimal selected commands. A trivial edit can use
+one sentence. No new report file or approval step is required.
+At completion, record command, `file -> dependency/boundary -> test`, result, reused evidence/baseline
+and real limitations in the existing handoff/report. Every affected invariant needs a green proof
+or an explicit unresolved limitation; every selected command needs an impact or coverage justification.
 
 Canonical cache invocation: `python3 tools/gate_cache.py run --gate <scoped|full> -- <gate command>`.
 

@@ -50,8 +50,9 @@ request, recheck delivery readiness through `wtk-ship`; its invocation supplies 
 
 Read the failures and group them by cause. Where timing or isolation is plausible, rerun unchanged
 before modifying code. Resolve failures caused by the authorized change, preserving assertions and
-the approved contract. Diagnostic subsets are useful during repair; completion still requires the
-selected gate, or the project's declared reduced gate with its limitation stated.
+the approved contract. Reselect tests from the fix's causal delta under `validation.md`; retain
+unaffected green evidence. Record a failed full run separately from passing targeted retests.
+An isolated pass is diagnostic evidence, not proof of a harness flake or a green full gate.
 
 Follow `docs/toolkit/guidelines/REVIEW-ROUNDS.md` for review remediation and its stall bound. Report pre-existing or unrelated
 failures separately; do not silently expand the task to repair them or claim the full gate passed.

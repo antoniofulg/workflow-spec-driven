@@ -14,7 +14,8 @@ affected scenario list.
 ## Fresh verification
 
 End the current QA execution session before the product changes. After the Implementer reports the
-fix, a fresh Verifier runs the technical gate and retests the affected journey plus its adjacent
+fix, a fresh Verifier selects invalidated technical proofs using incremental impact validation and
+retests the affected journey plus its adjacent
 canary. QA then resumes from the affected charter and records the retest result in the original
 report.
 
