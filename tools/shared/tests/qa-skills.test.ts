@@ -386,6 +386,16 @@ describe("canonical QA skills", () => {
     }
   });
 
+  it("IT-022 keeps third-party Ponytail metadata aligned with original directories", () => {
+    for (const name of ["audit", "debt", "gain", "help", "review"] as const) {
+      const relativePath = `.agents/skills/ponytail-${name}/SKILL.md`;
+
+      expect(existsSync(join(repositoryRoot, relativePath))).toBe(true);
+      expect(skillMetadata(relativePath).name).toBe(`ponytail-${name}`);
+      expect(existsSync(join(repositoryRoot, `.agents/skills/wtk-ponytail-${name}`))).toBe(false);
+    }
+  });
+
   it("IT-002 keeps planning separate from live execution", () => {
     const qaPlan = readRepositoryFile(qaPlanPath);
     const qaExecute = readRepositoryFile(qaExecutePath);

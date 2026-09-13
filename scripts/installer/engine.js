@@ -22,12 +22,12 @@ export const KNOWLEDGE_DESTINATIONS = {
 export const LAYER_PATHS = {
   core: ['docs/guidelines', 'docs/workflow/README.md', 'docs/workflow/repository-intelligence.md', 'docs/workflow/decisions.md', 'docs/workflow/guidelines.md', 'docs/workflow/loop.md', 'docs/workflow/purpose.md', 'docs/workflow/reviews.md', 'knowledge/AGENTS.md', 'knowledge/raw/README.md', '.agents/skills/wtk', '.agents/skills/wtk-lean', '.agents/skills/wtk-discover', '.agents/skills/wtk-plan', '.agents/skills/wtk-implement', '.agents/skills/wtk-config', '.agents/skills/wtk-knowledge-check', '.agents/skills/wtk-ship', '.agents/skills/ponytail'],
   quality: ['.agents/skills/wtk-deep-review', '.agents/skills/wtk-qa', '.agents/skills/wtk-qa-plan', '.agents/skills/wtk-qa-execute'],
-  extras: ['.agents/skills/wtk-ponytail-audit', '.agents/skills/wtk-ponytail-debt', '.agents/skills/wtk-ponytail-gain', '.agents/skills/wtk-ponytail-help', '.agents/skills/wtk-ponytail-review'],
+  extras: ['.agents/skills/ponytail-audit', '.agents/skills/ponytail-debt', '.agents/skills/ponytail-gain', '.agents/skills/ponytail-help', '.agents/skills/ponytail-review'],
 };
 export const CLAUDE_SKILL_LINKS = {
   core: ['wtk', 'wtk-lean', 'wtk-discover', 'wtk-plan', 'wtk-implement', 'wtk-config', 'wtk-knowledge-check', 'wtk-ship', 'ponytail'],
   quality: ['wtk-deep-review', 'wtk-qa', 'wtk-qa-plan', 'wtk-qa-execute'],
-  extras: ['wtk-ponytail-audit', 'wtk-ponytail-debt', 'wtk-ponytail-gain', 'wtk-ponytail-help', 'wtk-ponytail-review'],
+  extras: ['ponytail-audit', 'ponytail-debt', 'ponytail-gain', 'ponytail-help', 'ponytail-review'],
 };
 export const LAYER_MISSING_PATHS = { core: ['.my-workflow.toml.example'], quality: [], extras: [] };
 export const CONSUMER_MISSING_SOURCES = {
