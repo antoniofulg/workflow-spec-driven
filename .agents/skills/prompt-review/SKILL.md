@@ -16,9 +16,11 @@ repository-wide scan. For an aggregate review, inspect the selected skills,
 trigger, claim, dependency, or conflict. State missing or unread references as
 uncertainty.
 
-When a directory is in scope, inventory instruction files in hidden skill
-folders too, including `.agents/skills/**/SKILL.md`. Cite raw source line
-numbers, never offsets from a compacted or paginated display.
+For directory scopes, use a hidden-file-aware inventory such as
+`rg --files --hidden <scope>`, including `.agents/skills/**/SKILL.md` while
+honoring exclusions. Read relevant instruction files from that inventory;
+record unread candidates as exclusions. Number cited files with `nl -ba <file>`
+or the editor's source numbering; compacted tool output is not line evidence.
 
 Check for:
 
