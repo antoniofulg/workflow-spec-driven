@@ -1,4 +1,4 @@
-"""Regression tests for deep-review manifest symlink handling.
+"""Regression tests for wtk-deep-review manifest symlink handling.
 
 Run: python3 tools/test_deep_review_symlink_manifest.py
 """
@@ -14,7 +14,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-SCRIPTS = Path(__file__).resolve().parents[1] / ".agents/skills/deep-review/scripts"
+SCRIPTS = Path(__file__).resolve().parents[1] / ".agents/skills/wtk-deep-review/scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from _common import freeze_snapshot  # noqa: E402
@@ -32,7 +32,7 @@ def repo() -> Path:
     root = Path(tempfile.mkdtemp())
     git(root, "init", "-q")
     git(root, "config", "user.email", "test@example.com")
-    git(root, "config", "user.name", "deep-review tests")
+    git(root, "config", "user.name", "wtk-deep-review tests")
     (root / ".gitkeep").write_text("repo\n", encoding="utf-8")
     git(root, "add", ".gitkeep")
     git(root, "commit", "-qm", "init")
@@ -40,7 +40,7 @@ def repo() -> Path:
 
 
 def build(root: Path) -> dict:
-    out = root / ".deep-review" / "out"
+    out = root / ".wtk-deep-review" / "out"
     result = subprocess.run(
         [
             sys.executable,
@@ -68,16 +68,16 @@ class SymlinkManifestTests(unittest.TestCase):
     def test_untracked_symlink_directory_matches_adopted_deep_review(self) -> None:
         root = repo()
         self.addCleanup(shutil.rmtree, root, ignore_errors=True)
-        target = root / ".agents" / "skills" / "deep-review"
+        target = root / ".agents" / "skills" / "wtk-deep-review"
         target.mkdir(parents=True)
         (target / "SKILL.md").write_text("skill\n", encoding="utf-8")
-        link = root / ".claude" / "skills" / "deep-review"
+        link = root / ".claude" / "skills" / "wtk-deep-review"
         link.parent.mkdir(parents=True)
-        os.symlink("../../.agents/skills/deep-review", link)
+        os.symlink("../../.agents/skills/wtk-deep-review", link)
 
-        row = record(build(root), ".claude/skills/deep-review")
+        row = record(build(root), ".claude/skills/wtk-deep-review")
         self.assertEqual(row["kind"], "symlink")
-        self.assertEqual(row["target"], "../../.agents/skills/deep-review")
+        self.assertEqual(row["target"], "../../.agents/skills/wtk-deep-review")
         self.assertEqual((row["adds"], row["dels"]), (1, 0))
         self.assertEqual(row["hunks"], [{"start": 1, "lines": 1, "side": "new"}])
 
@@ -145,7 +145,7 @@ class SymlinkManifestTests(unittest.TestCase):
             second.write_text("same target content\n", encoding="utf-8")
             link = root / "outside-link"
             os.symlink(str(first), link)
-            out = root / ".deep-review" / "out"
+            out = root / ".wtk-deep-review" / "out"
             manifest = build(root)
             expected = manifest["worktree_snapshot"]
 

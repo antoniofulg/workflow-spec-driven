@@ -5,12 +5,12 @@ import { safePath } from './engine.js';
 
 export const PROVIDERS = ['claude', 'codex', 'cursor'];
 export const ROLES = ['planner', 'implementer', 'verifier', 'explorer', 'deep_reviewer', 'designer'];
-const AGENT_NAMES = { deep_reviewer: 'deep-reviewer' };
+export const AGENT_NAMES = { deep_reviewer: 'deep-reviewer' };
 const EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max', 'ultra'];
 const modelRe = /^[^\\\s[\]"\x00-\x1f\x7f]+$/;
 const runtimePath = (provider, role) => `.${provider}/agents/${AGENT_NAMES[role] || role}.${provider === 'codex' ? 'toml' : 'md'}`;
-const templatePath = (root, provider, role) => path.join(root, '.agents', 'skills', 'workflow-config', 'assets', 'agents', provider, `${AGENT_NAMES[role] || role}.${provider === 'codex' ? 'toml' : 'md'}`);
-const error = (message) => { throw new Error(`workflow-config: ${message}`); };
+const templatePath = (root, provider, role) => path.join(root, '.agents', 'skills', 'wtk-config', 'assets', 'agents', provider, `${AGENT_NAMES[role] || role}.${provider === 'codex' ? 'toml' : 'md'}`);
+const error = (message) => { throw new Error(`wtk-config: ${message}`); };
 
 export function validateWorkflowConfig(config) {
   if (!config || typeof config !== 'object' || Array.isArray(config)) error('configuration must contain a table');
@@ -32,9 +32,9 @@ export function validateWorkflowConfig(config) {
 }
 
 export function readWorkflowConfig(root) {
-  const local = safePath(root, '.my-workflow.toml', 'workflow config'); const example = safePath(root, '.my-workflow.toml.example', 'workflow config'); const configPath = fs.existsSync(local) ? local : example;
-  if (!fs.existsSync(configPath)) error('.my-workflow.toml is missing');
-  let config; try { config = parse(fs.readFileSync(configPath, 'utf8')); } catch (cause) { error(`invalid .my-workflow.toml: ${cause.message}`); }
+  const local = safePath(root, '.wtk.toml', 'workflow config'); const example = safePath(root, '.wtk.toml.example', 'workflow config'); const configPath = fs.existsSync(local) ? local : example;
+  if (!fs.existsSync(configPath)) error('.wtk.toml is missing');
+  let config; try { config = parse(fs.readFileSync(configPath, 'utf8')); } catch (cause) { error(`invalid .wtk.toml: ${cause.message}`); }
   return validateWorkflowConfig(config);
 }
 
@@ -63,14 +63,14 @@ export function renderAgentPacket(provider, content, setting) {
 
 export function stageAgentPackets(stageRoot, targetRoot = stageRoot) {
   const root = path.resolve(stageRoot); const target = path.resolve(targetRoot); let config;
-  if (fs.existsSync(path.join(target, '.my-workflow.toml')) || fs.existsSync(path.join(target, '.my-workflow.toml.example'))) config = readWorkflowConfig(target);
-  else config = validateWorkflowConfig(parse(fs.readFileSync(path.join(root, '.my-workflow.toml.example'), 'utf8')));
+  if (fs.existsSync(path.join(target, '.wtk.toml')) || fs.existsSync(path.join(target, '.wtk.toml.example'))) config = readWorkflowConfig(target);
+  else config = validateWorkflowConfig(parse(fs.readFileSync(path.join(root, '.wtk.toml.example'), 'utf8')));
   const generated = {};
   for (const provider of PROVIDERS) for (const role of ROLES) {
     const template = templatePath(root, provider, role); if (!fs.existsSync(template) || !fs.lstatSync(template).isFile()) error(`missing agent template ${path.relative(root, template)}`);
     const content = fs.readFileSync(template); packetSetting(provider, content); generated[runtimePath(provider, role)] = renderAgentPacket(provider, content, config.models[provider][role]);
   }
-  if (!fs.existsSync(path.join(target, '.my-workflow.toml')) && fs.existsSync(path.join(root, '.my-workflow.toml.example'))) generated['.my-workflow.toml'] = fs.readFileSync(path.join(root, '.my-workflow.toml.example'));
+  if (!fs.existsSync(path.join(target, '.wtk.toml')) && fs.existsSync(path.join(root, '.wtk.toml.example'))) generated['.wtk.toml'] = fs.readFileSync(path.join(root, '.wtk.toml.example'));
   return generated;
 }
 

@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "workflow-spec-driven",
+      "name": "workflow-toolkit",
       "dependencies": {
         "smol-toml": "1.8.0",
       },

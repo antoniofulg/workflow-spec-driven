@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 113,
+  "next_id": 117,
   "lessons": [
     {
       "id": "L-001",
@@ -2031,6 +2031,78 @@
       ],
       "created": "2026-09-11T08:21:24Z",
       "last_seen": "2026-09-11T08:21:24Z"
+    },
+    {
+      "id": "L-113",
+      "key": "ac_gap::when testing a default omit every explicit value and override that bypasses the default branch",
+      "text": "When testing a default, omit every explicit value and override that bypasses the default branch.",
+      "signal": "ac_gap",
+      "scope": "configuration",
+      "status": "candidate",
+      "features": [
+        "workflow-toolkit-lean"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/workflow-toolkit-lean/verification.md:93 (C6) (configuration)"
+      ],
+      "created": "2026-09-13T03:11:13Z",
+      "last_seen": "2026-09-13T03:11:13Z"
+    },
+    {
+      "id": "L-114",
+      "key": "ac_gap::assert public cli exit outcomes at the process boundary not through helper return values",
+      "text": "Assert public CLI exit outcomes at the process boundary, not through helper return values.",
+      "signal": "ac_gap",
+      "scope": "installer",
+      "status": "candidate",
+      "features": [
+        "workflow-toolkit-lean"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/workflow-toolkit-lean/verification.md:91 (C11) (installer)"
+      ],
+      "created": "2026-09-13T03:11:13Z",
+      "last_seen": "2026-09-13T03:11:13Z"
+    },
+    {
+      "id": "L-115",
+      "key": "spec_deviation::use package names in package manager invocations and executable names only after installation",
+      "text": "Use package names in package-manager invocations and executable names only after installation.",
+      "signal": "spec_deviation",
+      "scope": "installer",
+      "status": "candidate",
+      "features": [
+        "workflow-toolkit-lean"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/workflow-toolkit-lean/verification.md:89 (C7) (installer)"
+      ],
+      "created": "2026-09-13T03:11:13Z",
+      "last_seen": "2026-09-13T03:11:13Z"
+    },
+    {
+      "id": "L-116",
+      "key": "ac_gap::exercise every conditional instruction router branch with an independent prompt that triggers only that condition",
+      "text": "Exercise every conditional instruction-router branch with an independent prompt that triggers only that condition.",
+      "signal": "ac_gap",
+      "scope": "role-routing",
+      "status": "candidate",
+      "features": [
+        "workflow-toolkit-lean"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/workflow-toolkit-lean/verification.md:92 (C12) (role-routing)"
+      ],
+      "created": "2026-09-13T03:11:13Z",
+      "last_seen": "2026-09-13T03:11:13Z"
     }
   ]
 }

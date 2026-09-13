@@ -39,7 +39,7 @@ Plan for /work/acme-api
             module: core
   ADOPT     docs/qa/README.md
             module: core; file unchanged, ownership record added
-  PRESERVE  .my-workflow.toml
+  PRESERVE  .wtk.toml
             module: core; consumer-owned file unchanged
   NO CHANGE docs/qa/scenarios/README.md
             module: core

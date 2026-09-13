@@ -4,17 +4,20 @@ area: ADP
 title: Adopt workflow capabilities incrementally
 persona: Workflow adopter
 journey: J-adopt-workflow
-expected: A project selects fixed modules incrementally, sees dependency closure and conflicts before approval, preserves consumer content, installs canonical skill-owned runtime without root templates or tools, and repeats with an explicit no-change result.
-entry_points: README.md#quick-start; npx workflow-spec-driven install
-qa_status: pass
+expected: A project selects core, quality, or extras, sees non-core selections include core, installs each exact current catalog including unchanged third-party Ponytail names plus optional prompt-review and current Claude aliases, and repeats with an explicit no-change result and no parallel module or retired alias.
+entry_points: README.md#quick-start; node /Users/antoniofulg/Projects/my-workflow/bin/wtk.js install; package.json; scripts/installer/engine.js
+qa_status: skipped
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-09-interactive-installer/43-full-80-no-color.log; docs/qa/evidence/2026-09-09-interactive-installer/45-noop.log; docs/qa/evidence/2026-09-09-interactive-installer/48-conflict-exclude.log; docs/qa/evidence/2026-09-09-interactive-installer/52-python-free-core.log; docs/qa/evidence/2026-09-09-interactive-installer/54-final-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/closeout-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/provenance-readback.json
-last_report: docs/qa/reports/2026-09-09-interactive-installer.md
+evidence: docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/adoption-summary.md; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/source-core-readopt.log; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/source-quality-readback.log; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/source-extras-readback.log
+last_report: docs/qa/reports/2026-09-13-prompt-review-security-follow-up.md
 overlaps: ADP-adopt-workflow-safely
 ---
+
+This follow-up manual cycle was closed as over-scoped under `26950bf`. Current package/adoption
+regression checks passed; unwalked charter legs are skipped, not reported as manual passes.
 
 Fresh QA must select and install `core`, then select dependent modules in a new PTY session. Verify
 that `core` is selected once and named as required, installed modules remain cumulative in the
@@ -58,3 +61,13 @@ skill paths and absence of workflow-created root `templates/` and `tools/`.
 The `interactive-installer` cycle removes the legacy command set. Current QA uses only the guided
 `install` command; historical `plan`, `apply`, and `status` results above are not current entry
 points or evidence for this cycle.
+
+The 2026-09-13 cycle changes the catalog to `core`, `quality`, and `extras`, removes `parallel`, and
+replaces old phase names with Workflow Toolkit names. Re-walk exact core and quality catalogs plus
+all extras members; `ponytail-audit`, `ponytail-debt`, `ponytail-gain`, `ponytail-help`, and
+`ponytail-review` retain their third-party names. Prior verdict is stale for this catalog.
+
+The completed 2026-09-13 report and evidence cover the prior five-member extras catalog and remain
+historical. The follow-up adds `prompt-review` as the sixth optional extra and refreshes Claude links
+to current `wtk-*`, Ponytail, and `prompt-review` aliases while removing retired aliases. Reset to
+`untested` pending source and packed CLI readback, byte-stable re-adoption, and a no-op/cancel canary.

@@ -1,18 +1,18 @@
 ---
 id: ADP-install-versioned-workflow-package
 area: ADP
-title: Install and update the workflow from an exact package release
+title: Install Workflow Toolkit from an exact local package
 persona: Workflow adopter
 journey: J-adopt-workflow
-expected: An exact local package completes the guided install and upgrade, repeats with an explicit no-change result, preserves consumer context, configuration, QA, and knowledge, and resolves edited content before publication.
-entry_points: README.md#quick-start; npx workflow-spec-driven install
+expected: An exact local workflow-toolkit package exposes only the wtk executable, completes a guided install without registry access, and reads back the reviewed package identity and managed tree from outside the source checkout.
+entry_points: README.md#quick-start; package.json; bun pm pack --filename <pack-dir>/workflow-toolkit-1.0.0.tgz --ignore-scripts; node <runner>/package/bin/wtk.js install
 qa_status: pass
 bug_ids:
 fix_status:
 retest_status:
 fix_commits:
-evidence: docs/qa/evidence/2026-09-09-interactive-installer/package/final/artifact.sha256; docs/qa/evidence/2026-09-09-interactive-installer/46b-outdated-upgrade.log; docs/qa/evidence/2026-09-09-interactive-installer/54-final-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/package/artifact.sha256; docs/qa/evidence/2026-09-09-interactive-installer/closeout/package/pack.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/closeout-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/provenance-readback.json
-last_report: docs/qa/reports/2026-09-09-interactive-installer.md
+evidence: docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/adoption-summary.md; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/package-core-readback.log
+last_report: docs/qa/reports/2026-09-13-workflow-toolkit-adoption.md
 overlaps: ADP-adopt-workflow-safely; ADP-layered-workflow-adoption; ADP-resolve-legacy-adoption-conflicts
 ---
 
@@ -22,7 +22,7 @@ review the complete plan before approval. Repeat the same selection after an ind
 require `Selected modules are up to date. No files will change.` with zero target writes. Use a prior
 manifest fixture to exercise managed provider-template promotion and runtime regeneration.
 
-Preserve consumer product context, local `.my-workflow.toml`, package metadata, an existing QA
+Preserve consumer product context, local `.wtk.toml`, package metadata, an existing QA
 profile, and non-empty wiki/raw knowledge byte-for-byte. Confirm a fresh target receives only generic
 managed knowledge instructions and neutral consumer-owned indexes, while source concepts and dated raw
 observations remain absent. Confirm edited provider templates and retired workflow files become
@@ -41,3 +41,7 @@ identified by a distinct SHA, even when both declare `0.10.0`.
 The `interactive-installer` cycle replaces `plan`, `apply`, `resolve`, and `status` with the guided
 `install` journey and changes the current package identity to `workflow-spec-driven@0.10.1`. Its QA
 walk uses the final reviewed local tarball at `4487afb`; all earlier evidence remains historical.
+
+The 2026-09-13 Workflow Toolkit Lean cycle replaces package identity and executable. Re-walk this
+scenario from an exact local archive with no registry lookup. Prior reports and evidence remain
+historical until the new `workflow-toolkit` / `wtk` result is observed.

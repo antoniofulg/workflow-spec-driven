@@ -2,7 +2,7 @@
 
 **Persona:** Workflow operator
 **Goal:** Make a bounded, evidence-led keep-or-remove decision for repository-intelligence routing.
-**Entry point:** `.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py benchmark-report`
+**Entry point:** `.agents/skills/wtk-config/scripts/repository_intelligence.py benchmark-report`
 
 ## Flow
 

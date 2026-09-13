@@ -10,18 +10,18 @@ import tempfile
 from copy import deepcopy
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / ".agents/skills/workflow-spec-driven/scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / ".agents/skills/wtk-ship/scripts"))
 import review_convergence
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parent.parent
-CONVERGENCE_CLI = REPOSITORY_ROOT / ".agents/skills/workflow-spec-driven/scripts/review_convergence.py"
+CONVERGENCE_CLI = REPOSITORY_ROOT / ".agents/skills/wtk-ship/scripts/review_convergence.py"
 
 
 def configured_root(stall_attempts: int = 3) -> Path:
     root = Path(tempfile.mkdtemp())
-    config = (REPOSITORY_ROOT / ".my-workflow.toml.example").read_text(encoding="utf-8")
-    (root / ".my-workflow.toml").write_text(
+    config = (REPOSITORY_ROOT / ".wtk.toml.example").read_text(encoding="utf-8")
+    (root / ".wtk.toml").write_text(
         config.replace("stall_attempts = 3", f"stall_attempts = {stall_attempts}"),
         encoding="utf-8",
     )
@@ -149,7 +149,7 @@ def test_public_flow_persists_live_remediation_and_keeps_gate_unavailable_distin
         assert generation["attempt_count"] == 3
         assert generation["fixes_tried"] == ["guard input", "retry", "split test"]
 
-        config = root / ".my-workflow.toml"
+        config = root / ".wtk.toml"
         config.write_text(config.read_text(encoding="utf-8").replace("stall_attempts = 2", "stall_attempts = 1"), encoding="utf-8")
         halted = record_cli(
             root, "--requirement", common[0], "--root-cause", common[1], "--failure-path", common[2],

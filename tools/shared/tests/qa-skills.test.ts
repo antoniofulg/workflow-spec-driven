@@ -80,22 +80,23 @@ const activeAuthorityRoots = [
   "AGENTS.md",
   "README.md",
   "docs/adoption-prompt.md",
-  "docs/guidelines",
+  "docs/toolkit/guidelines",
   "docs/qa",
-  "docs/workflow",
+  "docs/toolkit",
   "knowledge",
   "package.json",
   "bunfig.toml",
   "scripts",
   "tools",
   ".agents/skills",
-".agents/skills/workflow-config/assets/agents",
+".agents/skills/wtk-config/assets/agents",
 ] as const;
 
 const historicalAuthorityAllowlist = [
   /^CHANGELOG\.md$/,
   /^\.specs\//,
   /^docs\/qa\/(?:evidence|reports|charters|bugs)\//,
+  /^docs\/qa\/journeys\//,
   /^docs\/qa\/scenarios\/(?!REL-report-current-workflow-release\.md$)/,
 ] as const;
 
@@ -152,7 +153,7 @@ function forbiddenAuthorityViolations(
   const scannedPaths = activeAuthorityPaths(paths);
   const forbiddenCommands = [
     /(?:^|[`$>#;&|]\s*)npm\s+(?!(?:pack\s+--pack-destination\s+\S+(?:\s*#.*)?$|install\s+--save-dev\s+--save-exact\s+@nanonets\/graft@0\.10\.1$|exec\s+--yes\s+--package\s+\S+\s+--\s+my-workflow\s+(?:plan|apply|resolve|status)\b))\S+/i,
-    /(?:^|[`$>#;&|]\s*)npx\s+(?!(?:workflow-spec-driven\s+install|--yes\s+<approved-package>@<exact-version>(?:\s+(?:plan|apply|resolve|status)\b|(?=\s*`|$))))\S+/i,
+    /(?:^|[`$>#;&|]\s*)npx\s+(?!(?:workflow-toolkit\s+install|wtk\s+install|scripts\s+install|--yes\s+<approved-package>@<exact-version>(?:\s+(?:plan|apply|resolve|status)\b|(?=\s*`|$))))\S+/i,
     /\bvitest\s+(?:run|--|[A-Za-z])/i,
     /\btsx\s+(?:--|[A-Za-z])/i,
     /(?:from|require)\s*[(]?['"]yaml['"]/i,
@@ -241,47 +242,45 @@ function commitFixture(root: string, message: string): string {
 }
 
 const verifierPacketPaths = [
-".agents/skills/workflow-config/assets/agents/cursor/verifier.md",
-".agents/skills/workflow-config/assets/agents/claude/verifier.md",
-".agents/skills/workflow-config/assets/agents/codex/verifier.toml",
+".agents/skills/wtk-config/assets/agents/cursor/verifier.md",
+".agents/skills/wtk-config/assets/agents/claude/verifier.md",
+".agents/skills/wtk-config/assets/agents/codex/verifier.toml",
 ] as const;
 
 describe("QA workflow artifact policy", () => {
   it("IT-025 routes behavior-preserving UI corrections by intent and evidence", () => {
-    const gates = readRepositoryFile("docs/guidelines/GATES.md");
-    const qaExecution = readRepositoryFile("docs/guidelines/QA-EXECUTION.md");
-    const scenarios = readRepositoryFile("docs/guidelines/QA-SCENARIOS.md");
-    const review = readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md");
-    const implement = readRepositoryFile(".agents/skills/wimplement/SKILL.md");
-    const tasks = readRepositoryFile(".agents/skills/wtasks/SKILL.md");
-    const taskTemplate = readRepositoryFile(".agents/skills/wtasks/references/tasks-template.md");
+    const gates = readRepositoryFile("docs/toolkit/guidelines/GATES.md");
+    const qaExecution = readRepositoryFile("docs/toolkit/guidelines/QA-EXECUTION.md");
+    const scenarios = readRepositoryFile("docs/toolkit/guidelines/QA-SCENARIOS.md");
+    const review = readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md");
+    const implement = readRepositoryFile(".agents/skills/wtk-implement/SKILL.md");
+    const tasks = readRepositoryFile(".agents/skills/wtk-plan/SKILL.md");
+    const checklist = readRepositoryFile(".agents/skills/wtk-implement/references/checklist-format.md");
     expect(gates).toContain("not promoted to full e2e");
     expect(qaExecution).toContain("receives no QA Plan/Execute cycle");
     expect(scenarios).toContain("does not create/reset a scenario or start a QA");
     expect(review).toContain("issue` is neutral");
-    expect(implement).toContain("no automatic all-tests expansion");
+    expect(implement).toContain("Every check names its **proof**");
     expect(implement).not.toContain("Build + lint + all tests");
-    expect(tasks).toContain("no automatic all-tests expansion");
-    expect(tasks).toContain("owning scoped integration command");
-    expect(tasks).toContain("docs/guidelines/GATES.md");
-    expect(taskTemplate).toContain("owning scoped gate command");
-    expect(taskTemplate).toContain("canonical GATES.md classification");
-    expect(taskTemplate).not.toContain("[full gate command");
+    expect(tasks).toContain("observable criteria with concrete values");
+    expect(checklist).toContain("one** observable claim");
+    expect(checklist).toContain("Proof:");
+    expect(checklist).not.toContain("[full gate command");
   });
 
   it("IT-007 ignores generated Deep Review output but keeps learnings eligible", () => {
     const gitignore = readRepositoryFile(".gitignore");
 
-    expect(gitignore).toContain(".deep-review/*");
-    expect(gitignore).toContain("!.deep-review/learnings.md");
-    expect(isIgnored(".deep-review/findings.md")).toBe(true);
-    expect(isIgnored(".deep-review/qa-skills-t1/agents/cohort-c01.json")).toBe(true);
-    expect(isIgnored(".deep-review/learnings.md")).toBe(false);
+    expect(gitignore).toContain(".wtk-deep-review/*");
+    expect(gitignore).toContain("!.wtk-deep-review/learnings.md");
+    expect(isIgnored(".wtk-deep-review/findings.md")).toBe(true);
+    expect(isIgnored(".wtk-deep-review/qa-skills-t1/agents/cohort-c01.json")).toBe(true);
+    expect(isIgnored(".wtk-deep-review/learnings.md")).toBe(false);
   });
 
   it("IT-014 keeps feature workflow state versioned and documents legacy migration", () => {
     const readme = readRepositoryFile("README.md");
-    const artifactLifecycle = readRepositoryFile("docs/guidelines/ARTIFACT-LIFECYCLE.md");
+    const artifactLifecycle = readRepositoryFile("docs/toolkit/guidelines/ARTIFACT-LIFECYCLE.md");
 
     expect(isIgnored(".specs/features/qa-skills/spec.md")).toBe(false);
     expect(isIgnored(".specs/STATE.md")).toBe(false);
@@ -292,132 +291,83 @@ describe("QA workflow artifact policy", () => {
       "Feature workflow state follows the [artifact lifecycle]",
     );
     const lifecycle = artifactLifecycle.replace(/\s+/g, " ");
-    expect(lifecycle).toContain("`.specs/features/` is versioned workflow state");
+    expect(lifecycle).toContain("`.specs/features/` is transient Lean workflow state");
     expect(lifecycle).toContain("exact legacy managed `.specs/features/` ignore line");
-    expect(lifecycle).toContain("never stages or commits files");
+    expect(readme).toContain("never stages or commits files");
   });
 
-  it("IT-015 treats versioned task state as the commit precondition", () => {
+  it("IT-015 treats Lean proof state as the commit precondition", () => {
     const agents = readRepositoryFile("AGENTS.md");
-    const loop = readRepositoryFile("docs/workflow/loop.md");
-    const specDriven = readRepositoryFile(".agents/skills/workflow-spec-driven/SKILL.md");
-    const implementer = readRepositoryFile(".agents/skills/wimplement/SKILL.md");
-    const validator = readRepositoryFile(".agents/skills/wverify/SKILL.md");
-    const memory = readRepositoryFile(".agents/skills/workflow-spec-driven/references/memory.md");
+    const loop = readRepositoryFile("docs/toolkit/loop.md");
+    const lean = readRepositoryFile(".agents/skills/wtk-lean/SKILL.md");
+    const implementer = readRepositoryFile(".agents/skills/wtk-implement/SKILL.md");
+    const memory = readRepositoryFile(".agents/skills/wtk-lean/references/memory.md");
     const providerPackets = [
-readRepositoryFile(".agents/skills/workflow-config/assets/agents/cursor/implementer.md"),
-readRepositoryFile(".agents/skills/workflow-config/assets/agents/claude/implementer.md"),
-readRepositoryFile(".agents/skills/workflow-config/assets/agents/codex/implementer.toml"),
-    ];
-    const plannerPackets = [
-readRepositoryFile(".agents/skills/workflow-config/assets/agents/cursor/planner.md"),
-readRepositoryFile(".agents/skills/workflow-config/assets/agents/claude/planner.md"),
-readRepositoryFile(".agents/skills/workflow-config/assets/agents/codex/planner.toml"),
+      readRepositoryFile(".agents/skills/wtk-config/assets/agents/cursor/implementer.md"),
+      readRepositoryFile(".agents/skills/wtk-config/assets/agents/claude/implementer.md"),
+      readRepositoryFile(".agents/skills/wtk-config/assets/agents/codex/implementer.toml"),
     ];
 
-    expect(agents).toMatch(
-      /update `tasks\.md`\s+when present, or the inline execution plan when Tasks is skipped, before committing/,
-    );
-    expect(loop).toMatch(
-      /update `tasks\.md` when present, or the inline execution plan when Tasks is skipped, first/,
-    );
-    expect(specDriven).toContain("When `tasks.md` is present, mark the task complete there");
-    expect(specDriven).toContain(
-      "when Tasks is skipped, update and verify the inline execution plan before committing",
-    );
-    expect(specDriven).toContain(
-      "When a formal `tasks.md` exists, run `<skill-dir>/scripts/validate_tasks.py` against it",
-    );
-    expect(specDriven).toContain(
-      "When Tasks was skipped, verify the inline execution plan instead",
-    );
-    expect(specDriven).toContain(
-      "Feature files under `.specs/features/` are versioned workflow state",
-    );
-    expect(agents).toContain("reconcile Handoff + git");
-    expect(memory).toMatch(/when Tasks\s+was skipped,\s+the inline execution-plan completion/);
-    expect(validator).toContain("When Tasks was skipped, run the gate command recorded in the inline execution plan");
-    expect(implementer).toContain("close the task record **before** creating the commit");
-    expect(implementer).toContain("their task/status updates belong in the atomic commit");
-    expect(implementer.replace(/\s+/g, " ")).toContain(
-      "verify the local status/traceability updates before committing",
-    );
-    expect(implementer).toContain("If `tasks.md` is present, mark the task complete in `tasks.md`.");
-    expect(implementer).toContain("unrelated bug outside an active, approved review loop");
-    expect(implementer).toContain("Findings inside that loop follow `REVIEW-ROUNDS.md`");
-    expect(implementer).toMatch(
-      /If Tasks was skipped, mark the\s+current inline execution-plan step complete/,
-    );
-    expect(implementer.indexOf("close the task record **before** creating the commit")).toBeLessThan(
-      implementer.indexOf("Create **one** atomic commit"),
-    );
-    expect(implementer).not.toContain("Feature planning files under `.specs/features/` stay ignored");
+    expect(agents).toContain("Feature -> Slice -> Check");
+    expect(loop).toContain("checks.md");
+    expect(lean).toContain("checks.md");
+    expect(lean).toContain("verification.md");
+    expect(memory).toContain("checks.md");
+    expect(implementer).toContain("Every check names its **proof**");
     for (const packet of providerPackets) {
-      expect(packet).toMatch(
-        /tasks\.md`? when present,? or the task payload and inline execution plan/,
-      );
-      expect(packet).toContain("inline execution plan when Tasks is skipped");
-      expect(packet).toContain("current local task/spec traceability");
+      expect(packet).toContain("checks.md");
+      expect(packet).toContain("current Lean check traceability");
+      expect(packet).toContain("wtk-implement");
+      expect(packet).toMatch(/select\s+`?wtk-lean/i);
     }
-    for (const packet of plannerPackets) {
-      expect(packet).toMatch(
-        /tasks\.md`? when present or the\s+task payload and inline execution plan when Tasks is skipped/,
-      );
-    }
-    expect(tracked(".specs/features/qa-skills/tasks.md")).toBe(
-      ".specs/features/qa-skills/tasks.md",
-    );
   });
 
 });
 
 describe("canonical QA skills", () => {
-  const qaPlanPath = ".agents/skills/qa-plan/SKILL.md";
-  const qaExecutePath = ".agents/skills/qa-execute/SKILL.md";
+  const qaPlanPath = ".agents/skills/wtk-qa-plan/SKILL.md";
+  const qaExecutePath = ".agents/skills/wtk-qa-execute/SKILL.md";
 
   it("UT-001 installs one attributed slice-native workflow authority", () => {
-    const skill = readRepositoryFile(".agents/skills/workflow-spec-driven/SKILL.md");
-    const notice = readRepositoryFile(".agents/skills/workflow-spec-driven/NOTICE.md");
-    const validator = readRepositoryFile(".agents/skills/wverify/SKILL.md");
+    const skill = readRepositoryFile(".agents/skills/wtk/SKILL.md");
+    const notice = readRepositoryFile(".agents/skills/wtk-lean/NOTICE.md");
+    const validator = readRepositoryFile(".agents/skills/wtk-lean/SKILL.md");
     const tasksReference = [
-      readRepositoryFile(".agents/skills/wtasks/SKILL.md"),
-      readRepositoryFile(".agents/skills/wtasks/references/tasks-template.md"),
+      readRepositoryFile(".agents/skills/wtk-plan/SKILL.md"),
+      readRepositoryFile(".agents/skills/wtk-plan/references/document-format.md"),
     ].join("\n");
     const activeContract = [
       skill,
       notice,
-      readRepositoryFile(".agents/skills/workflow-spec-driven/references/sub-agents.md"),
+      readRepositoryFile(".agents/skills/wtk-lean/references/build.md"),
       tasksReference,
-      readRepositoryFile(".agents/skills/wimplement/SKILL.md"),
+      readRepositoryFile(".agents/skills/wtk-implement/SKILL.md"),
     ].join("\n");
 
-    expect(skillMetadata(".agents/skills/workflow-spec-driven/SKILL.md").name).toBe(
-      "workflow-spec-driven",
-    );
+    expect(skillMetadata(".agents/skills/wtk/SKILL.md").name).toBe("wtk");
     expect(existsSync(join(repositoryRoot, ".agents/skills/tlc-spec-driven"))).toBe(false);
     expect(notice).toContain("Felipe Rodrigues");
     expect(notice).toContain("CC BY 4.0");
     expect(notice).toContain(
-      "https://github.com/tech-leads-club/agent-skills/tree/main/skills/tlc-spec-driven",
+      "https://github.com/tech-leads-club/agent-skills/tree/main/skills/tlc-spec-lean",
     );
     expect(activeContract).not.toMatch(/phase[- ]batch|Batch complete|opt[- ]in/i);
     expect(activeContract).not.toMatch(/after the last task of the feature/i);
-    expect(tasksReference).toMatch(/compatible slices\s+may be dispatched together/);
+    expect(tasksReference).toContain("one task for the whole source");
     expect(tasksReference).not.toMatch(
       /task-budgeted dispatch|whole phases|phases? (?:run|are ordered|complete) in sequence|phase boundaries/i,
     );
-    expect(activeContract).toContain("slice packet");
-    expect(activeContract).toContain("fresh Technical Verifier");
-    expect(validator).toContain("After each code-changing slice reaches its checkpoint");
-    expect(validator).toContain("before any dependent slice consumes that checkpoint");
-    expect(validator).toContain("final integrated Deep Review and QA");
+    expect(activeContract).toContain("whole slices");
+    expect(activeContract).toContain("fresh Verifier");
+    expect(validator).toContain("one fresh Verifier over `<feature base>..HEAD`");
+    expect(validator).toContain("whole slices");
     expect(validator).not.toContain("After all tasks for a feature (or priority group) are done");
   });
 
   it("IT-001 exposes model-invoked skills with matching names", () => {
     for (const [relativePath, expectedName, inspirationUrl] of [
-      [qaPlanPath, "qa-plan", "https://github.com/pedronauck/skills/tree/main/skills/mine/qa-report"],
-      [qaExecutePath, "qa-execute", "https://github.com/pedronauck/skills/tree/main/skills/mine/qa-execution"],
+      [qaPlanPath, "wtk-qa-plan", "https://github.com/pedronauck/skills/tree/main/skills/mine/qa-report"],
+      [qaExecutePath, "wtk-qa-execute", "https://github.com/pedronauck/skills/tree/main/skills/mine/qa-execution"],
     ] as const) {
       const source = readRepositoryFile(relativePath);
       const metadata = skillMetadata(relativePath);
@@ -433,6 +383,16 @@ describe("canonical QA skills", () => {
       expect(source).not.toContain("disable-model-invocation");
       expect(source).toContain("Use when");
       expect(source).toContain("Don't use for");
+    }
+  });
+
+  it("IT-022 keeps third-party Ponytail metadata aligned with original directories", () => {
+    for (const name of ["audit", "debt", "gain", "help", "review"] as const) {
+      const relativePath = `.agents/skills/ponytail-${name}/SKILL.md`;
+
+      expect(existsSync(join(repositoryRoot, relativePath))).toBe(true);
+      expect(skillMetadata(relativePath).name).toBe(`ponytail-${name}`);
+      expect(existsSync(join(repositoryRoot, `.agents/skills/wtk-ponytail-${name}`))).toBe(false);
     }
   });
 
@@ -483,11 +443,11 @@ describe("canonical QA skills", () => {
       expect(description).toMatch(/\bDon't use for\b/);
     }
 
-    expect(() => parseSkillMetadata("name: qa-plan\ndescription: misplaced", "fixture")).toThrow(
+    expect(() => parseSkillMetadata("name: wtk-qa-plan\ndescription: misplaced", "fixture")).toThrow(
       "Missing valid initial frontmatter",
     );
 
-    const reviewRounds = readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md");
+    const reviewRounds = readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md");
     expect(reviewRounds).toContain("fingerprint = requirement + root cause + failure path");
     expect(reviewRounds).toContain("independent cumulative failed-remediation counter and append-only generation history");
     expect(reviewRounds).toContain("live `[remediation].stall_attempts` threshold");
@@ -497,26 +457,22 @@ describe("canonical QA skills", () => {
     expect(reviewRounds).not.toMatch(/one global (?:remediation|blocker) counter/i);
 
     for (const relativePath of [
-      ".agents/skills/wverify/SKILL.md",
-      ".agents/skills/workflow-spec-driven/references/sub-agents.md",
-      ".agents/skills/wimplement/SKILL.md",
-      ".agents/skills/autonomous/SKILL.md",
-      "docs/workflow/reviews.md",
-      "docs/workflow/README.md",
-      "docs/workflow/purpose.md",
+      "docs/toolkit/reviews.md",
+      "docs/toolkit/README.md",
+      "docs/toolkit/purpose.md",
     ]) {
       const source = readRepositoryFile(relativePath);
       expect(source).toContain("REVIEW-ROUNDS.md");
       expect(source).toContain("fingerprint");
     }
     // The router no longer restates the loop; it routes to the phase skills that own it.
-    const router = readRepositoryFile(".agents/skills/workflow-spec-driven/SKILL.md");
-    expect(router).toContain("wimplement");
-    expect(router).toContain("wverify");
-    expect(readRepositoryFile(".agents/skills/wverify/SKILL.md")).toContain(
-      "diagnostic cap is per issue and separate from review-remediation fingerprint accounting",
+    const router = readRepositoryFile(".agents/skills/wtk/SKILL.md");
+    expect(router).toContain("wtk-implement");
+    expect(router).toContain("wtk-lean");
+    expect(readRepositoryFile(".agents/skills/wtk-lean/SKILL.md")).toContain(
+      "validate_verification.py",
     );
-    const convergence = readRepositoryFile(".agents/skills/workflow-spec-driven/scripts/review_convergence.py");
+    const convergence = readRepositoryFile(".agents/skills/wtk-ship/scripts/review_convergence.py");
     expect(convergence).toContain("failed_remediations");
     expect(convergence).toContain("os.replace");
   });
@@ -528,14 +484,14 @@ describe("canonical QA skills", () => {
       const routing = normalized.slice(normalized.indexOf("## Routing"), normalized.indexOf("## Result"));
 
       expect(normalized.match(/phase: exactly one of [^.]+\./)?.[0]).toBe(
-        "phase: exactly one of technical, qa-plan, or qa-execute.",
+        "phase: exactly one of technical, wtk-qa-plan, or wtk-qa-execute.",
       );
       expect(routing).toContain("Run exactly one phase per packet");
       expect(routing).toContain("For technical, check each AC against file:line assertions");
-      expect(routing).toContain("For qa-plan, invoke the canonical qa-plan skill");
-      expect(routing).toContain("For qa-execute, invoke the canonical qa-execute skill");
-      expect(routing).not.toContain("For qa-plan, invoke the canonical qa-execute skill");
-      expect(routing).not.toContain("For qa-execute, invoke the canonical qa-plan skill");
+      expect(routing).toContain("For wtk-qa-plan, invoke the canonical wtk-qa-plan skill");
+      expect(routing).toContain("For wtk-qa-execute, invoke the canonical wtk-qa-execute skill");
+      expect(routing).not.toContain("For wtk-qa-plan, invoke the canonical wtk-qa-execute skill");
+      expect(routing).not.toContain("For wtk-qa-execute, invoke the canonical wtk-qa-plan skill");
       expect(source).toContain("fresh Verifier session");
       expect(source).toContain("separate fresh Verifier");
       expect(source).toContain("purely internal refactor");
@@ -543,15 +499,15 @@ describe("canonical QA skills", () => {
       expect(source).not.toMatch(/separate QA reviewer/i);
     }
 
-    const reviewRounds = readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md");
-    const workflowConfig = readRepositoryFile(".agents/skills/workflow-config/SKILL.md");
-    const autonomous = readRepositoryFile(".agents/skills/autonomous/SKILL.md");
+    const reviewRounds = readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md");
+    const workflowConfig = readRepositoryFile(".agents/skills/wtk-config/SKILL.md");
+    const wtkShip = readRepositoryFile(".agents/skills/wtk-ship/SKILL.md");
 
     expect(reviewRounds).toContain("The provider `verifier` executes exactly one phase per packet");
     expect(reviewRounds).toContain("Deep-review is a separate orchestrator stage, not a Verifier phase");
     expect(reviewRounds).not.toContain("The existing provider `verifier` performs all stages");
-    expect(reviewRounds).not.toMatch(/provider `verifier`[^.]*deep-review/i);
-    expect(readRepositoryFile("docs/workflow/reviews.md")).toContain(
+    expect(reviewRounds).not.toMatch(/provider `verifier`[^.]*wtk-deep-review/i);
+    expect(readRepositoryFile("docs/toolkit/reviews.md")).toContain(
       "Deep-review is a separate stage, not a Verifier phase.",
     );
     expect(workflowConfig).toContain("[remediation]` table");
@@ -592,25 +548,20 @@ describe("canonical QA skills", () => {
     expect(remediation.indexOf("a larger set increments it")).toBeGreaterThan(
       remediation.indexOf("strict subset of the running minimum"),
     );
-    const autonomousHalt = normalizePacket(
-      autonomous.slice(autonomous.indexOf("## Halt conditions")),
-    );
-    expect(autonomousHalt).toContain(
-      "The post-cap scoped gate is unavailable, or the configured remediation stall threshold is reached under docs/guidelines/REVIEW-ROUNDS.md; an open blocker alone does not halt while attempts are establishing new failure-set minima",
-    );
-    expect(autonomousHalt).not.toContain("leaves a blocker open");
+    expect(wtkShip).toContain("close_feature.py");
+    expect(wtkShip).toContain("feature branch push, one pull request, and merge");
   });
 
   it("IT-004 keeps QA scenario fields and statuses in one authoritative guideline", () => {
-    const scenarioGuideline = readRepositoryFile("docs/guidelines/QA-SCENARIOS.md");
-    const executionGuideline = readRepositoryFile("docs/guidelines/QA-EXECUTION.md");
-    const reviewGuideline = readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md");
+    const scenarioGuideline = readRepositoryFile("docs/toolkit/guidelines/QA-SCENARIOS.md");
+    const executionGuideline = readRepositoryFile("docs/toolkit/guidelines/QA-EXECUTION.md");
+    const reviewGuideline = readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md");
 
     expect(scenarioGuideline).toContain("Field rules");
     expect(scenarioGuideline).toContain("Status enums");
     expect(executionGuideline).toContain("QA-SCENARIOS.md");
-    expect(executionGuideline).toContain("qa-plan");
-    expect(executionGuideline).toContain("qa-execute");
+    expect(executionGuideline).toContain("wtk-qa-plan");
+    expect(executionGuideline).toContain("wtk-qa-execute");
     expect(executionGuideline).not.toMatch(/(?:^|\n)(?:id|qa_status|fix_status|retest_status):/);
     expect(executionGuideline).not.toContain("docs/qa/protocol.md");
     expect(executionGuideline).not.toContain("docs/qa/tours.md");
@@ -628,7 +579,7 @@ describe("canonical QA skills", () => {
       "one remediation batch, then one remediation check",
       "scoped gate",
       "after each correction",
-      "a one-job incremental deep-review over reviewed_head..HEAD",
+      "a one-job incremental wtk-deep-review over reviewed_head..HEAD",
       "Repeat batch + check until no Critical/Major is open",
       "[remediation].stall_attempts halts",
       "escalate only",
@@ -654,7 +605,7 @@ describe("canonical QA skills", () => {
       approvedLoopRule.indexOf("stall threshold is reached for the same fingerprint"),
     );
     expect(approvedLoopRule).not.toMatch(/ask(?: the human)? whether to fix/i);
-    expect(readRepositoryFile(".agents/skills/deep-review/SKILL.md")).toContain(
+    expect(readRepositoryFile(".agents/skills/wtk-deep-review/SKILL.md")).toContain(
       "FIX_BEFORE_SHIP` is actionable, not a prompt for approval",
     );
 
@@ -670,10 +621,10 @@ describe("canonical QA skills", () => {
   });
 
   it("IT-022 reconciles immutable QA charters, spec-anchored cases, and filed-issue QA", () => {
-    const execution = readRepositoryFile("docs/guidelines/QA-EXECUTION.md");
-    const qaPlan = readRepositoryFile(".agents/skills/qa-plan/SKILL.md");
-    const testContract = readRepositoryFile("docs/guidelines/TEST-CONTRACT.md");
-    const reviewRounds = readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md");
+    const execution = readRepositoryFile("docs/toolkit/guidelines/QA-EXECUTION.md");
+    const qaPlan = readRepositoryFile(".agents/skills/wtk-qa-plan/SKILL.md");
+    const testContract = readRepositoryFile("docs/toolkit/guidelines/TEST-CONTRACT.md");
+    const reviewRounds = readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md");
 
     for (const source of [execution, qaPlan]) {
       expect(source).toContain("new dated charter");
@@ -686,6 +637,15 @@ describe("canonical QA skills", () => {
     expect(testContract).toContain("Every case maps to a spec acceptance criterion");
     expect(testContract).toContain("clarify the acceptance criterion before adding a case");
     expect(testContract).toContain("Never create a case solely because a");
+    expect(testContract).toContain(".agents/skills/wtk-lean/references/checks.md");
+    expect(testContract).toContain("only schema and");
+    expect(testContract).toContain("standard` and `ui` inject faults; `light` does not");
+    expect(testContract).toContain("owning check or slice");
+    expect(testContract).not.toContain("## Unit");
+    expect(testContract).not.toContain("Every ID is assigned to exactly one check");
+    expect(testContract).not.toContain("Every check has one proof");
+    expect(testContract).not.toContain("Test Coverage Matrix");
+    expect(testContract).not.toContain("implementing task");
     expect(testContract).not.toContain("Unit cases come from every component");
     expect(testContract).not.toContain("integration cases from every component boundary");
 
@@ -699,7 +659,7 @@ describe("canonical QA skills", () => {
   });
 
   it("IT-013 records the selected QA adapter and checkout-local evidence", () => {
-    const qaExecute = readRepositoryFile(".agents/skills/qa-execute/SKILL.md");
+    const qaExecute = readRepositoryFile(".agents/skills/wtk-qa-execute/SKILL.md");
 
     expect(qaExecute).toContain("docs/qa/README.md");
     expect(qaExecute).toMatch(/Report the exact adapter, path, evidence, and\s+limitation/);
@@ -720,19 +680,19 @@ describe("canonical QA skills", () => {
 });
 
 describe("configurable review policy", () => {
-  it("uses the canonical hierarchy and resolved deep-review groups", () => {
+  it("uses the canonical hierarchy and resolved wtk-deep-review groups", () => {
     const agents = readRepositoryFile("AGENTS.md");
-    const reviewRounds = readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md");
-    const reviews = readRepositoryFile("docs/workflow/reviews.md");
-    const autonomous = readRepositoryFile(".agents/skills/autonomous/SKILL.md");
-    const loop = readRepositoryFile("docs/workflow/loop.md");
-    const tour = readRepositoryFile("docs/workflow/README.md");
+    const reviewRounds = readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md");
+    const reviews = readRepositoryFile("docs/toolkit/reviews.md");
+    const wtkShip = readRepositoryFile(".agents/skills/wtk-ship/SKILL.md");
+    const loop = readRepositoryFile("docs/toolkit/loop.md");
+    const tour = readRepositoryFile("docs/toolkit/README.md");
     const readme = readRepositoryFile("README.md");
 
-    expect(agents).toContain("Feature -> Vertical Slice -> Task");
-    expect(agents).toContain(".agents/skills/workflow-config/SKILL.md");
+    expect(agents).toContain("Feature -> Slice -> Check");
+    expect(agents).toContain(".agents/skills/wtk-config/SKILL.md");
 
-    const reviewConfigPointer = ".agents/skills/workflow-config/SKILL.md";
+    const reviewConfigPointer = ".agents/skills/wtk-config/SKILL.md";
     expect(reviewRounds).toContain(reviewConfigPointer);
     expect(reviewRounds.indexOf(reviewConfigPointer)).toBeLessThan(
       reviewRounds.indexOf("## The feature closing step"),
@@ -753,28 +713,26 @@ describe("configurable review policy", () => {
     expect(reviews).not.toContain("`slice`, `feature`, or balanced `grouped.N`");
     expect(reviews).not.toContain("absent config defaults to `grouped.3`");
 
-    const autonomousPointer = ".agents/skills/workflow-config";
-    expect(autonomous).toContain(autonomousPointer);
-    expect(autonomous.indexOf(autonomousPointer)).toBeLessThan(
-      autonomous.indexOf("Three rules an"),
-    );
+    const wtkShipPointer = ".agents/skills/wtk-config";
+    expect(wtkShip).toContain(wtkShipPointer);
+    expect(wtkShip.indexOf(wtkShipPointer)).toBeGreaterThanOrEqual(0);
 
-    const loopPointer = "Resolve cadence with `workflow-config` before dispatch.";
+    const loopPointer = "Resolve cadence with `wtk-config` before dispatch.";
     expect(loop).toContain(loopPointer);
     expect(loop.indexOf(loopPointer)).toBeLessThan(loop.indexOf("## Stages"));
 
-    const tourPointer = ".agents/skills/workflow-config/SKILL.md";
+    const tourPointer = ".agents/skills/wtk-config/SKILL.md";
     expect(tour).toContain(tourPointer);
     expect(tour.indexOf(tourPointer)).toBeLessThan(tour.indexOf("A filed issue skips the ceremony"));
-    expect(readme).toContain("The `cadence` controls the deep-review groups:");
+    expect(readme).toContain("The `cadence` controls the wtk-deep-review groups:");
     expect(readme).toContain("CLI override > profile > native provider");
     expect(readme).toContain(".specs/features/<feature>/workflow.json");
-    expect(reviewRounds).toContain("deep-review** (resolved implementation groups)");
-    expect(reviewRounds).not.toContain("deep-review** (every slice)");
+    expect(reviewRounds).toContain("wtk-deep-review** (resolved implementation groups)");
+    expect(reviewRounds).not.toContain("wtk-deep-review** (every slice)");
     const finalGroupInstruction =
-      "Before final QA, complete the final pending implementation deep-review group; cadence `skip` resolves no groups, so nothing waits for deep-review.";
+      "Before final QA, complete the final pending implementation wtk-deep-review group; cadence `skip` resolves no groups, so nothing waits for wtk-deep-review.";
     expect(readme).toContain("- `skip`: no groups (`[]`)");
-    expect(readRepositoryFile(".my-workflow.toml.example")).toMatch(/^cadence = "skip".*\bon demand\b/m);
+    expect(readRepositoryFile(".wtk.toml.example")).toMatch(/^cadence = "skip".*\bon demand\b/m);
     const qaHeading = "## The feature closing step";
     const remediationInstruction =
       "For QA code remediation, review only `reviewed_head..HEAD`, then re-walk affected scenario rows.";
@@ -785,59 +743,51 @@ describe("configurable review policy", () => {
     const rerunIndex = reviewRounds.indexOf("then re-walk affected scenario rows");
     expect(deltaIndex).toBeGreaterThan(-1);
     expect(deltaIndex).toBeLessThan(rerunIndex);
-    expect(autonomous).toContain("every resolved");
-    expect(loop).toContain("deep-review follows resolved");
-    expect(tour).toContain("deep-review groups from workflow config");
+    expect(wtkShip).toContain("selected `wtk-deep-review`");
+    expect(loop).toContain("wtk-deep-review follows resolved");
+    expect(tour).toContain("wtk-deep-review groups from wtk-config");
   });
 
-  it("fixes every deep-review defect inside the originating feature run", () => {
-    const reviewRounds = readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md");
-    const reviews = readRepositoryFile("docs/workflow/reviews.md");
-    const autonomous = readRepositoryFile(".agents/skills/autonomous/SKILL.md");
-    const pack = readRepositoryFile("docs/workflow/pack.md");
-    const implement = readRepositoryFile(".agents/skills/wimplement/SKILL.md");
+  it("fixes every wtk-deep-review defect inside the originating feature run", () => {
+    const reviewRounds = readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md");
+    const reviews = readRepositoryFile("docs/toolkit/reviews.md");
+    const wtkShip = readRepositoryFile(".agents/skills/wtk-ship/SKILL.md");
+    const pack = readRepositoryFile("docs/toolkit/pack.md");
+    const implement = readRepositoryFile(".agents/skills/wtk-implement/SKILL.md");
     const reviewOutput = readRepositoryFile(
-      ".agents/skills/deep-review/references/output-contracts.md",
+      ".agents/skills/wtk-deep-review/references/output-contracts.md",
     );
-    expect(reviewRounds).toContain("Fix every confirmed deep-review defect");
+    expect(reviewRounds).toContain("Fix every confirmed wtk-deep-review defect");
     expect(reviewRounds).toContain("a Minor-only batch starts no fresh Technical Verifier, QA phase, or remediation check");
     expect(reviewRounds).toContain("Trivials and advisories become follow-ups");
-    expect(reviews).toContain("Every deep-review defect is fixed inside the feature run");
+    expect(reviews).toContain("Every wtk-deep-review defect is fixed inside the feature run");
     expect(reviews).toContain("Fix in one current-run batch, scoped gate, one commit");
     expect(reviewOutput).toContain("mandatory current-feature closeout batch");
-    expect(autonomous).toContain("`Critical`, `Major`, and `Minor` are fixed in the feature run");
+    expect(wtkShip).toContain("Confirmed Critical, Major,");
     expect(pack).toContain("no Critical, Major, or Minor left");
-    expect(implement).toContain("Except for deep-review Minor-only closeout batches");
-    expect(implement).toContain("docs/guidelines/REVIEW-ROUNDS.md");
+    expect(implement).toContain("coherent pieces");
+    expect(implement).toContain("fresh sub-agent");
   });
 
   it("bridges workflow resolution and feature-closing QA ordering", () => {
-    const specDriven = readRepositoryFile(".agents/skills/workflow-spec-driven/SKILL.md");
-    const qaScenarios = readRepositoryFile("docs/guidelines/QA-SCENARIOS.md");
-    const gates = readRepositoryFile("docs/guidelines/GATES.md");
-    const testContract = readRepositoryFile("docs/guidelines/TEST-CONTRACT.md");
+    const specDriven = readRepositoryFile(".agents/skills/wtk/SKILL.md");
+    const qaScenarios = readRepositoryFile("docs/toolkit/guidelines/QA-SCENARIOS.md");
+    const gates = readRepositoryFile("docs/toolkit/guidelines/GATES.md");
+    const testContract = readRepositoryFile("docs/toolkit/guidelines/TEST-CONTRACT.md");
     const normalizedTestContract = testContract.replace(/\s+/g, " ");
-    const newFeatureBridge =
-      "Before dispatching providers for a new feature, resolve `.agents/skills/workflow-config/SKILL.md`";
-    const resumeBridge =
-      "Before dispatching providers for a resumed feature, read its `workflow.json` snapshot";
-    expect(specDriven).toContain(newFeatureBridge);
-    expect(specDriven).toContain(resumeBridge);
-    expect(specDriven.indexOf(newFeatureBridge)).toBeLessThan(specDriven.indexOf("1. Specify"));
-    expect(specDriven.indexOf(resumeBridge)).toBeLessThan(
-      specDriven.indexOf("1. Read `.specs/STATE.md`")
-    );
+    expect(specDriven).toContain("wtk-config");
+    expect(readRepositoryFile(".agents/skills/wtk-config/SKILL.md")).toContain("workflow.json");
 
     const closingQa =
-      "The feature-closing QA session runs after the final implementation deep-review group";
+      "The feature-closing QA session runs after the final implementation wtk-deep-review group";
     expect(qaScenarios).toContain(closingQa);
     expect(qaScenarios).not.toContain("The feature's last slice runs");
     expect(qaScenarios).not.toContain("A slice walks what it flags");
     for (const source of [
-      readRepositoryFile("docs/guidelines/QA-EXECUTION.md"),
-      readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md"),
-      readRepositoryFile("docs/workflow/loop.md"),
-      readRepositoryFile("docs/workflow/reviews.md"),
+      readRepositoryFile("docs/toolkit/guidelines/QA-EXECUTION.md"),
+      readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md"),
+      readRepositoryFile("docs/toolkit/loop.md"),
+      readRepositoryFile("docs/toolkit/reviews.md"),
     ]) {
       expect(source).toContain("no slice runs QA");
       expect(source).not.toMatch(/public slices?|per-slice QA/i);
@@ -854,15 +804,9 @@ describe("configurable review policy", () => {
 describe("repository intelligence policy", () => {
   it("IT-023 keeps routed tools standard, source-authoritative, and OpenDesign optional", () => {
     const readme = readRepositoryFile("README.md");
-    const uiux = readRepositoryFile("docs/guidelines/UI-UX.md");
-    const security = readRepositoryFile("docs/guidelines/SECURITY.md");
+    const uiux = readRepositoryFile("docs/toolkit/guidelines/UI-UX.md");
+    const security = readRepositoryFile("docs/toolkit/guidelines/SECURITY.md");
     const state = readRepositoryFile(".specs/STATE.md");
-    const releaseJourney = readRepositoryFile("docs/qa/journeys/J-review-workflow-release.md");
-    const reviewJourney = readRepositoryFile("docs/qa/journeys/J-run-deep-review.md");
-    const adoptionJourney = readRepositoryFile("docs/qa/journeys/J-adopt-workflow.md");
-    const reviewScenario = readRepositoryFile("docs/qa/scenarios/QAS-use-graft-context-with-plain-fallback.md");
-    const retentionScenario = readRepositoryFile("docs/qa/scenarios/QAS-retain-routed-repository-intelligence.md");
-    const artifactScenario = readRepositoryFile("docs/qa/scenarios/CFG-keep-local-artifacts-out-of-git.md");
     const normalizedUiux = uiux.replace(/\s+/g, " ");
     const normalizedSecurity = security.replace(/\s+/g, " ");
 
@@ -871,9 +815,9 @@ describe("repository intelligence policy", () => {
     expect(readme).toContain("10–20 terminal tasks");
     expect(readme).toContain("OpenDesign** remains an optional visual capability");
     expect(readme).toContain("No integration is mandatory or installed by adoption for visual iteration");
-    expect(readme).not.toContain("Graft can enrich deep-review context");
+    expect(readme).not.toContain("Graft can enrich wtk-deep-review context");
     expect(readme).not.toContain("Graft and OpenDesign are optional recommendations");
-    const repositoryIntelligence = readRepositoryFile("docs/workflow/repository-intelligence.md");
+    const repositoryIntelligence = readRepositoryFile("docs/toolkit/repository-intelligence.md");
     expect(repositoryIntelligence).toContain("Graphify and Graft are standard development tools");
     expect(repositoryIntelligence).toContain("Deep Review always prepares fresh Graft context");
     expect(repositoryIntelligence).toContain("10–20 distinct terminal tasks");
@@ -884,20 +828,14 @@ describe("repository intelligence policy", () => {
     expect(normalizedSecurity).toContain("isolated environment or with explicitly allowed directories");
     expect(normalizedSecurity).toContain("Validate destination paths and symlinks before the first write");
     expect(normalizedSecurity).toContain("never delete them automatically");
+    expect(normalizedSecurity).toContain("SEC IDs trace to native `C<n>` checks, not tasks");
+    expect(normalizedSecurity).toContain("Examples only — not a `checks.md` schema");
+    expect(normalizedSecurity).not.toContain("assigned to exactly one task");
     expect(state).toContain("### AD-033");
     expect(state).toContain("This supersedes AD-005 and AD-006");
     expect(state).toContain("OpenDesign remains an");
     expect(state).toContain("Graft");
     expect(state).toContain("OpenDesign");
-    expect(releaseJourney).toContain("Graphify and Graft are standard checkout-local development tools");
-    expect(reviewJourney).toContain("selected Deep Review prepares fresh Graft context by default");
-    expect(adoptionJourney).toContain("exact Graphify/Graft development-tool setup commands");
-    expect(reviewScenario).toContain("Graft is the selected Deep Review default");
-    expect(reviewScenario).toContain("`--graphify-question`");
-    expect(artifactScenario).toContain("graphify-out/");
-    expect(artifactScenario).toContain(".repository-intelligence/");
-    expect(retentionScenario).toContain("10–20 distinct terminal tasks");
-    expect(retentionScenario).toContain("explicit project decision");
   });
 });
 
@@ -910,7 +848,7 @@ describe("agent configuration", () => {
     const value = (source: string, format: "frontmatter" | "toml", key: string): string =>
       format === "toml" ? tomlValue(source, key) : frontmatterValue(source, key);
 
-    const config = readRepositoryFile(".my-workflow.toml.example");
+    const config = readRepositoryFile(".wtk.toml.example");
     const settings = new Map<string, { model: string; effort: string }>();
     const section = /\[models\.(claude|codex|cursor)\.(planner|implementer|verifier|explorer|deep_reviewer|designer)\]\s+model = "([^"]+)"\s+effort = "([^"]+)"/g;
     for (const match of config.matchAll(section)) {
@@ -923,7 +861,7 @@ describe("agent configuration", () => {
         const agentName = role === "deep_reviewer" ? "deep-reviewer" : role;
         const extension = provider === "codex" ? "toml" : "md";
         const format = provider === "codex" ? "toml" : "frontmatter";
-        const relativePath = `.agents/skills/workflow-config/assets/agents/${provider}/${agentName}.${extension}`;
+        const relativePath = `.agents/skills/wtk-config/assets/agents/${provider}/${agentName}.${extension}`;
         const source = readRepositoryFile(relativePath);
         const expected = settings.get(`${provider}.${role}`)!;
         expect(source).toContain("docs/product/AGENT-CONTEXT.md");
@@ -945,15 +883,15 @@ describe("agent configuration", () => {
       }
     }
 
-    expect(readRepositoryFile(".agents/skills/workflow-config/assets/agents/claude/deep-reviewer.md")).toMatch(
+    expect(readRepositoryFile(".agents/skills/wtk-config/assets/agents/claude/deep-reviewer.md")).toMatch(
       /^tools:\s*Read, Grep, Glob, Bash$/m,
     );
-    const cursorDeepReviewer = readRepositoryFile(".agents/skills/workflow-config/assets/agents/cursor/deep-reviewer.md");
+    const cursorDeepReviewer = readRepositoryFile(".agents/skills/wtk-config/assets/agents/cursor/deep-reviewer.md");
     expect(cursorDeepReviewer).not.toMatch(/^readonly:\s*true$/m);
 
-    const runtime = readRepositoryFile(".agents/skills/deep-review/references/subagent-runtimes.md");
-    const orchestration = readRepositoryFile(".agents/skills/deep-review/references/orchestration.md");
-    const deepReviewSkill = readRepositoryFile(".agents/skills/deep-review/SKILL.md");
+    const runtime = readRepositoryFile(".agents/skills/wtk-deep-review/references/subagent-runtimes.md");
+    const orchestration = readRepositoryFile(".agents/skills/wtk-deep-review/references/orchestration.md");
+    const deepReviewSkill = readRepositoryFile(".agents/skills/wtk-deep-review/SKILL.md");
 
     expect(deepReviewSkill).toMatch(
       /\| `--no-workflow` \|.*Named native `deep-reviewer` when the host supports it; role-free Workflow fallback/,
@@ -1007,7 +945,7 @@ describe("adoption and public setup", () => {
     );
     expect(readme).toContain("https://github.com/tech-leads-club/agent-skills/tree/main/skills");
     expect(readme).toContain("Pedro Nauck");
-    expect(readme).toContain("https://github.com/pedronauck/skills/tree/main/skills/mine/deep-review");
+    expect(readme).toContain("https://github.com/pedronauck/skills/tree/main/skills/mine/wtk-deep-review");
     expect(readme).toContain("https://github.com/pedronauck/skills/tree/main/skills/mine/qa-report");
     expect(readme).toContain("https://github.com/pedronauck/skills/tree/main/skills/mine/qa-execution");
   });
@@ -1024,7 +962,7 @@ describe("adoption and public setup", () => {
     const prompt = readRepositoryFile("docs/adoption-prompt.md");
     const adopt = readRepositoryFile("scripts/installer/engine.js");
 
-    expect(readme).toContain("npx workflow-spec-driven install");
+    expect(readme).toContain("npx workflow-toolkit install");
     expect(readme).toContain("managed paths");
     expect(prompt).toContain("git status --short");
     expect(prompt).toContain("read-only");
@@ -1037,24 +975,23 @@ describe("adoption and public setup", () => {
     expect(prompt).toContain("If `docs/qa/README.md` exists, preserve it byte-for-byte during adoption");
     expect(prompt).toContain("If it is absent, let the adopted quality skills discover");
     expect(prompt).toContain("never overwrite existing content");
-    expect(prompt).toContain("qa-plan");
-    expect(prompt).toContain("qa-execute");
+    expect(prompt).toContain("wtk-qa-plan");
+    expect(prompt).toContain("wtk-qa-execute");
     expect(prompt).toContain("purely internal refactor");
     expect(prompt).toContain("no user-visible change");
-    expect(adopt).toContain("'.agents/skills/qa-plan'");
-    expect(adopt).toContain("'.agents/skills/qa-execute'");
-    expect(adopt).toContain("'.my-workflow.toml.example'");
-    expect(adopt).toContain("'.agents/skills/workflow-config'");
+    expect(adopt).toContain("'.agents/skills/wtk-qa-plan'");
+    expect(adopt).toContain("'.agents/skills/wtk-qa-execute'");
+    expect(adopt).toContain("'.wtk.toml.example'");
+    expect(adopt).toContain("'.agents/skills/wtk-config'");
   });
 
   it("IT-009 exposes the fixed layered adoption boundary", () => {
     const readme = readRepositoryFile("README.md");
 
     expect(readme).toContain("`core`");
-    expect(readme).toContain("`parallel`");
     expect(readme).toContain("`quality`");
     expect(readme).toContain("`extras`");
-    expect(readme).toContain("The four fixed modules");
+    expect(readme).toContain("The three fixed modules");
   });
 
   it("IT-019 keeps README installation prerequisites and bundled skills authoritative", () => {
@@ -1064,11 +1001,10 @@ describe("adoption and public setup", () => {
     expect(readme).toContain("interactive terminal");
     expect(readme).toContain("never requires Python");
     expect(readme).toContain("`.my-workflow/backups/<UTC timestamp>/`");
-    expect(readme).toContain("`core` (operating loop and shared tooling)");
-    expect(readme).toMatch(/`parallel`\s+\(assisted slice execution\)/);
+    expect(readme).toContain("`core` (Lean operating loop and shared tooling)");
     expect(readme).toMatch(/`quality`\s+\(review and QA\)/);
-    expect(readme).toMatch(/`extras`\s+\(optional Ponytail utilities\)/);
-    expect(readme).toContain("The three external security skills are a separate authorized step");
+    expect(readme).toMatch(/`extras`\s+\(optional Ponytail utilities and prompt-review\)/);
+    expect(readme).toContain("The four external security skills are a separate authorized step");
     expect(readme).toContain("install_security_skills.py");
     expect(readme).not.toContain("@tech-leads-club/agent-skills install");
     expect(readme).not.toContain("skills add dietrichgebert/ponytail");
@@ -1078,7 +1014,7 @@ describe("adoption and public setup", () => {
 
   it("IT-021 keeps Ponytail active from workflow start through the full cycle", () => {
     const agents = readRepositoryFile("AGENTS.md");
-    const loop = readRepositoryFile("docs/workflow/loop.md");
+    const loop = readRepositoryFile("docs/toolkit/loop.md");
     const prompt = readRepositoryFile("docs/adoption-prompt.md");
     const ponytail = readRepositoryFile(".agents/skills/ponytail/SKILL.md");
 
@@ -1098,11 +1034,11 @@ describe("adoption and public setup", () => {
   });
 
   it("IT-020 keeps the pack guide source-only for adopted consumers", () => {
-    const tour = readRepositoryFile("docs/workflow/README.md");
-    const pack = readRepositoryFile("docs/workflow/pack.md");
+    const tour = readRepositoryFile("docs/toolkit/README.md");
+    const pack = readRepositoryFile("docs/toolkit/pack.md");
 
     expect(tour).toContain("[Skills, knowledge, adopt](pack.md)");
-    expect(pack).toContain("npx workflow-spec-driven install");
+    expect(pack).toContain("npx workflow-toolkit install");
   });
 
   it("IT-011 keeps stack-specific QA capabilities in the operational profile", () => {
@@ -1127,7 +1063,7 @@ describe("adoption and public setup", () => {
 
   it("IT-012 leaves adapter choice with the consuming project", () => {
     const profile = readRepositoryFile("docs/qa/README.md");
-    const qaExecute = readRepositoryFile(".agents/skills/qa-execute/SKILL.md");
+    const qaExecute = readRepositoryFile(".agents/skills/wtk-qa-execute/SKILL.md");
 
     for (const adapter of ["browser", "API", "CLI", "mobile", "manual"]) {
       expect(profile.toLowerCase()).toContain(adapter.toLowerCase());
@@ -1159,14 +1095,14 @@ describe("adoption and public setup", () => {
       changelog.indexOf("## [0.9.1]"),
     );
 
-    expect(manifest.version).toBe("0.11.0");
-    expect(manifest.name).toBe("workflow-spec-driven");
+    expect(manifest.version).toBe("1.0.0");
+    expect(manifest.name).toBe("workflow-toolkit");
     expect(manifest.private).toBe(false);
     expect(manifest.packageManager).toBe("bun@1.4.0");
     expect(manifest.scripts?.test).toBe("bun test && node --test tests/installer/*.test.js");
-    expect(readRepositoryFile("bun.lock")).toContain('"name": "workflow-spec-driven"');
+    expect(readRepositoryFile("bun.lock")).toContain('"name": "workflow-toolkit"');
     expect(existsSync(join(repositoryRoot, "package-lock.json"))).toBe(false);
-    expect(latestHeading).toBe("0.11.0");
+    expect(latestHeading).toBe("1.0.0");
     expect(latestHeading).toBe(manifest.version);
     expect(currentScenarioVersion).toBe(manifest.version);
     expect(releaseScenario.match(/^expected: .*$/m)?.[0]).toBe(
@@ -1174,6 +1110,8 @@ describe("adoption and public setup", () => {
     );
     expect(latestRelease).toContain("consumer-owned");
     expect(latestRelease).toContain("proportional validation");
+    expect(latestRelease).toContain("npx workflow-toolkit install");
+    expect(latestRelease).not.toContain("npx wtk install");
     expect(historicalRelease).toContain("deep-review defect");
     expect(historicalRelease).toContain("Minor");
     expect(historicalRelease).toContain("originating feature run");
@@ -1188,10 +1126,10 @@ describe("adoption and public setup", () => {
     expect(pack.status).toBe(0);
     const packOutput = `${pack.stdout}${pack.stderr}`;
     for (const requiredPath of [
-      ".agents/skills/autonomous/scripts/resource_lock.py",
-      ".agents/skills/autonomous/scripts/qa_parallel_pilot.py",
-      ".agents/skills/autonomous/scripts/orca_assisted_probe.py",
-      ".agents/skills/autonomous/remediation.py",
+      ".agents/skills/wtk-lean/scripts/validate_verification.py",
+      ".agents/skills/wtk-ship/scripts/close_feature.py",
+      ".agents/skills/wtk-deep-review/SKILL.md",
+      ".agents/skills/wtk-ship/remediation.py",
       "scripts/installer/engine.js",
     ]) {
       expect(packOutput).toContain(requiredPath);
@@ -1216,22 +1154,16 @@ describe("Bun tooling runtime contract", () => {
       "tools/test_deep_review_symlink_manifest.py",
       "tools/test_deep_review_token_metrics.py",
       "tools/test_gate_cache.py",
-      "tools/test_git_adapter.py",
-      "tools/test_machine_health.py",
-      "tools/test_orca_adapter.py",
-      "tools/test_orca_assisted_probe.py",
-      "tools/test_parallel_executor.py",
-      "tools/test_parallel_plan.py",
-      "tools/test_parallel_resource_lock.py",
       "tools/test_phase_skills.py",
-      "tools/test_qa_parallel_pilot.py",
       "tools/test_remediation.py",
       "tools/test_repository_intelligence.py",
       "tools/test_review_convergence.py",
-      "tools/test_review_metrics.py",
       "tools/test_tlc_validators.py",
       "tools/test_workflow_config.py",
-      "tools/test_workflow_spec_driven.py",
+      "tools/test_wtk_contract.py",
+      "tools/test_wtk_deep_review_contract.py",
+      "tools/test_wtk_forward.py",
+      "tools/test_wtk_lifecycle.py",
     ];
     const pythonLoop = "git ls-files -- 'scripts/test_*.py' 'tools/test_*.py' | sort | while read test; do python3 \"$test\" || exit $?; done";
 
@@ -1260,8 +1192,8 @@ describe("Bun tooling runtime contract", () => {
       expect(readRepositoryFile(suite)).toMatch(/from ["']bun:test["']/);
     }
     expect(manifest).not.toMatch(/"(?:vitest|tsx|yaml)"\s*:/);
-    expect(readRepositoryFile(".agents/skills/knowledge-check/scripts/frontmatter.ts")).not.toMatch(/from ["']yaml["']/);
-    expect(readRepositoryFile(".agents/skills/knowledge-check/scripts/frontmatter.ts")).toContain("Bun.YAML.parse");
+    expect(readRepositoryFile(".agents/skills/wtk-knowledge-check/scripts/frontmatter.ts")).not.toMatch(/from ["']yaml["']/);
+    expect(readRepositoryFile(".agents/skills/wtk-knowledge-check/scripts/frontmatter.ts")).toContain("Bun.YAML.parse");
   });
 
   it("IT-006 keeps Bun as the active command authority while allowing historical evidence", () => {
@@ -1273,7 +1205,7 @@ describe("Bun tooling runtime contract", () => {
     expect(scannedPaths).toContain("docs/qa/README.md");
     expect(scannedPaths).toContain("knowledge/AGENTS.md");
     expect(scannedPaths).toContain(".agents/skills/ponytail/SKILL.md");
-    expect(scannedPaths).toContain(".agents/skills/workflow-config/assets/agents/codex/planner.toml");
+    expect(scannedPaths).toContain(".agents/skills/wtk-config/assets/agents/codex/planner.toml");
     expect(violations).toEqual([]);
 
     const historicalPaths = trackedPaths.filter(isHistoricalAuthority);
@@ -1286,7 +1218,7 @@ describe("Bun tooling runtime contract", () => {
 
     for (const relativePath of [
       ".agents/skills/ponytail/SKILL.md",
-      ".agents/skills/workflow-config/assets/agents/codex/planner.toml",
+      ".agents/skills/wtk-config/assets/agents/codex/planner.toml",
     ]) {
       for (const command of [
         "npm run forbidden",
@@ -1296,7 +1228,7 @@ describe("Bun tooling runtime contract", () => {
         "npm exec eslint",
         "npm pack foo",
         "npm pack --pack-destination /tmp/release unrelated-package",
-        "npm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \\\neslint",
+        "npm exec --yes --package ./antoniofulg-scripts-0.10.0.tgz -- \\\neslint",
       ]) {
         const mutated = new Map([[relativePath, `${readRepositoryFile(relativePath)}\n${command}\n`]]);
         const mutationViolations = forbiddenAuthorityViolations(
@@ -1320,7 +1252,7 @@ describe("Bun tooling runtime contract", () => {
       const allowed = new Map([
         [
           relativePath,
-          `${readRepositoryFile(relativePath)}\nnpm pack --pack-destination /tmp/release\nnpm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- my-workflow apply /tmp/target\nnpm exec --yes --package ./antoniofulg-workflow-spec-driven-0.10.0.tgz -- \\\n  my-workflow status /tmp/target\nnpx --yes <approved-package>@<exact-version> apply /tmp/target\n`,
+          `${readRepositoryFile(relativePath)}\nnpm pack --pack-destination /tmp/release\nnpm exec --yes --package ./antoniofulg-scripts-0.10.0.tgz -- my-workflow apply /tmp/target\nnpm exec --yes --package ./antoniofulg-scripts-0.10.0.tgz -- \\\n  my-workflow status /tmp/target\nnpx --yes <approved-package>@<exact-version> apply /tmp/target\n`,
         ],
       ]);
       expect(

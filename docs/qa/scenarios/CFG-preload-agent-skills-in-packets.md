@@ -6,7 +6,7 @@ persona: Workflow adopter
 journey: J-configure-feature-workflow
 expected: Sync renders each Claude packet's `skills:` and `disallowedTools:` lines byte-identical to its template with only model and effort replaced, including the designer packet's `skills: [wdesign, ponytail]` and absent `disallowedTools`, and refuses a template that preloads a skill with no `SKILL.md`, naming the template and the skill and writing nothing.
 entry_points: .agents/skills/workflow-config/assets/agents/claude/; .agents/skills/workflow-config/assets/agents/cursor/; .agents/skills/workflow-config/assets/agents/codex/; python3 .agents/skills/workflow-config/scripts/workflow_config.py --root . --sync-agents; .claude/agents/
-qa_status: pass
+qa_status: skipped
 bug_ids:
 fix_status:
 retest_status:
@@ -15,6 +15,9 @@ evidence: docs/qa/evidence/2026-09-08-lean-consumer-installation/56-packet-readb
 last_report: docs/qa/reports/2026-09-08-lean-consumer-installation.md
 overlaps: CFG-centralize-agent-model-routing
 ---
+
+Retired — the row names removed phase preloads. Current provider packet rendering and routing are
+covered by `CFG-centralize-agent-model-routing` and `QAS-route-workflow-toolkit-intent`.
 
 New promise from the `phase-skills` feature. Claude templates now carry `skills:` and
 `disallowedTools:`: planner preloads `workflow-spec-driven, wspecify, wtasks, ponytail` with the

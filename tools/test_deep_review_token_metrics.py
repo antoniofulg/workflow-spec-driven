@@ -1,4 +1,4 @@
-"""Contract tests for observational deep-review metrics and the public runner."""
+"""Contract tests for observational wtk-deep-review metrics and the public runner."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ import unittest
 from unittest.mock import patch
 from pathlib import Path
 
-SCRIPTS = Path(__file__).resolve().parents[1] / ".agents/skills/deep-review/scripts"
+SCRIPTS = Path(__file__).resolve().parents[1] / ".agents/skills/wtk-deep-review/scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from token_metrics import (  # noqa: E402
@@ -37,14 +37,14 @@ from graphify_context import prepare_graphify_context  # noqa: E402
 import graft_context  # noqa: E402
 import graphify_context  # noqa: E402
 
-PREFIX = "/reviewer/deep-review"
+PREFIX = "/reviewer/wtk-deep-review"
 REPO = Path.cwd()
 
 
 def init_temp_repo(root: Path) -> None:
     subprocess.run(["git", "init", "-q"], cwd=root, check=True)
     subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=root, check=True)
-    subprocess.run(["git", "config", "user.name", "deep-review tests"], cwd=root, check=True)
+    subprocess.run(["git", "config", "user.name", "wtk-deep-review tests"], cwd=root, check=True)
     (root / "source.txt").write_text("stable\n", encoding="utf-8")
     subprocess.run(["git", "add", "source.txt"], cwd=root, check=True)
     subprocess.run(["git", "commit", "-qm", "initial"], cwd=root, check=True)
@@ -298,12 +298,12 @@ class TokenMetricsTests(unittest.TestCase):
         for concurrency, count in ((3, 3), (6, 6)):
             with self.subTest(concurrency=concurrency), tempfile.TemporaryDirectory() as raw:
                 root = Path(raw)
-                db, out, jobs = root / "codex.sqlite", REPO / f".deep-review/metrics-concurrency-{concurrency}", root / "jobs.json"
+                db, out, jobs = root / "codex.sqlite", REPO / f".wtk-deep-review/metrics-concurrency-{concurrency}", root / "jobs.json"
                 calls, active, overlap, ledger = root / "calls", root / "active", root / "overlap", root / "metrics.json"
                 create_db(db)
                 shutil.rmtree(out, ignore_errors=True)
                 write_manifest(out, concurrency)
-                write_jobs(jobs, f".deep-review/metrics-concurrency-{concurrency}", count=count)
+                write_jobs(jobs, f".wtk-deep-review/metrics-concurrency-{concurrency}", count=count)
                 helper = root / "job.py"
                 helper_script(helper, overlap=True)
                 try:
@@ -326,7 +326,7 @@ class TokenMetricsTests(unittest.TestCase):
         for concurrency, count in ((3, 8), (6, 8), (6, 2)):
             with self.subTest(concurrency=concurrency, count=count), tempfile.TemporaryDirectory() as raw:
                 root = Path(raw)
-                out, jobs = REPO / f".deep-review/peak-{concurrency}-{count}", root / "jobs.json"
+                out, jobs = REPO / f".wtk-deep-review/peak-{concurrency}-{count}", root / "jobs.json"
                 calls, state, peak, attempts = root / "calls", root / "state", root / "peak", root / "attempts"
                 write_manifest(out, concurrency)
                 write_jobs(jobs, str(out.relative_to(REPO)), count=count)
@@ -351,7 +351,7 @@ class TokenMetricsTests(unittest.TestCase):
     def test_drm04_retries_do_not_expand_peak_worker_bound(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
-            out, jobs = REPO / ".deep-review/peak-retries", root / "jobs.json"
+            out, jobs = REPO / ".wtk-deep-review/peak-retries", root / "jobs.json"
             calls, state, peak, attempts = root / "calls", root / "state", root / "peak", root / "attempts"
             write_manifest(out, 3)
             write_jobs(jobs, str(out.relative_to(REPO)), count=5)
@@ -388,7 +388,7 @@ class TokenMetricsTests(unittest.TestCase):
     def test_drm04_ordinary_failure_continues_and_refills_siblings(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
-            out, jobs = REPO / ".deep-review/ordinary-failure", root / "jobs.json"
+            out, jobs = REPO / ".wtk-deep-review/ordinary-failure", root / "jobs.json"
             calls, state, peak, attempts = root / "calls", root / "state", root / "peak", root / "attempts"
             write_manifest(out, 2)
             write_jobs(jobs, str(out.relative_to(REPO)), count=5)
@@ -412,7 +412,7 @@ class TokenMetricsTests(unittest.TestCase):
     def test_drm04_multiple_provider_blocks_stop_refill_and_keep_first_reason(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
-            out, jobs = REPO / ".deep-review/multiple-provider-blocks", root / "jobs.json"
+            out, jobs = REPO / ".wtk-deep-review/multiple-provider-blocks", root / "jobs.json"
             calls = root / "calls"
             write_manifest(out, 2)
             write_jobs(jobs, str(out.relative_to(REPO)), count=5)
@@ -444,7 +444,7 @@ class TokenMetricsTests(unittest.TestCase):
     def test_drm04_scheduler_never_submits_pending_jobs_after_block(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
-            out, jobs_file = REPO / ".deep-review/no-refill-after-block", root / "jobs.json"
+            out, jobs_file = REPO / ".wtk-deep-review/no-refill-after-block", root / "jobs.json"
             write_manifest(out, 2)
             write_jobs(jobs_file, str(out.relative_to(REPO)), count=4)
             jobs = json.loads(jobs_file.read_text(encoding="utf-8"))["jobs"]
@@ -472,9 +472,9 @@ class TokenMetricsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
             init_temp_repo(root)
-            out, jobs = root / ".deep-review/drift", root / "jobs.json"
+            out, jobs = root / ".wtk-deep-review/drift", root / "jobs.json"
             write_manifest(out, 2)
-            write_jobs(jobs, ".deep-review/drift", count=2)
+            write_jobs(jobs, ".wtk-deep-review/drift", count=2)
             calls = root / "calls"
             helper = root / "drift.py"
             helper.write_text(
@@ -509,7 +509,7 @@ class TokenMetricsTests(unittest.TestCase):
         for name, mode in (("deterministic-a", "normal"), ("deterministic-b", "inverted")):
             with tempfile.TemporaryDirectory() as raw:
                 root = Path(raw)
-                out = REPO / f".deep-review/{name}"
+                out = REPO / f".wtk-deep-review/{name}"
                 jobs = out / "jobs.json"
                 write_manifest(out, 3)
                 write_jobs(jobs, str(out.relative_to(REPO)), count=4)
@@ -558,10 +558,10 @@ class TokenMetricsTests(unittest.TestCase):
     def test_drm02_runner_serializes_metrics_checkpoints_in_main_thread(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
-            db, out, jobs = root / "codex.sqlite", REPO / ".deep-review/metrics-concurrency", root / "jobs.json"
+            db, out, jobs = root / "codex.sqlite", REPO / ".wtk-deep-review/metrics-concurrency", root / "jobs.json"
             calls, active, overlap, ledger = root / "calls", root / "active", root / "overlap", root / "metrics.json"
             create_db(db)
-            write_jobs(jobs, ".deep-review/metrics-concurrency")
+            write_jobs(jobs, ".wtk-deep-review/metrics-concurrency")
             helper = root / "job.py"
             helper_script(helper, overlap=True)
             try:
@@ -580,10 +580,10 @@ class TokenMetricsTests(unittest.TestCase):
         for scenario in scenarios:
             with self.subTest(scenario=scenario), tempfile.TemporaryDirectory() as raw:
                 root = Path(raw)
-                db, out, jobs = root / "codex.sqlite", REPO / f".deep-review/metrics-{scenario}", root / "jobs.json"
+                db, out, jobs = root / "codex.sqlite", REPO / f".wtk-deep-review/metrics-{scenario}", root / "jobs.json"
                 calls, ledger = root / "calls", root / "metrics.json"
                 create_db(db, 100 if scenario == "regressing" else 0)
-                write_jobs(jobs, f".deep-review/metrics-{scenario}")
+                write_jobs(jobs, f".wtk-deep-review/metrics-{scenario}")
                 helper = root / "job.py"
                 helper_script(helper)
                 if scenario == "invalid":
@@ -616,10 +616,10 @@ class TokenMetricsTests(unittest.TestCase):
     def test_drm03_checkpoint_observation_failure_is_nonblocking(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
-            db, out, jobs = root / "codex.sqlite", REPO / ".deep-review/metrics-checkpoint-failure", root / "jobs.json"
+            db, out, jobs = root / "codex.sqlite", REPO / ".wtk-deep-review/metrics-checkpoint-failure", root / "jobs.json"
             calls, ledger = root / "calls", root / "jobs.json.metrics.json"
             create_db(db)
-            write_jobs(jobs, ".deep-review/metrics-checkpoint-failure")
+            write_jobs(jobs, ".wtk-deep-review/metrics-checkpoint-failure")
             helper = root / "job.py"
             helper_script(helper)
             command = runner(out, jobs, helper, calls, db=db, ledger=ledger)
@@ -639,10 +639,10 @@ class TokenMetricsTests(unittest.TestCase):
     def test_drm03_finalize_observation_failure_is_nonblocking(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
-            db, out, jobs = root / "codex.sqlite", REPO / ".deep-review/metrics-finalize-failure", root / "jobs.json"
+            db, out, jobs = root / "codex.sqlite", REPO / ".wtk-deep-review/metrics-finalize-failure", root / "jobs.json"
             calls, ledger = root / "calls", root / "metrics.json"
             create_db(db)
-            write_jobs(jobs, ".deep-review/metrics-finalize-failure")
+            write_jobs(jobs, ".wtk-deep-review/metrics-finalize-failure")
             helper = root / "job.py"
             helper_script(helper)
             command = runner(out, jobs, helper, calls, db=db, ledger=ledger)
@@ -662,14 +662,14 @@ class TokenMetricsTests(unittest.TestCase):
     def test_drm04_configured_retries_stay_within_worker_slots(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
-            db, out, jobs = root / "codex.sqlite", REPO / ".deep-review/metrics-retries", root / "jobs.json"
+            db, out, jobs = root / "codex.sqlite", REPO / ".wtk-deep-review/metrics-retries", root / "jobs.json"
             calls, state_dir, ledger = root / "calls", root / "attempts", root / "metrics.json"
             active, overlap = root / "active", root / "overlap"
             barrier = root / "barrier"
             peak, slots = root / "peak", 3
             shutil.rmtree(out, ignore_errors=True)
             create_db(db)
-            write_jobs(jobs, ".deep-review/metrics-retries")
+            write_jobs(jobs, ".wtk-deep-review/metrics-retries")
             helper = root / "job.py"
             retry_helper_script(helper)
             try:
@@ -695,10 +695,10 @@ class TokenMetricsTests(unittest.TestCase):
     def test_drm04_completed_metrics_are_idempotent_and_outputs_resume(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
-            db, out, jobs = root / "codex.sqlite", REPO / ".deep-review/metrics-idempotent", root / "jobs.json"
+            db, out, jobs = root / "codex.sqlite", REPO / ".wtk-deep-review/metrics-idempotent", root / "jobs.json"
             calls, ledger = root / "calls", root / "metrics.json"
             create_db(db)
-            write_jobs(jobs, ".deep-review/metrics-idempotent", count=1)
+            write_jobs(jobs, ".wtk-deep-review/metrics-idempotent", count=1)
             helper = root / "job.py"
             helper_script(helper)
             try:
@@ -715,10 +715,10 @@ class TokenMetricsTests(unittest.TestCase):
     def test_drm04_selective_resume_finalizes_full_scope_metrics(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
-            db, out, jobs = root / "codex.sqlite", REPO / ".deep-review/metrics-selective-resume", root / "jobs.json"
+            db, out, jobs = root / "codex.sqlite", REPO / ".wtk-deep-review/metrics-selective-resume", root / "jobs.json"
             calls, ledger = root / "calls", root / "metrics.json"
             create_db(db)
-            write_jobs(jobs, ".deep-review/metrics-selective-resume")
+            write_jobs(jobs, ".wtk-deep-review/metrics-selective-resume")
             helper = root / "job.py"
             helper_script(helper)
             try:
@@ -816,13 +816,13 @@ class TokenMetricsTests(unittest.TestCase):
                     read_metrics(ledger)
 
     def test_drm06_shared_docs_are_provider_neutral(self) -> None:
-        skill = (REPO / ".agents/skills/deep-review/SKILL.md").read_text(encoding="utf-8")
-        orchestration = (REPO / ".agents/skills/deep-review/references/orchestration.md").read_text(encoding="utf-8")
+        skill = (REPO / ".agents/skills/wtk-deep-review/SKILL.md").read_text(encoding="utf-8")
+        orchestration = (REPO / ".agents/skills/wtk-deep-review/references/orchestration.md").read_text(encoding="utf-8")
         policy_lines = [line.lower() for line in (skill + orchestration).splitlines() if "metric" in line.lower() or "token" in line.lower()]
         for line in policy_lines:
             for marker in ("budget", "cap", "stop", "skip", "prevent", "limit", "enforce"):
                 self.assertNotIn(marker, line)
-        runtime = (REPO / ".agents/skills/deep-review/references/subagent-runtimes.md").read_text(encoding="utf-8").lower()
+        runtime = (REPO / ".agents/skills/wtk-deep-review/references/subagent-runtimes.md").read_text(encoding="utf-8").lower()
         runtime_metric_lines = [line for line in runtime.splitlines() if "metric" in line or "token" in line]
         for line in runtime_metric_lines:
             for marker in ("budget", "cap", "stop before", "skip", "prevent", "enforce"):
@@ -864,8 +864,8 @@ class TokenMetricsTests(unittest.TestCase):
         self.assertEqual(manifest["scripts"]["review:graft:version"], "graft --version")
 
     def test_drm06_build_jobs_wires_graft_context_and_dot_fallback(self) -> None:
-        (REPO / ".deep-review").mkdir(exist_ok=True)
-        with tempfile.TemporaryDirectory(dir=REPO / ".deep-review") as raw:
+        (REPO / ".wtk-deep-review").mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=REPO / ".wtk-deep-review") as raw:
             out = Path(raw)
             manifest = {
                 "target": "fixture",
@@ -916,7 +916,7 @@ class TokenMetricsTests(unittest.TestCase):
                 prepare.assert_not_called()
             no_question_jobs = json.loads((out / "jobs.json").read_text(encoding="utf-8"))
             self.assertIsNone(no_question_jobs["repository_intelligence"]["graphify"])
-            config = out / ".deep-review.yaml"
+            config = out / ".wtk-deep-review.yaml"
             config.write_text("graft: false\n", encoding="utf-8")
             self.assertEqual(build(config), graft_context.FALLBACK_LINE + "\n")
 
@@ -943,7 +943,7 @@ class TokenMetricsTests(unittest.TestCase):
             self.assertIn("code callers", intelligence["dual_use_reason"])
 
             with patch.object(graft_context.ri, "_run_context", return_value={"status": "ready", "context": "src/app.py:1"}):
-                dot_context = prepare_graft_context(REPO, out / "dot", [".agents/skills/deep-review/SKILL.md"])
+                dot_context = prepare_graft_context(REPO, out / "dot", [".agents/skills/wtk-deep-review/SKILL.md"])
             self.assertEqual(dot_context["status"], "ready-with-fallback")
             self.assertIn("plain repository inspection", (out / "dot/graft-context.md").read_text(encoding="utf-8"))
 
@@ -1130,8 +1130,8 @@ class TokenMetricsTests(unittest.TestCase):
     def test_drm08_unsupported_host_is_honestly_unavailable(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
-            out, jobs, calls = REPO / ".deep-review/metrics-unsupported", root / "jobs.json", root / "calls"
-            write_jobs(jobs, ".deep-review/metrics-unsupported", count=1)
+            out, jobs, calls = REPO / ".wtk-deep-review/metrics-unsupported", root / "jobs.json", root / "calls"
+            write_jobs(jobs, ".wtk-deep-review/metrics-unsupported", count=1)
             helper = root / "job.py"
             helper_script(helper)
             try:
@@ -1146,10 +1146,10 @@ class TokenMetricsTests(unittest.TestCase):
     def test_provider_block_with_metrics_still_writes_blocker_and_exits_two(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
-            db, out, jobs = root / "codex.sqlite", REPO / ".deep-review/provider-block-test", root / "jobs.json"
+            db, out, jobs = root / "codex.sqlite", REPO / ".wtk-deep-review/provider-block-test", root / "jobs.json"
             calls, ledger = root / "calls", root / "metrics.json"
             create_db(db)
-            write_jobs(jobs, ".deep-review/provider-block-test", count=1)
+            write_jobs(jobs, ".wtk-deep-review/provider-block-test", count=1)
             helper = root / "blocked.py"
             helper.write_text("print('usageLimitExceeded')\n", encoding="utf-8")
             shutil.rmtree(out, ignore_errors=True)
@@ -1167,10 +1167,10 @@ class TokenMetricsTests(unittest.TestCase):
     def test_provider_block_finishes_active_jobs_and_resume_skips_valid_outputs(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)
-            out, jobs = REPO / ".deep-review/provider-block-concurrent", root / "jobs.json"
+            out, jobs = REPO / ".wtk-deep-review/provider-block-concurrent", root / "jobs.json"
             calls, marker = root / "calls", root / "block-once"
             write_manifest(out, 2)
-            write_jobs(jobs, ".deep-review/provider-block-concurrent", count=4)
+            write_jobs(jobs, ".wtk-deep-review/provider-block-concurrent", count=4)
             helper = root / "block-once.py"
             helper.write_text(
                 "import json, pathlib, sys, time\n"

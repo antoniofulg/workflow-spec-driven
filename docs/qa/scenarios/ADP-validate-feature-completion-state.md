@@ -6,7 +6,7 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: The public validate_state CLI honors an explicit Verdict over legacy Result text and accepts a supported legacy Result PASS report.
 entry_points: .agents/skills/workflow-spec-driven/scripts/validate_state.py
-qa_status: pass
+qa_status: skipped
 bug_ids:
 fix_status:
 retest_status:
@@ -15,6 +15,9 @@ evidence: docs/qa/evidence/2026-08-22-authoritative-validation-verdict/session.m
 last_report: docs/qa/reports/2026-08-22-authoritative-validation-verdict.md
 overlaps:
 ---
+
+Retired — the prior `validate_state.py` and legacy Result compatibility contract were removed;
+native Lean `verification.md` validation owns current completion.
 
 Covers the public completion-gate behavior reported in issue #27. An explicit `Verdict: FAIL`
 must remain a failure even when a legacy `Result: PASS` appears later, and an explicit `Verdict:

@@ -4,13 +4,16 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { buildPlan } from '../../scripts/installer/engine.js';
+import { buildPlan, CLAUDE_SKILL_LINKS } from '../../scripts/installer/engine.js';
 import { pathToFileURL } from 'node:url';
 const root = path.resolve(import.meta.dirname, '../..');
 
-test('IT-019 package exposes the unscoped executable only', () => { const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')); assert.equal(pkg.name, 'workflow-spec-driven'); assert.deepEqual(Object.keys(pkg.bin), ['workflow-spec-driven']); assert.equal(pkg.bin['workflow-spec-driven'], 'bin/workflow-spec-driven.js'); assert.equal(pkg.files.includes('scripts/adopt.py'), false); });
-test('IT-010 pack dry-run includes Node installer and excludes Python adopter', () => { const json = execFileSync('npm', ['pack', '--dry-run', '--json'], { cwd: root, encoding: 'utf8' }); const metadata = JSON.parse(json)[0]; const names = metadata.files.map((item) => item.path); assert.ok(names.includes('bin/workflow-spec-driven.js')); assert.ok(names.includes('scripts/installer/engine.js')); assert.ok(names.includes('docs/workflow/repository-intelligence.md')); assert.equal(names.some((name) => name === 'scripts/adopt.py' || name === 'bin/my-workflow.js'), false); });
+test('IT-019 package exposes the unscoped executable only', () => { const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')); assert.equal(pkg.name, 'workflow-toolkit'); assert.deepEqual(Object.keys(pkg.bin), ['wtk']); assert.equal(pkg.bin['wtk'], 'bin/wtk.js'); assert.equal(pkg.files.includes('scripts/adopt.py'), false); });
+test('IT-010 pack dry-run includes Node installer and excludes Python adopter', () => { const json = execFileSync('npm', ['pack', '--dry-run', '--json'], { cwd: root, encoding: 'utf8' }); const metadata = JSON.parse(json)[0]; const names = metadata.files.map((item) => item.path); assert.ok(names.includes('bin/wtk.js')); assert.ok(names.includes('scripts/installer/engine.js')); assert.ok(names.includes('docs/toolkit/repository-intelligence.md')); assert.ok(names.includes('.agents/skills/prompt-review/SKILL.md')); assert.equal(names.some((name) => name === 'scripts/adopt.py' || name === 'bin/my-workflow.js'), false); });
 test('IT-019 package can resolve from a clean directory', () => { const target = fs.mkdtempSync(path.join(os.tmpdir(), 'installer-package-')); const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')); assert.equal(packageJson.engines.node, '>=18.0.0'); assert.ok(target.startsWith(os.tmpdir())); });
+test('IT-022 extras catalog retains each third-party Ponytail name', () => { const names = ['audit', 'debt', 'gain', 'help', 'review']; const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')); const catalog = buildPlan({ sourceRoot: root, targetRoot: fs.mkdtempSync(path.join(os.tmpdir(), 'installer-catalog-')), selectedModules: ['extras'] }).manifest.files; for (const name of names) { const original = `.agents/skills/ponytail-${name}`; const renamed = `.agents/skills/wtk-ponytail-${name}`; assert.equal(packageJson.files.includes(original), true, original); assert.equal(packageJson.files.includes(renamed), false, renamed); assert.ok(catalog[`${original}/SKILL.md`], `${original}/SKILL.md`); assert.equal(catalog[`${renamed}/SKILL.md`], undefined, `${renamed}/SKILL.md`); assert.equal(fs.existsSync(path.join(root, renamed)), false, renamed); } });
+test('IT-023 extras catalog ships project-owned prompt-review', () => { const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')); const catalog = buildPlan({ sourceRoot: root, targetRoot: fs.mkdtempSync(path.join(os.tmpdir(), 'installer-catalog-')), selectedModules: ['extras'] }).manifest.files; const original = '.agents/skills/prompt-review'; const renamed = '.agents/skills/wtk-prompt-review'; assert.equal(packageJson.files.includes(original), true, original); assert.equal(packageJson.files.includes(renamed), false, renamed); assert.ok(catalog[`${original}/SKILL.md`], `${original}/SKILL.md`); assert.equal(catalog[`${renamed}/SKILL.md`], undefined, `${renamed}/SKILL.md`); assert.equal(fs.existsSync(path.join(root, renamed)), false, renamed); const alias = path.join(root, '.claude/skills/prompt-review'); assert.equal(fs.lstatSync(alias).isSymbolicLink(), true, alias); assert.equal(fs.realpathSync(alias), fs.realpathSync(path.join(root, original)), alias); });
+test('IT-024 source checkout Claude aliases match current skill catalog', () => { const expected = [...new Set(Object.values(CLAUDE_SKILL_LINKS).flat())].sort(); const aliasRoot = path.join(root, '.claude/skills'); const actual = fs.readdirSync(aliasRoot, { withFileTypes: true }).filter((entry) => entry.isSymbolicLink() && !entry.name.startsWith('security-')).map((entry) => entry.name).sort(); assert.deepEqual(actual, expected); for (const skill of expected) { const alias = path.join(aliasRoot, skill); const canonical = path.join(root, '.agents/skills', skill); assert.equal(fs.readlinkSync(alias), `../../.agents/skills/${skill}`, alias); assert.equal(fs.realpathSync(alias), fs.realpathSync(canonical), alias); assert.equal(fs.statSync(path.join(alias, 'SKILL.md')).isFile(), true, alias); } });
 test('IT-010 and IT-015 packed executable performs Node-only install and public cancellation probes', async () => {
   const destination = fs.mkdtempSync(path.join(os.tmpdir(), 'installer-tarball-'));
   const json = execFileSync('npm', ['pack', '--pack-destination', destination, '--json'], { cwd: root, encoding: 'utf8' });
@@ -18,6 +21,15 @@ test('IT-010 and IT-015 packed executable performs Node-only install and public 
   const clean = fs.mkdtempSync(path.join(os.tmpdir(), 'installer-clean-'));
   const noPython = fs.mkdtempSync(path.join(os.tmpdir(), 'installer-no-python-'));
   const toolchain = fs.mkdtempSync(path.join(os.tmpdir(), 'installer-toolchain-'));
+  const consumerGuideline = path.join(clean, 'docs/guidelines/local.md');
+  const consumerWorkflow = path.join(clean, 'docs/workflow/local.md');
+  fs.mkdirSync(path.dirname(consumerGuideline), { recursive: true });
+  fs.mkdirSync(path.dirname(consumerWorkflow), { recursive: true });
+  fs.writeFileSync(consumerGuideline, 'consumer guideline\n');
+  fs.writeFileSync(consumerWorkflow, 'consumer workflow\n');
+  const localConfigPath = path.join(clean, '.wtk.toml');
+  const localConfig = fs.readFileSync(path.join(root, '.wtk.toml.example'), 'utf8').replace('model = "opus"', 'model = "consumer-planner"');
+  fs.writeFileSync(localConfigPath, localConfig);
   fs.symlinkSync(process.execPath, path.join(toolchain, 'node'));
   fs.symlinkSync(execFileSync('which', ['git'], { encoding: 'utf8' }).trim(), path.join(toolchain, 'git'));
   const env = { ...process.env, PATH: `${noPython}:${toolchain}` };
@@ -29,34 +41,37 @@ test('IT-010 and IT-015 packed executable performs Node-only install and public 
   fs.writeFileSync(path.join(clean, '.gitignore'), Buffer.concat([Buffer.from('node_modules/\n'), canonicalIgnore]));
   const canonicalSearchIgnore = buildPlan({ sourceRoot: root, targetRoot: clean, selectedModules: ['core'] }).staged['.ignore'];
   fs.writeFileSync(path.join(clean, '.ignore'), canonicalSearchIgnore);
-  execFileSync('git', ['add', '.gitignore', '.ignore', 'package.json'], { cwd: clean, env });
+  execFileSync('git', ['add', '.gitignore', '.ignore', 'package.json', 'docs/guidelines/local.md', 'docs/workflow/local.md'], { cwd: clean, env });
   execFileSync('git', ['commit', '-qm', 'fixture'], { cwd: clean, env });
-  const executable = path.join(clean, 'node_modules/.bin/workflow-spec-driven');
+  const executable = path.join(clean, 'node_modules/.bin/wtk');
   const clone = () => { const target = fs.mkdtempSync(path.join(os.tmpdir(), 'installer-pty-')); fs.cpSync(clean, target, { recursive: true }); return target; };
   const assertResidueZero = (target) => { assert.equal(execFileSync('git', ['status', '--porcelain'], { cwd: target, env, encoding: 'utf8' }), ''); for (const relative of ['.my-workflow/adoption.json', '.my-workflow/transaction.json', '.my-workflow/backups']) assert.equal(fs.existsSync(path.join(target, relative)), false, relative); };
-  const runCancellationProbe = (target, signal) => spawnSync('/usr/bin/expect', ['-c', [`set timeout 60`, `log_user 1`, `spawn -noecho $env(EXEC) install`, `stty rows 24 columns 80`, `expect -re {Modules.*comma-separated} { send "${signal}\\r" }`, `expect "Installation cancelled. No files changed."`, `expect eof`].join('\n')], { cwd: target, env: { ...env, NO_COLOR: '1', EXEC: path.join(target, 'node_modules/.bin/workflow-spec-driven') }, encoding: 'utf8' });
+  const runCancellationProbe = (target, signal) => spawnSync('/usr/bin/expect', ['-c', [`set timeout 60`, `log_user 1`, `spawn -noecho $env(EXEC) install`, `stty rows 24 columns 80`, `expect -re {Modules.*comma-separated} { send "${signal}\\r" }`, `expect "Installation cancelled. No files changed."`, `expect eof`].join('\n')], { cwd: target, env: { ...env, NO_COLOR: '1', EXEC: path.join(target, 'node_modules/.bin/wtk') }, encoding: 'utf8' });
   const eofTarget = clone();
   const eof = runCancellationProbe(eofTarget, '\\004');
   assert.equal(eof.status, 0, `${eof.error?.message || ''} signal=${eof.signal || ''}\n${eof.stderr}\n${eof.stdout}`);
   assert.equal((eof.stdout.match(/Installation cancelled\. No files changed\./g) || []).length, 1, eof.stdout);
   assert.equal(eof.stdout.includes('scripts/install_security_skills.py'), false, eof.stdout);
+  assert.equal(eof.stdout.includes('security gate remains uncovered'), false, eof.stdout);
   assertResidueZero(eofTarget);
   const interruptTarget = clone();
   const interrupt = runCancellationProbe(interruptTarget, '\\003');
   assert.equal(interrupt.status, 0, `${interrupt.error?.message || ''} signal=${interrupt.signal || ''}\n${interrupt.stderr}\n${interrupt.stdout}`);
   assert.equal((interrupt.stdout.match(/Installation cancelled\. No files changed\./g) || []).length, 1, interrupt.stdout);
   assert.equal(interrupt.stdout.includes('scripts/install_security_skills.py'), false, interrupt.stdout);
+  assert.equal(interrupt.stdout.includes('security gate remains uncovered'), false, interrupt.stdout);
   assertResidueZero(interruptTarget);
   const normalTarget = clone();
-  const normal = spawnSync('/usr/bin/expect', ['-c', [`set timeout 60`, `log_user 1`, `spawn -noecho $env(EXEC) install`, `stty rows 24 columns 80`, `expect -re {Modules.*comma-separated} { send "1\\r" }`, `expect -re {Continue to preview} { send "n\\r" }`, `expect "Installation cancelled. No files changed."`, `expect eof`].join('\n')], { cwd: normalTarget, env: { ...env, EXEC: path.join(normalTarget, 'node_modules/.bin/workflow-spec-driven') }, encoding: 'utf8' });
+  const normal = spawnSync('/usr/bin/expect', ['-c', [`set timeout 60`, `log_user 1`, `spawn -noecho $env(EXEC) install`, `stty rows 24 columns 80`, `expect -re {Modules.*comma-separated} { send "1\\r" }`, `expect -re {Continue to preview} { send "n\\r" }`, `expect "Installation cancelled. No files changed."`, `expect eof`].join('\n')], { cwd: normalTarget, env: { ...env, EXEC: path.join(normalTarget, 'node_modules/.bin/wtk') }, encoding: 'utf8' });
   assert.equal(normal.status, 0, `${normal.error?.message || ''} signal=${normal.signal || ''}\n${normal.stderr}\n${normal.stdout}`);
   assert.equal((normal.stdout.match(/Installation cancelled\. No files changed\./g) || []).length, 1, normal.stdout);
+  assert.equal(normal.stdout.includes('security gate remains uncovered'), false, normal.stdout);
   assertResidueZero(normalTarget);
   const colorEnv = { ...env };
   delete colorEnv.NO_COLOR;
-  const noColor = spawnSync('/usr/bin/expect', ['-c', 'set timeout 60\nlog_user 1\nspawn -noecho $env(EXEC) install\nexpect -re {Modules.*comma-separated} { send "4\\r" }\nexpect -re {Continue to preview} { send "n\\r" }\nexpect "Installation cancelled."\nexpect eof'], { cwd: clean, env: { ...env, NO_COLOR: '1', EXEC: executable }, encoding: 'utf8' });
+  const noColor = spawnSync('/usr/bin/expect', ['-c', 'set timeout 60\nlog_user 1\nspawn -noecho $env(EXEC) install\nexpect -re {Modules.*comma-separated} { send "1\\r" }\nexpect -re {Continue to preview} { send "n\\r" }\nexpect "Installation cancelled."\nexpect eof'], { cwd: clean, env: { ...env, NO_COLOR: '1', EXEC: executable }, encoding: 'utf8' });
   assert.equal(noColor.status, 0, `${noColor.error?.message || ''} signal=${noColor.signal || ''}\n${noColor.stderr}\n${noColor.stdout}`);
-  const heading = noColor.stdout.indexOf('Workflow Spec-Driven Installer');
+  const heading = noColor.stdout.indexOf('Workflow Toolkit Installer');
   assert.ok(heading >= 0, noColor.stdout);
   assert.equal(/\u001b\[[0-?]*[ -/]*[@-~]/.test(noColor.stdout.slice(heading)), false, noColor.stdout.slice(heading));
   assert.equal((noColor.stdout.match(/Installation cancelled\. No files changed\./g) || []).length, 1, noColor.stdout);
@@ -64,16 +79,22 @@ test('IT-010 and IT-015 packed executable performs Node-only install and public 
   const result = spawnSync('/usr/bin/expect', ['-c', 'set timeout 60\nlog_user 1\nspawn -noecho $env(EXEC) install\nexpect -re {Modules.*comma-separated} { send "1\\r" }\nexpect -re {Continue to preview} { send "y\\r" }\nexpect -re {Apply this plan} { send "y\\r" }\nexpect "Installation complete."\nexpect eof'], { cwd: clean, env: { ...colorEnv, EXEC: executable }, encoding: 'utf8' });
   // Keep color-capable TTY behavior covered by the adjacent accepted flow below.
   assert.equal(result.status, 0, `${result.error?.message || ''} signal=${result.signal || ''}\n${result.stderr}\n${result.stdout}`);
-  assert.match(result.stdout, /Workflow Spec-Driven Installer/);
+  assert.match(result.stdout, /Workflow Toolkit Installer/);
   assert.match(result.stdout, /Installation complete\./);
+  assert.equal((result.stdout.match(/security gate remains uncovered/g) || []).length, 1, result.stdout);
   const cleanRoot = fs.realpathSync(clean);
-  const securityCommand = `python3 '${path.join(cleanRoot, 'node_modules/workflow-spec-driven/scripts/install_security_skills.py')}' '${cleanRoot}' --yes`;
+  const securityCommand = `python3 '${path.join(cleanRoot, 'node_modules/workflow-toolkit/scripts/install_security_skills.py')}' '${cleanRoot}' --yes`;
   assert.equal(result.stdout.includes(securityCommand), true, result.stdout);
+  assert.equal(fs.readFileSync(consumerGuideline, 'utf8'), 'consumer guideline\n');
+  assert.equal(fs.readFileSync(consumerWorkflow, 'utf8'), 'consumer workflow\n');
+  assert.ok(fs.existsSync(path.join(clean, 'docs/toolkit/README.md')));
+  assert.deepEqual(fs.readFileSync(localConfigPath, 'utf8'), localConfig);
+  assert.match(fs.readFileSync(path.join(clean, '.claude/agents/planner.md'), 'utf8'), /model: consumer-planner/);
   const manifestPath = path.join(clean, '.my-workflow/adoption.json');
   assert.equal(fs.existsSync(manifestPath), true);
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
   assert.deepEqual(manifest.layers, ['core']);
-  for (const skill of ['wspecify', 'wdesign', 'wtasks', 'wimplement', 'wverify', 'wreview', 'wqa']) {
+  for (const skill of ['wtk', 'wtk-lean', 'wtk-discover', 'wtk-plan', 'wtk-implement', 'wtk-config', 'wtk-knowledge-check', 'wtk-ship']) {
     const alias = path.join(clean, '.claude/skills', skill);
     const canonical = path.join(clean, '.agents/skills', skill);
     assert.equal(fs.lstatSync(alias).isSymbolicLink(), true, skill);
@@ -86,13 +107,13 @@ test('IT-010 and IT-015 packed executable performs Node-only install and public 
   assert.deepEqual(manifest.files, expected.files);
   assert.equal(fs.existsSync(path.join(noPython, 'python')), false);
   assert.equal(fs.existsSync(path.join(noPython, 'python3')), false);
-  for (const skill of ['security-best-practices', 'security-threat-model', 'security-review']) {
+  for (const skill of ['security-implementation', 'security-review', 'security-spec', 'security-threat-model']) {
     assert.equal(fs.existsSync(path.join(clean, '.agents/skills', skill)), false, skill);
   }
   assert.equal(env.PATH, `${noPython}:${toolchain}`);
-  assert.equal(fs.existsSync(path.join(clean, 'node_modules/workflow-spec-driven/scripts/adopt.py')), false);
-  assert.match(execFileSync(executable, ['--help'], { cwd: clean, env, encoding: 'utf8' }), /workflow-spec-driven install/);
-  const installedEngine = await import(pathToFileURL(path.join(clean, 'node_modules/workflow-spec-driven/scripts/installer/engine.js')).href);
+  assert.equal(fs.existsSync(path.join(clean, 'node_modules/workflow-toolkit/scripts/adopt.py')), false);
+  assert.match(execFileSync(executable, ['--help'], { cwd: clean, env, encoding: 'utf8' }), /wtk install/);
+  const installedEngine = await import(pathToFileURL(path.join(clean, 'node_modules/workflow-toolkit/scripts/installer/engine.js')).href);
   const installedManifest = installedEngine.loadManifest(clean);
   assert.deepEqual(installedManifest.layers, ['core']);
   assert.equal(Object.keys(installedManifest.files).length, Object.keys(manifest.files).length);

@@ -1,46 +1,6 @@
 {
   "version": 1,
   "skills": {
-    "workflow-spec-driven": {
-      "source": "local",
-      "sourceType": "local",
-      "skillPath": ".agents/skills/workflow-spec-driven/SKILL.md"
-    },
-    "autonomous": {
-      "source": "local",
-      "sourceType": "local",
-      "skillPath": ".agents/skills/autonomous/SKILL.md"
-    },
-    "security-best-practices": {
-      "source": "openai/skills",
-      "sourceType": "github",
-      "skillPath": "skills/.curated/security-best-practices/SKILL.md",
-      "cliVersion": "1.5.23",
-      "ref": "49f948faa9258a0c61caceaf225e179651397431",
-      "computedHash": "7bd6c2cc8083d90f5d5489c80887ed5399e167d3e7323c7f294035e1e586b689"
-    },
-    "security-review": {
-      "source": "github/awesome-copilot",
-      "sourceType": "github",
-      "skillPath": "skills/security-review/SKILL.md",
-      "cliVersion": "1.5.23",
-      "ref": "83561bd7d8a46fcda0581aedabdf8eac7cb196b6",
-      "computedHash": "a0fc25587c016178c9cf6238ac8702695fa761694965192472487f92093db571"
-    },
-    "security-threat-model": {
-      "source": "openai/skills",
-      "sourceType": "github",
-      "skillPath": "skills/.curated/security-threat-model/SKILL.md",
-      "cliVersion": "1.5.23",
-      "ref": "49f948faa9258a0c61caceaf225e179651397431",
-      "computedHash": "a262f878637565892051aa945c88e8748e743896c20925b59c5c2d7d79e061a7"
-    },
-    "deep-review": {
-      "source": "pedronauck/skills",
-      "sourceType": "github",
-      "skillPath": "skills/mine/deep-review/SKILL.md",
-      "computedHash": "28212963175965f34c4455639ba31dbc75fa9cc4dfb19097d4a40c15fca16787"
-    },
     "ponytail": {
       "source": "dietrichgebert/ponytail",
       "sourceType": "github",
@@ -76,6 +36,57 @@
       "sourceType": "github",
       "skillPath": "skills/ponytail-review/SKILL.md",
       "computedHash": "4646594fcd75455533f7ff1425f4f1c5ba0fa65f88241bf262b1c4fc275f049a"
+    },
+    "security-implementation": {
+      "source": "antoniofulg/security-lifecycle",
+      "sourceType": "github",
+      "skillPath": "skills/security-implementation/SKILL.md",
+      "cliVersion": "1.5.23",
+      "ref": "8b356c2c8f17a788cb14db86316b3add39f620e1",
+      "computedHash": "ddf57fe08fdb0fe021d1de88feb8886d383659672be226766e2874f450c29fae"
+    },
+    "security-review": {
+      "source": "antoniofulg/security-lifecycle",
+      "sourceType": "github",
+      "skillPath": "skills/security-review/SKILL.md",
+      "cliVersion": "1.5.23",
+      "ref": "8b356c2c8f17a788cb14db86316b3add39f620e1",
+      "computedHash": "1db6b0cb15f2d87b4443e548a89b89e3bbe105ef8545931ce636e6fdc5fc7cd9"
+    },
+    "security-spec": {
+      "source": "antoniofulg/security-lifecycle",
+      "sourceType": "github",
+      "skillPath": "skills/security-spec/SKILL.md",
+      "cliVersion": "1.5.23",
+      "ref": "8b356c2c8f17a788cb14db86316b3add39f620e1",
+      "computedHash": "8df258cc7ecea5578b44642f264ad9a68afe21be5bf2a1a89305ffd73feff3f5"
+    },
+    "security-threat-model": {
+      "source": "antoniofulg/security-lifecycle",
+      "sourceType": "github",
+      "skillPath": "skills/security-threat-model/SKILL.md",
+      "cliVersion": "1.5.23",
+      "ref": "8b356c2c8f17a788cb14db86316b3add39f620e1",
+      "computedHash": "b75faf328ac069d5f163a10936516b2a5ef57e7dba97f2932e53a8d0791b169a"
+    },
+    "wtk": {
+      "source": "./local",
+      "sourceType": "local",
+      "skillPath": ".agents/skills/wtk/SKILL.md"
+    },
+    "wtk-deep-review": {
+      "source": "pedronauck/skills",
+      "sourceType": "github",
+      "skillPath": "skills/mine/wtk-deep-review/SKILL.md",
+      "computedHash": "17b035bf54994b97f918354bc8b4a98c3d3f679e7f3a5dfe12f4cec6be4c2cdc"
+    },
+    "wtk-lean": {
+      "source": "tech-leads-club/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/tlc-spec-lean/SKILL.md",
+      "ref": "0ab82f644cd9caf94c65347a50ad934800b0cbc4",
+      "computedHash": "56db00c3b8c5e76c41f05aeddf1ba1c21be420f4afee48a5695c693a7391a50f",
+      "license": "CC-BY-4.0"
     }
   }
 }

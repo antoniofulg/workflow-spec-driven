@@ -6,7 +6,7 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: The vendored validators accept both TLC-generated task layouts and its annotated acceptance-criteria heading while still rejecting future-phase dependencies and criteria without SHALL.
 entry_points: .agents/skills/workflow-spec-driven/scripts/validate_tasks.py; .agents/skills/workflow-spec-driven/scripts/validate_spec.py
-qa_status: pass
+qa_status: skipped
 bug_ids:
 fix_status:
 retest_status:
@@ -15,6 +15,9 @@ evidence: docs/qa/evidence/2026-08-22-validate-generated-feature-contracts/sessi
 last_report: docs/qa/reports/2026-08-22-validate-generated-feature-contracts.md
 overlaps: ADP-require-impact-on-large-specs
 ---
+
+Retired — the prior spec/tasks validators and compatibility layouts were removed; current native
+Lean validator coverage lives in `QAS-use-lean-feature-lifecycle`.
 
 Covers the public developer CLI behaviour reported in issue #39. Valid feature files produced from
 the TLC templates must pass without hand edits; the same validators must retain their discriminating

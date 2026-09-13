@@ -7,14 +7,15 @@ __pycache__/
 .env
 .env.*
 !.env.example
-.my-workflow.toml
+.wtk.toml
 .claude/agents/
 .codex/agents/
 .cursor/agents/
 docs/qa/evidence/
 docs/qa/state.csv
+.wtk-deep-review/*
+!.wtk-deep-review/learnings.md
 .deep-review/*
-!.deep-review/learnings.md
 
 # graft's local graph cache — regenerable, not committed (run `graft build`).
 graft/

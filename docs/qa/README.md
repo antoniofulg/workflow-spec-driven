@@ -1,135 +1,109 @@
 # QA operational profile
 
-This repository distributes an agent workflow, not a running application. Its public surfaces are
-the adoption CLI, the installed agent-facing files, the repository documentation, and package
-metadata. Command facts remain in the linked executable authorities.
-For consuming projects, those authorities are their executable manifests or CI jobs.
+This repository distributes Workflow Toolkit, not a running application. Its public surfaces are
+the guided adoption CLI, installed agent-facing files, local workflow configuration, documentation,
+and package metadata. No browser, HTTP API, mobile app, authentication flow, server, or production
+health endpoint exists here.
 
 ## Public interfaces and area codes
 
 | Area | Interface | Entry point | Authority |
 | --- | --- | --- | --- |
-| `ADP` | Guided installer, external-skill CLI, and generated filesystem | `npx workflow-spec-driven install`; `scripts/install_security_skills.py` with a disposable target | [README installation contract](../../README.md#adopt-the-workflow), [`package.json`](../../package.json), [`scripts/install_security_skills.py`](../../scripts/install_security_skills.py) |
-| `QAS` | Manual agent-file inspection, checkout-local CLI recipes, and Orca-backed workflow execution | `.agents/skills/qa-plan/`, `.agents/skills/qa-execute/`, `.agents/skills/autonomous/scripts/parallel_execute.py`, `tools/gate_cache.py`, `.agents/skills/deep-review/references/publish-github.md`, provider Verifier packets | [Skills contract](../../README.md#skills), [parallel executor contract](../../.agents/skills/autonomous/references/parallelization.md), [Deep Review publication recipe](../../.agents/skills/deep-review/references/publish-github.md) |
-| `DOC` | Documentation | `README.md` | [`README.md`](../../README.md) |
-| `CFG` | Workflow configuration, derived slice contract, generated state, and Git visibility | `.my-workflow.toml.example`; `.my-workflow.toml`; `.agents/skills/workflow-config/assets/agents/`; `.agents/skills/workflow-config/scripts/workflow_config.py`; `.agents/skills/workflow-config/scripts/parallel_plan.py`; `.agents/skills/workflow-spec-driven/scripts/validate_tasks.py --slice-contract-json`; `.agents/skills/wtasks/references/tasks-template.md`; `.gitignore`; `.specs/` | [README configuration contract](../../README.md#adopt-the-workflow), [`workflow-config` skill](../../.agents/skills/workflow-config/SKILL.md), [`wtasks` task template](../../.agents/skills/wtasks/references/tasks-template.md), [artifact lifecycle](../guidelines/ARTIFACT-LIFECYCLE.md) |
-| `REL` | Package metadata | `package.json`, `bun.lock` | [`package.json`](../../package.json) |
+| `ADP` | Guided installer and generated consumer filesystem | `workflow-toolkit` package; `wtk install` executable | [`package.json`](../../package.json); [README quick start](../../README.md#quick-start); [`bin/wtk.js`](../../bin/wtk.js) |
+| `CFG` | Workflow configuration, resolution, generated packets, and Lean feature state | `.wtk.toml.example`; checkout-local `.wtk.toml`; `workflow_config.py` | [`wtk-config`](../../.agents/skills/wtk-config/SKILL.md); [tracked example](../../.wtk.toml.example) |
+| `QAS` | Agent-facing workflow, instruction audit, validation, review, QA, and closeout procedures | `.agents/skills/wtk*/`; `.agents/skills/prompt-review/SKILL.md`; provider packets; Lean validators; close helper | [skills contract](../../README.md#current-workflow); [`prompt-review`](../../.agents/skills/prompt-review/SKILL.md); [`wtk-lean`](../../.agents/skills/wtk-lean/SKILL.md); [`wtk-ship`](../../.agents/skills/wtk-ship/SKILL.md) |
+| `DOC` | Workflow documentation and authorization boundaries | `README.md`; `docs/toolkit/` | [`README.md`](../../README.md); [workflow index](../toolkit/README.md) |
+| `REL` | Package identity and membership | `package.json`; `bun.lock`; local package archive | [`package.json`](../../package.json) |
 
-No browser, API, or mobile surface exists in this repository.
+Command facts remain in their executable manifests or CI authorities.
 
 ## Runner and adapter
 
-- Existing runner or adapter: CLI/manual, using the canonical `workflow-spec-driven install` bin,
-  the bundled repository-intelligence CLI with checkout-local fake Graphify/Graft executables,
-  parallel executor, assisted pointer probe, and filesystem inspection. The parallel-slice journey
-  uses the installed Orca CLI only after its `orchestration.contract.v1` capability is proven; the
-  disposable fixture and lifecycle oracle are owned by
-  [`.agents/skills/autonomous/scripts/qa_parallel_pilot.py`](../../.agents/skills/autonomous/scripts/qa_parallel_pilot.py), while
-  [`.agents/skills/autonomous/scripts/orca_assisted_probe.py`](../../.agents/skills/autonomous/scripts/orca_assisted_probe.py) is the shipped pointer-only
-  lifecycle boundary. Deep Review publication recipes
-  use a checkout-local fake `gh` that logs arguments;
-  [`tools/test_deep_review_contract.py`](../../tools/test_deep_review_contract.py) owns that
-  no-network adapter.
-- Manifest or CI authority: [`package.json`](../../package.json) owns the structural gate and
-  `tests/installer/*.test.js` owns the disposable installer smoke path.
-- Exact path used by `qa-execute`: invoke `npx workflow-spec-driven install` as documented by the
-[README adoption contract](../../README.md#adopt-the-workflow) inside a checkout-local
-disposable Git repository; invoke `npx workflow-spec-driven install` from the target
-against a separate
-checkout-local disposable target; inspect package membership with `bun pm pack --dry-run`
-  from the active checkout, and create any clean-clone canary from the active local repository into
-  a checkout-owned disposable path without fetching a remote; inspect the adoption script's printed
-  external-skill command before invoking
-  [`scripts/install_security_skills.py`](../../scripts/install_security_skills.py) only when the
-  QA packet explicitly authorizes network access and target writes; then inspect the targets and
-  repository files named by each charter. For repository intelligence, invoke
-  [`.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py`](../../.agents/skills/workflow-spec-driven/scripts/repository_intelligence.py)
-  through its public `status`, `graft`, `graphify-setup`, `graphify`, and `benchmark-report`
-  commands against a checkout-owned disposable Git fixture and checkout-local fake tool binaries;
-  use [Deep Review's `build_jobs.py`](../../.agents/skills/deep-review/scripts/build_jobs.py) only
-  to inspect context preparation, never dispatch reviewer jobs during that charter. For Deep Review publication, extract the public recipe
-  and execute it with the checkout-local fake `gh` pattern owned by
-  [`tools/test_deep_review_contract.py`](../../tools/test_deep_review_contract.py); never contact
-  GitHub during QA. For parallel execution, use the setup, dry-run, public executor
-  `start`/`status`/`resume`, lifecycle-check, and cleanup sequence in
-  [the E2E-001 handoff](../../.specs/features/parallel-slice-executor/qa-pilot.md); use the
-  assisted probe's `dispatch`, `inspect`, and `cleanup` commands with fake providers for offline
-  proof; do not replace a
-  serial fallback or incomplete lifecycle with a simulated success.
-- Installed QA tooling discovered: Bun's `bun:test` is declared by [`package.json`](../../package.json)
-  for structural checks; it is not a real-user runner. Python standard-library checks live in
-  `tests/installer/*.test.js`.
-
-The workflow does not install a framework or invent commands when a runner is absent. A consumer's
-existing `docs/qa/README.md` remains consumer-owned; a fresh consumer's quality skills discover and
-record its own profile instead of receiving this source repository's profile.
+- Adapter: CLI/manual through public commands plus an independent filesystem readback. The Node
+  installer tests use isolated temporary consumers and `/usr/bin/expect` for PTY input; they are the
+  existing pattern, not a separate QA framework.
+- Source CLI path for this checkout: from a checkout-owned disposable Git consumer, run
+  `node /Users/antoniofulg/Projects/my-workflow/bin/wtk.js install`. This invokes the public
+  executable directly without a registry lookup.
+- Offline package path: create a local archive with
+  `bun pm pack --filename <checkout-owned-pack-dir>/workflow-toolkit-1.0.0.tgz --ignore-scripts`,
+  extract it into a separate checkout-owned runner, then run
+  `node <runner>/package/bin/wtk.js install` from the disposable consumer. Record archive identity
+  and package membership before execution.
+- Configuration path: invoke
+  `python3 .agents/skills/wtk-config/scripts/workflow_config.py` against a disposable consumer and
+  reload its generated files through a separate process. The command contract lives in
+  [`wtk-config`](../../.agents/skills/wtk-config/SKILL.md).
+- Lean validation and closeout path: invoke the installed validators under
+  `.agents/skills/wtk-lean/scripts/` and
+  `python3 .agents/skills/wtk-ship/scripts/close_feature.py <feature> --promoted` only against
+  disposable feature fixtures. Inspect agent routing and on-demand guidance as shipped; assigned
+  technical-forward evidence may support discrimination that cannot be made deterministic through
+  this repository's CLI.
+- Prompt-review path: use the installed `.agents/skills/prompt-review/SKILL.md` through a bounded,
+  read-only instruction-bundle audit. Inventory hidden instruction files, reload cited source lines
+  independently, and record the observed findings or exact no-issue result plus coverage and
+  exclusions. The skill has no standalone executable; keep this manual agent-facing observation
+  separate from deterministic contract-test evidence.
+- Gate authority: [`package.json`](../../package.json) declares Bun, Node, and Python suites.
+  Automated suites prove technical contracts; they are not substitutes for the public-interface
+  QA walk.
 
 ## Build, start, and health
 
-- Build authority: none; this package has no build script or runtime artifact.
-- Production-parity start authority: not applicable; no server or application process exists.
-- Health signal: resolution exits successfully with matching JSON stdout and feature snapshot;
-  adoption exits successfully and its disposable target contains the expected workflow assets;
-  the parallel pilot dry-run validates exactly two resource-free lanes, and its lifecycle-check
-  accepts only two correlated terminal read-before-ack-before-release receipts.
-- Environment and checkout isolation: each QA run uses a target directory owned by the active
-  checkout; `tests/installer/*.test.js` demonstrates isolated temporary
-  targets and cleanup.
-- Automated gate authority: the `test` script in [`package.json`](../../package.json).
+- Build/start: none. The package ships source files and CLIs without a server build.
+- Health signals: the installer exits with its documented result and an independent readback sees
+  the expected managed tree; the resolver exits `0` and its JSON agrees with the reloaded snapshot;
+  validators accept valid fixtures and reject the planned discriminator; closeout deletes only the
+  named eligible feature.
+- Isolation: every mutable probe uses a directory owned by this checkout. Never reuse another
+  checkout's runtime or target.
 
 ## Authentication and test data
 
-- Test identity or session setup: none; adoption and repository inspection require no identity.
-- Fixtures or seed authority: the tracked merge-alone task documents
-  [`tools/fixtures/tlc-validator/merge-alone-one-slice.md`](../../tools/fixtures/tlc-validator/merge-alone-one-slice.md)
-  and [`merge-alone-two-slices.md`](../../tools/fixtures/tlc-validator/merge-alone-two-slices.md),
-  copied into a disposable checkout-local feature directory as `tasks.md`; plus disposable empty and
-  pre-populated directories created by
-  `tests/installer/*.test.js`, plus the two-lane resource-free Git fixture
-  created by [`.agents/skills/autonomous/scripts/qa_parallel_pilot.py`](../../.agents/skills/autonomous/scripts/qa_parallel_pilot.py).
-- Cleanup and teardown authority: remove only the disposable target created for the active QA run;
-  adoption owns its temporary-directory teardown, while the parallel pilot's public cleanup
-  requires its exact ownership attestation and completed lifecycle check.
-- Residue check: source checkout status remains unchanged apart from planned durable QA artifacts,
-  and no disposable target remains.
+- Authentication/session setup: none.
+- Fixtures or seed: disposable empty, adopted, re-adopted, conflicting, cancelled, and
+  non-interactive Git consumers following `tests/installer/*.test.js`; use the existing PTY pattern
+  in [`tests/installer/package.test.js`](../../tests/installer/package.test.js).
+- Prompt-review fixture: one bounded read-only tree containing visible and hidden instruction files;
+  record its path before the walk and verify its bytes and file set are unchanged afterward.
+- Config fixtures: a copy of `.wtk.toml.example`, a byte-distinct consumer `.wtk.toml`, and
+  disposable `checks.md` fixtures for `light`, `standard`, and `ui`. Preserve both source files and
+  every consumer-selected value during re-adoption.
+- Lifecycle fixtures: one disposable passing Lean feature and one unrelated pending feature with
+  recorded foreign bytes. Close only the passing named feature; never use this repository's active
+  feature directory as the target.
+- Cleanup: remove only the disposable runner, package, consumer, and feature roots created for the
+  QA run. Record their exact paths first.
+- Residue check: final source `git status --short` equals the opening snapshot apart from planned
+  durable QA report/status updates, and every recorded disposable path is absent.
 
 ## Evidence and limitations
 
-- Raw evidence path: `docs/qa/evidence/` (disposable and ignored by this repository).
-- Durable reports and statuses: `docs/qa/`.
-- Known limitations or unreachable surfaces: Orca can prove two resource-free worktrees and worker
-  lifecycles concurrently, but this repository has no product runtime, port allocator, database, or
-  configured consumer resource provider. Resource-bearing lanes therefore must serialize here;
-  each consuming product must separately adopt and QA its provider. No browser, API, mobile, auth,
-  server, or production health path exists. The CLI/manual adapter can observe refusal, success,
-  target bytes, lifecycle receipts, lock metadata, and installed links, but hostile staged-file,
-  process-race, exact Git checkpoint mutation, provider receipt spoofing, and interrupted-publication
-  controls remain technical-verification surfaces.
-- External dependencies requiring a human: installing the three pinned external security skills is
-  an explicit, networked authorization step printed by the security-skill installer;
-  QA must not run it implicitly. The adapter requires Python 3 for adoption and Bun 1.4.x for the
-  workflow gates, with network access only when the QA packet authorizes the installer command.
+- Raw evidence: `docs/qa/evidence/` (disposable and ignored).
+- Durable reports and statuses: `docs/qa/reports/`, `docs/qa/scenarios/`, and immutable charters.
+- The `workflow-toolkit` package is not published. Do not fetch a registry package, publish, push,
+  open or merge a pull request, deploy, or mutate production during QA.
+- Network access and external-skill installation are not authorized. Inspect the separately printed
+  security command and confirm `security-spec`, `security-threat-model`, `security-implementation`,
+  and `security-review` remain absent; do not execute
+  `scripts/install_security_skills.py`.
+- This workflow does not install a framework or invent commands. Use the source CLI or local packed
+  package, existing PTY pattern, public Python CLIs, and filesystem readback.
+- Agent-selection discrimination is partly instruction-visible and partly nondeterministic. Report
+  instruction/path inspection and the assigned Technical Verification forward evidence separately;
+  do not convert technical tests into a claimed user walk.
 
-`qa-plan` reads this profile before mapping promises. `qa-execute` uses the CLI/manual adapter,
-records its exact target and evidence, and leaves product fixes to an Implementer.
+`wtk-qa-plan` uses this profile to create bounded charters. A fresh `wtk-qa-execute` Verifier records
+the selected interface, exact path, evidence, limitations, and observed status. Product defects go
+to an Implementer; QA does not fix them.
 
-## Parallel-slice terminal QA index
+## Historical parallel-execution records
 
-Canonical terminal report: [`2026-08-25-parallel-slice-executor-final`](reports/2026-08-25-parallel-slice-executor-final.md).
-
-| Area | Terminal state | Durable owner |
-| --- | --- | --- |
-| Configuration/planning | `pass` — frozen resolver, deterministic planner, and safe provider-free boundary | [`J-configure-feature-workflow`](journeys/J-configure-feature-workflow.md); [`CFG-freeze-feature-workflow`](scenarios/CFG-freeze-feature-workflow.md); [`CFG-plan-parallel-slice-dispatch`](scenarios/CFG-plan-parallel-slice-dispatch.md) |
-| Fallback | `pass` — disabled, unsupported, and missing-provider paths produce zero effects/residue | [`CFG-fallback-unproven-parallel-execution`](scenarios/CFG-fallback-unproven-parallel-execution.md); [`R18`](reports/2026-08-25-parallel-slice-executor-r18.md); [`R19`](reports/2026-08-25-parallel-slice-executor-r19.md) |
-| Convergence | `pass` — independent fingerprints; third failed remediation halts at 3 | [`QAS-bound-verifier-remediation-per-blocker`](scenarios/QAS-bound-verifier-remediation-per-blocker.md); [`R19`](reports/2026-08-25-parallel-slice-executor-r19.md) |
-| Real Orca/Codex worker lifecycle | `blocked-verify` — v0.6.0 fresh safe retest reproduced external stop boundary; not pass/fail/untested | [`J-execute-parallel-slices`](journeys/J-execute-parallel-slices.md); [`QAS-run-resource-free-parallel-orca-slices`](scenarios/QAS-run-resource-free-parallel-orca-slices.md); [`v0.6.0 safe retest`](reports/2026-08-25-parallel-slice-executor-v060-safe-retest.md) |
-| Completed-pilot cleanup | `blocked-verify` — fresh lifecycle never authorized; no automatic cleanup claim | [`QAS-clean-owned-parallel-slice-pilot`](scenarios/QAS-clean-owned-parallel-slice-pilot.md); [`BUG-20260824-parallel-pilot-cleanup-allows-incomplete-lifecycle`](bugs/BUG-20260824-parallel-pilot-cleanup-allows-incomplete-lifecycle.md) |
-
-Open bug boundaries: [`BUG-20260824-parallel-executor-worker-start-fallback-leaks-worktree`](bugs/BUG-20260824-parallel-executor-worker-start-fallback-leaks-worktree.md)
-and [`BUG-20260824-parallel-pilot-cleanup-allows-incomplete-lifecycle`](bugs/BUG-20260824-parallel-pilot-cleanup-allows-incomplete-lifecycle.md).
-Product parsing/recovery/preflight root causes are technically fixed; live retests remain open and
-blocked by Orca/Codex behavior. R14 user-takeover residue, R15/R17 live-terminal residue, and older
-R8–R11 `identity_unproven` residue were later removed manually by the operator. That operator-forced
-cleanup is recorded only as a physical baseline reset and is not automatic-cleanup evidence. The
-fresh v0.6.0 retest retained its own exact A/T1 worktree and live terminal after the same external
-boundary; no zero-residue claim exists for the real worker journey.
+Parallel slice execution was removed by Workflow Toolkit Lean. Its durable reports, bugs, and
+charters remain historical evidence only and are not current adapter instructions. The terminal
+summary is [`2026-08-25-parallel-slice-executor-final`](reports/2026-08-25-parallel-slice-executor-final.md);
+the last live safe retest is
+[`2026-08-25-parallel-slice-executor-v060-safe-retest`](reports/2026-08-25-parallel-slice-executor-v060-safe-retest.md).
+Retired scenario files retain earlier blocked, failed, and cleanup evidence; retirement does not
+turn those outcomes into passes.

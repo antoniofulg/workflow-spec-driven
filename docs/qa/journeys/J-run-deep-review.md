@@ -1,8 +1,8 @@
 # J-run-deep-review
 
 **Persona:** Workflow operator
-**Goal:** Complete a Deep Review with one discovery pass, a one-job remediation check, a repair plan on every defect, bounded parallel reviewers, deterministic output, and honest metrics.
-**Entry point:** `.agents/skills/deep-review/SKILL.md` → `scripts/run_jobs.py`
+**Goal:** Complete an on-demand Deep Review with one discovery pass, bounded remediation checks, deterministic output, and honest metrics.
+**Entry point:** `.agents/skills/wtk-deep-review/SKILL.md` → `scripts/run_jobs.py`
 
 ## Flow
 

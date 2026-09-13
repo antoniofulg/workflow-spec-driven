@@ -1,6 +1,6 @@
 Run the adopted agent operating system as the delivery workflow. Load the guideline named by the
 current task before acting, keep product ownership in the consuming project, and use the local
-workflow configuration as the authority for delegated model and effort choices.
+wtk-configuration as the authority for delegated model and effort choices.
 
 ## Product context
 
@@ -14,6 +14,8 @@ surface missing required context as a named gap.
 | Customer copy | Voice reference |
 | Boundary change | Boundary architecture reference |
 | Planner, other feature | Overview + affected capabilities/journeys |
+| Plan or Specify: runtime, config, public behaviour, authentication, authorization | `docs/toolkit/guidelines/SECURITY.md` — before coding; use sections 2 and 3 at their named phases |
+| Design or Build: screen or interaction | `docs/toolkit/guidelines/UI-UX.md` — before Design or Build; use the feature `uiux.md` when present |
 | Implementer | Approved slice + relevant architecture/design |
 
 Activate Ponytail at full at the start of workflow work and keep it active through Specify, Design,

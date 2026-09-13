@@ -6,7 +6,7 @@ persona: Workflow adopter
 journey: J-adopt-workflow
 expected: The adopted validate_spec CLI exits non-zero naming ## Impact for a Large or Complex spec that lacks that section, and does not require the section for Medium, Small, or a Large spec whose Impact is none.
 entry_points: .agents/skills/workflow-spec-driven/scripts/validate_spec.py; tools/fixtures/tlc-validator/spec-size-large-no-impact.md; tools/fixtures/tlc-validator/spec-size-complex-no-impact.md; tools/fixtures/tlc-validator/spec-size-medium-no-impact.md; tools/fixtures/tlc-validator/spec-size-small-no-impact.md; tools/fixtures/tlc-validator/spec-size-large-impact-none.md
-qa_status: pass
+qa_status: skipped
 bug_ids:
 fix_status:
 retest_status:
@@ -15,6 +15,9 @@ evidence: docs/qa/evidence/2026-09-03-specify-impact-designer/22-validate-spec.l
 last_report: docs/qa/reports/2026-09-03-specify-impact-designer.md
 overlaps: ADP-validate-generated-feature-contracts
 ---
+
+Retired — the size-class `validate_spec.py` contract was removed; native Lean plan validation now
+owns current artifact checks.
 
 New promise from `specify-impact-designer`. Size on the spec header line gates the Impact
 section. Copy the five size fixtures into a disposable target and run the adopted

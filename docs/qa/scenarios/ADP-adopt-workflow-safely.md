@@ -4,20 +4,20 @@ area: ADP
 title: Adopt the workflow without replacing consumer-owned state
 persona: Workflow adopter
 journey: J-adopt-workflow
-expected: An exact package applies canonical skill-owned runtime and generated packets while preserving consumer context, config, QA, and knowledge, retiring proven old copies, and refusing edited or unproven old runtime before publication.
-entry_points: README.md#quick-start; docs/workflow/pack.md; npx workflow-spec-driven install
+expected: Guided install, cancellation, non-interactive refusal, failure recovery, and idempotent re-adoption preserve all consumer-owned bytes while publishing only the reviewed Workflow Toolkit plan with exits 0, 2, or 1 as documented.
+entry_points: README.md#quick-start; node /Users/antoniofulg/Projects/my-workflow/bin/wtk.js install; bin/wtk.js; scripts/installer/transaction.js
 qa_status: pass
 bug_ids: BUG-20260822-deep-review-learnings-untrackable; BUG-20260822-feature-specs-ignored; BUG-20260822-feature-state-gate-conflicts; BUG-20260825-adoption-omits-parallel-pilot; BUG-20260829-final-qa-pass-conflicts-with-adoption-gate
 fix_status: fixed
 retest_status: pass
 fix_commits: 0413862; a7397d2; 43e9910; a3fc718; 5b5474e; 816afd6; 9653ed1
-evidence: docs/qa/evidence/2026-09-09-interactive-installer/47-knowledge-readback.json; docs/qa/evidence/2026-09-09-interactive-installer/49b-recovery-readback.json; docs/qa/evidence/2026-09-09-interactive-installer/50-malformed-state.log; docs/qa/evidence/2026-09-09-interactive-installer/50-unsafe-manifest.log; docs/qa/evidence/2026-09-09-interactive-installer/54-final-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/closeout-summary.json; docs/qa/evidence/2026-09-09-interactive-installer/closeout/provenance-readback.json
-last_report: docs/qa/reports/2026-09-09-interactive-installer.md
+evidence: docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/adoption-summary.md; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/source-core-retry.log; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/source-core-readopt.log; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/cancel.log; docs/qa/evidence/2026-09-13-workflow-toolkit-adoption/eof.log
+last_report: docs/qa/reports/2026-09-13-workflow-toolkit-adoption.md
 overlaps:
 ---
 
 Covers `CWF-ADOPT-1` through `CWF-ADOPT-3`: resolver installation, tracked-source discovery,
-managed-path review, initial profile creation, preservation of `.my-workflow.toml` and templates,
+managed-path review, initial profile creation, preservation of `.wtk.toml` and templates,
 runtime regeneration, and the installed hierarchy/resolution instructions when adopted again.
 
 Release 0.9.1 adjacent QA passed the real 0.8.0 migration and fresh full adoption. Seven phase
@@ -28,7 +28,7 @@ made zero Orca calls, and independent reload retained clean state.
 For issue #36, fresh adoption must install the skill-owned AD index; after the consumer changes that file,
 re-adoption must preserve its bytes.
 
-For issue #37, `docs/workflow/pack.md` remains source-only. Fresh adoption receives the other tour
+For issue #37, `docs/toolkit/pack.md` remains source-only. Fresh adoption receives the other tour
 pages, and its copied index omits the pack-only links when the guide is absent.
 
 QA on 2026-08-22 confirmed the source guide and its two links remain in the pack, fresh adoption
@@ -39,7 +39,7 @@ QA on 2026-08-22 confirmed fresh installation and identical SHA-256 before and a
 a consumer-modified skill-owned AD index. The bundled-skill and release-contract canaries also passed.
 
 QA for issue #39 confirmed initial adoption and re-adoption install byte-identical workflow validator
-CLIs while preserving consumer-owned `.my-workflow.toml` and `docs/qa/README.md` byte-for-byte. The
+CLIs while preserving consumer-owned `.wtk.toml` and `docs/qa/README.md` byte-for-byte. The
 deterministic package path extends that preservation to consumer knowledge and neutral fresh scaffolds.
 
 For issue #41, adoption documents Ponytail activation at workflow start and points to `AGENTS.md`
@@ -48,7 +48,7 @@ skill, and workflow loop keep that contract through every TLC and review stage, 
 explicit exits, and survive re-adoption without an implementation-only competing rule.
 
 QA for issue #27 confirmed adoption and re-adoption install a validator byte-identical to the source
-while preserving a consumer-owned `.my-workflow.toml` byte-for-byte.
+while preserving a consumer-owned `.wtk.toml` byte-for-byte.
 
 Issue #28 requires a fresh adoption against a target that already ignores `.deep-review/`: the
 durable `.deep-review/learnings.md` must be eligible for Git while other Deep Review artifacts stay
@@ -101,3 +101,8 @@ The `specify-impact-designer` feature adds three designer templates and three de
 The `lean-consumer-installation` cycle relocates installed runtime into owning skills and changes how
 proven previous-layout copies retire. Reset to `untested`; the 2026-09-07 report and evidence remain
 historical. Walk `CH-install-skill-owned-runtime-2026-09-08` from a final reviewed package.
+
+The 2026-09-13 cycle changes package, executable, configuration, and managed skill names. Re-walk
+normal apply and byte-stable re-adoption, cancellation with exit `0`, non-interactive refusal with
+exit `2`, conflict/publication failure with exit `1`, and verified recovery. Preserve prior evidence
+as history; it does not prove the replacement CLI.

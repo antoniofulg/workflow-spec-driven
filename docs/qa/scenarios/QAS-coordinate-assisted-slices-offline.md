@@ -6,7 +6,7 @@ persona: Workflow operator
 journey: J-execute-parallel-slices
 expected: Default assisted execution uses only ready compatible writer lanes, sends packet pointers without packet bodies, issues each fake-provider mutation once, falls back serially when proof is missing, and cleans owned state to zero residue.
 entry_points: .agents/skills/workflow-config/scripts/workflow_config.py; .agents/skills/workflow-config/scripts/parallel_plan.py; .agents/skills/autonomous/scripts/parallel_execute.py start; .agents/skills/autonomous/scripts/orca_assisted_probe.py dispatch; .agents/skills/autonomous/scripts/orca_assisted_probe.py inspect; .agents/skills/autonomous/scripts/orca_assisted_probe.py cleanup
-qa_status: untested
+qa_status: skipped
 bug_ids:
 fix_status:
 retest_status:
@@ -15,6 +15,9 @@ evidence: docs/qa/evidence/2026-09-08-lean-consumer-installation/73-pilot-dry-ru
 last_report: docs/qa/reports/2026-09-08-lean-consumer-installation.md
 overlaps: CFG-plan-parallel-slice-dispatch; CFG-fallback-unproven-parallel-execution; QAS-run-resource-free-parallel-orca-slices; QAS-clean-owned-parallel-slice-pilot
 ---
+
+Retired — assisted slice execution and its fake-provider adapter were removed from Workflow Toolkit
+Lean.
 
 This is the canonical offline assisted-execution promise. It uses only the public CLI/manual adapter
 and checkout-local fake Orca, Git, and resource providers. It does not claim that the live Orca host

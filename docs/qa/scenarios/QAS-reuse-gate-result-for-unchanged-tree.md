@@ -5,7 +5,7 @@ title: Reuse a passing gate result for an unchanged tree
 persona: Workflow operator
 journey: J-run-project-gates
 expected: A gate that already passed on this exact tree finishes without running the command again and names the gate, fingerprint and log path that back the claim.
-entry_points: python3 tools/gate_cache.py run --gate scoped -- <gate command>; python3 tools/gate_cache.py run --gate full -- <gate command>; docs/guidelines/GATES.md
+entry_points: python3 tools/gate_cache.py run --gate scoped -- <gate command>; python3 tools/gate_cache.py run --gate full -- <gate command>; docs/toolkit/guidelines/GATES.md
 qa_status: pass
 bug_ids:
 fix_status:

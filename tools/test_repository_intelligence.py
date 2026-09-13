@@ -17,7 +17,7 @@ from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parent.parent
-SCRIPT = ROOT / ".agents/skills/workflow-spec-driven/scripts/repository_intelligence.py"
+SCRIPT = ROOT / ".agents/skills/wtk-config/scripts/repository_intelligence.py"
 import sys
 sys.path.insert(0, str(SCRIPT.parent))
 import repository_intelligence as ri
@@ -239,12 +239,12 @@ class AdapterTests(RepositoryFixture):
         self.assertIn("notes.md", ri.read_state(self.root, "graft")["indexed_source_manifest"])
 
     def test_r11_real_graft_command_handles_tracked_directory_symlink(self) -> None:
-        target = self.root / ".agents/skills/autonomous"
+        target = self.root / ".agents/skills/wtk-ship"
         target.mkdir(parents=True)
         (target / "SKILL.md").write_text("skill\n", encoding="utf-8")
-        link = self.root / ".claude/skills/autonomous"
+        link = self.root / ".claude/skills/wtk-ship"
         link.parent.mkdir(parents=True)
-        link.symlink_to(Path("../../.agents/skills/autonomous"), target_is_directory=True)
+        link.symlink_to(Path("../../.agents/skills/wtk-ship"), target_is_directory=True)
         subprocess.run(["git", "add", "."], cwd=self.root, check=True)
         graft = self.fake_tool("graft", ri.GRAFT_VERSION)
 
@@ -258,7 +258,7 @@ class AdapterTests(RepositoryFixture):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(result.stdout)["status"], "ready")
         state = ri.read_state(self.root, "graft")
-        self.assertIn(".claude/skills/autonomous", state["indexed_source_manifest"])
+        self.assertIn(".claude/skills/wtk-ship", state["indexed_source_manifest"])
 
         before = state["source_fingerprint"]
         other_target = self.root / ".agents/skills/other"

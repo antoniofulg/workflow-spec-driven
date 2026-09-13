@@ -13,10 +13,10 @@ belongs in consuming projects; this index routes source-pack work without loadin
 
 | Role or task | Read only |
 | --- | --- |
-| Visual polish or visual adjustment | `docs/guidelines/UI-UX.md`; `docs/guidelines/FRONTEND.md` |
+| Visual polish or visual adjustment | `docs/toolkit/guidelines/UI-UX.md`; `docs/toolkit/guidelines/FRONTEND.md` |
 | Customer-facing copy | [unset — source pack has no customer voice reference; consuming projects fill this route] |
-| Boundary change | `docs/guidelines/MODELING.md`; `docs/guidelines/DX.md` |
-| Planner, other feature | `README.md#purpose`; `docs/workflow/README.md`; affected capability/journey docs |
+| Boundary change | `docs/toolkit/guidelines/MODELING.md`; `docs/toolkit/guidelines/DX.md` |
+| Planner, other feature | `README.md#purpose`; `docs/toolkit/README.md`; affected capability/journey docs |
 | Implementer | Approved slice; `AGENTS.md#critical-rules`; relevant architecture/design docs |
-| Reviewer or verifier | `docs/guidelines/REVIEW-ROUNDS.md`; `docs/guidelines/VERIFICATION-EVIDENCE.md`; assigned spec/tests |
-| Unknown scope or dependency | `docs/guidelines/CONTEXT-BUDGET.md`; add affected reference with an explicit reason |
+| Reviewer or verifier | `docs/toolkit/guidelines/REVIEW-ROUNDS.md`; `docs/toolkit/guidelines/VERIFICATION-EVIDENCE.md`; assigned spec/tests |
+| Unknown scope or dependency | `docs/toolkit/guidelines/CONTEXT-BUDGET.md`; add affected reference with an explicit reason |
