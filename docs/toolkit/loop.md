@@ -24,7 +24,7 @@ last column.
 | 5 | **Atomic commit** | One Conventional Commit after the applicable Lean check state is current | — | `AGENTS.md` |
 | 6 | **Technical Verifier** | One fresh independent pass proves every check over the complete feature range; mutants must die at the approved profile | Filed-issue path; no product code in final QA session | [REVIEW-ROUNDS.md](guidelines/REVIEW-ROUNDS.md) |
 | 7 | **Deep-review** | Correct, safe, maintainable — resolved groups, blocking findings only | Cadence `skip` (no groups; human runs `wtk-deep-review` later), or proportional classifier selects scoped validation | [REVIEW-ROUNDS.md](guidelines/REVIEW-ROUNDS.md) |
-| 8 | **QA session** | The finished feature, as a person meets it: one `wtk-qa-plan` and one `wtk-qa-execute` packet | Feature has no public, UI, API, CLI, or adoption change | [QA-EXECUTION.md](guidelines/QA-EXECUTION.md) |
+| 8 | **QA session** | The finished feature, as a person meets it: Plan as needed, then impact-scoped Execute | Feature has no public, UI, API, CLI, or adoption change | [QA-EXECUTION.md](guidelines/QA-EXECUTION.md) |
 | 9 | **Full gate** | The product gate, once, when the proportional classifier selects it | Scoped gate is sufficient | [validation.md](../../.agents/skills/wtk/references/validation.md) |
 | 10 | **Remote delivery** | `wtk-ship` authorizes the feature-branch push, one pull request, and merge after readiness is rechecked | Readiness is evidence, not authorization for deploy/release, production mutations, force-push, direct `main` push, and unrelated remote actions; those need explicit instruction | [evidence.md](../../.agents/skills/wtk/references/evidence.md) |
 

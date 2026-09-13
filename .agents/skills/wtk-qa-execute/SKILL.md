@@ -9,7 +9,7 @@ metadata:
 
 Walk the current QA plan through the consuming project's public surfaces. Select the adapter already
 declared by the project, capture evidence, write durable results, and return product defects to an
-Implementer for a fresh Verifier cycle.
+Implementer without making the QA observer an author.
 
 ## Provenance
 
@@ -24,6 +24,9 @@ Read `docs/qa/README.md`, the QA Plan handoff, the in-scope scenarios and charte
 `docs/toolkit/guidelines/QA-SCENARIOS.md` in full. The guideline owns scenario fields, ids, statuses, and
 flag/reset rules. Read [`references/session-protocol.md`](references/session-protocol.md) in full
 before the first charter.
+
+For a bounded retest, the existing report's scoped plan and linked scenario/charter satisfy the
+QA Plan handoff; references to a charter below include that scoped plan.
 
 Use real public interfaces and the project's existing browser, API, CLI, mobile, or manual adapter.
 When no runner is adopted, choose the closest reachable public interface or a manual adapter and
@@ -84,10 +87,9 @@ debrief, or an explicit limitation with the status prescribed by `QA-SCENARIOS.m
 
 ### 5. Probe the changed surface
 
-Run the charter's tour and choose 5–10 relevant edge probes. Re-walk the two largest changed
-journeys with the comprehension, recovery, trust, speed, accessibility, and language lenses when
-the cycle has enough surface to justify them. Record clean attempts as results and keep evidence
-paths beside their report rows.
+Run the charter's tour and select edge probes and lenses justified by changed promises or named
+risks; there is no minimum count. Reuse applicable coverage rather than repeating journeys for a
+quota. Record clean attempts as results and keep evidence paths beside their report rows.
 
 **Done when:** the selected tour, every chosen edge, and every applicable lens have a recorded
 result, evidence path, or named limitation.
@@ -97,16 +99,19 @@ result, evidence path, or named limitation.
 Deduplicate against `docs/qa/bugs/` and linked scenario bug ids. File a new bug only for a new
 symptom; append re-found or regressed observations to the existing record and link affected
 scenarios. When a product defect is confirmed, read
-[`references/fix-loop.md`](references/fix-loop.md) in full, hand the defect to an Implementer, and
-close this Verifier session before remediation.
+[`references/fix-loop.md`](references/fix-loop.md) in full. Stop unsafe or dependent paths immediately;
+finish safe independent paths on the same frozen snapshot, then hand the findings to an Implementer
+as one remediation batch. Do not walk a tree while it is being changed.
 
 **Done when:** every finding has a deduplicated bug record, affected scenario links, severity and
 evidence, and every product fix is explicitly assigned to an Implementer rather than changed here.
 
 ### 7. Close or resume the cycle
 
-After a fix, start a fresh Verifier, rerun only impact-invalidated technical proofs, and resume from the affected journey
-plus its adjacent canary. Keep the original report history and update statuses, retest fields, bug
+After a fix, the same non-author Verifier may resume after identifying the new snapshot and resetting
+the environment; replace it if independence, reliable state, or sufficient context is lost. Rerun
+only impact-invalidated technical proofs and resume from the affected journey and causally related
+canaries. Keep the original report history and update statuses, retest fields, bug
 links, and evidence. At close, replace every pending row with a terminal result or an allowed
 `untested`/`blocked-verify` explanation, apply `.agents/skills/wtk/references/validation.md` and record
 the selected commands, reused evidence and results. QA close does not automatically repeat a full gate.

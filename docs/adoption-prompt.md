@@ -52,8 +52,8 @@ Review the complete diff, managed-path overwrites, and the target's declared ful
 check. Apply the proportional classifier in the adopted `.agents/skills/wtk/references/validation.md`: pure maintenance
 uses accuracy/link/heading/whitespace checks, instruction changes use consistency plus existing
 relevant contract checks, and mixed changes use canonical checks for changed executable behavior.
-Record selected commands, results, and any named risk. Send fresh `wtk-qa-plan` and `wtk-qa-execute` packets
-only when the classifier selects a public walk. For a purely internal refactor, record `no user-visible change` and do not run QA; otherwise record the narrow limitation. Preserve risk-based checks for
+Record selected commands, results, and any named risk. Follow `docs/toolkit/guidelines/QA-EXECUTION.md` for conditional Plan
+and non-author Execute dispatch only when the classifier selects a public walk. For a purely internal refactor, record `no user-visible change` and do not run QA; otherwise record the narrow limitation. Preserve risk-based checks for
 adoption, auth, data, and public interfaces. Activate `wtk`. At the start of
 workflow work, activate `ponytail` at `full`; `AGENTS.md` carries the full-cycle session rule and the
 explicit stop commands.

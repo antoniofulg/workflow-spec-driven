@@ -12,7 +12,7 @@ and filed Trivials make review end.
 | --- | --- | --- |
 | **Technical Verifier** (feature closing step) | Does one fresh independent pass prove every check over the complete feature range? | One full-feature pass after the last code-changing slice |
 | **wtk-deep-review** (resolved implementation groups) | Is the code correct, safe and maintainable? | Discovery once; one remediation check per batch until no Critical/Major is open or `stall_attempts` halts |
-| **QA session** (feature closing step when the public surface changes) | Does the finished feature work for a real user? | One `wtk-qa-plan` and one `wtk-qa-execute` session |
+| **QA session** (feature closing step when the public surface changes) | Does the finished feature work for a real user? | Plan as needed; one impact-scoped Execute cycle |
 The provider `verifier` executes exactly one phase per packet: `technical`, `wtk-qa-plan`, or
 `wtk-qa-execute`. The orchestrator dispatches one technical packet over the complete feature range after
 the last code-changing slice and QA packets once, at feature close, when the feature changes public,
@@ -48,8 +48,8 @@ requires a user walk, after the final implementation review group. It needs the 
 cannot run on part of one. The `wtk-qa-plan` and `wtk-qa-execute` skills own it.
 
 It writes no product code and does not replace the feature's technical Verifier or wtk-deep-review.
-It receives distinct fresh packets, `wtk-qa-plan` and `wtk-qa-execute`, and walks every scenario the
-feature flagged.
+It walks every scenario the feature flagged. `QA-EXECUTION.md` owns conditional Plan dispatch and
+same non-author session reuse; packet phases remain distinct.
 
 ## Hard rules
 

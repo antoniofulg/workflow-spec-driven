@@ -26,7 +26,7 @@ Command facts remain in their executable manifests or CI authorities.
   `node /Users/antoniofulg/Projects/my-workflow/bin/wtk.js install`. This invokes the public
   executable directly without a registry lookup.
 - Offline package path: create a local archive with
-  `bun pm pack --filename <checkout-owned-pack-dir>/workflow-toolkit-1.0.1.tgz --ignore-scripts`,
+  `bun pm pack --filename <checkout-owned-pack-dir>/workflow-toolkit-1.0.2.tgz --ignore-scripts`,
   extract it into a separate checkout-owned runner, then run
   `node <runner>/package/bin/wtk.js install` from the disposable consumer. Record archive identity
   and package membership before execution.
@@ -94,7 +94,7 @@ Command facts remain in their executable manifests or CI authorities.
   instruction/path inspection and the assigned Technical Verification forward evidence separately;
   do not convert technical tests into a claimed user walk.
 
-`wtk-qa-plan` uses this profile to create bounded charters. A fresh `wtk-qa-execute` Verifier records
+`wtk-qa-plan` uses this profile to select bounded charters. A non-author `wtk-qa-execute` Verifier records
 the selected interface, exact path, evidence, limitations, and observed status. Product defects go
 to an Implementer; QA does not fix them.
 

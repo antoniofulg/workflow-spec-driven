@@ -4,6 +4,24 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-09-13
+
+### Changed
+
+- QA finishes safe independent paths on a frozen snapshot and batches findings; remediation pauses
+  walks, and retests cover affected paths after snapshot identification and environment reset.
+- The same non-author QA observer may plan and execute authorized bounded work and resume retests.
+  Applicable charters are reused; probes follow named risks rather than mandatory quotas.
+- Modular implementation reuses approved Swept dispositions and revisits only missing or changed inputs.
+- Single-builder work no longer requires speculative handoff splits or token-budget arithmetic.
+- Targeted instruction tests validate routing, metadata, safety boundaries and release consistency
+  without freezing line wrapping or unrelated historical changelog prose.
+
+### Migration
+
+- Run `npx workflow-toolkit install` and review the managed diff. No dependency or cache changes.
+- Independent technical verification, author/QA separation and impact-based validation remain required.
+
 ## [1.0.1] - 2026-09-13
 
 ### Changed

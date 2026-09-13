@@ -11,13 +11,15 @@ adapter, exact path, evidence, and a regression-test recommendation when the pro
 **Done when:** the Implementer has a bug id, reproducible path, evidence, expected result, and
 affected scenario list.
 
-## Fresh verification
+## Snapshot and retest
 
-End the current QA execution session before the product changes. After the Implementer reports the
-fix, a fresh Verifier selects invalidated technical proofs using incremental impact validation and
-retests the affected journey plus its adjacent
-canary. QA then resumes from the affected charter and records the retest result in the original
-report.
+Stop unsafe or dependent paths; finish safe independent paths on the frozen snapshot and batch
+findings before remediation. Pause all walks while the Implementer changes the tree. Record the
+tested revision and relevant uncommitted delta so pre-fix evidence cannot be attributed to the fix.
+After the fix, identify the new snapshot and reset fixtures/runtime before resuming. The same
+non-author Verifier may select invalidated proofs using incremental impact validation and retest
+the affected journey and causally related canaries. Start a new Verifier only if independence,
+reliable state, or sufficient context is lost. Preserve prior results in the original report.
 
-**Done when:** the fix has a fresh Verifier result, the affected journey is re-walked, and the bug
+**Done when:** the fix has a non-author retest result on the fixed snapshot, the affected journey is re-walked, and the bug
 and scenario statuses carry matching evidence.

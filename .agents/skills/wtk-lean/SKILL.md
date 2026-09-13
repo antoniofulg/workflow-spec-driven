@@ -117,9 +117,10 @@ unavailable, perform the same checks by inspection and report the degraded path.
 
 ## Sub-agents and handoff
 
-One builder owns whole slices sequentially. Before code, record the intended split and budget
-arithmetic under `## Handoff`; if reading exceeds the declared budget (default 150k tokens), hand off
-only between slices. Before handoff, the outgoing builder records closed checks, user decisions, and
+One builder owns whole slices sequentially. Estimate context and record a split under `## Handoff`
+only when a concrete context limit or planned transfer requires it, not before every build.
+If reading exceeds the declared budget (default 150k tokens), hand off only between slices.
+Before handoff, the outgoing builder records closed checks, user decisions, and
 abandoned approaches, and continues only after every proof in the batch is green. The next builder
 reads the artifact and landed diff, not a narrative. Never split a slice or create a task DAG. The
 coordinator owns checkpoint synchronization and the final full-range Verifier; builders report and
