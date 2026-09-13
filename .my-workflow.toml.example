@@ -50,11 +50,11 @@ effort = "high"
 
 [models.codex.implementer]
 model = "gpt-5.6-luna"
-effort = "high"
+effort = "max"
 
 [models.codex.verifier]
 model = "gpt-5.6-sol"
-effort = "medium"
+effort = "high"
 
 [models.codex.explorer]
 model = "gpt-5.6-luna"
@@ -65,7 +65,7 @@ model = "gpt-5.6-luna"
 effort = "high"
 
 [models.codex.designer]
-model = "gpt-5.6-sol"
+model = "gpt-6-astra"
 effort = "high"
 
 [models.cursor.planner]
