@@ -1110,6 +1110,8 @@ describe("adoption and public setup", () => {
     );
     expect(latestRelease).toContain("consumer-owned");
     expect(latestRelease).toContain("proportional validation");
+    expect(latestRelease).toContain("npx workflow-toolkit install");
+    expect(latestRelease).not.toContain("npx wtk install");
     expect(historicalRelease).toContain("deep-review defect");
     expect(historicalRelease).toContain("Minor");
     expect(historicalRelease).toContain("originating feature run");

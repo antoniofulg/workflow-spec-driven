@@ -18,7 +18,7 @@ All notable changes to this project are documented here.
 
 ### Migration
 
-- Run `npx wtk install` on a clean feature branch and review the complete replacement plan.
+- Run `npx workflow-toolkit install` on a clean feature branch and review the complete replacement plan.
 
 ## [0.11.0] - 2026-09-11
 
