@@ -142,6 +142,7 @@ includes `core`. The guided command is:
 
 `core` contains the Lean operating loop and Bun tooling; `quality` adds review and QA skills; and
 `extras` adds optional Ponytail utilities and prompt-review. `full` resolves all three catalog modules.
+Invoke `$prompt-review` for instruction audits or requested simplification.
 
 ```bash
 npx workflow-toolkit install

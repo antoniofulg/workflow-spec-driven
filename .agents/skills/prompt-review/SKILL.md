@@ -16,6 +16,10 @@ repository-wide scan. For an aggregate review, inspect the selected skills,
 trigger, claim, dependency, or conflict. State missing or unread references as
 uncertainty.
 
+When a directory is in scope, inventory instruction files in hidden skill
+folders too, including `.agents/skills/**/SKILL.md`. Cite raw source line
+numbers, never offsets from a compacted or paginated display.
+
 Check for:
 
 - descriptions or triggers that are too broad, indistinguishable from nearby
@@ -38,7 +42,8 @@ Audit is read-only. Return concise findings in this form:
 
 Use exact paths and line numbers when available. If no material issue is found,
 say `No material prompt issue found.` Keep findings separate from optional
-observations and do not manufacture a report artifact.
+observations, end with a short `coverage: ...; exclusions: ...` note, and do
+not manufacture a report artifact.
 
 ## Requested edits
 
