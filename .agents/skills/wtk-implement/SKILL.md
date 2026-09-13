@@ -35,9 +35,9 @@ passes. Read `references/test-policy.md` only for `standard` or `ui` checklist r
    pass a suite; a wrong check stops for user clarification.
 3. The checklist and test-policy rows are fixed while building. `Landing` is additive: record a new
    door with its literal shape and rejected alternative before writing the closing code.
-4. The coordinator dispatches one fresh sub-agent as Verifier after the last batch, never the author or a child of
-   the builder. An approved checklist authorizes local edits and commits only; push, deploy, and
-   production data changes require explicit authorization.
+4. A build agent never spawns another agent at all. The coordinator dispatches one fresh sub-agent as Verifier after
+   the last batch, never the author or a child of the builder. An approved checklist authorizes local edits and commits
+   only; push, deploy, and production data changes require explicit authorization.
 
 ## Extract
 

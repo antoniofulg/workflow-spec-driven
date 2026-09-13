@@ -1003,7 +1003,7 @@ describe("adoption and public setup", () => {
     expect(readme).toContain("`.my-workflow/backups/<UTC timestamp>/`");
     expect(readme).toContain("`core` (Lean operating loop and shared tooling)");
     expect(readme).toMatch(/`quality`\s+\(review and QA\)/);
-    expect(readme).toMatch(/`extras`\s+\(optional Ponytail utilities\)/);
+    expect(readme).toMatch(/`extras`\s+\(optional Ponytail utilities and prompt-review\)/);
     expect(readme).toContain("The four external security skills are a separate authorized step");
     expect(readme).toContain("install_security_skills.py");
     expect(readme).not.toContain("@tech-leads-club/agent-skills install");

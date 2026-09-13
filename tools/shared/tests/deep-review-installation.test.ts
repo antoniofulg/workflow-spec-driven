@@ -55,7 +55,7 @@ describe("wtk-deep-review installation", { timeout: 30_000 }, () => {
       source: "pedronauck/skills",
       sourceType: "github",
       skillPath: "skills/mine/wtk-deep-review/SKILL.md",
-      computedHash: "38dab530ea1c50f4f85f4d310a8a4b21e3cfc30b13493d1cf6cad99a52e51afd",
+      computedHash: "17b035bf54994b97f918354bc8b4a98c3d3f679e7f3a5dfe12f4cec6be4c2cdc",
     });
     expect(hashSkillTree(skillDirectory)).toBe(lockEntry?.computedHash);
 
