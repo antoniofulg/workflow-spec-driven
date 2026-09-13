@@ -122,7 +122,8 @@ The workflow references four external security skills:
 - `security-implementation` for secure-by-default implementation and hardening;
 - `security-review` for high-confidence residual vulnerability reviews.
 
-They are not bundled in this pack. Their GitHub source, canonical path, reviewed commit, CLI
+Reviewed copies are versioned here for local agents, but excluded from the npm package.
+Their GitHub source, canonical path, reviewed commit, CLI
 version (`1.5.23`), and content hash are authoritative in [`skills-lock.json`](skills-lock.json).
 Adoption prints a
 separate installer command; run it only after explicit authorization because it uses the network

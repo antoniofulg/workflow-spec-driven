@@ -1,5 +1,9 @@
 # Update log
 
+## 2026-09-13
+
+* **Ingestion**: Added [Security skill integration](/architecture/security-skill-integration.md) from the maintainer's observation of missing local security skills, connecting phase routing to reproducible consumer delivery and preserving comparative quality as unvalidated.
+
 ## 2026-09-12
 
 * **Ingestion**: Added [Workflow Toolkit contract](/decisions/workflow-toolkit-contract.md), connecting the replacement identity and upstream pin to its Lean/modular shapes, sequential proof topology, conditional capabilities, configuration names, and transient-artifact boundary.
