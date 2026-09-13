@@ -2,7 +2,7 @@
 
 ## Skills
 
-The workflow ships thirteen local capabilities:
+The workflow ships fourteen local capabilities:
 
 | Skill | Role |
 | --- | --- |
@@ -18,6 +18,7 @@ The workflow ships thirteen local capabilities:
 | `wtk-qa-plan` | Maps changed user-visible promises to durable QA journeys and charters. |
 | `wtk-qa-execute` | Walks those journeys through the consuming project's existing adapter. |
 | `ponytail` (`full`) | Shortest code that works. Stdlib before a dependency. |
+| `prompt-review` | Audits instruction bundles for scope, overlap, loading, and authorization clarity. |
 | `wtk-ship` | Unattended run: classify work; credential-free configuration stays local, while eligible work may deliver one feature branch through one pull request. |
 
 Canonical copies: `.agents/skills/`. Claude: symlinks in `.claude/skills/`. Cursor / Codex /
@@ -72,7 +73,7 @@ nothing. A successful knowledge-bearing replacement creates a pending `knowledge
 checklist; consumer content is never semantically merged.
 
 The installer catalog includes the operating loop, Bun-native knowledge tooling, assisted slice
-execution, review/QA skills, and optional Ponytail utilities. Existing consumer prose and knowledge
+execution, review/QA skills, optional Ponytail utilities, and prompt-review. Existing consumer prose and knowledge
 remain owned by the consuming project. An interrupted publication leaves a transaction journal;
 the next run offers restoration before a new plan.
 

@@ -49,6 +49,7 @@
     ".agents/skills/ponytail-gain",
     ".agents/skills/ponytail-help",
     ".agents/skills/ponytail-review",
+    ".agents/skills/prompt-review",
     "!**/__pycache__/**",
     "!**/*.pyc"
   ],

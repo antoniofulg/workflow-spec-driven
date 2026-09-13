@@ -7,8 +7,8 @@ import { knowledgeTransfers } from './knowledge.js';
 import { stageAgentPackets } from './packets.js';
 
 const descriptions = {
-  compact: { core: 'Workflow Toolkit, Lean workflow, and shared tooling', quality: 'Deep review and QA skills', extras: 'Optional Ponytail utilities' },
-  wide: { core: 'Workflow Toolkit, Lean workflow, configuration, and shared tooling', quality: 'Deep review, verification, and QA skills', extras: 'Optional Ponytail utilities' },
+  compact: { core: 'Workflow Toolkit, Lean workflow, and shared tooling', quality: 'Deep review and QA skills', extras: 'Optional Ponytail utilities and prompt-review' },
+  wide: { core: 'Workflow Toolkit, Lean workflow, configuration, and shared tooling', quality: 'Deep review, verification, and QA skills', extras: 'Optional Ponytail utilities and prompt-review' },
 };
 const statusBox = (value, width = 15) => { const label = statusLabel(value); return `[${label}]${' '.repeat(Math.max(1, width - label.length - 2))}`; };
 const labels = { add: 'ADD', update: 'UPDATE', claim: 'ADOPT', replace: 'REPLACE', remove: 'REMOVE', preserve: 'PRESERVE', 'no-change': 'NO CHANGE', conflict: 'CONFLICT', modified: 'MODIFIED' };

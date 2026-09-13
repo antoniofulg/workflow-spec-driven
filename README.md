@@ -137,11 +137,11 @@ instead of copying this source pack's profile. Existing projects preserve their 
 paragraph and product-owned documentation. Knowledge transfer is always a human review step.
 
 The three fixed modules are `core` (Lean operating loop and shared tooling), `quality` (review and QA),
-and `extras` (optional Ponytail utilities). Selecting `quality` or `extras` automatically
+and `extras` (optional Ponytail utilities and prompt-review). Selecting `quality` or `extras` automatically
 includes `core`. The guided command is:
 
 `core` contains the Lean operating loop and Bun tooling; `quality` adds review and QA skills; and
-`extras` adds optional Ponytail utilities. `full` resolves all three catalog modules.
+`extras` adds optional Ponytail utilities and prompt-review. `full` resolves all three catalog modules.
 
 ```bash
 npx workflow-toolkit install
