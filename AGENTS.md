@@ -10,12 +10,14 @@ as a named gap; do not recurse through product/history directories.
 
 ## This chat's role
 
-**Planner**, unless spawned as implementer, explorer, verifier, or designer.
+**Planner for feature work**, unless spawned as implementer, explorer, verifier, or designer.
 
-Specify + Design + Tasks here. After approval, dispatch **implementer** and stay. Verifier is a
+For features, Specify + Design + Tasks here. After approval, dispatch **implementer** and stay. Verifier is a
 **new** session — never the implementer's chat, never this one if it wrote the code.
 
-Spawn the named agent without model overrides; use `explorer` for product-tree searches and traces.
+For bounded maintenance under `docs/toolkit/guidelines/GATES.md`, the active agent edits and validates directly; delegation
+is optional when it adds useful independent work, not a required handoff.
+Spawn the named agent without model overrides; use `explorer` for feature exploration and traces.
 Local `.wtk.toml` owns provider settings; `wtk-config` owns packet generation and frozen feature routes.
 Provider definitions are real files, not symlinks.
 

@@ -11,6 +11,7 @@ selector is the scoped gate. Choose by changed behavior and named risk, not file
 | --- | --- |
 | Documentation maintenance | Accuracy, affected links/headings and whitespace |
 | Bounded agent-instruction change | Consistency and an existing relevant contract check |
+| Instruction-only skill plus existing installer registration | Metadata/links and the existing package or adoption check for that registration |
 | Direct behavior-preserving correction | Narrowest canonical check covering the affected behavior |
 | Mixed documentation and executable change | Canonical tests for the changed executable behavior |
 | Feature slice | Named proofs and the scoped gate |
@@ -22,8 +23,20 @@ selector is reported after the narrowest applicable check, not promoted to full 
 when evidence identifies a changed contract, shared behavior or risk outside that check's scope.
 `wtk` owns routing; `VERIFICATION-EVIDENCE.md` owns the completion claim.
 
+Creating a skill from decided instructions, registering it in an existing catalog, or correcting
+CLI copy is bounded maintenance when it adds no executable skill helper, dependency, hook, expanded
+tool authority, data contract, new user interaction or unresolved product decision. The active agent completes it directly.
+Use the relevant existing checks once; no mandatory delegation, new plan/checks, fault injection,
+Verifier, QA charters or full-suite run. An optional forward probe needs a concrete uncertainty.
+
+Delivery does not reclassify a bounded change. For a previously verified feature, retain its receipt
+and validate the subsequent diff at its own scope; do not reopen the whole branch or recreate closed
+artifacts. Escalation names the changed invariant and why the selected check cannot cover it.
+Unrelated findings become follow-ups unless they prevent the requested behavior or compromise a
+relevant security boundary. Do not grow a maintenance task into a repository certification.
+
 For feature work, use the task's proofs during iteration and the scoped gate at slice close. Run the
-full gate at feature close, or earlier when a migration, shared boundary or unclassified impact
+full gate at initial feature close, or earlier when a migration, shared boundary or unclassified impact
 cannot be covered by the documented selector. Use the project's extended gate when its trigger applies.
 
 For reference-driven UI, include the comparison required by `UI-UX.md`. QA flags and journeys follow

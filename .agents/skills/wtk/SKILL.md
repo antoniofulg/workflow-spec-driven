@@ -14,10 +14,11 @@ router loaded and load only the selected skill and its directly relevant referen
 
 ## Route
 
-- An authorized bounded documentation or instruction edit, or an exact direct correction with no unresolved
-  product/architecture choice: edit locally, run the proportional scoped check, and make the local
-  commit when this workflow owns delivery. Do not create feature artifacts or summon a Verifier for
-  unchanged behaviour. If the correction opens a choice or changes behaviour, use the feature route.
+- An authorized bounded documentation, instruction-only skill, or direct correction: the active
+  agent applies the maintenance route in `docs/toolkit/guidelines/GATES.md`, including declarative
+  registration in an existing installer. Complete its scoped checks and local commit without a
+  mandatory agent handoff. Escalate for a substantive behavior or authority change, not merely a new
+  skill name, registry entry, CLI label, or pending merge.
 - An unshaped idea, an open product decision, or competing solution alternatives: read and invoke
   `wtk-discover`. It may conclude build, build smaller/differently, not now, or do not build.
 - An existing integrated Lean feature directory with `plan.md`, `checks.md`, or

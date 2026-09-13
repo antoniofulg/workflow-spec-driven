@@ -124,6 +124,13 @@ reference while preserving the product promise does not create/reset a scenario 
 cycle; record its targeted integration check instead. If the correction changes a browser-only
 invariant, walk the existing owning scenario only.
 
+Instruction-only skills, their declarative registration in an existing installer, and bounded CLI
+copy corrections follow `GATES.md`; being agent-facing or installable does not itself start QA.
+Use the owning package/adoption/output check and state the validation method. Correct stale promise
+text without reopening unrelated journeys. A broader QA cycle requires an explicit QA request or
+a changed user interaction not covered by that boundary check. If a cycle was over-scoped, record
+its unwalked legs as skipped with the scope reason; do not claim a manual pass from automated tests.
+
 - **No** — state "no user-visible change" in the completion notes. Done.
 - **New behaviour** — add scenario files with `qa_status: untested`.
 - **Changed behaviour** — reset the affected files to `untested`. **A stale `pass` is worse than no

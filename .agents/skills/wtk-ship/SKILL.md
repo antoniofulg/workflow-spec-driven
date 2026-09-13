@@ -7,10 +7,20 @@ argument-hint: "[the work, in your own words]"
 
 # Workflow Toolkit Ship
 
-Run the completed Lean feature through its final evidence and delivery boundary. The feature must
-have `.specs/features/<feature>/plan.md`, `checks.md`, and an independent `verification.md`.
+Deliver the requested branch using the scope rules in `docs/toolkit/guidelines/GATES.md`.
 
-## Readiness
+## Previously verified work
+
+Identify the recorded verified base and the subsequent diff. If that diff is bounded maintenance,
+use the existing receipt plus its scoped evidence and proceed to delivery. A merge request does not
+trigger a new full-branch Verifier, full gate or QA cycle. Closed artifacts may remain in Git; do not
+recreate them merely to satisfy this entrypoint. Apply active feature closeout only to unverified
+feature work or a substantive change whose named risk requires that scope.
+
+## Active feature closeout
+
+An active Lean feature has `.specs/features/<feature>/plan.md`, `checks.md`, and independent
+`verification.md`. The following steps apply to that feature scope.
 
 Resolve or resume the provider route through `.agents/skills/wtk-config/SKILL.md` before dispatch.
 
@@ -31,6 +41,7 @@ is rechecked immediately before the merge. Do not pause between those scoped del
 release, production mutations, force-push, direct push to `main`, and unrelated remote actions remain
 separately authorized.
 
-If readiness fails, report the exact missing evidence and stop. A builder never certifies its own
-work; the Verifier is a fresh agent over the complete feature range. Confirmed Critical, Major,
+If required readiness evidence is missing, name the affected scope and required check. A builder
+never certifies its own feature; feature verification uses a fresh agent over the complete feature
+range. Confirmed Critical, Major,
 and Minor Deep Review findings are fixed in the feature run before delivery.

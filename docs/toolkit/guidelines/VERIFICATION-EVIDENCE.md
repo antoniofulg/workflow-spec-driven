@@ -13,6 +13,7 @@ passing evidence can be reused; this document defines what the result supports.
 | Slice complete | Named proofs and scoped gate passed |
 | Feature complete / ready for a pull request | Fresh independent full-feature Verifier, selected gates and applicable QA |
 | Bounded documentation or instruction update | Proportional checks from `GATES.md` |
+| Previously verified feature with bounded follow-ups | Recorded feature receipt plus scoped evidence for the subsequent changes; no new feature certification |
 | Visual reference matched | Paired evidence at the states/viewports required by `UI-UX.md` |
 | Bug fixed | Original symptom observed failing, then passing |
 | Regression test discriminates | Red before the fix and green after |
