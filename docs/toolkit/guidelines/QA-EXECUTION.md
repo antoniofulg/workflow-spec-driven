@@ -21,13 +21,13 @@ technical verification only. Record `no user-visible change` when no public prom
 After the final implementation wtk-deep-review group, use the provider's existing `verifier` with one
 phase per packet:
 
-1. Send a fresh `phase: wtk-qa-plan` packet to invoke `wtk-qa-plan`, create or refresh durable journeys and
-   scenarios, and create a new dated charter for this cycle. Never edit an existing charter.
-2. Send a distinct fresh `phase: wtk-qa-execute` packet to invoke `wtk-qa-execute` and walk those journeys.
+1. Use `phase: wtk-qa-plan` when the scope needs planning; reuse applicable scenarios and charters.
+2. Use `phase: wtk-qa-execute` to walk the agreed scope. For clear bounded work, the same non-author
+   QA session may process both packets. A retest with an applicable plan needs no new Plan session.
 
-The QA Plan session ends before the product starts. The QA Execute session does not write product
-code. A defect returns to an Implementer; after the fix, a fresh Verifier applies incremental impact
-selection, reruns invalidated technical proofs, retests the affected journey, and resumes the cycle.
+A standalone Plan request stops before execution. Neither QA phase writes product code. Follow
+`.agents/skills/wtk-qa-execute/references/fix-loop.md` for frozen-snapshot walks, batched remediation,
+observer reuse, and impact-selected retests; a defect does not end all independent walks.
 
 ## Authorities and adapters
 

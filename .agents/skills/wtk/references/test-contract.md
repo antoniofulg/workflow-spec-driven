@@ -67,6 +67,11 @@ already owns it:
 - Tests over generated files, config shape, or CSS
 - A second suite duplicating an existing one because the existing one was hard to find
 
+For instruction products, assert routing, metadata, resolvable references and safety boundaries;
+do not freeze line wrapping, incidental wording or historical release prose. Compare release
+identities to the authoritative manifest. Review semantic instruction changes directly: a matching
+string alone does not prove agent behavior.
+
 ## Visual acceptance evidence
 
 When a visual acceptance criterion names an approved reference, attach paired-capture evidence to the

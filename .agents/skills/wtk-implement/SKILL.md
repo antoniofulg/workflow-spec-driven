@@ -45,9 +45,11 @@ Read the approved `.tasks/<name>.md` source completely, then ground its checks i
 and existing conventions. Refuse a claim without a nameable proof, concrete value, or explicit
 boundary; ask when the source leaves a real decision open rather than guessing.
 
-Sweep validation, failure modes, idempotency/retry, authorization, concurrency/ordering, data
-lifecycle, external-dependency failure, state transitions, and observability. Record each landing as
-a checklist check, existing behaviour, `n/a - <reason>`, or an unresolved question. Under `ui`, a
+Reuse the approved source's Swept dispositions and map them to checklist checks or existing proof.
+Revisit only missing, contradictory, or changed inputs. When no upstream sweep exists, perform it
+once across validation, failure modes, idempotency/retry, authorization, concurrency/ordering, data
+lifecycle, external-dependency failure, state transitions, and observability. Record each landing
+as a check, existing behaviour, `n/a - <reason>`, or unresolved question. Under `ui`, a
 design marked binding supplies concrete screen values; read [screens.md](references/screens.md).
 Under `light` or `standard`, skip that reference.
 
@@ -70,9 +72,9 @@ is additive and does not stop the build.
 
 ### When one agent is not enough
 
-Pack **whole slices** under the declared budget (150k tokens by default; estimate touched-file
-`wc -c` divided by four); never split a slice. Before code, record the intended split and arithmetic
-under `## Handoff`. Before handoff, the outgoing builder records closed checks, user decisions, and
+Use one builder by default. Estimate context and record a split under `## Handoff` only when a
+concrete context limit or planned transfer requires it. Pack **whole slices** under the declared
+budget (150k tokens by default); never split a slice. Before handoff, record closed checks, user decisions, and
 abandoned approaches. Handoff occurs only on green, with every proof in the batch passing; the next
 builder reads the checklist and landed diff, not a narrative. If one slice exceeds the budget, report
 that the upstream task cut it too coarsely. `handoff: off` keeps one builder in one session; after

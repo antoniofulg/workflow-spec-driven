@@ -28,7 +28,7 @@ changed executable behavior. Deep-review and QA require named concrete risk or c
 file count and the word "feature" do not escalate them.
 
 Technical Verifier reads the integrated final tree over the complete feature range. Deep-review reads the integrated
-commit range, and the closing session's fresh QA Plan/Execute packets read the integrated final tree. The coordinator records
+commit range, and the closing QA packets read the integrated final tree under `QA-EXECUTION.md`. The coordinator records
 distinct author and proof identities; the last implementer supplies a handoff and never certifies
 the integrated result.
 
