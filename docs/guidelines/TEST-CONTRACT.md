@@ -1,38 +1,20 @@
 # Test Contract
 
-**Read when:** writing or planning any test, or breaking a spec into tasks.
+**Read when:** writing or planning any test, or deriving feature checks.
 
-**Why this exists:** "All branches covered" cannot be audited. Named cases assigned to one task can.
+**Why this exists:** "All branches covered" cannot be audited. Named cases with claims and proofs can.
 A test that mirrors the implementation, or exists only to raise coverage, proves nothing.
 
 ## The artifact
 
-Every integrated Lean feature has `.specs/features/<feature>/checks.md`. It is written after the
-plan, immediately after acceptance criteria are settled, and each check names its proof.
+Every integrated Lean feature has `.specs/features/<feature>/checks.md`. The native
+[Lean checks reference](../../.agents/skills/wtk-lean/references/checks.md) is the only schema and
+authoring source for that artifact: read it for `Profile`, check and proof syntax, `Coverage`,
+`Test policy`, `Swept`, and `Handoff`. This guideline supplies local test-case policy below; it does
+not define a second checks schema.
 
-```markdown
-# <Feature> Test Contract
-
-## Unit
-| ID | Behaviour | Given / When | Expected |
-| --- | --- | --- | --- |
-| UT-001 | Rejects a record with a malformed email | `createRecord` with `email: "a@"` | throws `ValidationError`, no row written |
-
-## Integration
-| ID | Behaviour | Given / When | Expected |
-| --- | --- | --- | --- |
-| IT-001 | Record survives a round trip | insert then read by id | every field equals what was written |
-
-## End-to-end
-| ID | Journey | Steps | Expected |
-| --- | --- | --- | --- |
-| E2E-001 | Visitor completes the public form | fill, submit | confirmation visible; row present |
-
-## Security
-| ID | Abuse case | Attempt | Expected |
-| --- | --- | --- | --- |
-| SEC-001 | Unauthenticated read of another account's records | `GET` the list route with no session | 401, no body leakage |
-```
+The native profile owns mutation depth: `standard` and `ui` inject faults; `light` does not. Do not
+infer a local mutation threshold from this guideline.
 
 ## Rules
 
@@ -41,11 +23,16 @@ plan, immediately after acceptance criteria are settled, and each check names it
    spec, clarify the acceptance criterion before adding a case. Never create a case solely because a
    component or boundary exists. Security cases also follow `docs/guidelines/SECURITY.md` when its
    condition fires.
-2. **Every case names an exact input, condition and expected result.** "Test the happy path" is not a
-   case. "`POST` the create route with an unknown region returns 422 and no row" is.
-3. **Every ID is assigned to exactly one check** — the check owning the behaviour it verifies.
-4. **Audit before the build is approved.** Every check has one proof, no orphan or duplicate proof.
-5. **Tests ship with the slice that implements the behaviour.** Never a test-only slice.
+2. **Every claim names an exact input, condition, concrete value, and expected result.** "Test the
+   happy path" is not a claim. "`POST` the create route with an unknown region returns 422 and no
+   row" is. Name one or more exact tests or commands whose exit codes settle it; repeat `Proof:` when
+   a proof cannot settle the whole claim.
+3. **Coverage is explicit.** Every enumerated set gets a `Coverage` row with each member as its own
+   token beside the check or proof that asserts it. Shared or table-driven proofs may be reused when
+   each named claim or member is independently asserted; reuse never replaces the explicit join.
+4. **Audit before the build is approved.** Every claim and coverage member maps to at least one check
+   with named proof(s); no claim or member is left orphaned.
+5. **Tests ship with the slice that closes the behaviour.** Never a test-only slice.
 6. **A case is not done because a test exists.** It is done when the test asserts the contracted
    expected result. A test that exists without asserting the contracted behaviour is a hollow case and
    fails review.
@@ -80,20 +67,10 @@ already owns it:
 - Tests over generated files, config shape, or CSS
 - A second suite duplicating an existing one because the existing one was hard to find
 
-## Where this differs from what TLC ships
-
-`wtk-lean` generates a Test Coverage Matrix in `checks.md` — a per-layer policy
-(`Service → unit → all branches; 1:1 to spec ACs`). Keep it: it decides *which layer* and *which
-command*. This contract adds *which cases*, so the matrix's promise becomes countable. Both exist;
-the matrix sets the shape, and `checks.md` enumerates the content.
-
-The mutation sensor stays. Enumerated cases prove coverage exists; the sensor proves the coverage is
-real. Neither substitutes for the other.
-
 ## Visual acceptance evidence
 
-When a visual acceptance criterion names an approved reference, assign the implementing task a pointer
-to its feature `uiux.md` row and a paired-capture done criterion. Follow the method in
+When a visual acceptance criterion names an approved reference, attach paired-capture evidence to the
+owning check or slice and point to its feature `uiux.md` row when present. Follow the method in
 `docs/guidelines/UI-UX.md#verifying-the-built-screen` and record its output fields. A manual paired
 comparison is evidence, not an automated test, and never replaces behavioral cases. Add automated
 screenshot regression only when an actual visual invariant has an owning canonical suite.

@@ -637,6 +637,15 @@ describe("canonical QA skills", () => {
     expect(testContract).toContain("Every case maps to a spec acceptance criterion");
     expect(testContract).toContain("clarify the acceptance criterion before adding a case");
     expect(testContract).toContain("Never create a case solely because a");
+    expect(testContract).toContain(".agents/skills/wtk-lean/references/checks.md");
+    expect(testContract).toContain("only schema and");
+    expect(testContract).toContain("standard` and `ui` inject faults; `light` does not");
+    expect(testContract).toContain("owning check or slice");
+    expect(testContract).not.toContain("## Unit");
+    expect(testContract).not.toContain("Every ID is assigned to exactly one check");
+    expect(testContract).not.toContain("Every check has one proof");
+    expect(testContract).not.toContain("Test Coverage Matrix");
+    expect(testContract).not.toContain("implementing task");
     expect(testContract).not.toContain("Unit cases come from every component");
     expect(testContract).not.toContain("integration cases from every component boundary");
 
