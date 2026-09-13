@@ -828,6 +828,9 @@ describe("repository intelligence policy", () => {
     expect(normalizedSecurity).toContain("isolated environment or with explicitly allowed directories");
     expect(normalizedSecurity).toContain("Validate destination paths and symlinks before the first write");
     expect(normalizedSecurity).toContain("never delete them automatically");
+    expect(normalizedSecurity).toContain("SEC IDs trace to native `C<n>` checks, not tasks");
+    expect(normalizedSecurity).toContain("Examples only — not a `checks.md` schema");
+    expect(normalizedSecurity).not.toContain("assigned to exactly one task");
     expect(state).toContain("### AD-033");
     expect(state).toContain("This supersedes AD-005 and AD-006");
     expect(state).toContain("OpenDesign remains an");

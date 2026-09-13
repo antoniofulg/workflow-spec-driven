@@ -73,9 +73,13 @@ are simply absent — do not write a row to say so.
 
 ## 3. At the test contract — abuse cases get IDs
 
-Every control becomes one or more `SEC-` cases in `.specs/features/<feature>/checks.md`, in the same
-shape as every other case, assigned to exactly one task, audited for orphans like the rest. See
-`docs/guidelines/TEST-CONTRACT.md`.
+Every control becomes one or more `SEC-` cases in `.specs/features/<feature>/checks.md`. Each case
+uses the native checks contract: its claim has a concrete outcome and one or more named proofs, and
+each enumerated abuse-case member appears in `Coverage`. SEC IDs trace to native `C<n>` checks, not
+tasks, and are audited for orphaned claims like the rest. See `docs/guidelines/TEST-CONTRACT.md` and
+the [native Lean checks reference](../../.agents/skills/wtk-lean/references/checks.md).
+
+Examples only — not a `checks.md` schema:
 
 | ID | Abuse case | Attempt | Expected |
 | --- | --- | --- | --- |
