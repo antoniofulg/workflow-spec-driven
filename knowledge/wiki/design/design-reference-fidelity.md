@@ -8,14 +8,14 @@ sources:
     title: Design tool HTML exports — maintainer observation
     last_modified: 2026-09-07
   - id: ui-contract
-    resource: ../../../docs/guidelines/UI-UX.md
+    resource: ../../../docs/toolkit/guidelines/UI-UX.md
     title: UI/UX Surface Map
     last_modified: 2026-09-09
   - id: frontend-ownership
-    resource: ../../../docs/guidelines/FRONTEND.md
+    resource: ../../../docs/toolkit/guidelines/FRONTEND.md
     title: Front-End Engineering
   - id: scoped-validation
-    resource: ../../../docs/guidelines/GATES.md
+    resource: ../../../docs/toolkit/guidelines/GATES.md
     title: Gates
 ---
 

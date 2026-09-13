@@ -5,7 +5,7 @@ title: Resolve review cadence and remediation controls before QA
 persona: Workflow adopter
 journey: J-configure-feature-workflow
 expected: The resolver defaults to on-demand Deep Review with no groups, reports explicit scheduled cadence groups and the effective nonnegative remediation stall bound, accepts zero as unbounded, and rejects invalid inputs before writing state.
-entry_points: .wtk.toml.example; .wtk.toml; .agents/skills/wtk-config/scripts/workflow_config.py; .agents/skills/wtk-config/SKILL.md; .agents/skills/wtk-deep-review/SKILL.md; docs/guidelines/REVIEW-ROUNDS.md
+entry_points: .wtk.toml.example; .wtk.toml; .agents/skills/wtk-config/scripts/workflow_config.py; .agents/skills/wtk-config/SKILL.md; .agents/skills/wtk-deep-review/SKILL.md; docs/toolkit/guidelines/REVIEW-ROUNDS.md
 qa_status: pass
 bug_ids:
 fix_status:

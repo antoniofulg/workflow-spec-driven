@@ -36,7 +36,7 @@ claim with its limitation recorded.
 
 **Intermediate slices in a feature are narrow claims by design.** The honest slice claim is
 *"slice implemented, affected lanes green, feature verification and the full gate deferred to feature close"*
-— run the scoped gate and say exactly that. See `docs/guidelines/GATES.md`.
+— run the scoped gate and say exactly that. See `docs/toolkit/guidelines/GATES.md`.
 
 ## A green gate is not a met requirement
 
@@ -78,7 +78,7 @@ On `PASS`, only the specific claim the evidence supports may proceed.
 
 1. Run the scoped gate for a slice or coherent change, or the full gate for a feature — or cite a current cached record.
 2. Confirm zero errors, zero failures.
-3. Apply the QA flag rule from `docs/guidelines/QA-SCENARIOS.md`.
+3. Apply the QA flag rule from `docs/toolkit/guidelines/QA-SCENARIOS.md`.
 4. Produce the report above with verdict `PASS`.
 5. Then commit.
 
@@ -97,7 +97,7 @@ batch of failures. It never closes one.
 3. **Fix the cause, not the symptom.** One fix per cluster.
 4. **Climb back to the gate that closes the claim.** The failing tests while iterating, then the
    scoped gate for the surface touched, then the declared gate for the level being claimed — whole
-   and unfiltered, never a subset assembled by hand. `docs/guidelines/GATES.md` names which is which.
+   and unfiltered, never a subset assembled by hand. `docs/toolkit/guidelines/GATES.md` names which is which.
    If that gate cannot run, use the project's *declared* reduced target, whose scope is fixed in the
    build file; a scope picked to match what failed is the one that quietly drops a stage.
 5. **Report that command, its exit code and its numbers**, in the shape above.
@@ -122,7 +122,7 @@ what is blocking and the exact condition for resuming, then hand it to the human
 
 - Requirements contradict each other and no precedence rule resolves it
 - A gate would only pass by weakening, skipping or deleting a test
-- Blocking findings remain after the required post-cap remediation and gate in `docs/guidelines/REVIEW-ROUNDS.md`
+- Blocking findings remain after the required post-cap remediation and gate in `docs/toolkit/guidelines/REVIEW-ROUNDS.md`
 - **Credentials, tokens or secrets appear** anywhere they should not — in a diff, a log, a fixture,
   a test artifact
 - The action needed exceeds the authority the prompt gave: a push, a merge, a deploy, a production

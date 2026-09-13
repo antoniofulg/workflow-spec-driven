@@ -17,7 +17,7 @@ The provider `verifier` executes exactly one phase per packet: `technical`, `wtk
 `wtk-qa-execute`. The orchestrator dispatches one technical packet over the complete feature range after
 the last code-changing slice and QA packets once, at feature close, when the feature changes public,
 UI, API, CLI, or adoption behaviour; no slice runs QA. Deep-review is a separate orchestrator stage, not a Verifier phase.
-The QA session reads `docs/guidelines/QA-SCENARIOS.md`; it owns fields and
+The QA session reads `docs/toolkit/guidelines/QA-SCENARIOS.md`; it owns fields and
 statuses. Each stage answers a question the others cannot, so none is redundant.
 
 Intent vocabulary is routing input, not a keyword bypass. `wtk` selects discovery, integrated Lean,

@@ -15,12 +15,12 @@ checks before dispatching one sequential builder. Do not implement product code.
 - Skill `wtk-lean` for integrated feature planning; use `wtk-discover` or `wtk-plan` only when
   the user's entry is explicitly modular
 - Approved source and the feature's `plan.md` / `checks.md` when present
-- `uiux.md`, approved source/export, and `docs/guidelines/UI-UX.md` when a screen or visual reference is in scope
-- `docs/guidelines/TEST-CONTRACT.md` — derive each check's proof at its owning layer
+- `uiux.md`, approved source/export, and `docs/toolkit/guidelines/UI-UX.md` when a screen or visual reference is in scope
+- `docs/toolkit/guidelines/TEST-CONTRACT.md` — derive each check's proof at its owning layer
 - `.specs/AD-INDEX.md`; an AD body with `rg -A 20 '^### AD-NNN' .specs/STATE.md`
-- `docs/guidelines/SECURITY.md` heading `## 2. At Specify — declare the surfaces` if the spec touches a surface
-- `docs/guidelines/MODELING.md` if modeling a domain or boundary
-- `docs/guidelines/FRONTEND.md` — only the heading the slice disputes, never the whole file
+- `docs/toolkit/guidelines/SECURITY.md` heading `## 2. At Specify — declare the surfaces` if the spec touches a surface
+- `docs/toolkit/guidelines/MODELING.md` if modeling a domain or boundary
+- `docs/toolkit/guidelines/FRONTEND.md` — only the heading the slice disputes, never the whole file
 
 ## Do not load
 

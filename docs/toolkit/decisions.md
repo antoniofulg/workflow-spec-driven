@@ -13,12 +13,12 @@ project call, or a one-feature choice becomes “the way the system is”.
 
 Always cite **the file** with the label. The same letters in two files are not the same object.
 
-Promote before the pull request, per [ARTIFACT-LIFECYCLE.md](../guidelines/ARTIFACT-LIFECYCLE.md):
+Promote before the pull request, per [ARTIFACT-LIFECYCLE.md](guidelines/ARTIFACT-LIFECYCLE.md):
 
 - Must outlive the feature as a project call → `AD-NNN`
 - Must outlive it as a product promise → `docs/qa/scenarios/`
 - Must outlive it as an invariant → the architecture docs
-- Must outlive it as an agent rule → `docs/guidelines/`
+- Must outlive it as an agent rule → `docs/toolkit/guidelines/`
 
 Feature workflow state (`plan.md`, `checks.md`, and `verification.md`) stays under the versioned
 `.specs/features/<slug>/` tree. Workflow memory remains disposable local state.

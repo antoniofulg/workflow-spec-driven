@@ -5,7 +5,7 @@ title: Use routed tools without surrendering repository authority
 persona: Repository reader
 journey: J-review-workflow-release
 expected: The workflow routes architecture through Graphify and code through Graft, reports exact setup without changing runtime dependencies, preserves source and approved-handoff authority with explicit degraded fallback, and keeps OpenDesign optional.
-entry_points: README.md#repository-intelligence; docs/workflow/repository-intelligence.md; docs/guidelines/UI-UX.md#optional-design-tooling; docs/guidelines/SECURITY.md#external-filesystem-writers; .specs/AD-INDEX.md; .specs/STATE.md
+entry_points: README.md#repository-intelligence; docs/toolkit/repository-intelligence.md; docs/toolkit/guidelines/UI-UX.md#optional-design-tooling; docs/toolkit/guidelines/SECURITY.md#external-filesystem-writers; .specs/AD-INDEX.md; .specs/STATE.md
 qa_status: untested
 bug_ids:
 fix_status:

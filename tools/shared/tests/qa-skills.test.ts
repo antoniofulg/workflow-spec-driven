@@ -80,9 +80,9 @@ const activeAuthorityRoots = [
   "AGENTS.md",
   "README.md",
   "docs/adoption-prompt.md",
-  "docs/guidelines",
+  "docs/toolkit/guidelines",
   "docs/qa",
-  "docs/workflow",
+  "docs/toolkit",
   "knowledge",
   "package.json",
   "bunfig.toml",
@@ -249,10 +249,10 @@ const verifierPacketPaths = [
 
 describe("QA workflow artifact policy", () => {
   it("IT-025 routes behavior-preserving UI corrections by intent and evidence", () => {
-    const gates = readRepositoryFile("docs/guidelines/GATES.md");
-    const qaExecution = readRepositoryFile("docs/guidelines/QA-EXECUTION.md");
-    const scenarios = readRepositoryFile("docs/guidelines/QA-SCENARIOS.md");
-    const review = readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md");
+    const gates = readRepositoryFile("docs/toolkit/guidelines/GATES.md");
+    const qaExecution = readRepositoryFile("docs/toolkit/guidelines/QA-EXECUTION.md");
+    const scenarios = readRepositoryFile("docs/toolkit/guidelines/QA-SCENARIOS.md");
+    const review = readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md");
     const implement = readRepositoryFile(".agents/skills/wtk-implement/SKILL.md");
     const tasks = readRepositoryFile(".agents/skills/wtk-plan/SKILL.md");
     const checklist = readRepositoryFile(".agents/skills/wtk-implement/references/checklist-format.md");
@@ -280,7 +280,7 @@ describe("QA workflow artifact policy", () => {
 
   it("IT-014 keeps feature workflow state versioned and documents legacy migration", () => {
     const readme = readRepositoryFile("README.md");
-    const artifactLifecycle = readRepositoryFile("docs/guidelines/ARTIFACT-LIFECYCLE.md");
+    const artifactLifecycle = readRepositoryFile("docs/toolkit/guidelines/ARTIFACT-LIFECYCLE.md");
 
     expect(isIgnored(".specs/features/qa-skills/spec.md")).toBe(false);
     expect(isIgnored(".specs/STATE.md")).toBe(false);
@@ -298,7 +298,7 @@ describe("QA workflow artifact policy", () => {
 
   it("IT-015 treats Lean proof state as the commit precondition", () => {
     const agents = readRepositoryFile("AGENTS.md");
-    const loop = readRepositoryFile("docs/workflow/loop.md");
+    const loop = readRepositoryFile("docs/toolkit/loop.md");
     const lean = readRepositoryFile(".agents/skills/wtk-lean/SKILL.md");
     const implementer = readRepositoryFile(".agents/skills/wtk-implement/SKILL.md");
     const memory = readRepositoryFile(".agents/skills/wtk-lean/references/memory.md");
@@ -447,7 +447,7 @@ describe("canonical QA skills", () => {
       "Missing valid initial frontmatter",
     );
 
-    const reviewRounds = readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md");
+    const reviewRounds = readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md");
     expect(reviewRounds).toContain("fingerprint = requirement + root cause + failure path");
     expect(reviewRounds).toContain("independent cumulative failed-remediation counter and append-only generation history");
     expect(reviewRounds).toContain("live `[remediation].stall_attempts` threshold");
@@ -457,9 +457,9 @@ describe("canonical QA skills", () => {
     expect(reviewRounds).not.toMatch(/one global (?:remediation|blocker) counter/i);
 
     for (const relativePath of [
-      "docs/workflow/reviews.md",
-      "docs/workflow/README.md",
-      "docs/workflow/purpose.md",
+      "docs/toolkit/reviews.md",
+      "docs/toolkit/README.md",
+      "docs/toolkit/purpose.md",
     ]) {
       const source = readRepositoryFile(relativePath);
       expect(source).toContain("REVIEW-ROUNDS.md");
@@ -499,7 +499,7 @@ describe("canonical QA skills", () => {
       expect(source).not.toMatch(/separate QA reviewer/i);
     }
 
-    const reviewRounds = readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md");
+    const reviewRounds = readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md");
     const workflowConfig = readRepositoryFile(".agents/skills/wtk-config/SKILL.md");
     const wtkShip = readRepositoryFile(".agents/skills/wtk-ship/SKILL.md");
 
@@ -507,7 +507,7 @@ describe("canonical QA skills", () => {
     expect(reviewRounds).toContain("Deep-review is a separate orchestrator stage, not a Verifier phase");
     expect(reviewRounds).not.toContain("The existing provider `verifier` performs all stages");
     expect(reviewRounds).not.toMatch(/provider `verifier`[^.]*wtk-deep-review/i);
-    expect(readRepositoryFile("docs/workflow/reviews.md")).toContain(
+    expect(readRepositoryFile("docs/toolkit/reviews.md")).toContain(
       "Deep-review is a separate stage, not a Verifier phase.",
     );
     expect(workflowConfig).toContain("[remediation]` table");
@@ -553,9 +553,9 @@ describe("canonical QA skills", () => {
   });
 
   it("IT-004 keeps QA scenario fields and statuses in one authoritative guideline", () => {
-    const scenarioGuideline = readRepositoryFile("docs/guidelines/QA-SCENARIOS.md");
-    const executionGuideline = readRepositoryFile("docs/guidelines/QA-EXECUTION.md");
-    const reviewGuideline = readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md");
+    const scenarioGuideline = readRepositoryFile("docs/toolkit/guidelines/QA-SCENARIOS.md");
+    const executionGuideline = readRepositoryFile("docs/toolkit/guidelines/QA-EXECUTION.md");
+    const reviewGuideline = readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md");
 
     expect(scenarioGuideline).toContain("Field rules");
     expect(scenarioGuideline).toContain("Status enums");
@@ -621,10 +621,10 @@ describe("canonical QA skills", () => {
   });
 
   it("IT-022 reconciles immutable QA charters, spec-anchored cases, and filed-issue QA", () => {
-    const execution = readRepositoryFile("docs/guidelines/QA-EXECUTION.md");
+    const execution = readRepositoryFile("docs/toolkit/guidelines/QA-EXECUTION.md");
     const qaPlan = readRepositoryFile(".agents/skills/wtk-qa-plan/SKILL.md");
-    const testContract = readRepositoryFile("docs/guidelines/TEST-CONTRACT.md");
-    const reviewRounds = readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md");
+    const testContract = readRepositoryFile("docs/toolkit/guidelines/TEST-CONTRACT.md");
+    const reviewRounds = readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md");
 
     for (const source of [execution, qaPlan]) {
       expect(source).toContain("new dated charter");
@@ -682,11 +682,11 @@ describe("canonical QA skills", () => {
 describe("configurable review policy", () => {
   it("uses the canonical hierarchy and resolved wtk-deep-review groups", () => {
     const agents = readRepositoryFile("AGENTS.md");
-    const reviewRounds = readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md");
-    const reviews = readRepositoryFile("docs/workflow/reviews.md");
+    const reviewRounds = readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md");
+    const reviews = readRepositoryFile("docs/toolkit/reviews.md");
     const wtkShip = readRepositoryFile(".agents/skills/wtk-ship/SKILL.md");
-    const loop = readRepositoryFile("docs/workflow/loop.md");
-    const tour = readRepositoryFile("docs/workflow/README.md");
+    const loop = readRepositoryFile("docs/toolkit/loop.md");
+    const tour = readRepositoryFile("docs/toolkit/README.md");
     const readme = readRepositoryFile("README.md");
 
     expect(agents).toContain("Feature -> Slice -> Check");
@@ -749,10 +749,10 @@ describe("configurable review policy", () => {
   });
 
   it("fixes every wtk-deep-review defect inside the originating feature run", () => {
-    const reviewRounds = readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md");
-    const reviews = readRepositoryFile("docs/workflow/reviews.md");
+    const reviewRounds = readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md");
+    const reviews = readRepositoryFile("docs/toolkit/reviews.md");
     const wtkShip = readRepositoryFile(".agents/skills/wtk-ship/SKILL.md");
-    const pack = readRepositoryFile("docs/workflow/pack.md");
+    const pack = readRepositoryFile("docs/toolkit/pack.md");
     const implement = readRepositoryFile(".agents/skills/wtk-implement/SKILL.md");
     const reviewOutput = readRepositoryFile(
       ".agents/skills/wtk-deep-review/references/output-contracts.md",
@@ -771,9 +771,9 @@ describe("configurable review policy", () => {
 
   it("bridges workflow resolution and feature-closing QA ordering", () => {
     const specDriven = readRepositoryFile(".agents/skills/wtk/SKILL.md");
-    const qaScenarios = readRepositoryFile("docs/guidelines/QA-SCENARIOS.md");
-    const gates = readRepositoryFile("docs/guidelines/GATES.md");
-    const testContract = readRepositoryFile("docs/guidelines/TEST-CONTRACT.md");
+    const qaScenarios = readRepositoryFile("docs/toolkit/guidelines/QA-SCENARIOS.md");
+    const gates = readRepositoryFile("docs/toolkit/guidelines/GATES.md");
+    const testContract = readRepositoryFile("docs/toolkit/guidelines/TEST-CONTRACT.md");
     const normalizedTestContract = testContract.replace(/\s+/g, " ");
     expect(specDriven).toContain("wtk-config");
     expect(readRepositoryFile(".agents/skills/wtk-config/SKILL.md")).toContain("workflow.json");
@@ -784,10 +784,10 @@ describe("configurable review policy", () => {
     expect(qaScenarios).not.toContain("The feature's last slice runs");
     expect(qaScenarios).not.toContain("A slice walks what it flags");
     for (const source of [
-      readRepositoryFile("docs/guidelines/QA-EXECUTION.md"),
-      readRepositoryFile("docs/guidelines/REVIEW-ROUNDS.md"),
-      readRepositoryFile("docs/workflow/loop.md"),
-      readRepositoryFile("docs/workflow/reviews.md"),
+      readRepositoryFile("docs/toolkit/guidelines/QA-EXECUTION.md"),
+      readRepositoryFile("docs/toolkit/guidelines/REVIEW-ROUNDS.md"),
+      readRepositoryFile("docs/toolkit/loop.md"),
+      readRepositoryFile("docs/toolkit/reviews.md"),
     ]) {
       expect(source).toContain("no slice runs QA");
       expect(source).not.toMatch(/public slices?|per-slice QA/i);
@@ -804,8 +804,8 @@ describe("configurable review policy", () => {
 describe("repository intelligence policy", () => {
   it("IT-023 keeps routed tools standard, source-authoritative, and OpenDesign optional", () => {
     const readme = readRepositoryFile("README.md");
-    const uiux = readRepositoryFile("docs/guidelines/UI-UX.md");
-    const security = readRepositoryFile("docs/guidelines/SECURITY.md");
+    const uiux = readRepositoryFile("docs/toolkit/guidelines/UI-UX.md");
+    const security = readRepositoryFile("docs/toolkit/guidelines/SECURITY.md");
     const state = readRepositoryFile(".specs/STATE.md");
     const normalizedUiux = uiux.replace(/\s+/g, " ");
     const normalizedSecurity = security.replace(/\s+/g, " ");
@@ -817,7 +817,7 @@ describe("repository intelligence policy", () => {
     expect(readme).toContain("No integration is mandatory or installed by adoption for visual iteration");
     expect(readme).not.toContain("Graft can enrich wtk-deep-review context");
     expect(readme).not.toContain("Graft and OpenDesign are optional recommendations");
-    const repositoryIntelligence = readRepositoryFile("docs/workflow/repository-intelligence.md");
+    const repositoryIntelligence = readRepositoryFile("docs/toolkit/repository-intelligence.md");
     expect(repositoryIntelligence).toContain("Graphify and Graft are standard development tools");
     expect(repositoryIntelligence).toContain("Deep Review always prepares fresh Graft context");
     expect(repositoryIntelligence).toContain("10–20 distinct terminal tasks");
@@ -1014,7 +1014,7 @@ describe("adoption and public setup", () => {
 
   it("IT-021 keeps Ponytail active from workflow start through the full cycle", () => {
     const agents = readRepositoryFile("AGENTS.md");
-    const loop = readRepositoryFile("docs/workflow/loop.md");
+    const loop = readRepositoryFile("docs/toolkit/loop.md");
     const prompt = readRepositoryFile("docs/adoption-prompt.md");
     const ponytail = readRepositoryFile(".agents/skills/ponytail/SKILL.md");
 
@@ -1034,8 +1034,8 @@ describe("adoption and public setup", () => {
   });
 
   it("IT-020 keeps the pack guide source-only for adopted consumers", () => {
-    const tour = readRepositoryFile("docs/workflow/README.md");
-    const pack = readRepositoryFile("docs/workflow/pack.md");
+    const tour = readRepositoryFile("docs/toolkit/README.md");
+    const pack = readRepositoryFile("docs/toolkit/pack.md");
 
     expect(tour).toContain("[Skills, knowledge, adopt](pack.md)");
     expect(pack).toContain("npx workflow-toolkit install");

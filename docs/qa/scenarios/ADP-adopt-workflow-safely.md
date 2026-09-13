@@ -28,7 +28,7 @@ made zero Orca calls, and independent reload retained clean state.
 For issue #36, fresh adoption must install the skill-owned AD index; after the consumer changes that file,
 re-adoption must preserve its bytes.
 
-For issue #37, `docs/workflow/pack.md` remains source-only. Fresh adoption receives the other tour
+For issue #37, `docs/toolkit/pack.md` remains source-only. Fresh adoption receives the other tour
 pages, and its copied index omits the pack-only links when the guide is absent.
 
 QA on 2026-08-22 confirmed the source guide and its two links remain in the pack, fresh adoption

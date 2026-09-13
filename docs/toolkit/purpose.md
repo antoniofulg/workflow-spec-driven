@@ -25,7 +25,7 @@ anything a user can see when the classifier selects it, and a full gate once whe
 Neither side is optional for features. A feature that skips the final Verifier is not this
 workflow; neither is one that re-reviews Trivials until the diff stops moving. Credential-free
 declarative agent-tool configuration is a separate maintenance path defined by
-[`GATES.md`](../guidelines/GATES.md).
+[`GATES.md`](guidelines/GATES.md).
 
 ## What the caps buy
 
@@ -42,7 +42,7 @@ reproducible blocker is not.
 
 The review ledger counts failed remediation cumulatively per immutable finding fingerprint while
 the live remediation bound counts consecutive stalls; see
-[`REVIEW-ROUNDS.md`](../guidelines/REVIEW-ROUNDS.md) for the accounting rule.
+[`REVIEW-ROUNDS.md`](guidelines/REVIEW-ROUNDS.md) for the accounting rule.
 
 ## What this pack is not
 

@@ -31,7 +31,7 @@ retests the affected journey, and resumes the cycle.
 
 ## Authorities and adapters
 
-- `docs/guidelines/QA-SCENARIOS.md` owns scenario fields, ids, statuses, and flag/reset rules.
+- `docs/toolkit/guidelines/QA-SCENARIOS.md` owns scenario fields, ids, statuses, and flag/reset rules.
 - `docs/qa/README.md` owns the consuming project's public interfaces, existing adapter, setup,
   authentication, fixtures, cleanup, and limitations.
 - `wtk-qa-execute` selects the declared browser, API, CLI, mobile, or manual adapter. It records the

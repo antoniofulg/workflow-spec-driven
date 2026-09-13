@@ -22,7 +22,7 @@ drift rejection, fresh adoption, and runtime regeneration.
 
 The `phase-skills` feature makes Claude templates carry `skills:` and `disallowedTools:` and gives `--sync-agents` a new fail-closed preflight, so the rendering promise now covers lines this scenario never walked; walked on 2026-09-03 and confirmed `pass`: a perturbed `.wtk.toml` changed only the `model` and `effort` lines of the affected packets, while `skills:` and `disallowedTools:` were carried through byte for byte. Prior evidence remains historical.
 
-The `specify-impact-designer` feature adds `designer` as a sixth matrix role (eighteen native model and effort fields), three `[models.<provider>.designer]` example tables, three designer templates, and a fail-closed missing-table refusal. `AGENTS.md` names designer among the roles and stays at or below 134 lines; `docs/workflow/pack.md` names five windows. Reset to `untested`. Prior evidence remains historical.
+The `specify-impact-designer` feature adds `designer` as a sixth matrix role (eighteen native model and effort fields), three `[models.<provider>.designer]` example tables, three designer templates, and a fail-closed missing-table refusal. `AGENTS.md` names designer among the roles and stays at or below 134 lines; `docs/toolkit/pack.md` names five windows. Reset to `untested`. Prior evidence remains historical.
 
 The `lean-consumer-installation` cycle moves the provider template source under
 `workflow-config/assets/agents`. Reset to `untested`; prior evidence remains historical. Walk

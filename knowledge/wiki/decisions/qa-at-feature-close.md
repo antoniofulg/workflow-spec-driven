@@ -11,11 +11,11 @@ sources:
     title: Maintainer decision on delivery speed and PR #98
     last_modified: 2026-09-10
   - id: review-rounds
-    resource: ../../../docs/guidelines/REVIEW-ROUNDS.md
+    resource: ../../../docs/toolkit/guidelines/REVIEW-ROUNDS.md
     title: Review Rounds — stage table
     last_modified: 2026-09-12
   - id: qa-execution
-    resource: ../../../docs/guidelines/QA-EXECUTION.md
+    resource: ../../../docs/toolkit/guidelines/QA-EXECUTION.md
     title: QA Execution — when QA runs
     last_modified: 2026-09-12
   - id: state-ad-002

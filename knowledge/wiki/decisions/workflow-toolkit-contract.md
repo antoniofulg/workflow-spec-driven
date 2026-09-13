@@ -31,7 +31,7 @@ sources:
     title: Workflow Toolkit configuration contract
     last_modified: 2026-09-12
   - id: artifact-lifecycle
-    resource: ../../../docs/guidelines/ARTIFACT-LIFECYCLE.md
+    resource: ../../../docs/toolkit/guidelines/ARTIFACT-LIFECYCLE.md
     title: Artifact Lifecycle
     last_modified: 2026-09-12
   - id: upstream-pin

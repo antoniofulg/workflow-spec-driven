@@ -20,7 +20,7 @@ export const KNOWLEDGE_DESTINATIONS = {
 };
 
 export const LAYER_PATHS = {
-  core: ['docs/guidelines', 'docs/workflow/README.md', 'docs/workflow/repository-intelligence.md', 'docs/workflow/decisions.md', 'docs/workflow/guidelines.md', 'docs/workflow/loop.md', 'docs/workflow/purpose.md', 'docs/workflow/reviews.md', 'knowledge/AGENTS.md', 'knowledge/raw/README.md', '.agents/skills/wtk', '.agents/skills/wtk-lean', '.agents/skills/wtk-discover', '.agents/skills/wtk-plan', '.agents/skills/wtk-implement', '.agents/skills/wtk-config', '.agents/skills/wtk-knowledge-check', '.agents/skills/wtk-ship', '.agents/skills/ponytail'],
+  core: ['docs/toolkit/guidelines', 'docs/toolkit/README.md', 'docs/toolkit/repository-intelligence.md', 'docs/toolkit/decisions.md', 'docs/toolkit/guidelines.md', 'docs/toolkit/loop.md', 'docs/toolkit/purpose.md', 'docs/toolkit/reviews.md', 'knowledge/AGENTS.md', 'knowledge/raw/README.md', '.agents/skills/wtk', '.agents/skills/wtk-lean', '.agents/skills/wtk-discover', '.agents/skills/wtk-plan', '.agents/skills/wtk-implement', '.agents/skills/wtk-config', '.agents/skills/wtk-knowledge-check', '.agents/skills/wtk-ship', '.agents/skills/ponytail'],
   quality: ['.agents/skills/wtk-deep-review', '.agents/skills/wtk-qa', '.agents/skills/wtk-qa-plan', '.agents/skills/wtk-qa-execute'],
   extras: ['.agents/skills/ponytail-audit', '.agents/skills/ponytail-debt', '.agents/skills/ponytail-gain', '.agents/skills/ponytail-help', '.agents/skills/ponytail-review'],
 };
@@ -114,7 +114,7 @@ function catalog(root, modules) {
   return entries;
 }
 
-function adoptedBytes(relative, source) { return relative === 'docs/workflow/README.md' ? Buffer.from(source.toString().split(/(?<=\n)/).filter((line) => !line.includes('(pack.md)')).join('')) : source; }
+function adoptedBytes(relative, source) { return relative === 'docs/toolkit/README.md' ? Buffer.from(source.toString().split(/(?<=\n)/).filter((line) => !line.includes('(pack.md)')).join('')) : source; }
 
 function emptyManifest() { return { schema: 1, workflow_version: WORKFLOW_VERSION, layers: [], files: {}, blocks: {} }; }
 function validHash(value, label, allowNull = false) { if (allowNull && value === null) return; if (typeof value !== 'string' || !/^[0-9a-f]{64}$/.test(value)) fail(`manifest ${label} must be a lowercase SHA-256 hash`); }

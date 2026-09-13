@@ -49,7 +49,7 @@ before any target write and lists every conflict. Use `status` afterwards; exit 
 means drift, and 2 means invalid invocation or state.
 
 Review the complete diff, managed-path overwrites, and the target's declared full gate as a candidate
-check. Apply the proportional classifier in the adopted `docs/guidelines/GATES.md`: pure maintenance
+check. Apply the proportional classifier in the adopted `docs/toolkit/guidelines/GATES.md`: pure maintenance
 uses accuracy/link/heading/whitespace checks, instruction changes use consistency plus existing
 relevant contract checks, and mixed changes use canonical checks for changed executable behavior.
 Record selected commands, results, and any named risk. Send fresh `wtk-qa-plan` and `wtk-qa-execute` packets

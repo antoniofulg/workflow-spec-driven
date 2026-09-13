@@ -33,9 +33,9 @@ that affect consumer guidance include a `knowledge-transfer.md` checklist with a
 transfer; consumer knowledge is never merged automatically.
 
 The terminal wizard supports 80×24 and 120×40 layouts and `NO_COLOR=1`. The package's complete
-current workflow is documented in [docs/workflow/](docs/workflow/).
+current workflow is documented in [docs/toolkit/](docs/toolkit/).
 
-Start here: **[docs/workflow/](docs/workflow/)** — an index of every stage, guideline, and choice.
+Start here: **[docs/toolkit/](docs/toolkit/)** — an index of every stage, guideline, and choice.
 
 ## Purpose
 
@@ -179,7 +179,7 @@ prerequisite; unrelated Python workflow tools remain available after installatio
 
 The preview is the review: inspect the complete action list and backup destination before confirming.
 
-Feature workflow state follows the [artifact lifecycle](docs/guidelines/ARTIFACT-LIFECYCLE.md) and
+Feature workflow state follows the [artifact lifecycle](docs/toolkit/guidelines/ARTIFACT-LIFECYCLE.md) and
 remains visible to Git. Adoption removes only the exact legacy `.specs/features/` ignore line,
 including duplicates, preserves consumer-owned lines and comments, and never stages or commits files
 from the transient feature tree.

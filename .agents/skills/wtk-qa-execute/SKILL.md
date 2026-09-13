@@ -21,7 +21,7 @@ This is an original project-owned adaptation for this workflow, inspired by Pedr
 ## Inputs and boundaries
 
 Read `docs/qa/README.md`, the QA Plan handoff, the in-scope scenarios and charters, open bugs, and
-`docs/guidelines/QA-SCENARIOS.md` in full. The guideline owns scenario fields, ids, statuses, and
+`docs/toolkit/guidelines/QA-SCENARIOS.md` in full. The guideline owns scenario fields, ids, statuses, and
 flag/reset rules. Read [`references/session-protocol.md`](references/session-protocol.md) in full
 before the first charter.
 

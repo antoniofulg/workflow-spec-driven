@@ -15,7 +15,7 @@ sources:
     title: Maintainer decision on delivery speed and PR #98 (evening)
     last_modified: 2026-09-10
   - id: review-rounds
-    resource: ../../../docs/guidelines/REVIEW-ROUNDS.md
+    resource: ../../../docs/toolkit/guidelines/REVIEW-ROUNDS.md
     title: Review Rounds — stages, remediation check, severity
     last_modified: 2026-09-12
   - id: state-ad-031

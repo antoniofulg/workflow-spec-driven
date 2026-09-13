@@ -20,7 +20,7 @@ This is an original project-owned adaptation for this workflow, inspired by Pedr
 ## Inputs and boundaries
 
 Read the feature contract or Verifier packet, the current diff, `docs/qa/README.md`, and the
-affected QA records. Read `docs/guidelines/QA-SCENARIOS.md` in full before creating or changing a
+affected QA records. Read `docs/toolkit/guidelines/QA-SCENARIOS.md` in full before creating or changing a
 scenario. It owns the scenario tree, fields, ids, statuses, and flag/reset rules.
 
 Plan journeys, scenarios, and charters. Leave live walks, evidence capture, defect remediation,

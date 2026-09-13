@@ -34,20 +34,20 @@ feature snapshots freeze delegated settings. Cursor also sees `.claude/` and `.c
   authorizes push, one pull request, and merge after readiness is rechecked; never ask between those
   steps; stop at the pull request only when told so up front. Readiness is not authorization for
   deploy/release, production mutations, force-push, direct push to `main`, or unrelated remote actions.
-- **Instruction files cost every turn.** This file and `docs/guidelines/*.md` load into prompts.
-  Growing one with restated or redundant prose is a defect. Read `docs/guidelines/CONTEXT-BUDGET.md`
+- **Instruction files cost every turn.** This file and `docs/toolkit/guidelines/*.md` load into prompts.
+  Growing one with restated or redundant prose is a defect. Read `docs/toolkit/guidelines/CONTEXT-BUDGET.md`
   before editing either.
 - **Offer to record durable knowledge the moment it surfaces.** When the human states something the
   documents do not know — real user behaviour that contradicts an assumption, a decision that changes
   a rule, a constraint learned outside the repository — say so, name where it would go, and ask.
   Never write to `knowledge/` without a yes; never let it pass in silence.
-  `docs/guidelines/KNOWLEDGE-WIKI.md` carries the shape.
+  `docs/toolkit/guidelines/KNOWLEDGE-WIKI.md` carries the shape.
 
 ## How work happens
 
 Use `wtk` as the single entrypoint. It routes unshaped decisions to `wtk-discover`, decided work
 to `wtk-lean`, and approved modular work to `wtk-plan` or `wtk-implement`; credential-free declarative agent-tool configuration follows
-`docs/guidelines/GATES.md`; only features use the hierarchy below. At the start of workflow work, activate `ponytail`
+`docs/toolkit/guidelines/GATES.md`; only features use the hierarchy below. At the start of workflow work, activate `ponytail`
 at `full` and keep it active for the entire session; for direct corrections, this means through
 inspect, implement, validation, and commit. For feature work, it includes Specify, Design, Tasks, Execute, every
 subagent prompt, fix, and review, until the human explicitly says `stop ponytail` or `normal mode`. After each coherent edit batch, run the project’s existing formatter once, only on changed files, then run validation in the same tool call when practical. Keep successful formatter output silent. On failure, show concise diagnostics and resolve the failure before validation.
@@ -75,26 +75,26 @@ budget: 150k
 
 | When | Open |
 | --- | --- |
-| Writing, planning, or breaking a spec into tasks | `docs/guidelines/TEST-CONTRACT.md` |
-| Starting a task in a multi-task feature | `docs/guidelines/WORKFLOW-MEMORY.md` |
-| Specify touches a security surface | `docs/guidelines/SECURITY.md` — `## 2. At Specify — declare the surfaces` |
-| Writing tests for an abuse case | `docs/guidelines/SECURITY.md` — `## 3. At the test contract — abuse cases get IDs` |
-| Review residual | `docs/guidelines/SECURITY.md` — `## 5. At review — the residual only` |
-| Adds or changes a screen | `docs/guidelines/UI-UX.md` |
-| Front-end code or a mockup | `docs/guidelines/FRONTEND.md` — only the heading in dispute |
-| Module boundary, port, or domain type | `docs/guidelines/MODELING.md` |
-| Public surface — route, CLI verb, config key | `docs/guidelines/DX.md` |
-| Diff changes user-visible behaviour | `docs/guidelines/QA-SCENARIOS.md` |
-| QA pass at the end of a feature | `docs/guidelines/QA-EXECUTION.md` |
-| Reviewing, or acting on findings | `docs/guidelines/REVIEW-ROUNDS.md` |
+| Writing, planning, or breaking a spec into tasks | `docs/toolkit/guidelines/TEST-CONTRACT.md` |
+| Starting a task in a multi-task feature | `docs/toolkit/guidelines/WORKFLOW-MEMORY.md` |
+| Specify touches a security surface | `docs/toolkit/guidelines/SECURITY.md` — `## 2. At Specify — declare the surfaces` |
+| Writing tests for an abuse case | `docs/toolkit/guidelines/SECURITY.md` — `## 3. At the test contract — abuse cases get IDs` |
+| Review residual | `docs/toolkit/guidelines/SECURITY.md` — `## 5. At review — the residual only` |
+| Adds or changes a screen | `docs/toolkit/guidelines/UI-UX.md` |
+| Front-end code or a mockup | `docs/toolkit/guidelines/FRONTEND.md` — only the heading in dispute |
+| Module boundary, port, or domain type | `docs/toolkit/guidelines/MODELING.md` |
+| Public surface — route, CLI verb, config key | `docs/toolkit/guidelines/DX.md` |
+| Diff changes user-visible behaviour | `docs/toolkit/guidelines/QA-SCENARIOS.md` |
+| QA pass at the end of a feature | `docs/toolkit/guidelines/QA-EXECUTION.md` |
+| Reviewing, or acting on findings | `docs/toolkit/guidelines/REVIEW-ROUNDS.md` |
 | Resolving feature workflow | `.agents/skills/wtk-config/SKILL.md` |
-| About to claim done, or to commit | `docs/guidelines/VERIFICATION-EVIDENCE.md` |
-| Choosing which gate to run | `docs/guidelines/GATES.md` |
-| Branch or worktree | `docs/guidelines/BRANCHING.md` |
-| Keep or discard an artifact | `docs/guidelines/ARTIFACT-LIFECYCLE.md` |
+| About to claim done, or to commit | `docs/toolkit/guidelines/VERIFICATION-EVIDENCE.md` |
+| Choosing which gate to run | `docs/toolkit/guidelines/GATES.md` |
+| Branch or worktree | `docs/toolkit/guidelines/BRANCHING.md` |
+| Keep or discard an artifact | `docs/toolkit/guidelines/ARTIFACT-LIFECYCLE.md` |
 | A rule stated in more than one document | `knowledge/wiki/index.md`, then the concept |
-| Recording or verifying the bundle | `docs/guidelines/KNOWLEDGE-WIKI.md` |
-| Editing this file or a guideline | `docs/guidelines/CONTEXT-BUDGET.md` |
+| Recording or verifying the bundle | `docs/toolkit/guidelines/KNOWLEDGE-WIKI.md` |
+| Editing this file or a guideline | `docs/toolkit/guidelines/CONTEXT-BUDGET.md` |
 | Why a past choice (`AD-NNN`) | `.specs/AD-INDEX.md`; body `rg -A 20 '^### AD-NNN' .specs/STATE.md` |
 | Resume | `rg -A 20 '^## Handoff' .specs/STATE.md`, then reconcile Handoff + git and consult the current local `tasks.md` state when present, or the inline execution plan when Tasks was skipped |
 

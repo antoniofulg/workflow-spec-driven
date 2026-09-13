@@ -82,7 +82,7 @@ Features run sequentially; slices inside a feature parallelize only when machine
 
 ## Mockup fidelity
 
-Reference fidelity is governed by [`docs/guidelines/UI-UX.md`](../guidelines/UI-UX.md): it covers
+Reference fidelity is governed by [`docs/toolkit/guidelines/UI-UX.md`](guidelines/UI-UX.md): it covers
 approved source or export selection, HTML/CSS porting, token provenance and mapping, paired visual
 comparison, expected differences and tolerances, and the evidence boundary. The current contract does
 not require blanket DOM identity or a universal pixel threshold.

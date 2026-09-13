@@ -12,7 +12,7 @@ health endpoint exists here.
 | `ADP` | Guided installer and generated consumer filesystem | `workflow-toolkit` package; `wtk install` executable | [`package.json`](../../package.json); [README quick start](../../README.md#quick-start); [`bin/wtk.js`](../../bin/wtk.js) |
 | `CFG` | Workflow configuration, resolution, generated packets, and Lean feature state | `.wtk.toml.example`; checkout-local `.wtk.toml`; `workflow_config.py` | [`wtk-config`](../../.agents/skills/wtk-config/SKILL.md); [tracked example](../../.wtk.toml.example) |
 | `QAS` | Agent-facing workflow, validation, review, QA, and closeout procedures | `.agents/skills/wtk*/`; provider packets; Lean validators; close helper | [skills contract](../../README.md#current-workflow); [`wtk-lean`](../../.agents/skills/wtk-lean/SKILL.md); [`wtk-ship`](../../.agents/skills/wtk-ship/SKILL.md) |
-| `DOC` | Workflow documentation and authorization boundaries | `README.md`; `docs/workflow/` | [`README.md`](../../README.md); [workflow index](../workflow/README.md) |
+| `DOC` | Workflow documentation and authorization boundaries | `README.md`; `docs/toolkit/` | [`README.md`](../../README.md); [workflow index](../toolkit/README.md) |
 | `REL` | Package identity and membership | `package.json`; `bun.lock`; local package archive | [`package.json`](../../package.json) |
 
 Command facts remain in their executable manifests or CI authorities.

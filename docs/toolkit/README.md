@@ -30,7 +30,7 @@ artifacts, and explicit handoff prompts remain the durable semantic context.
 | One paragraph per guideline | [guidelines.md](guidelines.md) |
 | What is vendored and what is not | [pack.md](pack.md) |
 | Graphify/Graft routing, setup, freshness, and benchmark | [repository-intelligence.md](repository-intelligence.md) |
-| The imperative rules | [`docs/guidelines/`](../guidelines/) |
+| The imperative rules | [`docs/toolkit/guidelines/`](guidelines/) |
 | What agents load every turn | [`AGENTS.md`](../../AGENTS.md) |
 
 ## The loop at a glance
@@ -48,8 +48,8 @@ Public hierarchy: `Feature -> Slice -> Check`. Read
 `.agents/skills/wtk-config/SKILL.md` before dispatch; it resolves cadence and delegated providers.
 
 Repeated review blockers use the immutable fingerprint and independent counter in
-[`REVIEW-ROUNDS.md`](../guidelines/REVIEW-ROUNDS.md); this guide does not duplicate that protocol.
+[`REVIEW-ROUNDS.md`](guidelines/REVIEW-ROUNDS.md); this guide does not duplicate that protocol.
 
 A filed issue skips the ceremony: `implement → scoped gate → one commit`.
 Credential-free declarative agent-tool configuration uses the local light path in
-[`GATES.md`](../guidelines/GATES.md).
+[`GATES.md`](guidelines/GATES.md).

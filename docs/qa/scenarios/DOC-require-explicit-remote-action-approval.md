@@ -5,7 +5,7 @@ title: Require explicit approval for each remote delivery action
 persona: Repository reader
 journey: J-review-workflow-release
 expected: wtk-ship performs feature-branch push, one pull request, and merge only after scoped authorization and readiness, while deploy, release, production mutation, force-push, direct main push, and unrelated remote actions remain separately authorized.
-entry_points: .agents/skills/wtk-ship/SKILL.md; AGENTS.md; README.md; docs/workflow/loop.md; docs/workflow/pack.md
+entry_points: .agents/skills/wtk-ship/SKILL.md; AGENTS.md; README.md; docs/toolkit/loop.md; docs/toolkit/pack.md
 qa_status: pass
 bug_ids:
 fix_status:

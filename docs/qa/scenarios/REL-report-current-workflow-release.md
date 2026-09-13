@@ -118,7 +118,7 @@ fixed history; see `docs/qa/reports/2026-08-24-release-0-4-0.md`.
 
 The 2026-09-03 `phase-skills` QA Plan registered
 `BUG-20260903-history-gate-forbids-resetting-baseline-scenarios`: the documented full gate rejects
-the scenario resets that `docs/guidelines/QA-SCENARIOS.md` requires, so the source pack a reader
+the scenario resets that `docs/toolkit/guidelines/QA-SCENARIOS.md` requires, so the source pack a reader
 installs currently cannot run a compliant QA cycle. Reset to `untested` pending the 2026-09-03
 cycle; prior evidence remains historical.
 

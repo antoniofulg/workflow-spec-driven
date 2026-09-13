@@ -87,14 +87,14 @@ def test_router_references_resolve() -> None:
 
 
 def test_repository_intelligence_order_is_bounded() -> None:
-    text = (ROOT / "docs/workflow/repository-intelligence.md").read_text(encoding="utf-8")
+    text = (ROOT / "docs/toolkit/repository-intelligence.md").read_text(encoding="utf-8")
     assert text.index("query Graphify first") < text.index("query Graft before broad native search")
     assert text.index("one degraded reason") < text.index("Generated graphs")
     assert "Existing file, symbol, API, caller, and callee pointers" in text
 
 
 def test_ui_and_delivery_boundaries_stay_local() -> None:
-    uiux = (ROOT / "docs/guidelines/UI-UX.md").read_text(encoding="utf-8")
+    uiux = (ROOT / "docs/toolkit/guidelines/UI-UX.md").read_text(encoding="utf-8")
     ship = (SKILLS / "wtk-ship/SKILL.md").read_text(encoding="utf-8")
     assert "uiux.md" in uiux and "written in Specify" in uiux
     assert "close_feature.py" in ship
