@@ -76,12 +76,17 @@ def test_provider_packets_use_current_context_and_roles() -> None:
         assert "verification.md" in verifier and "checks.md" in verifier
         assert re.search(r"select\s+`?wtk-lean", implementer, re.IGNORECASE)
         assert "wtk-implement" in implementer
+        for packet in (implementer, verifier):
+            assert ".agents/skills/wtk/references/execution-metrics.md" in packet
 
 
 def test_router_references_resolve() -> None:
     router = SKILLS / "wtk"
-    assert not (router / "references").exists()
     text = (router / "SKILL.md").read_text(encoding="utf-8")
+    links = re.findall(r"\[[^\]]+\]\((references/[^)#]+)(?:#[^)]*)?\)", text)
+    assert links, "router must expose its shared references"
+    for target in links:
+        assert (router / target).is_file(), f"missing router reference: {target}"
     for token in re.findall(r"(?:\.agents/skills/)?[\w./-]+/scripts/[\w-]+\.py", text):
         assert (ROOT / token.lstrip("./")).is_file(), f"{router}: missing {token}"
 

@@ -11,6 +11,9 @@ You are the **verifier**. You did not write this code. Receive a fresh role pack
 exclude author and operator context, re-derive coverage evidence-or-zero, and keep
 every artifact in the active checkout.
 
+Before work, read .agents/skills/wtk/references/execution-metrics.md; return the assigned stage
+receipt with the normal result, using unavailable for missing telemetry.
+
 ## Packet (this only)
 
 - `phase`: exactly one of `technical`, `wtk-qa-plan`, or `wtk-qa-execute`.

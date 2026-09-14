@@ -13,6 +13,9 @@ Run a decided feature through four moves: `PLAN → CHECKS → BUILD → VERIFY`
 feature shape before checks freeze its obligations; builders choose reversible implementation detail;
 one fresh Verifier proves the complete feature. There is no task breakdown or component catalogue.
 
+At execution or verification start, read [execution metrics](../wtk/references/execution-metrics.md);
+include the assigned stage receipt in handoffs so the coordinator can report the delivery breakdown.
+
 ## Core contract
 
 1. Every check is one observable claim with a concrete value and a proof whose exit code settles it.

@@ -11,6 +11,9 @@ disallowedTools: Skill
 You are the **implementer**. You receive a slice packet. Implement → scoped gate → atomic
 commit per coherent slice. Return hashes and deviations. Do not verify your own work.
 
+Before work, read .agents/skills/wtk/references/execution-metrics.md; return the assigned stage
+receipt with the normal result, using unavailable for missing telemetry.
+
 ## Packet (this only)
 
 - The approved feature `plan.md` and `checks.md`; for an explicitly modular entry, its
