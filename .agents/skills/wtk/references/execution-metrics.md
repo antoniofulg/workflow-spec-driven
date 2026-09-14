@@ -11,7 +11,7 @@ clock timestamp at task start and stage boundaries. If collection starts late or
 name the measured interval and missing coverage instead of reconstructing it from memory.
 
 Before dispatch, give each worker the stage and attempt plus this reference. Each worker returns
-its actor/session id, model when known, start/end timestamps, available usage counters and their
+its actor/session id, provider/model and billing tier when exposed, start/end timestamps, available usage counters and their
 source/scope, commands with reported durations, and outcome in its normal handoff. The coordinator
 records dispatch/completion boundaries when workers cannot measure their own interval. Reuse
 existing tool timing and telemetry; do not poll or add agents just to measure usage.
@@ -76,6 +76,32 @@ acceptance. If B is a new finding while A passed its retest, distinguish it from
 - Missing metrics never block delivery or trigger reruns. Use `not run` for an omitted stage and
   `unavailable` for an unmeasured field. A numeric zero requires measured or known-zero activity.
 
+## Optional token cost
+
+Calculate cost only for usage scopes with a known provider/model, billable token breakdown and
+applicable official rates. When providers hide usage or model identity, report `unavailable` and
+skip price lookup for that scope. Missing cost never blocks delivery or requests credentials.
+
+For priceable scopes, consult the provider's current official pricing once and cite its URL,
+retrieval date, currency, rates and applicable service tier/context band. For OpenAI, start at
+https://developers.openai.com/api/docs/pricing; for other providers use their own official pricing.
+Do not hardcode a changing rate table in the skill or assume a tier, discount or cache policy.
+
+Normalize usage into disjoint billable buckets following that provider's definitions, then compute
+`sum(bucket_tokens * bucket_rate_per_million) / 1_000_000`. If input includes cached reads and
+separately billed cache writes, subtract those subsets before pricing ordinary input; providers
+that already separate buckets need no subtraction. Apply distinct rates for cache reads/writes,
+output and applicable tiers. Unknown bucket splits or mixed-model/tier aggregates are unpriceable
+unless the needed breakdown is supplied. Use a calculator or existing runtime for arithmetic.
+
+Show estimated token cost per measured stage/model and fix loop where attribution exists; loop
+costs remain subtotals, not extra charges. Sum only disjoint priced scopes and label partial totals
+with the missing coverage. Retain precision until the final display. Exclude and name unmeasured
+tool, storage, image/audio, infrastructure, tax and other non-token charges; this is not an invoice.
+For subscription usage, label it `API-equivalent estimate`, not actual spend. Actual billed amounts
+may be shown separately only when supplied by task-scoped billing evidence. If nothing is priceable,
+one `Token cost: unavailable — <missing inputs>` line is enough; omit empty cost tables.
+
 ## Final footer
 
 Append a compact table below the delivery result; workers return receipts, not a feature-wide total.
@@ -91,11 +117,12 @@ Deep Review              ...           ...                                      
 Remediation              ...           ...                                       fix batches
 Delivery/readiness       ...           ...                                       ...
 Total elapsed: ... | Cumulative actor time: ... | Token total: ... [coverage/source]
+Estimated token cost: ... [currency; priced scopes/coverage; rates/source/date, or unavailable]
 Validation overhead (included above): full gates ... runs / ...; targeted ... runs / ...
 Reused evidence: ... | Waiting/blockers: ... | Unmeasured scope: ...
 Verification cycles: ... passes | ... returns | ... completed loops | ... pending | first-pass: ...
 Loop <n>: <stage; revision; builder -> checker; fixing model if changed; verdict>
-  Findings: ... new / ... unresolved / ... regressed | Fix + recheck: ... time / ... tokens
+  Findings: ... new / ... unresolved / ... regressed | Fix + recheck: ... time / ... tokens / ... cost
 Optimization: <observed avoidable cost and suggested adjustment, or insufficient evidence>
 ```
 

@@ -14,6 +14,8 @@ All notable changes to this project are documented here.
   from delegated workers; no tracked benchmark artifacts, additional gates or telemetry service.
 - Verification–fix loop counts separate returns, completed rechecks and pending fixes, with model
   attribution and new, unresolved or regressed findings for each loop.
+- Optional token-cost estimates use available billable usage and cited official provider rates;
+  hidden usage remains unavailable, and subscription estimates are not reported as actual spend.
 
 ### Changed
 
