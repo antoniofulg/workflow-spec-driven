@@ -9,6 +9,9 @@ argument-hint: "[the work, in your own words]"
 
 Deliver the requested branch using the scope rules in `.agents/skills/wtk/references/validation.md`.
 
+At delivery start, read [execution metrics](../wtk/references/execution-metrics.md). Reuse collected
+stage receipts and append the footer at the authorized stopping point; missing usage is not a gate.
+
 ## Previously verified work
 
 Identify the recorded verified base and the subsequent diff. If that diff is bounded maintenance,

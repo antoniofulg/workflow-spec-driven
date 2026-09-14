@@ -1,7 +1,7 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { describe, expect, it } from "bun:test";
 
 const repositoryRoot = process.cwd();
@@ -418,6 +418,22 @@ describe("canonical QA skills", () => {
     expect(qaExecute).toMatch(/independent paths on the same frozen snapshot/);
     expect(qaExecute).toMatch(/same non-author Verifier may resume/);
     expect(qaExecute).toMatch(/identifying the new snapshot and resetting the environment/);
+  });
+
+  it("routes execution receipts and delivery reporting to one bundled metrics reference", () => {
+    const reference = ".agents/skills/wtk/references/execution-metrics.md";
+    expect(existsSync(join(repositoryRoot, reference))).toBe(true);
+    for (const owner of [
+      ".agents/skills/wtk/SKILL.md",
+      ".agents/skills/wtk-lean/SKILL.md",
+      ".agents/skills/wtk-implement/SKILL.md",
+      ".agents/skills/wtk-ship/SKILL.md",
+      ".agents/skills/wtk/references/evidence.md",
+    ]) {
+      const links = [...readRepositoryFile(owner).matchAll(/\[[^\]]+\]\(([^)]+)\)/g)]
+        .map((match) => resolve(repositoryRoot, dirname(owner), match[1]));
+      expect(links).toContain(resolve(repositoryRoot, reference));
+    }
   });
 
   it("IT-008 keeps both descriptions within the authoring contract", () => {
@@ -1092,6 +1108,7 @@ describe("adoption and public setup", () => {
       ".agents/skills/wtk-ship/scripts/close_feature.py",
       ".agents/skills/wtk-deep-review/SKILL.md",
       ".agents/skills/wtk-ship/remediation.py",
+      ".agents/skills/wtk/references/execution-metrics.md",
       "scripts/installer/engine.js",
     ]) {
       expect(packOutput).toContain(requiredPath);

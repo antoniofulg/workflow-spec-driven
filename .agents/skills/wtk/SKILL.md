@@ -12,6 +12,9 @@ metadata:
 Use this entrypoint to select the smallest applicable Workflow Toolkit procedure. Keep the
 router loaded and load only the selected skill and its directly relevant references.
 
+For implementation through delivery, start [execution metrics](references/execution-metrics.md)
+before work or delegation; append its receipt to the final response, not a new repository artifact.
+
 ## Route
 
 Load shared references only for the current operation:

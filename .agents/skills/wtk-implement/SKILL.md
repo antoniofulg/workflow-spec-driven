@@ -12,6 +12,9 @@ metadata:
 Implement approved modular work: extract the checks, build, and leave independent verification to
 the coordinator. The checklist fixes obligations; implementation decomposition is yours.
 
+Before execution, read [execution metrics](../wtk/references/execution-metrics.md) and return the
+assigned stage receipt with the normal handoff.
+
 ## Profile and handoff
 
 The project declares `profile: light|standard|ui` and optional `handoff: on|off` in `AGENTS.md` or

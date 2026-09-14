@@ -4,6 +4,27 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-09-13
+
+### Added
+
+- Delivery summaries include a stage-level execution metrics footer: measured elapsed time,
+  available token usage, review rounds, remediation batches, validation overhead and reused evidence.
+- Implementation and delivery entrypoints collect lightweight in-session receipts and request them
+  from delegated workers; no tracked benchmark artifacts, additional gates or telemetry service.
+
+### Changed
+
+- Metrics distinguish overlapping actor time, included gate time, provider counter coverage and
+  unavailable usage. Missing telemetry does not block delivery or imply zero consumption.
+- Optimization suggestions use observed causes; potential savings remain estimates, not benchmarks.
+
+### Migration
+
+- Run `npx workflow-toolkit@1.0.3 install` after publication and review the managed diff.
+- Token availability depends on the active harness; this release adds an agent reporting protocol,
+  not new provider collectors or automatic instrumentation of every model session.
+
 ## [1.0.2] - 2026-09-13
 
 ### Changed
