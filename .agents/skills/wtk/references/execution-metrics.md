@@ -24,6 +24,34 @@ pass as one round (initial and remediation passes separately), not each reviewer
 show interrupted passes separately. Count fix batches and full/targeted gate invocations, including
 failed attempts. A cache hit or reused result is not a new test execution.
 
+## Verification–fix loops
+
+Start counting at the builder's first ready-for-verification handoff. Record the checked revision,
+stage (technical verification, QA, or Deep Review), actual builder and checking models/efforts when
+known, verdict, and confirmed finding ids using the existing finding ledger. Keep these receipts
+in the same session state; neither this count nor model comparison changes review/stall policy.
+
+A verdict requiring implementation changes opens one return-to-implementation event. One completed
+loop is that return followed by a fix batch and its completed recheck, whether the recheck passes
+or fails. A failing recheck can open the next return. Report returns, completed loops and pending
+returns separately; interrupted checks, same-code retries, individual findings and parallel reviewer
+jobs are not extra loops. Consolidate findings handled by one fix/recheck batch into one loop, with
+all originating stages listed. No verification run means first-pass acceptance is `not evaluated`.
+
+For each loop, distinguish newly discovered findings, previously open findings still unresolved,
+and regressions of findings previously proven fixed. Newly discovered does not automatically mean
+introduced by the fix; attribute that only with evidence. Record the fixing model separately when
+it differs from the initial builder, plus fix/recheck time and tokens when available; these are
+subtotals of stage costs, not additional cost. Scope changes and tooling blockers are separate reasons,
+not implementation defects. Keep finding severity and verification scope beside model comparisons:
+fewer loops alone does not establish a better model or justify reducing verification coverage.
+Report passes and first-pass acceptance by checking stage; overall first-pass acceptance requires
+every required initial checking stage to finish without an implementation return.
+
+Example: ready -> check fails A -> fix -> recheck fails B -> fix -> recheck passes means three
+completed verification passes, two returns, two completed loops, zero pending, and no first-pass
+acceptance. If B is a new finding while A passed its retest, distinguish it from a failed fix for A.
+
 ## Accounting boundaries
 
 - Use actual clock/tool measurements. Total elapsed runs from task start to the reported stopping
@@ -65,6 +93,9 @@ Delivery/readiness       ...           ...                                      
 Total elapsed: ... | Cumulative actor time: ... | Token total: ... [coverage/source]
 Validation overhead (included above): full gates ... runs / ...; targeted ... runs / ...
 Reused evidence: ... | Waiting/blockers: ... | Unmeasured scope: ...
+Verification cycles: ... passes | ... returns | ... completed loops | ... pending | first-pass: ...
+Loop <n>: <stage; revision; builder -> checker; fixing model if changed; verdict>
+  Findings: ... new / ... unresolved / ... regressed | Fix + recheck: ... time / ... tokens
 Optimization: <observed avoidable cost and suggested adjustment, or insufficient evidence>
 ```
 

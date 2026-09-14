@@ -12,6 +12,8 @@ All notable changes to this project are documented here.
   available token usage, review rounds, remediation batches, validation overhead and reused evidence.
 - Implementation and delivery entrypoints collect lightweight in-session receipts and request them
   from delegated workers; no tracked benchmark artifacts, additional gates or telemetry service.
+- Verification–fix loop counts separate returns, completed rechecks and pending fixes, with model
+  attribution and new, unresolved or regressed findings for each loop.
 
 ### Changed
 
