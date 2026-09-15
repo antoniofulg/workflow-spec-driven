@@ -4,6 +4,17 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+### Changed
+
+- Deep Review screens context candidates for applicability before reading bodies, while preserving
+  applicable repository instructions, required references and complete source accounting.
+- Small reviews prefer one cohort within existing engine limits; extra fan-out needs an explicit
+  coverage or risk justification, without adding mandatory polish jobs or sweeps.
+- Projects with browser queues avoid duplicate queued executions and replace only identified,
+  stale, checkout-owned queued runs; running or foreign executions remain protected.
+- Applicable human UAT narrows duplicate exploration without replacing required independent,
+  automated or scenario evidence.
+
 ## [1.0.3] - 2026-09-13
 
 ### Added

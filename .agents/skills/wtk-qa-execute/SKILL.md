@@ -89,7 +89,10 @@ debrief, or an explicit limitation with the status prescribed by `QA-SCENARIOS.m
 
 Run the charter's tour and select edge probes and lenses justified by changed promises or named
 risks; there is no minimum count. Reuse applicable coverage rather than repeating journeys for a
-quota. Record clean attempts as results and keep evidence paths beside their report rows.
+quota. Record clean attempts as results and keep evidence paths beside their report rows. Apply the
+human-UAT reuse rule in [`references/session-protocol.md`](references/session-protocol.md) only for an
+applicable scenario or charter with recorded revision and environment; use its relevant-input check.
+A scoped UAT result may narrow duplicate exploratory actions, never required proof or evidence.
 
 **Done when:** the selected tour, every chosen edge, and every applicable lens have a recorded
 result, evidence path, or named limitation.
