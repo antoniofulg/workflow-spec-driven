@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-09-14
+
 ### Changed
 
 - Deep Review screens context candidates for applicability before reading bodies, while preserving
