@@ -15,6 +15,18 @@ result in the report. The session records attempted-and-clean edges as results.
 **Done when:** each charter interaction has an entry point, action, independent verification, and
 evidence or a named limitation.
 
+## Reuse human UAT
+
+Use an existing human UAT result to narrow duplicate exploratory actions only when it names an
+applicable scenario or charter, records its revision, and names the environment for this walk. The
+recorded revision anchors the evidence; treat the result as stale only when relevant inputs changed,
+so equivalent relevant inputs remain reusable despite unrelated commits or documentation changes.
+The result cannot replace the required authoritative reload (where supported), independent
+confirmation through the read path, automated assertions, or evidence; a user report alone never
+earns `pass`. If scenario, revision, or environment scope is missing, ask only for that missing
+detail or perform the missing proof. Do not delete required steps or coverage, or require a new
+report, approval ritual, or feature QA cycle solely to reuse UAT.
+
 ## Evidence contract
 
 Evidence identifies the scenario or charter, adapter, exact path, timestamp, and expected versus

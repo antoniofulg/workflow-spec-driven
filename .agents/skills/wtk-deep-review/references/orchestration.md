@@ -10,7 +10,7 @@ Every stage materializes jobs with lane ownership (`{label, kind, lane, prompt, 
 | --- | --- | --- | --- |
 | Knowledge | `build_knowledge.py` → knowledge.json + rules.template.json | — | source discovery |
 | Plan | `build_jobs.py` → prompts + jobs.json | — | source accounting + ownership |
-| Review | — | jobs.json (defect cohorts + sweeps) | `run_jobs.py --validate-only` |
+| Review | — | jobs.json (defect cohorts plus opt-in sweeps) | `run_jobs.py --validate-only` |
 | Merge | `merge_findings.py` → findings.json + review-stats.json | — | complete defect-lane coverage |
 | Report | `render_review.py` → review.md + state.json; `render_html.py` → review.html | — | `render_review.py` |
 
@@ -19,10 +19,11 @@ Both job kinds (`cohort`, `sweep`) return the same schema: defects, advisories, 
 ## Cohort rules (Step 2)
 
 1. Group selected files by package/directory and domain: a source file, its tests, and its types travel together; a file pulled apart from its test loses its reviewer the cheapest evidence.
-2. Size: target ~400 changed lines per cohort, so at most `min(concurrency, ceil(changed_lines / 400))` cohorts (fewer is allowed), each ≤ `--max-cohort-files` files (default `100`) **and** ≤ ~6,000 changed lines. Pass the same value to `build_jobs.py`; a single oversized file becomes its own cohort.
-3. **Oversized-file split** — when one file alone exceeds ~6,000 changed lines, divide the search across sibling reviewers: same file, disjoint slices of its manifest hunks (`hunk_scope`), one cohort per slice. Every slice reviewer reads the whole file for context but judges only its slice; build_jobs.py proves the merged slices cover every hunk line exactly once.
-4. Tag each cohort `risk: high|normal|low` — high when it touches storage/migrations, security/auth, public contracts, or concurrency; low for docs/config-only. Risk feeds reviewer emphasis, not selection.
-5. Every selected file in exactly one cohort (or, when sliced, every hunk line in exactly one slice) — build_jobs.py rejects any other shape. `plan.json`:
+2. For a small selection (≤40 files and ≤1,500 changed lines), prefer one defect cohort when the configured `--max-cohort-files` and existing line limits permit. Use extra cohorts only when an actual engine limit requires them or a named independent high-risk boundary justifies them; record the count and concrete reason in `walkthrough.md` before dispatch.
+3. Otherwise target ~400 changed lines per cohort, so at most `min(concurrency, ceil(changed_lines / 400))` cohorts (fewer is allowed), each ≤ `--max-cohort-files` files (default `100`) **and** ≤ ~6,000 changed lines. Pass the same value to `build_jobs.py`; a single oversized file becomes its own cohort. Keep every exception within the current validator caps.
+4. **Oversized-file split** — when one file alone exceeds ~6,000 changed lines, divide the search across sibling reviewers: same file, disjoint slices of its manifest hunks (`hunk_scope`), one cohort per slice. Every slice reviewer reads the whole file for context but judges only its slice; build_jobs.py proves the merged slices cover every hunk line exactly once.
+5. Tag each cohort `risk: high|normal|low` — high when it touches storage/migrations, security/auth, public contracts, or concurrency; low for docs/config-only. Risk feeds reviewer emphasis, not selection.
+6. Every selected file in exactly one cohort (or, when sliced, every hunk line in exactly one slice) — build_jobs.py rejects any other shape. `plan.json`:
 
 ```json
 { "cohorts": [
@@ -39,11 +40,11 @@ Sweeps are bare keys from the table below (built-in lens text) or `{key, lens}` 
 
 When `manifest.mode` is `incremental` (a remediation check), `build_jobs.py` ignores `cohorts` and `sweeps` (printing `sweeps skipped in incremental mode` when any were planned) and emits one defect-lane job `cohort-rc` over every selected path, carrying `prior_fingerprints` and `prior_anchors` for every `open` ledger entry in `state.json`; the gate demands one `prior_findings` row per fingerprint and rejects a defect at a prior anchor. Write `plan.json` as usual.
 
-`build_jobs.py` rejects a plan with more cohorts than the rule-2 target and prints `cohort target: E for L changed lines at concurrency C`: merge the cohorts.
+`build_jobs.py` remains authority for the numeric target and per-cohort caps: it rejects a plan with more cohorts than the current target and prints `cohort target: E for L changed lines at concurrency C`. Merge over-split cohorts; do not change or invent a cap in the plan.
 
 ## Sweep triggers
 
-Sweeps are **opt-in and rare** — default to none. Each sweep is one extra agent that sees the manifest, not one cohort; include it only when its trigger clearly fires and the plan has three or more cohorts (`build_jobs.py` rejects sweeps on smaller plans), and prefer at most one or two per round:
+Defect cohorts are the only default review lane. Sweeps remain **opt-in and rare** — default to none. Each sweep is one extra agent that sees the manifest, not one cohort; include it only when its trigger clearly fires and the plan has three or more cohorts (`build_jobs.py` rejects sweeps on smaller plans), and prefer at most one or two per round:
 
 | Key | Trigger | Looks for |
 | --- | --- | --- |

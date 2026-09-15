@@ -7,7 +7,7 @@ argument-hint: "[--pr N | --base <ref> | --staged | --worktree] [--files p1,p2] 
 
 # Deep Review
 
-Review at CodeRabbit grade with no file cap and one assertive posture: funnel the diff, discover root/nested project instructions and relevant local skills, shard the diff into defect cohorts, fan out reviewers, then merge with complete hunk/rule accounting. Defects require causal evidence and control the verdict; advisories require a concrete improvement and always remain visible.
+Review at CodeRabbit grade with bounded, assertive posture: funnel the diff, discover root/nested project instructions and relevant local skills, plan defect cohorts, fan out reviewers, then merge with complete hunk/rule accounting. For small selections, prefer one defect cohort when current limits permit; extra cohorts need an engine limit or a named independent high-risk boundary recorded before dispatch. Defects require causal evidence and control the verdict; advisories require a concrete improvement and always remain visible.
 
 Steps 1–4 drive an idempotent artifact pipeline under `<out>`: every stage gate is a bundled-script exit 0, valid agent outputs are never re-run, and an interrupted round resumes by re-running the same commands.
 
@@ -50,7 +50,7 @@ The manifest builder resolves `path_filters` into manifest.json; the knowledge s
 ## Hard rules
 
 - Source is read-only and **frozen**: the manifest pins `worktree_snapshot`, and run_jobs.py / render_review.py refuse a drifted checkout. Writes go only to `<out>`, `.wtk-deep-review/` state, and — with `--publish` — the target PR.
-- No file-count cap: a large selection means more cohorts, never a skipped or silently truncated review. Every selected file lands in exactly one cohort.
+- Cohort planning follows orchestration.md: prefer one defect cohort for small selections when current limits permit; disclose any extra-cohort count and reason before dispatch. Every selected file (or sliced hunk) lands in exactly one cohort, and large selections are never silently truncated.
 - Every defect starts with `Premise → Path → Verdict`; every advisory starts with `Premise → Improvement → Fix`. Investigated rejections remain visible in the suppression ledger.
 - Every selected hunk line receives defect-lane coverage. Every bound rule receives an explicit compliant/violated/not-applicable assessment.
 - Run the repo's linters first and record every overlapping candidate as `linter-overlap` rather than reporting it again.
@@ -81,19 +81,20 @@ The manifest builder resolves `path_filters` into manifest.json; the knowledge s
 
    It resolves repo path filters, detects generated / trivial / renamed files, scopes to the incremental delta when prior state exists, and pins the source-freeze snapshot.
 2. Read the printed summary. For `--pr`, the manifest base is the merge-base of the fetched PR base/head, so base-only changes stay outside the review. If the head is missing, run the printed fetch command and retry; if the base/history is missing, fetch it before retrying.
+3. Follow the manifest funnel: generated artifacts, review reports, and format-only documentation do not become product-review targets solely because they changed. A requested instruction or documentation contract remains selected and carries bounded rule/conformance context into Step 2.
 
 *Done when:* `<out>/manifest.json` exists, every changed file is accounted for as selected, ignored(reason), or skipped(reason), and every selected file carries its hunk list (the units of judgment and the publish anchors).
 
 **Step 2: Knowledge + plan — project rules, cohorts, walkthrough**
 
-1. STOP. Read `<skill-dir>/references/context-pack.md` and `<skill-dir>/references/taxonomy.md` in full before extracting rules or defining reviewer lanes. Run the bootstrap helper (reads the repo, writes only under `<out>`):
+1. STOP. Read `<skill-dir>/references/context-pack.md` and `<skill-dir>/references/taxonomy.md` in full before extracting rules or defining reviewer lanes. Follow context-pack.md's metadata-first source screen before opening candidate bodies. Run the bootstrap helper (reads the repo, writes only under `<out>`):
 
    ```bash
    python3 <skill-dir>/scripts/build_knowledge.py --out <out>
    ```
 
-   Read every source left pending in `<out>/rules.template.json` in full, including direct references of selected project skills. Write `<out>/rules.json` with every source marked applied or not-applicable (reason required), then extract verdict-bearing rules verbatim with scope globs. Assemble `<out>/context-pack.md` and run/fold the detected linter lanes.
-2. Read `<skill-dir>/references/orchestration.md` (cohort rules, sweep triggers) and `<skill-dir>/references/output-contracts.md` (walkthrough anatomy, effort scale) in full. Write `<out>/plan.json` — cohorts of up to `<max-cohort-files>` files (default 100) / ~6,000 changed lines plus any sweep whose trigger fires — and `<out>/walkthrough.md`.
+   Apply the metadata-first screen: classify each source as applicable or unrelated before opening its body; read every applicable source body in full, inspect ambiguous sources instead of skipping them, and give unrelated sources a concrete not-applicable reason. Read route-required and task/path-applicable references of applicable project skills in full; screen ambiguous direct references and record exclusions. Write `<out>/rules.json` with every source marked applied or not-applicable, then extract verdict-bearing rules verbatim with scope globs. Assemble `<out>/context-pack.md` and run/fold the detected linter lanes.
+2. Read `<skill-dir>/references/orchestration.md` (cohort rules, sweep triggers) and `<skill-dir>/references/output-contracts.md` (walkthrough anatomy, effort scale) in full. Write `<out>/plan.json` using orchestration.md's bounded cohort policy and existing per-cohort caps. Add only opt-in sweeps whose triggers clearly fire, and record any extra-cohort count/reason in `<out>/walkthrough.md` before dispatch.
 3. Run the bootstrap plan gate (reads repo artifacts, writes only under `<out>`):
 
    ```bash

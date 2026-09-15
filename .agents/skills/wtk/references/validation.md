@@ -120,6 +120,21 @@ Verifier, deep review or QA. Before committing:
 OAuth requires explicit human authorization. Credentials, OAuth clients/scopes, permissions,
 authentication behavior and sensitive product data require full Verifier coverage.
 
+## Browser queue ownership
+
+When a consuming project already provides a browser execution queue or lock, use that existing
+coordination surface. Keep at most one queued browser execution per checkout; Playwright's internal
+workers are part of that execution; they do not count as separate runs. Compare the queued run's
+checkout and relevant inputs with the current request before enqueueing. Treat a queued run as stale
+only when it is checkout-owned and relevant inputs changed; cancel it safely through the existing
+mechanism and confirm cancellation before enqueueing its replacement.
+
+Do not cancel a running test merely to replace queued work; a separately authorized cancellation may
+use the consuming project's existing controls. Never kill a foreign run or take a foreign lock
+holder's lock. Do not introduce a scheduler, framework, or new lock. If ownership of an existing
+queued execution or lock cannot be established, do not kill it or enqueue a duplicate; report the
+limitation and leave the existing state unchanged.
+
 ## Runtime isolation
 
 Each checkout owns its runtime. Never use `reuseExistingServer: true` across siblings. Resolve a port

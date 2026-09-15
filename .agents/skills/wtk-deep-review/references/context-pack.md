@@ -2,7 +2,9 @@
 
 How to assemble `<out>/context-pack.md` — the shared context every reviewer and sweep receives. **Keep it lean: target ≤ ~10 KB.** Every agent in the fan-out reads it in full, so each extra kilobyte is paid once per agent; reviewers dig into the code themselves (rg, git, file reads), so the pack carries only what they cannot cheaply rediscover — intent, review law, and what the linters already caught.
 
-## 1. Repository knowledge — discover before extracting
+## 1. Repository knowledge — metadata first
+
+Use manifest dispositions as the first selection gate. Generated artifacts, review reports, and format-only documentation do not become product-review targets solely because they changed. When a requested instruction or documentation change is part of the product contract, keep it selected and carry bounded rules and conformance context through this pack.
 
 Run the read-only discovery/bootstrap helper after the manifest:
 
@@ -12,12 +14,18 @@ python3 <skill-dir>/scripts/build_knowledge.py --out <out>
 
 It discovers every repository-local root/nested `AGENTS.md` and `CLAUDE.md`, repo review config/learnings, project `SKILL.md` under conventional local skill roots, and direct markdown references of candidate skills. Nested instructions apply to selected paths in their directory subtree; all ancestors remain applicable and deeper sources have higher precedence.
 
-`knowledge.json` records why every source is or is not a candidate. `rules.template.json` starts every candidate as `pending`. Read each pending source **in full**; for a selected skill, read each pending direct reference in full too. Copy the template to `rules.json` and change every pending row to:
+After the helper finishes, inspect `knowledge.json` metadata before opening any source body: use each row's `kind`, `scope`, `applies_to`, `candidate`, and `candidate_reason` (plus `references` on skill rows) to screen applicability. Mark a clearly unrelated candidate `not-applicable` from metadata without opening its body; inspect an ambiguous candidate body before deciding. Then read every applicable source in full, including:
+
+- root and nested `AGENTS.md` or `CLAUDE.md` sources whose scope contains a selected path;
+- skills explicitly invoked or dispatched by the user or instructions, skills owning selected paths, and skills whose metadata matches signals relevant to selected paths or the request;
+- every required reference named by an applicable source or selected by an applicable skill's routing in full; screen other direct references for task/path applicability, inspect ambiguous ones, and record exclusions.
+
+Do not skip an ambiguous source: inspect its body in full and decide from evidence. Classify an unrelated source as `not-applicable` with a concrete reason naming its scope or missing relevance; never use a bare "not needed" or "no explicit dispatch" reason. `knowledge.json` records why every source is or is not a candidate. `rules.template.json` starts each candidate as `pending`. Copy the template to `rules.json` and change every pending row to:
 
 - `applied` — the source was read and governs at least one selected path; or
 - `not-applicable` — include a concrete reason why it does not govern this change.
 
-`build_jobs.py` rejects missing sources, pending statuses, empty reasons, rule sources not marked applied, and rule scopes that match no selected path.
+Keep one source row per `knowledge.json` source, with no pending rows, and keep the existing rules schema: each extracted rule cites an applied source and a scope matching a selected path. `build_jobs.py` rejects missing sources, pending statuses, empty reasons, rule sources not marked applied, and rule scopes that match no selected path.
 
 ## 2. Rubric — extract the review law
 
