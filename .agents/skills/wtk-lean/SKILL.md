@@ -21,6 +21,10 @@ For explicit reuse, construction-order or approval requirements, apply
 and Verify. At phase boundaries or context recovery, use
 [context handoff](../wtk/references/context-handoff.md).
 
+When implementing a selected image or design, freeze [the UI contract](../wtk/references/ui-ux.md)
+before coding and carry its source and evidence requirements through build and independent verification.
+Use the `ui` profile for binding interface sources.
+
 ## Core contract
 
 1. Every check is one observable claim with a concrete value and a proof whose exit code settles it.

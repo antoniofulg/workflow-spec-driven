@@ -25,16 +25,9 @@ the wrong screen with every check green.
 
 ## When the repo has a design system
 
-Both are binding and they do not collide, because they decide different things. **The design
-decides structure and hierarchy** - which regions exist, what contains what, which indicator, in
-what order. **The system decides the values that realise it** - the colour token, the type scale,
-the spacing scale, the component that already exists.
-
-So never lift a hex or a font family out of a mock into a repo that has tokens: that breaks
-theming, and the system is right. And never surrender the arrangement on the way there. "Use the
-tokens" answers colour and answers nothing at all about whether the progress indicator is a ring
-or a bar. Where a value in the mock has no token to land in, that is a finding for the user, not
-a licence to redraw the screen around what the system already had.
+Apply [the UI contract](../../wtk/references/ui-ux.md): preserve the selected source's visible
+composition and values using matching tokens and component variants. Record necessary differences
+individually before coding. Reuse does not authorize replacing the selected palette or layout.
 
 ## Open it, and say how
 
@@ -81,14 +74,14 @@ containment and order wearing a visual name, and a list of the assertable that l
 hands the arrangement back by accident. This is the failure this section has actually produced:
 every label copied, every count correct, and a screen that reads as a different product. So write
 the structural checks the design decides - one column or two, this indicator and not that one,
-this block nested inside that one - and leave only the three properties above unproven.
+this block nested inside that one - and attach paired visual evidence for properties the runner cannot settle.
 
 So the exemption has to enumerate, under the same rule as every other negative in this skill.
 "Visual fidelity is unproven" is a blanket that legitimises every mistake of form written after
 it - including the ones a check would have caught - and a verifier reading it treats a real gap as
 a limitation properly declared. Name the screen and the property: `03 overview - spacing and card
-elevation unproven`. Then a person reviews three lines instead of being handed the whole surface
-back.
+elevation unproven`. Those properties still require the builder comparison and independent visual verdict in the UI
+contract; an automated-proof limitation is not a visual acceptance exemption.
 
 ## The Screens table needs a column for arrangement
 

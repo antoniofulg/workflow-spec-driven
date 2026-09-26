@@ -33,7 +33,7 @@ never independent verification.
 | `standard` | light plus recomputed `Coverage`, `Test policy` verdicts, and one fault per assertion surface |
 | `ui` | standard plus binding-source comparison and per-screen copy and arrangement enumeration; read [screens.md](references/screens.md) |
 
-The profile is a floor and the report names it. Empty inputs are recorded as such, not treated as
+Use the `ui` profile for binding interface sources. The profile is a floor and the report names it. Empty inputs are recorded as such, not treated as
 passes. Read `references/test-policy.md` only for `standard` or `ui` checklist rows.
 
 ## Critical rules
@@ -67,6 +67,10 @@ After Extract and its sweep, read [checklist-format.md](references/checklist-for
 `.checks/<feature>.md` artifact. Do not load the format during the first source pass.
 
 ## Build
+
+For a selected image or design, load [UI/UX](../wtk/references/ui-ux.md) before coding;
+freeze its contract and complete the builder capture/compare/fix loop before handoff.
+
 
 Write tests from the checklist, implement the minimum requested change, run each proof, and commit
 coherent pieces with Conventional Commits. Do not add unrequested capability or unrelated refactors;

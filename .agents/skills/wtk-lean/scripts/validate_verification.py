@@ -22,7 +22,8 @@ What it checks:
   ERROR  - profile standard/ui with no fault rows, or with no recomputed Coverage section
   ERROR  - PASS while a fault row says the mutant survived
   ERROR  - PASS while a Coverage row leaves a member Unproven
-  ERROR  - PASS while a binding source leaves an element Uncovered
+  ERROR  - PASS while a binding source records a Contradiction or leaves an element Uncovered
+  ERROR  - profile ui with missing, incomplete or non-PASS visual fidelity evidence
   ERROR  - PASS while a check row's Result is not PASS
   ERROR  - PASS while a Test policy row's expectation is not met
   ERROR  - the report's profile does not match the one checks.md was approved under
@@ -214,6 +215,30 @@ def _check_feature(fdir, name):
         )
 
     tables = find_tables(lines)
+    if effective == "ui":
+        visual_lines = []
+        in_visual = False
+        for line in lines:
+            if line.startswith("## "):
+                in_visual = line.strip().lower() == "## visual fidelity"
+            elif in_visual:
+                visual_lines.append(line)
+        visual_tables = find_tables(visual_lines)
+        required = ("source", "route/state", "viewport", "captures", "comparison", "result")
+        evidence_rows = 0
+        for header, rows in visual_tables:
+            if not all(field in header for field in required):
+                continue
+            indices = [header.index(field) for field in required]
+            for row in rows:
+                evidence_rows += 1
+                if any(i >= len(row) or row[i].lower() in EMPTY_CELL for i in indices):
+                    errors.append(f"{name}: visual fidelity row lacks source, viewport or comparison evidence")
+                elif row[header.index("result")].upper() != "PASS":
+                    errors.append(f"{name}: visual fidelity is not PASS ({row[0][:50]})")
+        if not evidence_rows:
+            errors.append(f"{name}: ui requires a visual fidelity evidence table with {', '.join(required)}")
+
     saw_faults = False
 
     for header, rows in tables:
@@ -237,6 +262,12 @@ def _check_feature(fdir, name):
             for r in rows:
                 if unproven < len(r) and r[unproven].lower() not in EMPTY_CELL:
                     errors.append(f"{name}: PASS but Coverage leaves '{r[unproven][:50]}' unproven ({r[0][:40]})")
+
+        contradiction = column(header, "contradiction")
+        if contradiction is not None:
+            for row in rows:
+                if contradiction < len(row) and row[contradiction].lower() not in EMPTY_CELL:
+                    errors.append(f"{name}: PASS but a binding source records a contradiction ({row[0][:50]})")
 
         uncovered = column(header, "uncovered")
         if uncovered is not None:

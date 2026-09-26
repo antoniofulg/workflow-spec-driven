@@ -99,14 +99,19 @@ same finding facing the other way.
 **Arrangement is the one this step keeps missing.** A screen can pass every label, count and
 order check and still be a different composition - a ring where the design draws a bar, one column
 where there are two. Those are selector-reachable and not exempt, so a screen whose checks are all
-copy and no structure is a finding even when each is green. Where the repo has a design system,
-hold the design to structure and hierarchy and the system to the values: a colour that differs
-from the mock is correct if it came from a token.
+copy and no structure is a finding even when each is green. Apply the binding-source contract and individual token adaptations in
+[UI/UX](../../wtk/references/ui-ux.md#verifying-the-built-screen). Independently inspect the source
+and implementation captures; record missing evidence or material visual mismatches in `Binding sources`
+as `Uncovered` or `Contradiction`, so a functional PASS cannot conceal a visual FAIL.
 
 **An exemption that does not enumerate is a gap, not a limitation.** The checks may put spacing,
 colour and type weight out of reach, named against the screen they belong to. They may not say
 "visual fidelity is unproven" and stop - that sentence also covers everything a selector could
 have reached. Treat a blanket clause as a finding, then enumerate what it was covering.
+
+Under `ui`, include one `Visual fidelity` row per contracted viewport/state pair using the report
+template below and the shared UI evidence fields. A missing or non-PASS pair blocks completion.
+The gate checks evidence structure; the Verifier checks actual images, freshness and matrix coverage.
 
 ## 2. Account for every proof
 
@@ -225,7 +230,7 @@ Only where human judgment decides the outcome - a UI flow, an interaction patter
 infrastructure work is settled by the checks. Present one test at a time, expected outcome stated,
 and log anything that is not a clear pass verbatim. Infer severity from the words, never ask for it:
 crash / error / exception → blocker; doesn't work / wrong / missing → major; slow / weird / off →
-minor; colour / font / spacing → cosmetic; unclear → major.
+minor; colour / font / spacing → assess against the binding visual contract (material drift is major); unclear → major.
 
 ## 6. Report
 
@@ -245,6 +250,12 @@ Write `.specs/features/<feature>/verification.md`. Lead with the verdict.
 | Source | Opened | Contradiction | Uncovered |
 | --- | --- | --- | --- |
 | design `03` overview | yes - artifact URL | none | - |
+
+## Visual fidelity
+
+| Source | Route/state | Viewport | Captures | Comparison | Result |
+| --- | --- | --- | --- | --- | --- |
+| source revision / UI contract row | route and selected state | width×height; scroll | reference, full-page, actual viewport paths | independently inspected requirements and individual differences; implementation revision and environment | PASS |
 
 ## Checks
 

@@ -75,14 +75,14 @@ element the code renders that the design does not draw is the same finding facin
 order check and still be a different composition - a ring where the design draws a bar, a block
 beside the band it belongs inside, one column where there are two. Those are selector-reachable
 and therefore not exempt, so a screen whose checks are all copy and no structure is a finding
-even when each of them is green. Where the repo has a design system, hold the design to structure
-and hierarchy and the system to the values: a colour that differs from the mock is correct if it
-came from a token, and an arrangement that differs is not.
+even when each of them is green. Apply the binding-source contract and individual token adaptations in
+[UI/UX](../../wtk/references/ui-ux.md#verifying-the-built-screen). Independently inspect the source
+and implementation captures; record missing evidence or material visual mismatches in `Binding sources`
+as `Uncovered` or `Contradiction`, so a functional PASS cannot conceal a visual FAIL.
 
-Hold this to what carries function or state: controls, indicators, navigation, the arrangement
-that distinguishes this screen from the one it replaces, and the affordances for empty, loading
-and error. Not every text node on the comp. One row per screen naming what is uncovered, so this
-lands as a short list somebody acts on rather than a re-litigation of the markup.
+Compare the contracted visual properties as well as function and state. Record one finding per
+affected screen/property with source and capture pointers; minor raster rendering differences use
+the recorded tolerances.
 
 **An exemption that does not enumerate is a gap, not a limitation.** A checklist may put spacing,
 colour and type weight out of reach, named against the screen they belong to. It may not write
@@ -90,6 +90,10 @@ colour and type weight out of reach, named against the screen they belong to. It
 have reached, and it arrives at you looking like a limitation properly declared, which is how a
 real gap gets waved through by the one step that exists to catch it. Treat a blanket clause as a
 finding, then enumerate what it was covering.
+
+Under `ui`, include one `Visual fidelity` row per contracted viewport/state pair using the report
+template below and the shared UI evidence fields. A missing or non-PASS pair blocks completion.
+The gate checks evidence structure; the Verifier checks actual images, freshness and matrix coverage.
 
 ## 2. Account for every proof
 
@@ -232,6 +236,12 @@ Write `.checks/<feature>.verified.md`. Lead with the verdict.
 | design `03` overview | yes - artifact URL | none | progress bar, radio indicator; breadcrumb rendered but not drawn |
 | design `05` montando | yes | is a band on `03`; C20 renders it as its own screen | - |
 | contract `billing.yaml` | yes | none | - |
+
+## Visual fidelity
+
+| Source | Route/state | Viewport | Captures | Comparison | Result |
+| --- | --- | --- | --- | --- | --- |
+| source revision / UI contract row | route and selected state | width×height; scroll | reference, full-page, actual viewport paths | independently inspected requirements and individual differences; implementation revision and environment | PASS |
 
 ## Checks
 

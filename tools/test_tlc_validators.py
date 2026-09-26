@@ -49,6 +49,29 @@ class WorkflowValidatorTests(unittest.TestCase):
         errors, _warnings = validate_verification._check_feature(str(FIXTURES), "fixture")
         self.assertEqual(errors, [])
 
+    def test_selected_design_requires_visual_evidence_despite_green_behavior(self) -> None:
+        report = (FIXTURES / "verification.md").read_text().replace("**Profile**: standard", "**Profile**: ui")
+        report += "\n## Binding sources\n\n| Source | Opened | Contradiction | Uncovered |\n| --- | --- | --- | --- |\n| venue mockup | yes | none | - |\n"
+        visual = "\n## Visual fidelity\n\n| Source | Route/state | Viewport | Captures | Comparison | Result |\n| --- | --- | --- | --- | --- | --- |\n| mockup.png revision 1 | /venues populated | 390x844 | mockup.png; mobile-full.png; mobile-viewport.png | inspected hierarchy, theme, filters, cards, footer; no material drift | PASS |\n| mockup.png revision 1 | /venues filters open | 1440x900 | mockup.png; desktop-full.png; desktop-viewport.png | inspected composition and sticky choices at scroll 500; no occlusion | PASS |\n"
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            root.joinpath("checks.md").write_text("Profile: ui\n")
+            for title, body, error in [
+                ("missing captures", report, "visual fidelity"),
+                ("complete evidence", report + visual, None),
+                ("blank captures", report + visual.replace("mockup.png; mobile-full.png; mobile-viewport.png", "-"), "visual fidelity"),
+                ("material drift", report + visual.replace("| PASS |", "| FAIL |"), "visual fidelity"),
+                ("uninspected", report + visual.replace("| PASS |", "| unverified |"), "visual fidelity"),
+                ("different theme", report.replace("| none | - |", "| dark theme replaces light source | - |") + visual, "contradiction"),
+            ]:
+                with self.subTest(title=title):
+                    root.joinpath("verification.md").write_text(body)
+                    errors, _ = validate_verification._check_feature(raw, "venues")
+                    if error:
+                        self.assertTrue(any(error in item.lower() for item in errors), errors)
+                    else:
+                        self.assertEqual(errors, [])
+
 
 class CommitContractTests(unittest.TestCase):
     """The Lean build contract requires Conventional Commits."""
