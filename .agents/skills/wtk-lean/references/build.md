@@ -8,6 +8,10 @@ for the model to obey, you are rebuilding the thing this skill removed.
 
 ## Before the first line of code
 
+For a selected image or design, load [UI/UX](../../wtk/references/ui-ux.md) before coding;
+freeze its contract and complete the builder capture/compare/fix loop before handoff.
+
+
 The checks exist, so the size is visible. Write `## Handoff` with `wc -c / 4` arithmetic for the
 files each whole slice touches. Then:
 

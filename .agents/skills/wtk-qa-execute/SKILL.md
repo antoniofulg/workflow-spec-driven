@@ -79,7 +79,7 @@ with setup and cleanup prerequisites resolved or recorded as limitations.
 Create `docs/qa/reports/<YYYY-MM-DD>-<scope>.md` before the first charter, or resume the current
 report when one exists for this cycle. Add every charter and scenario to the matrix with a pending
 verdict. Include the adapter, environment, gate command/result, and evidence destination. When a
-visual criterion is in scope, point the row at its feature `uiux.md` source/frame and record paired reference
+visual criterion or selected design is in scope, point the row at its feature `uiux.md` source/frame and record paired reference
 and implementation captures with the declared state, exact viewport, fonts/assets, and expected
 differences. Do not count that manual comparison as an automated test.
 

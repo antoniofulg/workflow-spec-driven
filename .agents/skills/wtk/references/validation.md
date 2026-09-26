@@ -40,7 +40,9 @@ Feature verification still accounts for every approved check, using fresh or dem
 evidence. Feature close, review remediation and delivery do not automatically require a full gate.
 Full gates follow the impact conditions below, including at initial feature close.
 
-For reference-driven UI, include the comparison required by `references/ui-ux.md`. QA flags and journeys follow
+For reference-driven UI, validate the contract and builder/independent comparison required by
+`references/ui-ux.md`, including actual-viewport states and full-page captures. A green behavior
+suite cannot waive missing visual evidence or material fidelity failures. QA flags and journeys follow
 `../wtk-qa/references/qa-scenarios.md`; scenario tags scope walks, not automated tests.
 
 ## Run and reuse evidence

@@ -1022,3 +1022,22 @@ describe("Bun tooling runtime contract", () => {
     runBunVersionSensor(versionSource, JSON.stringify("not-a-version"));
   });
 });
+
+
+describe("selected-design fidelity routing", () => {
+  it("routes builders and independent verifiers to the shared visual acceptance contract", () => {
+    for (const path of [
+      ".agents/skills/wtk-lean/references/build.md",
+      ".agents/skills/wtk-implement/SKILL.md",
+      ".agents/skills/wtk-lean/references/verify.md",
+      ".agents/skills/wtk-implement/references/verify.md",
+    ]) {
+      const source = readRepositoryFile(path);
+      expect(source).toContain("wtk/references/ui-ux.md");
+      expect(source).not.toContain("a colour that differs from the mock is correct if it");
+    }
+    const contract = readRepositoryFile(".agents/skills/wtk/references/ui-ux.md");
+    expect(contract).toContain("ui-fidelity-example.md");
+    expect(existsSync(join(repositoryRoot, ".agents/skills/wtk/references/ui-fidelity-example.md"))).toBe(true);
+  });
+});

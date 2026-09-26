@@ -12,24 +12,34 @@ handoff. Features with no new or changed screen skip the surface map.
 here; tasks and packets point to its rows instead of copying a second manifest. When phases are skipped
 and a task names a reference, keep the same fields in a bounded inline task record.
 
-An approved source, frame, or frozen export selects reference fidelity, including for a new screen. Open
+A request to implement a selected image, design, frame, or frozen export makes its visible composition
+binding by default, including for a new screen. Only an explicit user instruction to use it as
+inspiration makes it nonbinding; agent-written “directional” wording cannot downgrade that choice. Open
 design keeps its exploration procedure. Resolve disagreements in this order: `spec.md` → `uiux.md` →
 approved design artifact → tool or plugin output, then legacy mockup. The source owns visual appearance;
 runtime truth, accessibility, and explicit product constraints still apply. Identify and resolve a
 conflict with its owner; do not silently reinterpret, round, or rewrite the reference. External/global
-aesthetic skills advise within this contract.
+aesthetic skills advise within this contract. A derived spec or UI map cannot silently override the
+selected source; record and resolve each conflict before coding.
 
 ```markdown
 # <Feature> UI Change Map
 ## Reference (when an approved source is supplied)
 - **Approved source/frame:** tool and frame, or checked-in export path
 - **Revision/frozen export:** revision, or frozen export path plus commit/hash
-- **Route and mapping:** route; state ↔ exact viewport width×height pairs
+- **Intent:** binding implementation (default), or inspiration with the user instruction cited
+- **Route and mapping:** route; selected state ↔ exact mobile and desktop viewport width×height pairs
 - **Captures:** original/reference and implementation capture paths
 - **Environment:** browser, OS, DPR, fixtures/content, and loaded fonts/assets
 - **Tokens:** source provenance; mapped tokens; aliases/themes; inferred or missing values
-- **Layout/responsive constraints:** geometry, breakpoints, and supported differences
-- **Expected differences/tolerances:** approved differences recorded before judgment
+- **Composition:** header/navigation, content hierarchy, filter/control placement, cards, footer; order and containment
+- **Visual requirements:** spacing/density, typography/scale/weight, palette/theme, borders/radii, media crop/aspect ratio
+- **Layout/responsive constraints:** columns, alignment, breakpoints, stacking, sticky/fixed behavior at each viewport
+- **Expected differences/tolerances:** one row per difference below; raster estimates marked, no pixel-equality requirement
+
+| Region/property | Source requirement | Implementation difference | Necessity and authority | Preserved requirement / verification |
+| --- | --- | --- | --- | --- |
+| Result count | sample count | live count | runtime truth | retain position and typography |
 ## Screens
 ### <Screen name> — `<route>`
 - **New or changed:** changed
@@ -56,8 +66,12 @@ Screens and components this feature deliberately does not touch.
    preferably from a structured export: typography metrics, font weights, line-height, tracking, spacing,
    colours, radii, borders, and shadows. Keep layout constraints separate. Reuse matching tokens, map
    aliases/themes, and record deliberate shared-token changes. Mark raster/fragment inferences explicitly.
-4. **Truthful UI wins.** Never render an unsupported control or metric. Runtime truth wins on conflict,
-   and the conflict is recorded.
+4. **Record differences individually before coding.** Name each live-data, accessibility, shared-component,
+   or unavailable-photo adaptation, its affected property, reason and authority; seek a user decision
+   for a material redesign. “Use project tokens” is not an exception: map matching tokens or add a
+   scoped variant through the canonical system. Preserve unaffected source requirements. Never render
+   unsupported controls or metrics. Use clearly identified placeholder media when real photos are
+   missing; stock/generated imagery must not imply it depicts a real venue.
 5. **Freeze the surface before internals.** Reopen this document explicitly when the surface changes.
 6. Its existence marks the feature UI-bearing for QA when the proportional classifier selects QA.
 7. **Trace the common completion path.** Walk from user intent to completion for each changed
@@ -107,11 +121,33 @@ No new showcase, preview deployment, design integration, or split frontend/backe
 
 ## Verifying the built screen
 
-When a visual reference is named, completion requires fresh paired reference and implementation captures
-for every declared exact viewport and state, with fixtures/content, browser/DPR, and loaded fonts/assets.
-Use the existing adapter and paired inspection, overlay, or diff to compare geometry, typography, tokens,
-imagery, interaction states, and responsive behavior. Record expected differences/tolerances before
-judging; source or implementation changes invalidate affected evidence. Missing evidence is unverified;
-an unacceptable mismatch fails. Functional assertions alone do not prove fidelity, and no universal
-arbitrary pixel threshold applies. Manual comparison is evidence, not an automated test. Keep raw captures
-disposable and put the durable verdict and source pointers in the existing task, verifier, or QA report.
+For a binding source, use the following acceptance procedure even when behavior tests or QA pass.
+
+1. **Builder:** render at every agreed mobile and desktop viewport/state, inspect beside the source,
+   fix material mismatches, then recapture affected evidence before handoff. Capture the full page
+   for composition and the actual viewport for selected interaction states, including scrolled/open
+   controls where relevant. A full-page capture alone cannot prove sticky controls leave choices,
+   focus and actions visible and reachable. Exercise those choices in the actual viewport.
+2. Compare hierarchy, spacing, typography, palette, controls, media and responsive layout against the
+   recorded requirements and individual differences. Check inherited dark-theme leakage against the
+   selected theme, and check placeholder imagery/labels cannot imply a photographed real venue.
+3. **Independent Verifier:** open the source and captures, check freshness against the implementation
+   revision and environment, and judge every contracted pair independently of the builder's verdict.
+   Reproduce selected interaction states in actual viewports when captures cannot prove reachability.
+   A materially different theme, header, filter layout, card composition or footer is a visual FAIL
+   even with green functional tests and QA. Missing source/captures or uninspected pairs are unverified
+   and cannot PASS. Put these failures in the existing binding-source findings as well as the verdict.
+4. Record evidence in the existing task, verifier or QA report using the fields below. Source or
+   implementation changes invalidate affected evidence. Keep raw captures disposable but available
+   through independent review; preserve source pointers and verdicts in the existing durable report.
+
+| Source/revision | Implementation revision | Route/state | Viewport / scroll | Environment | Reference + full-page + viewport captures | Inspection / differences | Builder / independent verdict |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| frozen source | tested revision | selected state | width×height; position | browser, OS, DPR, fixtures, fonts/assets, theme | paths | compared requirements; exception rows; interaction result | PASS/FAIL/unverified per actor |
+
+Use the existing adapter with side-by-side inspection, overlay or diff; manual comparison is evidence,
+not an automated test. A conceptual raster binds visible composition without requiring pixel equality:
+mark inferred values and responsive adaptations, tolerate minor rendering differences, and fail material
+structure or styling drift. For source states/viewports not drawn, explicitly record the inferred rule;
+never fabricate a matching reference capture. Do not add a screenshot framework or exhaustive state
+matrix solely for this process. See [the regression example](ui-fidelity-example.md).

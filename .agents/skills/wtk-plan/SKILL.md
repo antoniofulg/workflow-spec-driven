@@ -13,6 +13,10 @@ Turn decided work into `.tasks/<name>.md` with observable criteria with concrete
 in the repository. A one-line ticket can be a decision; an unshaped wish belongs in discovery.
 This skill plans modular work and does not implement it.
 
+When implementing a selected image or design, freeze [the UI contract](../wtk/references/ui-ux.md)
+before coding and carry its source and evidence requirements through build and independent verification.
+Use the `ui` profile for binding interface sources.
+
 ## Source and scope
 
 Read the source and the code relevant to its claims. Resolve factual questions from existing code,
