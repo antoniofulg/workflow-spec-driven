@@ -4,6 +4,22 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-09-26
+
+### Fixed
+
+- Selected images and designs bind visible composition by default. UI contracts now record concrete
+  requirements and individual adaptations instead of blanket project-token exceptions.
+- Builders render, compare and correct mobile and desktop captures before handoff. Independent
+  verification rejects material visual drift even when behavior tests and QA pass, including sticky
+  controls obscuring choices, dark-theme leakage and misleading venue placeholder media.
+- The completion validator rejects missing or incomplete visual evidence, non-PASS visual results
+  and recorded binding-source contradictions. A venue-page regression documents the failure pattern.
+
+### Documentation
+
+- Clarified the optional security lifecycle companion skills and when to use them.
+
 ## [2.0.0] - 2026-09-23
 
 ### Changed

@@ -849,6 +849,10 @@ describe("adoption and public setup", () => {
     const releaseStart = changelog.indexOf(`## [${manifest.version}]`);
     const nextRelease = changelog.indexOf("\n## [", releaseStart + 1);
     const latestRelease = changelog.slice(releaseStart, nextRelease === -1 ? undefined : nextRelease);
+    const migrationStart = changelog.indexOf("## [2.0.0]");
+    const migrationEnd = changelog.indexOf("\n## [", migrationStart + 1);
+    const migrationRelease = changelog.slice(migrationStart, migrationEnd === -1 ? undefined : migrationEnd);
+
 
     expect(manifest.version).toMatch(/^\d+\.\d+\.\d+$/);
     expect(manifest.name).toBe("workflow-toolkit");
@@ -859,11 +863,11 @@ describe("adoption and public setup", () => {
     expect(existsSync(join(repositoryRoot, "package-lock.json"))).toBe(false);
     expect(latestHeading).toBe(manifest.version);
     expect(latestRelease).not.toContain("npx wtk install");
-    expect(latestRelease).toContain("complete set of 12 `wtk*` skills");
+    expect(migrationRelease).toContain("complete set of 12 `wtk*` skills");
     expect(readRepositoryFile("README.md")).toContain("npx skills add antoniofulg/workflow-toolkit");
-    expect(latestRelease).toContain("Ponytail, security lifecycle, and other companion skills");
-    expect(latestRelease).toContain("Retired the package installer");
-    expect(latestRelease).toContain("CLEANUP.md");
+    expect(migrationRelease).toContain("Ponytail, security lifecycle, and other companion skills");
+    expect(migrationRelease).toContain("Retired the package installer");
+    expect(migrationRelease).toContain("CLEANUP.md");
     expect(unreleased).not.toMatch(/npx workflow-toolkit(?:@[^ ]+)? install/);
     expect(unreleased).not.toContain("install_security_skills");
 
