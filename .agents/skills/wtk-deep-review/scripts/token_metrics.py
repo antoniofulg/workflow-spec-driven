@@ -54,31 +54,116 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def _rollout_usage(path: object) -> dict[str, int | None]:
-    if not isinstance(path, str) or not path or not Path(path).is_file():
-        return {field: None for field in USAGE_FIELDS}
-    latest: object = None
-    try:
-        with Path(path).open(encoding="utf-8", errors="replace") as stream:
-            for line in stream:
-                try:
-                    event = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                payload = event.get("payload") if isinstance(event, dict) else None
-                if not isinstance(payload, dict) or payload.get("type") != "token_count":
-                    continue
+def _session_events(path: Path):
+    """Stream only metadata identity and cumulative usage from an assigned file."""
+    with path.open(encoding="utf-8") as stream:
+        for line in stream:
+            try:
+                event = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            payload = event.get("payload") if isinstance(event, dict) else None
+            if not isinstance(payload, dict):
+                continue
+            if event.get("type") == "session_meta":
+                yield "identity", payload.get("id"), None
+            elif payload.get("type") == "token_count":
                 info = payload.get("info")
-                if not isinstance(info, dict):
-                    latest = None
-                    continue
-                candidate = info.get("total_token_usage", info.get("last_token_usage"))
-                latest = candidate if isinstance(candidate, dict) else None
-    except OSError:
-        return {field: None for field in USAGE_FIELDS}
-    if not isinstance(latest, dict):
-        return {field: None for field in USAGE_FIELDS}
-    return {field: _safe_count(latest.get(field)) for field in USAGE_FIELDS}
+                usage = info.get("total_token_usage") if isinstance(info, dict) else None
+                yield "usage", usage, event.get("timestamp")
+
+
+def read_session_snapshot(path: str | Path, session_id: str) -> dict:
+    """Read one assigned JSONL file; return only identity and allowlisted metrics."""
+    from uuid import UUID
+
+    try:
+        identity = str(UUID(session_id))
+    except (ValueError, TypeError, AttributeError):
+        raise TokenMetricsError("session identity absent or invalid") from None
+    try:
+        source = Path(path).expanduser().resolve()
+    except (OSError, ValueError, RuntimeError):
+        raise TokenMetricsError("corresponding session file path invalid") from None
+    latest = None
+    verified = False
+    resets = 0
+    event_count = 0
+    try:
+        for kind, value, timestamp in _session_events(source):
+            if kind == "identity":
+                if value != identity:
+                    raise TokenMetricsError("session identity mismatch")
+                verified = True
+                continue
+            if not isinstance(value, dict):
+                continue
+            counters = {field: _safe_count(value.get(field)) for field in ("total_tokens", *USAGE_FIELDS)}
+            if (
+                counters["total_tokens"] is None or not _timestamp(timestamp)
+                or datetime.fromisoformat(timestamp.replace("Z", "+00:00")).tzinfo is None
+            ):
+                raise TokenMetricsError("usage counters or timestamp invalid")
+            if latest and any(
+                count is not None and latest["usage"][key] is not None
+                and count < latest["usage"][key] for key, count in counters.items()
+            ):
+                resets += 1
+            event_count += 1
+            latest = {"usage": counters, "event_timestamp": timestamp}
+    except (OSError, UnicodeError, ValueError):
+        raise TokenMetricsError("corresponding session file not found or unreadable") from None
+    if not verified:
+        raise TokenMetricsError("counter scope unverifiable: session metadata absent")
+    if latest is None:
+        raise TokenMetricsError("usage events absent")
+    return {"session_id": identity, "source": str(source), "scope": "session cumulative",
+            "last_read_at": _now(), "reset_count": resets, "event_count": event_count, **latest}
+
+
+def session_measurement(snapshot: dict, baseline: dict | None = None) -> dict:
+    """Retain cumulative evidence when a stage delta cannot be established."""
+    reason = "reliable baseline absent"
+    if (
+        isinstance(baseline, dict) and _usage(baseline.get("usage"))
+        and _timestamp(baseline.get("event_timestamp"))
+        and _safe_count(baseline.get("event_count")) is not None
+        and datetime.fromisoformat(baseline["event_timestamp"].replace("Z", "+00:00")).tzinfo is not None
+    ):
+        comparable = all(baseline.get(key) == snapshot[key] for key in ("session_id", "source", "scope", "reset_count"))
+        if not comparable:
+            reason = "session, source, scope changed or counter reset"
+        elif (
+            baseline["event_count"] > snapshot["event_count"]
+            or datetime.fromisoformat(baseline["event_timestamp"].replace("Z", "+00:00"))
+            > datetime.fromisoformat(snapshot["event_timestamp"].replace("Z", "+00:00"))
+        ):
+            reason = "counter history truncated"
+        else:
+            try:
+                previous = baseline["usage"]
+                current = snapshot["usage"]
+                if any(current[key] is not None and previous.get(key) is None for key in current):
+                    raise TokenMetricsError("baseline bucket absent")
+                delta = delta_usage({snapshot["session_id"]: previous}, {snapshot["session_id"]: current})
+                return {**snapshot, "measurement": "stage delta", "measured_usage": delta,
+                        "baseline_timestamp": baseline["event_timestamp"]}
+            except (TokenMetricsError, KeyError, TypeError, ValueError):
+                reason = "baseline counters incompatible or counter reset"
+    return {**snapshot, "measurement": "post-reset cumulative" if snapshot["reset_count"] else "session cumulative",
+            "measured_usage": snapshot["usage"], "delta_unavailable_reason": reason}
+
+
+def _rollout_usage(path: object) -> dict[str, int | None]:
+    # Assigned provider paths may lack session metadata; retain the adapter's detail-only contract.
+    latest = None
+    try:
+        for kind, value, _ in _session_events(Path(path)):
+            if kind == "usage":
+                latest = value
+    except (OSError, TypeError, UnicodeError):
+        pass
+    return {field: _safe_count(latest.get(field)) if isinstance(latest, dict) else None for field in USAGE_FIELDS}
 
 
 def read_telemetry(db_path: str | Path, reviewer_prefix: str) -> dict[str, dict[str, int | None]]:
@@ -367,3 +452,32 @@ def finalize_metrics(path: str | Path) -> dict:
 
 def write_unavailable_metrics(path: str | Path, reason: str = "compatible telemetry unavailable") -> None:
     _unavailable(Path(path), reason)
+
+
+def main() -> int:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Read metrics only from an explicit Codex session file.")
+    parser.add_argument("--session-file", required=True)
+    parser.add_argument("--session-id", default=os.environ.get("CODEX_THREAD_ID"))
+    parser.add_argument("--baseline", help="Previously saved structured snapshot; never a session log")
+    args = parser.parse_args()
+    try:
+        snapshot = read_session_snapshot(args.session_file, args.session_id)
+        baseline = None
+        if args.baseline:
+            try:
+                baseline = json.loads(Path(args.baseline).read_text(encoding="utf-8"))
+                if not isinstance(baseline, dict):
+                    baseline = None
+            except (OSError, UnicodeError, json.JSONDecodeError):
+                pass
+        result = session_measurement(snapshot, baseline)
+    except TokenMetricsError as error:
+        result = {"status": "unavailable", "reason": str(error), "last_read_at": _now()}
+    print(json.dumps(result))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

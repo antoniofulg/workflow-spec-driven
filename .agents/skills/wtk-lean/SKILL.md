@@ -14,7 +14,8 @@ feature shape before checks freeze its obligations; builders choose reversible i
 one fresh Verifier proves the complete feature. There is no task breakdown or component catalogue.
 
 At execution or verification start, read [execution metrics](../wtk/references/execution-metrics.md);
-include the assigned stage receipt in handoffs so the coordinator can report the delivery breakdown.
+include the assigned stage receipt with session identity, interval and baseline/snapshot counters
+after its source checks, using the normal handoff format.
 
 For explicit reuse, construction-order or approval requirements, apply
 [construction constraints](../wtk/references/construction-constraints.md) at Plan, Checks, Build

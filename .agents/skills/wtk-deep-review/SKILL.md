@@ -61,7 +61,9 @@ The manifest builder resolves `path_filters` into manifest.json; the knowledge s
 - Optional metrics snapshot provider totals and cumulative checkpoints without changing dispatch,
   retries, outputs, or exits. The main thread records serialized cumulative checkpoints without
   per-job token attribution; totals finalize only after the full scope completes. Hosts without a
-  compatible adapter record `unavailable` and continue the review normally. The pinned Graft adapter
+  compatible adapter record adapter metrics as `unavailable`; before reporting tokens unavailable,
+  follow [execution metrics](../wtk/references/execution-metrics.md) for local session and worker
+  receipt checks. Keep the review running normally. The pinned Graft adapter
   runs before prompts are materialized; a failed or absent Graft falls back to ordinary repository
   inspection.
 - Native execution uses the configured named `deep-reviewer` when the host supports it; otherwise use the role-free Workflow fallback or prompt-only Agent fallback described in orchestration.md.
