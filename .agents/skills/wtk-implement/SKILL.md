@@ -13,7 +13,8 @@ Implement approved modular work: extract the checks, build, and leave independen
 the coordinator. The checklist fixes obligations; implementation decomposition is yours.
 
 Before execution, read [execution metrics](../wtk/references/execution-metrics.md) and return the
-assigned stage receipt with the normal handoff.
+assigned stage receipt with session identity, interval and baseline/snapshot counters after its
+source checks, using the normal handoff format.
 
 When the source requires reuse, construction order or approval, apply
 [construction constraints](../wtk/references/construction-constraints.md) during Extract, Build

@@ -260,6 +260,86 @@ def runner(out: Path, jobs: Path, helper: Path, calls: Path, *, db: Path | None 
 
 
 class TokenMetricsTests(unittest.TestCase):
+    def test_adapter_does_not_substitute_last_turn_for_cumulative_usage(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            session, db = root / "assigned.jsonl", root / "telemetry.sqlite"
+            session.write_text(json.dumps({"payload": {"type": "token_count", "info": {
+                "last_token_usage": {"input_tokens": 10, "cached_input_tokens": 5, "output_tokens": 2}}}}) + "\n")
+            create_db(db, 100)
+            connection = sqlite3.connect(db)
+            connection.execute("update threads set rollout_path = ?", (str(session),))
+            connection.commit()
+            connection.close()
+            usage = read_telemetry(db, PREFIX)["thread-1"]
+            self.assertEqual(usage["total_tokens"], 100)
+            self.assertIsNone(usage["input_tokens"])
+            self.assertIsNone(usage["cached_input_tokens"])
+            self.assertIsNone(usage["output_tokens"])
+
+    def test_explicit_session_receipt_cumulative_cache_baseline_and_reset(self) -> None:
+        # CLI boundary protects measured usage, provenance and content-safe output.
+        identity = "00000000-0000-0000-0000-000000000001"
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            session, baseline = root / "session.jsonl", root / "baseline.json"
+            session.write_text(json.dumps({"type": "session_meta", "payload": {"id": identity}}) + "\n")
+
+            def append(input_tokens, cached, output, timestamp):
+                with session.open("a") as stream:
+                    stream.write(json.dumps({"type": "response_item", "payload": {"prompt": "DO-NOT-EXPOSE", "credential": "DO-NOT-EXPOSE"}}) + "\n")
+                    stream.write(json.dumps({"type": "event_msg", "timestamp": timestamp,
+                        "payload": {"type": "token_count", "info": {"total_token_usage": {
+                            "input_tokens": input_tokens, "cached_input_tokens": cached,
+                            "output_tokens": output, "reasoning_output_tokens": 2,
+                            "total_tokens": input_tokens + output}}}}) + "\n")
+
+            def read(with_baseline=False, session_id=identity):
+                command = [sys.executable, str(SCRIPTS / "token_metrics.py"),
+                           "--session-file", str(session), "--session-id", session_id]
+                if with_baseline:
+                    command += ["--baseline", str(baseline)]
+                result = subprocess.run(command, capture_output=True, text=True, check=True)
+                self.assertNotIn("DO-NOT-EXPOSE", result.stdout + result.stderr)
+                return json.loads(result.stdout)
+
+            append(100, 40, 10, "2026-10-07T10:00:00Z")
+            start = read()
+            self.assertEqual(start["measurement"], "session cumulative")
+            self.assertEqual(start["delta_unavailable_reason"], "reliable baseline absent")
+            baseline.write_text(json.dumps(start))
+            append(160, 80, 30, "2026-10-07T10:01:00Z")
+            cumulative = read()
+            self.assertEqual(cumulative["measured_usage"]["total_tokens"], 190)
+            self.assertEqual(cumulative["event_timestamp"], "2026-10-07T10:01:00Z")
+            self.assertIn("last_read_at", cumulative)
+            delta = read(True)
+            self.assertEqual(delta["measurement"], "stage delta")
+            self.assertEqual(delta["measured_usage"], {"input_tokens": 60, "cached_input_tokens": 40,
+                "output_tokens": 20, "reasoning_output_tokens": 0, "total_tokens": 80})
+            # Reset then recovery past the baseline must still invalidate subtraction.
+            append(10, 4, 3, "2026-10-07T10:02:00Z")
+            append(200, 100, 40, "2026-10-07T10:03:00Z")
+            reset = read(True)
+            self.assertEqual(reset["measurement"], "post-reset cumulative")
+            self.assertEqual(reset["measured_usage"]["total_tokens"], 240)
+            self.assertIn("reset", reset["delta_unavailable_reason"])
+            # Scope changes and malformed baselines cannot become stage usage.
+            for mutate in (lambda value: value.update(session_id="other"),
+                           lambda value: value["usage"].update(input_tokens=None),
+                           lambda value: value.update(event_timestamp="2026-10-07T10:00:00")):
+                candidate = json.loads(json.dumps(reset))
+                mutate(candidate)
+                baseline.write_text(json.dumps(candidate))
+                self.assertNotEqual(read(True)["measurement"], "stage delta")
+            self.assertEqual(read(session_id="00000000-0000-0000-0000-000000000002")["reason"],
+                             "session identity mismatch")
+            session.write_text(json.dumps({"type": "session_meta", "payload": {"id": identity}}) + "\n")
+            self.assertEqual(read()["reason"], "usage events absent")
+            session.unlink()
+            self.assertIn("not found", read()["reason"])
+            self.assertIn("identity", read(session_id="")["reason"])
+
     def test_drm01_compatible_totals_and_cumulative_delta(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)

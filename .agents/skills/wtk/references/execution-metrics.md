@@ -7,14 +7,18 @@ normal completion summary, including a stop at the PR or a blocked handoff.
 
 The coordinator keeps compact receipts in session state or existing disposable runtime storage;
 no tracked metrics artifact, benchmark suite, new gate, or approval step is required. Capture a
-clock timestamp at task start and stage boundaries. If collection starts late or state is lost,
+clock timestamp and usage baseline at task start and each stage start; take a snapshot at each
+stage end, retaining counter timestamps and the last-read time. If collection starts late or state
+is lost,
 name the measured interval and missing coverage instead of reconstructing it from memory.
 
 Before dispatch, give each worker the stage and attempt plus this reference. Each worker returns
 its actor/session id, provider/model and billing tier when exposed, start/end timestamps, available usage counters and their
 source/scope, commands with reported durations, and outcome in its normal handoff. The coordinator
-records dispatch/completion boundaries when workers cannot measure their own interval. Reuse
-existing tool timing and telemetry; do not poll or add agents just to measure usage.
+records dispatch/completion boundaries when workers cannot measure their own interval. Include
+baseline/snapshot counters (input, cached input, output, total), measurement interval,
+last-read time, scope (self-only or inclusive of children), reset status and missing coverage. Reuse
+existing tool timing and telemetry; do not poll, start agents or add turns solely to collect metrics.
 
 Classify initial implementation, technical verification, QA, Deep Review, remediation, and
 delivery/readiness separately. Attribute fix work to remediation, not initial implementation;
@@ -63,20 +67,58 @@ acceptance. If B is a new finding while A passed its retest, distinguish it from
   partial; stopping at the requested PR does not itself make the measured task interval partial.
 - Gate durations are included in their owning stage and shown separately as overhead; do not add
   them again. Distinguish measured command duration from dispatch-to-return elapsed time.
-- Use provider-reported input/output/cached-input usage or comparable start/end counters for the
-  same session. Never infer consumed tokens from context budgets, character counts, or benchmark
-  medians. Record source coverage and resets; incompatible or missing counters are `unavailable`.
-- Cached input is often a subset of input: retain the provider definition and do not add it twice.
-  Reasoning tokens may likewise be included in output. Sum only disjoint usage scopes; parent
-  counters that include children must not be added to child receipts. If scopes cannot be separated,
-  report the aggregate and mark stage token attribution unavailable. Label partial totals explicitly.
-- Read only task-scoped telemetry already available through the harness or assigned evidence.
-  Existing Deep Review metrics may supply its run aggregate, not per-job/stage attribution. Do not
-  scan unrelated conversations, expose prompts/secrets, install collectors, or require credentials.
+- Aggregate only proven disjoint session/usage scopes. Record whether parent counters include
+  children; never add those parent counters to child receipts. If inclusion is unknown, retain
+  separate measurements without a combined total. Name missing participating agents and mark
+  aggregates partial. Existing Deep Review aggregates cover their run, not individual jobs/stages.
+- Never infer consumed tokens from context budgets, character counts, bytes/4 context estimates
+  or benchmark medians. Cached input is part of input; reasoning may be part of output. Retain
+  provider definitions rather than adding these subsets again.
 - Missing metrics never block delivery or trigger reruns. Use `not run` for an omitted stage and
   `unavailable` for an unmeasured field. A numeric zero requires measured or known-zero activity.
 
+## Token collection procedure
+
+Before declaring tokens `unavailable`, check environment counters, local telemetry for the current
+session, then receipts of participating subagents. Record each source's scope or concrete failure;
+`the tools do not show usage` is insufficient while local telemetry remains unchecked. Missing
+identity, corresponding file not found, absent usage events and unverifiable counter scope are
+valid reasons. An unavailable stage delta does not make a measured session cumulative unavailable.
+
+For Codex, obtain identity from `CODEX_THREAD_ID`. Resolve only filenames matching that identity
+under `$CODEX_HOME/sessions`; use `~/.codex/sessions` only if `CODEX_HOME` is unset (an empty or invalid
+configured value is not permission to fall back). Match the complete session-id filename suffix,
+not arbitrary substrings. Inspect filename metadata only until the corresponding file is selected;
+ambiguous matches require an explicit path. Accept a session-file path explicitly supplied by the
+environment or user. Verify its session identity before using counters. Read no unrelated session
+contents, prompts, credentials or authentication configuration; emit only allowlisted metrics.
+
+Reuse the content-safe reader in `wtk-deep-review/scripts/token_metrics.py` from the installed skill
+root (the example uses this repository's layout):
+
+```sh
+python3 .agents/skills/wtk-deep-review/scripts/token_metrics.py --session-file "$SESSION_FILE"
+```
+
+`SESSION_FILE` is the explicitly resolved file, not a directory; the reader checks `CODEX_THREAD_ID`
+(or explicit `--session-id`) against session metadata. Save the structured start snapshot in
+existing disposable storage; pass it as `--baseline <snapshot.json>` at stage end. The reader does
+not discover files or read conversation content into its output.
+
+Read `token_count` events' `info.total_token_usage`: retain input, cached input, output, total and
+event timestamp. Use the latest cumulative event, never the sum of cumulative events or a fallback
+to `last_token_usage`. Record collection time separately; telemetry may lag the closing response,
+so say `snapshot as of <event timestamp>; last read <time>`, not an exact final total.
+
+Subtract baseline from snapshot only for comparable counters in the same session, source and scope.
+Check all counter buckets for decreases, resets and changes of scope, including resets between
+endpoints. A reset or lost baseline prevents the stage delta; missing buckets prevent their deltas. Without a reliable baseline,
+report the measured session cumulative (or post-reset cumulative), explicitly labeled; it is not
+stage consumption. A provider source/model/scope change requires a new baseline and separate receipt.
+
 ## Optional token cost
+
+Report three separate results: measured tokens, estimated token cost and actually billed amount.
 
 Calculate cost only for usage scopes with a known provider/model, billable token breakdown and
 applicable official rates. When providers hide usage or model identity, report `unavailable` and
@@ -92,7 +134,7 @@ Normalize usage into disjoint billable buckets following that provider's definit
 separately billed cache writes, subtract those subsets before pricing ordinary input; providers
 that already separate buckets need no subtraction. Apply distinct rates for cache reads/writes,
 output and applicable tiers. Unknown bucket splits or mixed-model/tier aggregates are unpriceable
-unless the needed breakdown is supplied. Use a calculator or existing runtime for arithmetic.
+unless verifiable attribution and the needed breakdown per model/tier are supplied. Use a calculator or existing runtime for arithmetic.
 
 Show estimated token cost per measured stage/model and fix loop where attribution exists; loop
 costs remain subtotals, not extra charges. Sum only disjoint priced scopes and label partial totals
@@ -118,6 +160,7 @@ Remediation              ...           ...                                      
 Delivery/readiness       ...           ...                                       ...
 Total elapsed: ... | Cumulative actor time: ... | Token total: ... [coverage/source]
 Estimated token cost: ... [currency; priced scopes/coverage; rates/source/date, or unavailable]
+Actually billed: ... [task-scoped billing evidence, or unavailable — no billing evidence]
 Validation overhead (included above): full gates ... runs / ...; targeted ... runs / ...
 Reused evidence: ... | Waiting/blockers: ... | Unmeasured scope: ...
 Verification cycles: ... passes | ... returns | ... completed loops | ... pending | first-pass: ...
@@ -126,6 +169,8 @@ Loop <n>: <stage; revision; builder -> checker; fixing model if changed; verdict
 Optimization: <observed avoidable cost and suggested adjustment, or insufficient evidence>
 ```
 
+Keep the footer format; put session ids, intervals, baseline/snapshot counters, total, event/last-read
+timestamps and partial coverage in its existing source/coverage and unmeasured-scope fields.
 Omit empty detail but keep coverage limitations visible. Optimization claims need an observed
 cause (for example duplicate validation or repeated setup); elapsed time alone does not prove waste.
 Label potential savings as estimates. This is a task receipt, not a comparative benchmark.
