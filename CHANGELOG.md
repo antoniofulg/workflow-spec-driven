@@ -4,6 +4,25 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [2.0.2] - 2026-10-07
+
+### Fixed
+
+- Execution receipts check environment counters, current-session telemetry and participating
+  subagent receipts before declaring token usage unavailable, with concrete reasons for missing data.
+- Codex collection resolves only the assigned session under the configured home or an explicit
+  session-file path. The existing content-safe reader now verifies session identity and emits
+  cumulative usage, event timestamps and last-read times without conversation content.
+- Stage deltas require comparable baseline/snapshot counters and detect resets. Missing baselines
+  retain explicitly labeled session cumulative usage; cache and reasoning subsets are not double-counted.
+- Receipt aggregation requires disjoint scopes, identifies absent agents and marks partial coverage.
+  Measured tokens, official-rate cost estimates and actually billed amounts remain separate results.
+
+### Validation
+
+- Added minimal cumulative-counter, cache, missing-baseline, reset and content-safety examples,
+  plus a regression preventing last-turn usage from being substituted for cumulative usage.
+
 ## [2.0.1] - 2026-09-26
 
 ### Fixed
