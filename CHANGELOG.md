@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [2.0.3] - 2026-10-07
+
 ### Fixed
 
 - Execution receipts now select documented Claude Code and Cursor harness sources, preserving
