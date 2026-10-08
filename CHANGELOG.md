@@ -4,6 +4,13 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+- Application/test environments reuse compatible same-worktree runtimes across agents, verification,
+  QA and retries, with stable identities and concrete reasons for additional resources or rebuilds.
+- Runtime lifecycle guidance records ownership before creation, cleans task-owned temporary resources,
+  preserves intentional persistent environments and accounts for residue before worktree removal.
+
 ## [2.0.3] - 2026-10-07
 
 ### Fixed

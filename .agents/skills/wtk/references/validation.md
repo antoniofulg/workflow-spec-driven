@@ -135,6 +135,7 @@ limitation and leave the existing state unchanged.
 
 ## Runtime isolation
 
-Each checkout owns its runtime. Never use `reuseExistingServer: true` across siblings. Resolve a port
-collision with a checkout-owned runtime; do not stop another checkout's server merely to run a gate.
-Avoid concurrent full gates that compete for the same host resources.
+Before starting or reusing an environment for a gate, apply [runtime lifecycle](runtime-lifecycle.md).
+Verify the checkout-owned runtime and changed inputs, reuse compatible same-checkout services and
+account for temporary teardown or intentional retention. Avoid concurrent full gates that compete
+for the same host resources.
