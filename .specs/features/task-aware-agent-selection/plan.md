@@ -13,7 +13,7 @@ for the actual task, obtain explicit confirmation, accept alternatives, and exec
 ## Flow
 
 Reuse the existing WTK entrypoint, Lean plan/checks, workflow route snapshot and host dispatch;
-replace native-file binding rather than adding a second routing mode.
+replace native-file dependency rather than adding a second routing mode.
 
 1. Task scope -> WTK coordinator (exists) - assess complexity, affected surfaces, required stages,
    approved verification profile and host-advertised model/effort controls.
@@ -35,7 +35,7 @@ settings constrain that session; choosing a new model applies only to a supporte
 | user interaction | One consolidated recommendation/confirmation checkpoint; humans can edit individual rows. |
 | stored data | workflow.json records confirmed provider/model/effort and approval evidence; no migration of old snapshots. |
 | project configuration | Existing native agent files are neither required nor automatically edited/deleted. |
-| quality | Profiles, proofs, independent checking, QA scope and on-demand Deep Review remain binding. |
+| quality | Profiles, proofs, independent checking, QA scope and on-demand Deep Review remain required. |
 
 ## Relations
 
@@ -61,7 +61,7 @@ None - no HTTP/API routes. The changed CLI and document surfaces are:
 
 | One-way door | Literal shape | Alternative rejected |
 | --- | --- | --- |
-| Replace native binding | Remove --native-provider, role=provider overrides and agent_file bindings; one --selection-file input and snapshot version 2. | Keeping native and role-free modes would preserve contradictory authorities. |
+| Replace native dependency | Remove --native-provider, role=provider overrides and agent_file references; one --selection-file input and snapshot version 2. | Keeping native and role-free modes would preserve contradictory authorities. |
 | Selection state | stages maps planning, exploration, design, implementation, verification, qa, deep_review, remediation and delivery only when selected; each entry records provider, model, effort, rationale and limitations. | Requiring every stage creates unused agents and unnecessary questions. |
 | Human decision | approval records status=confirmed and the human decision reference covering the exact selected rows; pending proposals never become executable snapshots. | Treating silence, timeout or a suggestion as approval would violate the requested confirmation boundary. |
 | Host constraints | Record explicit inherited configuration when model/effort cannot be controlled; require human acceptance of that limitation before dispatch. | Claiming arbitrary control or silently substituting another model/effort misrepresents execution. |
@@ -133,8 +133,8 @@ Delegated responsibilities are supplied by skills, while existing correctness bo
 | Assumption | Chosen default | Rationale | Confirmed? |
 | --- | --- | --- | --- |
 | WTK distribution | Remain skills-only; omit setup skill | User's preceding decisions retain skills and remove mandatory role files. | y |
-| Approval granularity | Confirm the full initial proposal once; reconfirm only changed choices | Avoid repeated prompts while respecting exact user choices. | n |
-| Unsupported host control | Offer explicit inherited configuration for human acceptance | Some harnesses cannot select every model/effort field. | n |
+| Approval granularity | Confirm the full initial proposal once; reconfirm only changed choices | Avoid repeated prompts while respecting exact user choices. | y |
+| Unsupported host control | Offer explicit inherited configuration for human acceptance | Some harnesses cannot select every model/effort field. | y |
 
 **Open questions:** none - defaults are recorded above for plan review.
 
