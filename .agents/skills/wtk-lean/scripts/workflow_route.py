@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Record a project-owned WTK feature route without reading WTK configuration."""
+"""Freeze human-confirmed WTK stage selections in a checkout-owned feature route."""
 
 from __future__ import annotations
 
@@ -14,12 +14,14 @@ from typing import Any
 
 
 PROVIDERS = ("claude", "codex", "cursor")
-ROLES = ("implementer", "verifier", "explorer", "deep_reviewer", "designer")
-AGENT_NAMES = {"deep_reviewer": "deep-reviewer"}
-SNAPSHOT_VERSION = 1
-SNAPSHOT_KEYS = {
-    "version", "feature", "git_head", "profile", "verification_profile", "overrides",
-    "deep_review", "parallelization", "roles",
+STAGES = (
+    "planning", "exploration", "design", "implementation", "verification", "qa",
+    "deep_review", "remediation", "delivery",
+)
+SNAPSHOT_VERSION = 2
+SELECTION_KEYS = {"version", "feature", "checkout", "stages", "approval"}
+SNAPSHOT_KEYS = SELECTION_KEYS | {
+    "git_head", "profile", "verification_profile", "deep_review", "parallelization",
 }
 SLUG_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
 PROFILE_RE = re.compile(
@@ -37,9 +39,18 @@ def _error(message: str) -> RouteError:
 
 
 def _snapshot_path(root: Path, feature: str) -> Path:
-    if not SLUG_RE.fullmatch(feature):
+    if not isinstance(feature, str) or not SLUG_RE.fullmatch(feature):
         raise _error("feature must be a lowercase slug")
-    return root / ".specs" / "features" / feature / "workflow.json"
+    current = root
+    for component in (".specs", "features", feature, "workflow.json"):
+        current /= component
+        if current.is_symlink():
+            raise _error(f"snapshot destination must not contain symlinks: {current}")
+        if current.exists() and (
+            not current.is_file() if component == "workflow.json" else not current.is_dir()
+        ):
+            raise _error(f"snapshot destination has an invalid path component: {current}")
+    return current
 
 
 def _git_head(root: Path) -> str:
@@ -68,8 +79,8 @@ def _verification_profile(root: Path, feature: str, requested: str | None) -> st
     if checks.is_file():
         match = PROFILE_RE.search(checks.read_text(encoding="utf-8"))
         approved = match.group(1).lower() if match else None
-    selected = requested or approved or "standard"
-    if selected not in {"light", "standard", "ui"}:
+    selected = requested if requested is not None else approved or "standard"
+    if not isinstance(selected, str) or selected not in {"light", "standard", "ui"}:
         raise _error("verification profile must be 'light', 'standard', or 'ui'")
     if approved and selected != approved:
         raise _error(
@@ -78,75 +89,92 @@ def _verification_profile(root: Path, feature: str, requested: str | None) -> st
     return selected
 
 
-def _runtime_relative(provider: str, role: str) -> Path:
-    extension = "toml" if provider == "codex" else "md"
-    return Path(f".{provider}") / "agents" / f"{AGENT_NAMES.get(role, role)}.{extension}"
+def _nonempty(value: Any) -> bool:
+    return isinstance(value, str) and bool(value.strip())
 
 
-def _agent_file(root: Path, provider: str, role: str) -> str:
-    relative = _runtime_relative(provider, role)
-    current = root / relative
-    if current.is_symlink() or not current.is_file():
-        raise _error(
-            f"missing native agent file for provider {provider!r}, role {role!r}; "
-            f"expected {relative.as_posix()}"
-        )
-    return relative.as_posix()
+def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    value: dict[str, Any] = {}
+    for key, item in pairs:
+        if key in value:
+            raise ValueError("duplicate JSON object key")
+        value[key] = item
+    return value
 
 
-def _parse_overrides(values: list[str]) -> dict[str, str]:
-    parsed: dict[str, str] = {}
-    for value in values:
-        role, separator, provider = value.partition("=")
-        if not separator or role not in ROLES or provider not in PROVIDERS:
-            raise _error("override must use a supported role=provider pair")
-        if role in parsed:
-            raise _error(f"duplicate override for role {role!r}")
-        parsed[role] = provider
-    return parsed
+def _read_json(path: Path, label: str) -> Any:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=_unique_object)
+    except (OSError, ValueError) as exc:
+        raise _error(f"{label} is unreadable or invalid JSON: {path}") from exc
+
+
+def _validate_selection(root: Path, feature: str, selection: Any) -> dict[str, Any]:
+    if not isinstance(selection, dict) or set(selection) != SELECTION_KEYS:
+        raise _error("selection has an incomplete schema")
+    if type(selection["version"]) is not int or selection["version"] != SNAPSHOT_VERSION:
+        raise _error("selection version is stale; supply a newly confirmed version 2 selection")
+    if selection["feature"] != feature:
+        raise _error("selection feature does not match the requested feature")
+    if selection["checkout"] != str(root):
+        raise _error("selection checkout does not match the current checkout")
+    stages = selection["stages"]
+    if not isinstance(stages, dict) or not stages or not set(stages) <= set(STAGES):
+        raise _error("selection stages must be a nonempty object of supported stage keys")
+    for stage, row in stages.items():
+        required = {"provider", "model", "effort", "rationale", "limitations"}
+        if not isinstance(row, dict) or not required <= set(row) <= required | {"scope"}:
+            raise _error(f"selection stage {stage!r} has an incomplete schema")
+        if not isinstance(row["provider"], str) or row["provider"] not in PROVIDERS:
+            raise _error(f"selection stage {stage!r} has an invalid provider")
+        for field in ("model", "effort", "rationale"):
+            if not _nonempty(row[field]):
+                raise _error(f"selection stage {stage!r} requires a nonempty {field}")
+        if "scope" in row and not _nonempty(row["scope"]):
+            raise _error(f"selection stage {stage!r} scope must be a nonempty string")
+        limits = row["limitations"]
+        if not isinstance(limits, list) or not all(_nonempty(limit) for limit in limits):
+            raise _error(f"selection stage {stage!r} limitations must be a list of nonempty strings")
+        for field in ("model", "effort"):
+            if row[field] == "inherited" and not any(
+                limit.startswith(f"{field}:") and _nonempty(limit[len(field) + 1:])
+                for limit in limits
+            ):
+                raise _error(f"selection stage {stage!r} inherited {field} requires a named limitation")
+    approval = selection["approval"]
+    if not isinstance(approval, dict) or set(approval) != {"status", "reference", "stages"}:
+        raise _error("selection approval must contain status, reference and exact stages")
+    if approval["status"] != "confirmed" or not _nonempty(approval["reference"]):
+        raise _error("selection requires confirmed approval with a human decision reference")
+    if approval["stages"] != stages:
+        raise _error("selection approval does not match the exact selected stages")
+    return selection
 
 
 def _validate_snapshot(root: Path, feature: str, snapshot: Any) -> dict[str, Any]:
     if not isinstance(snapshot, dict) or set(snapshot) != SNAPSHOT_KEYS:
         raise _error("existing snapshot has an incomplete schema")
-    if snapshot.get("version") != SNAPSHOT_VERSION:
-        raise _error("existing snapshot version is stale; rerun resolution with --refresh")
-    if snapshot.get("feature") != feature:
-        raise _error("existing snapshot feature does not match the requested feature")
-    if not isinstance(snapshot.get("git_head"), str) or not snapshot["git_head"]:
+    if type(snapshot.get("version")) is not int or snapshot["version"] != SNAPSHOT_VERSION:
+        raise _error("existing snapshot version is stale; explicitly replace the obsolete snapshot")
+    _validate_selection(root, feature, {key: snapshot[key] for key in SELECTION_KEYS})
+    if not _nonempty(snapshot["git_head"]):
         raise _error("existing snapshot git_head must be a non-empty string")
     if snapshot.get("profile") is not None and not isinstance(snapshot["profile"], str):
         raise _error("existing snapshot profile must be a string or null")
-    if snapshot.get("verification_profile") not in {"light", "standard", "ui"}:
+    if not isinstance(snapshot["verification_profile"], str) or snapshot["verification_profile"] not in {"light", "standard", "ui"}:
         raise _error("existing snapshot verification_profile is invalid")
-    overrides = snapshot.get("overrides")
-    if not isinstance(overrides, dict):
-        raise _error("existing snapshot overrides must be an object")
-    _parse_overrides([f"{role}={provider}" for role, provider in overrides.items()])
     if snapshot.get("deep_review") != {"cadence": "skip", "groups": []}:
         raise _error("existing snapshot deep_review must remain on demand")
     if snapshot.get("parallelization") != {"mode": "disabled"}:
         raise _error("existing snapshot parallelization must remain sequential")
-    roles = snapshot.get("roles")
-    if not isinstance(roles, dict) or set(roles) != set(ROLES):
-        raise _error("existing snapshot roles must contain every delegated workflow role")
-    for role in ROLES:
-        route = roles[role]
-        if not isinstance(route, dict) or set(route) != {"provider", "agent_file"}:
-            raise _error(f"existing snapshot role {role!r} must contain provider and agent_file only")
-        provider = route["provider"]
-        if provider not in PROVIDERS:
-            raise _error(f"existing snapshot role {role!r} has an invalid provider")
-        expected = _runtime_relative(provider, role).as_posix()
-        if route["agent_file"] != expected:
-            raise _error(f"existing snapshot role {role!r} has an invalid agent_file")
-        _agent_file(root, provider, role)
     return snapshot
 
 
 def validate_snapshot(root: Path, feature: str, snapshot: Any) -> dict[str, Any]:
     """Validate a route snapshot for runtime readers."""
-    return _validate_snapshot(root.resolve(), feature, snapshot)
+    root = root.resolve()
+    _snapshot_path(root, feature)
+    return _validate_snapshot(root, feature, snapshot)
 
 
 def _write_snapshot(path: Path, snapshot: dict[str, Any]) -> None:
@@ -168,49 +196,54 @@ def _write_snapshot(path: Path, snapshot: dict[str, Any]) -> None:
 
 
 def resolve(
-    *, root: Path, feature: str, native_provider: str, slice_count: int | None = None,
+    *, root: Path, feature: str, selection_file: Path | None = None, slice_count: int | None = None,
     profile: str | None = None, verification_profile: str | None = None,
-    overrides: list[str] | None = None, refresh: bool = False,
+    refresh: bool = False,
 ) -> dict[str, Any]:
-    """Resolve and persist a project-owned feature route."""
+    """Validate approval and freeze exact choices, or reuse an unchanged approved route."""
     root = root.resolve()
     if not root.is_dir():
         raise _error(f"root is not a directory: {root}")
-    if native_provider not in PROVIDERS:
-        raise _error(f"invalid native provider {native_provider!r}")
     snapshot_path = _snapshot_path(root, feature)
-    if snapshot_path.exists() and not refresh:
-        try:
-            snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as exc:
-            raise _error(f"existing snapshot is invalid: {snapshot_path}") from exc
-        return _validate_snapshot(root, feature, snapshot)
-
     derived_count = _derived_slice_count(root, feature)
     if slice_count is not None:
-        if slice_count < 1:
+        if not isinstance(slice_count, int) or isinstance(slice_count, bool) or slice_count < 1:
             raise _error("slice count must be at least 1")
         if slice_count != derived_count:
             raise _error(
                 f"slice count assertion {slice_count} does not match derived slice count {derived_count}"
             )
-    verification_profile = _verification_profile(root, feature, verification_profile)
-    parsed_overrides = _parse_overrides(overrides or [])
-    providers = {role: parsed_overrides.get(role, native_provider) for role in ROLES}
-    roles = {
-        role: {"provider": provider, "agent_file": _agent_file(root, provider, role)}
-        for role, provider in providers.items()
-    }
+    if profile is not None and not _nonempty(profile):
+        raise _error("profile must be a nonempty string or null")
+    if verification_profile is not None:
+        _verification_profile(root, feature, verification_profile)
+    existing = None
+    if snapshot_path.exists():
+        existing = _validate_snapshot(root, feature, _read_json(snapshot_path, "existing snapshot"))
+        if not refresh and verification_profile is not None and verification_profile != existing["verification_profile"]:
+            raise _error("verification profile does not match the frozen snapshot; use --refresh")
+    if selection_file is None:
+        if existing is None or refresh:
+            raise _error("a confirmed selection file is required before creating or refreshing a route")
+        return existing
+    selection = _validate_selection(root, feature, _read_json(selection_file, "selection file"))
+    if existing is not None:
+        changed = selection["stages"] != existing["stages"]
+        if changed and selection["approval"]["reference"] == existing["approval"]["reference"]:
+            raise _error("changed selections require a fresh approval reference")
+        if not refresh and selection == {key: existing[key] for key in SELECTION_KEYS}:
+            return existing
+    selected_profile = (
+        existing["verification_profile"] if existing is not None and not refresh
+        else _verification_profile(root, feature, verification_profile)
+    )
     snapshot = {
-        "version": SNAPSHOT_VERSION,
-        "feature": feature,
+        **selection,
         "git_head": _git_head(root),
-        "profile": profile,
-        "verification_profile": verification_profile,
-        "overrides": parsed_overrides,
+        "profile": profile if profile is not None else existing["profile"] if existing else None,
+        "verification_profile": selected_profile,
         "deep_review": {"cadence": "skip", "groups": []},
         "parallelization": {"mode": "disabled"},
-        "roles": roles,
     }
     _write_snapshot(snapshot_path, snapshot)
     return snapshot
@@ -221,10 +254,9 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--root", type=Path, default=Path.cwd())
     parser.add_argument("--feature", required=True)
     parser.add_argument("--slices", dest="slice_count", type=int)
-    parser.add_argument("--native-provider", required=True)
+    parser.add_argument("--selection-file", type=Path)
     parser.add_argument("--profile")
     parser.add_argument("--verification-profile")
-    parser.add_argument("--override", dest="overrides", action="append", default=[])
     parser.add_argument("--refresh", action="store_true")
     return parser
 
@@ -232,7 +264,7 @@ def _parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     try:
         snapshot = resolve(**vars(_parser().parse_args(argv)))
-    except RouteError as exc:
+    except (RouteError, OSError) as exc:
         print(str(exc), file=sys.stderr)
         return 2
     print(json.dumps(snapshot, indent=2, sort_keys=True))

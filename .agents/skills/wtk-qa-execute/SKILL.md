@@ -23,6 +23,9 @@ This is an original project-owned adaptation for this workflow, inspired by Pedr
 
 ## Inputs and boundaries
 
+Use the accepted `qa` stage and non-author session through
+[agent selection](../wtk/references/agent-selection.md) before delegated execution.
+
 Read `docs/qa/README.md`, the QA Plan handoff, the in-scope scenarios and charters, open bugs, and
 [`../wtk-qa/references/qa-scenarios.md`](../wtk-qa/references/qa-scenarios.md) in full. The guideline owns scenario fields, ids, statuses, and
 flag/reset rules. Read [`references/session-protocol.md`](references/session-protocol.md) in full

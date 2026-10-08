@@ -193,7 +193,8 @@ describe("QA workflow artifact policy", () => {
     expect(isIgnored(".specs/features/qa-skills/spec.md")).toBe(false);
     expect(isIgnored(".specs/STATE.md")).toBe(false);
     expect(isIgnored(".specs/AD-INDEX.md")).toBe(false);
-    expect(existsSync(join(repositoryRoot, ".specs"))).toBe(false);
+    const packaged = JSON.parse(readRepositoryFile("package.json")) as { files: string[] };
+    expect(packaged.files.some((entry) => entry.startsWith(".specs"))).toBe(false);
     expect(readme.replace(/\s+/g, " ")).toContain(
       "Feature workflow state follows the [artifact lifecycle]",
     );
@@ -396,7 +397,7 @@ describe("canonical QA skills", () => {
     expect(qaPlan).toContain("wtk-qa-execute");
     expect(qaExecute).toContain("same non-author Verifier");
     expect(qaExecute).toContain("Do not walk a tree while it is being changed");
-    expect(reviewRounds).toContain("The provider `verifier` executes exactly one phase per packet");
+    expect(reviewRounds).toContain("The accepted `verification` or `qa` stage executes exactly one phase per packet");
     expect(reviewRounds).toContain("Deep-review is a separate orchestrator stage, not a Verifier phase");
     expect(reviewRounds).not.toContain("The existing provider `verifier` performs all stages");
     expect(reviewRounds).not.toMatch(/provider `verifier`[^.]*wtk-deep-review/i);
@@ -553,22 +554,22 @@ describe("canonical QA skills", () => {
 });
 
 describe("configurable review policy", () => {
-  it("uses the canonical hierarchy and project-native workflow defaults", () => {
+  it("uses the canonical hierarchy and approved workflow defaults", () => {
     const agents = readRepositoryFile("AGENTS.md");
     const reviewRounds = readRepositoryFile(".agents/skills/wtk/references/review-rounds.md");
     const wtkShip = readRepositoryFile(".agents/skills/wtk-ship/SKILL.md");
     const readme = readRepositoryFile("README.md");
 
     expect(agents).toContain("Feature -> Slice -> Check");
-    expect(agents).toContain("Project-native agent files own provider, model, and effort settings");
+    expect(agents).toMatch(/agent selection.*agent-selection\.md/);
     expect(reviewRounds).toContain("wtk-lean/scripts/workflow_route.py");
     expect(reviewRounds).toContain("Deep Review is on demand by default");
     expect(wtkShip).not.toContain("wtk-config");
 
-    expect(readme).toContain("native agent model and effort settings");
+    expect(readme).toMatch(/Agent selection.*agent-selection\.md/);
     expect(readme).toContain("fixed default `stall_attempts = 3`");
     expect(readme).toContain(".specs/features/<feature>/workflow.json");
-    expect(readme).toContain("model and effort remain in the project's native agent files");
+    expect(readme).toMatch(/approved stage\/model\/effort/);
     expect(reviewRounds).toContain("wtk-deep-review** (resolved implementation groups)");
     expect(reviewRounds).not.toContain("wtk-deep-review** (every slice)");
     const finalGroupInstruction =
@@ -666,15 +667,14 @@ describe("repository intelligence policy", () => {
 });
 
 describe("agent configuration", () => {
-  it("IT-018 keeps project-native role metadata and dedicated Deep Review dispatch aligned", () => {
+  it("IT-018 keeps optional native metadata and approved Deep Review dispatch aligned", () => {
     const route = readRepositoryFile(".agents/skills/wtk-lean/scripts/workflow_route.py");
     const lean = readRepositoryFile(".agents/skills/wtk-lean/SKILL.md");
     const packageJson = JSON.parse(readRepositoryFile("package.json")) as { files: string[] };
 
-    expect(route).not.toContain("model");
-    expect(route).not.toContain("effort");
-    expect(lean).toContain("native agent-file identity");
-    expect(lean).toContain("Projects own");
+    expect(route).not.toContain("native_provider");
+    expect(lean).toMatch(/agent selection.*agent-selection\.md/);
+    expect(lean).toContain("--selection-file");
     expect(packageJson.files).not.toContain(".agents/skills/wtk-config");
     expect(existsSync(join(repositoryRoot, ".wtk.toml.example"))).toBe(false);
 
@@ -682,6 +682,7 @@ describe("agent configuration", () => {
       for (const role of ["planner", "implementer", "verifier", "explorer", "deep-reviewer", "designer"] as const) {
         const extension = provider === "codex" ? "toml" : "md";
         const relativePath = `.${provider}/agents/${role}.${extension}`;
+        if (!existsSync(join(repositoryRoot, relativePath))) continue;
         const source = readRepositoryFile(relativePath);
         expect(source).toMatch(provider === "codex" ? /^model = ".+"$/m : /^model: .+$/m);
         if (provider === "codex") expect(source).toMatch(/^model_reasoning_effort = ".+"$/m);
@@ -694,44 +695,39 @@ describe("agent configuration", () => {
     const orchestration = readRepositoryFile(".agents/skills/wtk-deep-review/references/orchestration.md");
     const deepReviewSkill = readRepositoryFile(".agents/skills/wtk-deep-review/SKILL.md");
 
-    expect(deepReviewSkill).toMatch(
-      /\| `--no-workflow` \|.*Named native `deep-reviewer` when the host supports it; role-free Workflow fallback/,
-    );
+    expect(deepReviewSkill).toMatch(/\| `--no-workflow` \|.*accepted stage settings/);
     expect(deepReviewSkill).not.toContain("Workflow when available");
-    expect(deepReviewSkill.indexOf("Named native `deep-reviewer`")).toBeLessThan(
-      deepReviewSkill.indexOf("role-free Workflow fallback"),
-    );
-    expect(deepReviewSkill).toContain("Named native `deep-reviewer`");
-    expect(orchestration).toContain("**Named native dispatch (default when host supports it).**");
-    expect(orchestration).toContain("**Workflow fallback (when named native dispatch is unavailable).**");
+    expect(deepReviewSkill).toMatch(/agent selection.*agent-selection\.md/);
+    expect(orchestration).toContain("**Skill-directed dispatch.**");
+    expect(orchestration).toContain("**Workflow engine.**");
 
     const codexRuntime = runtime.match(/^\|\s*`codex`\s*\|([^\n]+)$/m)?.[1] ?? "";
-    expect(codexRuntime).toContain("gpt-5.6-luna");
-    expect(codexRuntime).toContain("--reasoning-effort high");
-    expect(codexRuntime).not.toContain("gpt-5.6-sol");
-    expect(codexRuntime).not.toContain("xhigh");
+    expect(codexRuntime).toContain("--model <approved-model>");
+    expect(codexRuntime).toContain("--reasoning-effort <approved-effort>");
+    expect(codexRuntime).not.toMatch(/gpt-\d/);
 
-    const native = orchestration.slice(
-      orchestration.indexOf("**Named native dispatch"),
-      orchestration.indexOf("**Workflow fallback"),
+    const directed = orchestration.slice(
+      orchestration.indexOf("**Skill-directed dispatch"),
+      orchestration.indexOf("**Workflow engine"),
     );
     const workflow = orchestration.slice(
-      orchestration.indexOf("**Workflow fallback"),
-      orchestration.indexOf("**Agent fallback"),
+      orchestration.indexOf("**Workflow engine"),
+      orchestration.indexOf("**Agent engine"),
     );
-    const fallback = orchestration.slice(orchestration.indexOf("**Agent fallback"));
+    const agent = orchestration.slice(orchestration.indexOf("**Agent engine"));
 
-    expect(native).toMatch(/default when host supports it/i);
-    expect(native).toContain('subagent_type: "deep-reviewer"');
-    expect(native).toContain('subagentType: { custom: "deep-reviewer" }');
-    expect(native).toMatch(/custom agent name\/type `deep-reviewer`/i);
-    expect(workflow).toMatch(/fallback/i);
-    expect(workflow).toMatch(/agent\(/);
-    expect(workflow).toMatch(/role-free/i);
-    expect(workflow).not.toMatch(/\(default\)/i);
-    expect(fallback).toMatch(/named native selectors/i);
-    expect(fallback).toMatch(/generic prompt-only subagent dispatch/i);
-    expect(fallback).toMatch(/unsupported role\s+argument/i);
+    expect(directed).toMatch(/accepted `deep_review` row/);
+    expect(directed).toMatch(/current checkout/);
+    expect(directed).toMatch(/named native role is optional/);
+    expect(workflow).toMatch(/accepted\s+row/);
+    expect(workflow).toMatch(/inherited/);
+    expect(workflow).toMatch(/limitations before using it/);
+    expect(agent).toMatch(/Generic prompt dispatch/);
+    expect(agent).toMatch(/unsupported role argument/);
+    expect(agent).toMatch(/exact accepted provider\/model\/effort/);
+    const qaWrapper = readRepositoryFile(".agents/skills/wtk-qa/SKILL.md");
+    expect(qaWrapper).not.toMatch(/^(?:context:\s*fork|agent:)/m);
+    expect(qaWrapper).toMatch(/agent selection.*agent-selection\.md/);
   });
 });
 
@@ -763,11 +759,9 @@ describe("adoption and public setup", () => {
     const qaPolicy = readRepositoryFile(qaPolicyPath);
     for (const phase of ["wtk-qa-plan", "wtk-qa-execute"]) expect(qaPolicy).toContain(phase);
     expect(readme).toContain("Recommended companion skills and tools");
-    expect(readme).toContain("native model and effort metadata");
-    expect(route).toContain("native_provider");
+    expect(readme).toMatch(/Agent selection.*agent-selection\.md/);
+    expect(route).not.toContain("native_provider");
     expect(route).not.toContain(".wtk.toml");
-    expect(route).not.toContain('"model"');
-    expect(route).not.toContain('"effort"');
   });
 
   it("IT-009 exposes the fixed layered adoption boundary", () => {

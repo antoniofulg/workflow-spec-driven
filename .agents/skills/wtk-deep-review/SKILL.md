@@ -28,7 +28,7 @@ Steps 1–4 drive an idempotent artifact pipeline under `<out>`: every stage gat
 | `--publish` | Post walkthrough + review to the PR | off — local report only |
 | `--full` | Ignore prior state; review the whole diff again | incremental when state exists |
 | `--out <dir>` | Artifact directory | `.wtk-deep-review/<target>/` |
-| `--no-workflow` | Skip the Workflow tool; use Agent execution | Named native `deep-reviewer` when the host supports it; role-free Workflow fallback |
+| `--no-workflow` | Skip the Workflow tool; use Agent execution | Skill-directed dispatch with the accepted stage settings |
 | `--metrics` | Observe compatible provider usage when an adapter is configured | unavailable without a compatible adapter |
 | `--metrics-db <path>` | Provider telemetry source supplied by an adapter | none |
 | `--metrics-ledger <path>` | Content-safe observational metrics path | `<out>/runs/review-metrics.json` |
@@ -66,7 +66,9 @@ The manifest builder resolves `path_filters` into manifest.json; the knowledge s
   receipt checks. Keep the review running normally. The pinned Graft adapter
   runs before prompts are materialized; a failed or absent Graft falls back to ordinary repository
   inspection.
-- Native execution uses the configured named `deep-reviewer` when the host supports it; otherwise use the role-free Workflow fallback or prompt-only Agent fallback described in orchestration.md.
+- Before reviewer dispatch, follow [agent selection](../wtk/references/agent-selection.md) for the
+  accepted `deep_review` row. Use skill-directed agents in the current checkout; native role files
+  are optional. Engine and external runtime choices must honor the accepted model/effort.
 - Reviewer concurrency is resolved before dispatch: `--concurrency N` overrides `.wtk-deep-review.yaml`, which overrides the default `3`; valid values are `1` through `6`. The resolved value is frozen in `manifest.json`. The legacy no-op `--workers` option is rejected.
 - External `--subagent` runtimes spend `compozy exec` credit.
 

@@ -18,8 +18,9 @@ technical verification only. Record `no user-visible change` when no public prom
 
 ## Dispatch
 
-After the final implementation wtk-deep-review group, use the provider's existing `verifier` with one
-phase per packet:
+After the final implementation wtk-deep-review group, use the accepted `qa` stage through
+[agent selection](../../wtk/references/agent-selection.md) in the current checkout, with one phase
+per packet and no mandatory named role:
 
 1. Use `phase: wtk-qa-plan` when the scope needs planning; reuse applicable scenarios and charters.
 2. Use `phase: wtk-qa-execute` to walk the agreed scope. For clear bounded work, the same non-author

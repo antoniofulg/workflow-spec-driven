@@ -21,6 +21,11 @@ tokens. It gets pointed at the last batch, and a pass over four checks reads exa
 over forty. The range is `<feature base>..HEAD` and the set is every check in the checklist,
 whoever wrote them.
 
+Dispatch the accepted `verification` stage through
+[agent selection](../../wtk/references/agent-selection.md), with this skill's verification procedure
+and the complete approved artifacts/range in the current checkout. Unsupported host settings block
+that dispatch until the affected choice is accepted; native role files are not required.
+
 The verdict goes back to the orchestrator and the user, never to a builder. A FAIL returned to
 the author is the author deciding what to do about the author's work, and the round that follows
 happens inside the session the separation existed to break.

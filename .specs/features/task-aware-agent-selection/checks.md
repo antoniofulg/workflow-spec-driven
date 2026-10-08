@@ -110,3 +110,53 @@ Existing affected files: 196792 bytes / 4 = 49198 context tokens, measured with 
 - `.agents/skills/wtk/references/context-handoff.md`
 - `.agents/skills/wtk/references/git.md`
 - `.agents/skills/wtk/references/review-rounds.md`
+
+## Execution selection for this feature
+
+Human authorization: the user approved the plan, then instructed proceeding and explicitly rejected
+the legacy 5.6 selection in favor of the available 6/6.1 models. The coordinator corrected its choice
+using current host-advertised models. No legacy named-role preset controls this execution.
+
+| Stage | Provider | Model | Effort | Rationale |
+| --- | --- | --- | --- | --- |
+| implementation / remediation | codex | gpt-6.1-sol | max | One coding worker owns the route, tests and instruction updates sequentially. |
+| verification / QA | codex | gpt-6-astra | high | Fresh independent context checks the full feature and user-facing selection journeys. |
+
+Both workers run in `/Users/antoniofulg/Projects/my-workflow`. The coordinator remains in its current
+session; Deep Review is on demand. This temporary execution record predates the new route helper.
+
+## Build evidence
+
+Implementation covers all three slices in the current checkout. C2-C7 have green automated proofs;
+C1, C8, C9 and the receipt/dispatch portion of C10 remain for the independent Verifier. The builder
+has not written `verification.md`, walked those manual scenarios or certified the feature.
+
+| Checks | Producing command | Result and boundary |
+| --- | --- | --- |
+| C2 C3 C4 C5 C6; automated C10 | `python3 tools/test_native_agent_routing.py` | Exit 0, 13 passed. CLI/selection/approval validation, exact override persistence, resume, profiles, unsafe destinations, atomic state and native-file preservation. |
+| C7 | `python3 tools/test_phase_skills.py` | Exit 0, 7 passed, including the exact named selection-reference contract. `-k` now selects tests and zero matches exit 1. |
+| C7 | `node --test tests/skills/distribution.test.js` | Exit 0, 7 passed, including the named WTK reference proof, isolated skills-only payload, catalog and installation non-mutation. |
+| C7; instruction portions of C8 C9 C10 | `bun test tools/shared/tests/qa-skills.test.ts` | Exit 0, 35 passed. Updated approval/optional-native and QA dispatch contracts; unchanged hierarchy, independent checking, receipts, profiles, adapters, lifecycle and release assertions remain. |
+| Deep Review dispatch consumer | `python3 tools/test_deep_review_token_metrics.py -k test_drm06_shared_docs_are_provider_neutral` | Exit 0, 1 passed. Preserves provider-neutral metrics, bounded scheduler, provider-block and Graft assertions; accepted inherited settings guard the Workflow example. |
+| Approved checks | `python3 .agents/skills/wtk-lean/scripts/validate_checks.py task-aware-agent-selection` | Exit 0, 0 errors, 0 warnings, standard profile. |
+| Changed-file whitespace | `git diff --check` | Exit 0. No formatter is configured for these files. |
+
+The commands above were executed through `rtk proxy`. Route changes invalidate the canonical route
+suite; changed phase/QA/Deep Review instructions invalidate their existing contract and reference
+proofs. No runtime, dependency, lockfile or application service changed, so unrelated repository
+suites were not rerun. Native-file hashes remain covered by the canonical route suite. Source-pack
+tests now reject `.specs` in the distributed payload rather than forbidding authorized transient
+maintainer feature artifacts; product `docs/` remains absent and installation leaves project files
+untouched.
+
+The new CLI initially failed C3 because it required `--native-provider`. Duplicate JSON approval
+keys and empty inherited-limit descriptions were observed failing C4/C5 before their owner repair.
+An explicit empty verification-profile assertion now fails validation even during refresh. The
+existing snapshot writer/profile owner is reused; obsolete native bindings have no compatibility
+path. Local JSON approval remains a procedural claim: actual human reply and host support must be
+checked by the coordinator before dispatch.
+
+Next action: the coordinator dispatches a fresh independent checker over the complete approved
+feature range in this checkout, then records manual QA and fault-injection evidence in
+`verification.md`. Builder editing is frozen after its final local commit. No push or publication
+has occurred.

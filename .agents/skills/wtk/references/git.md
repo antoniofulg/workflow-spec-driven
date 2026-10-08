@@ -64,6 +64,9 @@ an accumulated wall of `backup/` branches hides the one that still matters.
 
 ## Isolated checkouts
 
+Apply [agent selection](agent-selection.md) before creating a separate checkout for delegated work;
+a fresh session or handoff stays in the current checkout unless a concrete exception is approved.
+
 Never share a branch between two checkouts. Before runtime setup or worktree removal, apply
 [runtime lifecycle](runtime-lifecycle.md): preserve checkout identity, resolve owned resources and
 carry their reuse/cleanup evidence through handoffs.

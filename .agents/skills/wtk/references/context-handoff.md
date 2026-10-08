@@ -33,8 +33,8 @@ After compaction or on resume, the current agent:
 2. Reconciles branch, HEAD, working diff and check status with recorded evidence. Git establishes
    code state, not human approval. Mark stale or unsupported claims instead of inventing history.
 3. Preserves the active feature's frozen route using the project-owned
-   `../../wtk-lean/scripts/workflow_route.py` resume path; native model and effort settings stay
-   in the project's agent files.
+   `../../wtk-lean/scripts/workflow_route.py` resume path and revalidates the accepted choices through
+   [agent selection](agent-selection.md); unchanged rows need no repeated confirmation.
 4. States the recovered objective, binding constraints, unresolved approvals, blocked work and next
    authorized action, with artifact references. Continue when that action's prerequisites are proven;
    this statement is not a request to repeat existing approval.
@@ -51,7 +51,8 @@ handoff boundaries: builders finish whole slices with green batch proofs for a n
 If that boundary cannot be reached, checkpoint the incomplete state and report a blocker without
 claiming a completed batch or dispatching dependent work.
 
-The coordinator uses the host's supported handoff mechanism and the configured role/provider;
+The coordinator uses the host's supported handoff mechanism and the accepted stage settings in
+the current checkout;
 this protocol does not authorize builders to spawn agents or select a different provider. Freeze
 outgoing edits and dispatch before transfer, retaining ownership only to finish the handoff.
 The successor runs the recovery steps, explicitly accepts ownership and starts its turn before

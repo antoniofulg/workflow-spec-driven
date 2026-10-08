@@ -20,8 +20,9 @@ files each whole slice touches. Then:
   whole-slice boundary or **one builder** with accepted compaction/context-loss risk. Record the
   choice in `## Handoff`.
 
-The coordinator chooses the cut and uses the host's supported handoff mechanism plus configured
-role/provider. Never split a slice. A slice that alone exceeds the budget is too coarse; report that
+The coordinator chooses the cut and uses the host's supported handoff mechanism with the
+[accepted stage selection](../../wtk/references/agent-selection.md) in the current checkout.
+Never split a slice. A slice that alone exceeds the budget is too coarse; report that
 instead of splitting it mid-outcome.
 
 ## What is fixed and what is not
