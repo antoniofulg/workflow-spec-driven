@@ -160,3 +160,16 @@ Next action: the coordinator dispatches a fresh independent checker over the com
 feature range in this checkout, then records manual QA and fault-injection evidence in
 `verification.md`. Builder editing is frozen after its final local commit. No push or publication
 has occurred.
+
+## Targeted decision after first verification
+
+Human reply: `Prossiga`, in direct response to the coordinator's checkpoint asking confirmation
+of `gpt-6.1-sol/max` for subsequent implementation/remediation and `gpt-6-astra/high` for checking,
+and acceptance of the first execution's documented process exception without retrospective approval.
+Decision recorded on 2026-10-08. The initial generation-level correction did not establish exact-row
+acceptance before those earlier dispatches; F1 and the original FAIL remain in Git history.
+
+This decision accepts that historical exception for this feature run only. It does not weaken the
+shipped exact-selection approval requirement or assert that the missing earlier reply existed.
+All subsequent delegated work uses these now explicitly accepted rows. Unchanged executable proof
+inputs remain at `752e5a0a`; only decision/report evidence is being reconciled.
