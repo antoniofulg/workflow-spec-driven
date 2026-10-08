@@ -4,6 +4,13 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+- Execution receipts now select documented Claude Code and Cursor harness sources, preserving
+  session/run identity, cache buckets, per-turn versus cumulative scope and subagent inclusion.
+- Context-window occupancy, placeholder output counts and account-wide usage cannot substitute
+  for measured session consumption; missing or version-dependent usage retains explicit coverage gaps.
+
 ## [2.0.2] - 2026-10-07
 
 ### Fixed

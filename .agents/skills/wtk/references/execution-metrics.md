@@ -9,16 +9,15 @@ The coordinator keeps compact receipts in session state or existing disposable r
 no tracked metrics artifact, benchmark suite, new gate, or approval step is required. Capture a
 clock timestamp and usage baseline at task start and each stage start; take a snapshot at each
 stage end, retaining counter timestamps and the last-read time. If collection starts late or state
-is lost,
-name the measured interval and missing coverage instead of reconstructing it from memory.
+is lost, name the measured interval and missing coverage instead of reconstructing it from memory.
 
 Before dispatch, give each worker the stage and attempt plus this reference. Each worker returns
-its actor/session id, provider/model and billing tier when exposed, start/end timestamps, available usage counters and their
-source/scope, commands with reported durations, and outcome in its normal handoff. The coordinator
+its actor/session id, provider/model and billing tier when exposed, start/end timestamps, usage
+counters and their source/scope, commands with reported durations, and outcome in its normal handoff. The coordinator
 records dispatch/completion boundaries when workers cannot measure their own interval. Include
 baseline/snapshot counters (input, cached input, output, total), measurement interval,
-last-read time, scope (self-only or inclusive of children), reset status and missing coverage. Reuse
-existing tool timing and telemetry; do not poll, start agents or add turns solely to collect metrics.
+last-read time, harness version, scope (self-only or inclusive of children), reset status and missing
+coverage. Reuse existing tool timing and telemetry; do not poll, start agents or add turns solely to collect metrics.
 
 Classify initial implementation, technical verification, QA, Deep Review, remediation, and
 delivery/readiness separately. Attribute fix work to remediation, not initial implementation;
@@ -72,8 +71,8 @@ acceptance. If B is a new finding while A passed its retest, distinguish it from
   separate measurements without a combined total. Name missing participating agents and mark
   aggregates partial. Existing Deep Review aggregates cover their run, not individual jobs/stages.
 - Never infer consumed tokens from context budgets, character counts, bytes/4 context estimates
-  or benchmark medians. Cached input is part of input; reasoning may be part of output. Retain
-  provider definitions rather than adding these subsets again.
+  or benchmark medians. Normalize input to include cache reads/writes once; some providers report
+  these as separate buckets. Reasoning may be part of output. Retain raw provider definitions.
 - Missing metrics never block delivery or trigger reruns. Use `not run` for an omitted stage and
   `unavailable` for an unmeasured field. A numeric zero requires measured or known-zero activity.
 
@@ -85,36 +84,18 @@ session, then receipts of participating subagents. Record each source's scope or
 identity, corresponding file not found, absent usage events and unverifiable counter scope are
 valid reasons. An unavailable stage delta does not make a measured session cumulative unavailable.
 
-For Codex, obtain identity from `CODEX_THREAD_ID`. Resolve only filenames matching that identity
-under `$CODEX_HOME/sessions`; use `~/.codex/sessions` only if `CODEX_HOME` is unset (an empty or invalid
-configured value is not permission to fall back). Match the complete session-id filename suffix,
-not arbitrary substrings. Inspect filename metadata only until the corresponding file is selected;
-ambiguous matches require an explicit path. Accept a session-file path explicitly supplied by the
-environment or user. Verify its session identity before using counters. Read no unrelated session
-contents, prompts, credentials or authentication configuration; emit only allowlisted metrics.
+For Codex, Claude Code or Cursor, read the matching section in [harness metrics](execution-metrics-harnesses.md)
+before the stage baseline or worker dispatch. Its source/scope rules apply to the same receipt format;
+the supplied file reader supports Codex only. Reuse existing supplied payloads, streams and telemetry; do not install hooks/exporters, start sessions, or enable content logging for metrics.
 
-Reuse the content-safe reader in `wtk-deep-review/scripts/token_metrics.py` from the installed skill
-root (the example uses this repository's layout):
-
-```sh
-python3 .agents/skills/wtk-deep-review/scripts/token_metrics.py --session-file "$SESSION_FILE"
-```
-
-`SESSION_FILE` is the explicitly resolved file, not a directory; the reader checks `CODEX_THREAD_ID`
-(or explicit `--session-id`) against session metadata. Save the structured start snapshot in
-existing disposable storage; pass it as `--baseline <snapshot.json>` at stage end. The reader does
-not discover files or read conversation content into its output.
-
-Read `token_count` events' `info.total_token_usage`: retain input, cached input, output, total and
-event timestamp. Use the latest cumulative event, never the sum of cumulative events or a fallback
-to `last_token_usage`. Record collection time separately; telemetry may lag the closing response,
-so say `snapshot as of <event timestamp>; last read <time>`, not an exact final total.
-
-Subtract baseline from snapshot only for comparable counters in the same session, source and scope.
-Check all counter buckets for decreases, resets and changes of scope, including resets between
-endpoints. A reset or lost baseline prevents the stage delta; missing buckets prevent their deltas. Without a reliable baseline,
-report the measured session cumulative (or post-reset cumulative), explicitly labeled; it is not
-stage consumption. A provider source/model/scope change requires a new baseline and separate receipt.
+Record whether usage is cumulative, per-request, per-turn or an exported delta. Sum only distinct
+finalized requests/turns or delta records; never add their cumulative aggregate too. Current context
+occupancy is not session consumption, even when its field name includes `total`.
+Subtract baseline from snapshot only for comparable cumulative counters in the same session,
+source and scope. Check all counter buckets for decreases, resets and changes of scope, including resets between
+endpoints. A reset or lost baseline prevents the stage delta; missing buckets prevent their deltas.
+Without a reliable baseline, report the measured session cumulative (or post-reset cumulative),
+explicitly labeled; it is not stage consumption. A provider source/model/scope change requires a new baseline and separate receipt.
 
 ## Optional token cost
 
@@ -134,7 +115,8 @@ Normalize usage into disjoint billable buckets following that provider's definit
 separately billed cache writes, subtract those subsets before pricing ordinary input; providers
 that already separate buckets need no subtraction. Apply distinct rates for cache reads/writes,
 output and applicable tiers. Unknown bucket splits or mixed-model/tier aggregates are unpriceable
-unless verifiable attribution and the needed breakdown per model/tier are supplied. Use a calculator or existing runtime for arithmetic.
+unless verifiable attribution and the needed breakdown per model/tier are supplied. Use a calculator
+or existing runtime for arithmetic.
 
 Show estimated token cost per measured stage/model and fix loop where attribution exists; loop
 costs remain subtotals, not extra charges. Sum only disjoint priced scopes and label partial totals
