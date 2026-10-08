@@ -169,8 +169,8 @@ test('distribution has no npm install command or adoption manifest', () => {
   assert.equal(read('README.md').includes('npx workflow-toolkit install'), false);
   assert.equal(read('README.md').includes('wtk install'), false);
   assert.match(read('README.md'), /skill installer/i);
-  assert.match(read('README.md'), /npx skills add antoniofulg\/workflow-toolkit/);
-  assert.match(read('README.md'), /skills update/);
+  assert.match(read('README.md'), /npx skills@latest add antoniofulg\/workflow-toolkit/);
+  assert.match(read('README.md'), /npx skills@latest update --project/);
   assert.equal(packageJson.files.some((entry) => entry.includes('scripts/installer') || entry.includes('templates/adoption')), false);
 });
 

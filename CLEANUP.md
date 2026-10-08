@@ -5,6 +5,10 @@ Workflow Toolkit is the 12 `wtk*` Agent Skills installed with a skill installer.
 update project instructions or run a migration command. Use the [current install command](README.md#install-the-skills)
 after cleaning up the old install.
 
+If the project already uses the Skills CLI and only remains on an old WTK revision, first check
+the [update and pinned-ref guidance](README.md#updating-an-existing-installation). A pinned skill
+source does not require legacy installer cleanup.
+
 ## 1. Establish ownership
 
 Read the project's `.my-workflow/adoption.json` and record its `files` and `blocks` before

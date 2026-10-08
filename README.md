@@ -28,22 +28,55 @@ the [Vercel Skills CLI](https://github.com/vercel-labs/skills#readme), whose cur
 `skills add <owner>/<repository>`, to install the full WTK set into the project:
 
 ```bash
-npx skills add antoniofulg/workflow-toolkit \
+npx skills@latest add antoniofulg/workflow-toolkit \
   --skill wtk wtk-deep-review wtk-discover wtk-implement \
   wtk-knowledge-check wtk-lean wtk-plan wtk-qa wtk-qa-execute \
   wtk-qa-plan wtk-reuse-review wtk-ship \
   --agent '*' --copy --yes
 ```
 
-Use `npx skills list` to inspect the project installation and `npx skills update` to update it.
-The full WTK set carries the shared phase dependencies. WTK does not provide a package installer
-executable.
+Use `npx skills@latest list` to inspect the project installation. The full WTK set carries the
+shared phase dependencies. WTK does not provide a package installer executable.
 
 The full 12-skill WTK set is self-contained: its scripts, assets, and conditional references live
 below the distributed skill directories.
 
 Projects that used the retired package installer can follow the [legacy cleanup guide](CLEANUP.md)
 before installing the skills.
+
+## Updating an existing installation
+
+Run from the project root:
+
+```bash
+npx skills@latest update --project
+```
+
+Updates follow each skill's recorded source and `ref`; they do not select the newest WTK GitHub
+release or read this repository's `package.json` version. A tag such as `v2.0.1` or a commit SHA
+in `skills-lock.json` pins that installation: updating it keeps the same revision. A branch ref
+follows that branch; an absent ref follows the source repository's default branch. Committing the
+lockfile alone does not pin a revision; the `ref` value does. Older Skills CLI versions may also
+fail to clone a commit SHA with a "Remote branch ... not found" error; use `skills@latest`, then
+reinstall from the unpinned source to advance beyond that revision.
+
+If WTK remains on 2.0.x, inspect the `wtk*` entries in the project's `skills-lock.json`. To leave
+a pinned revision, rerun the [complete install command above](#install-the-skills) with the bare
+`antoniofulg/workflow-toolkit` source, without a tag, commit or `/tree/<ref>` suffix. This replaces
+the recorded WTK source/ref and refreshes all 12 skills. Review the installed files and lockfile
+diff, then commit them in the consuming project. Future updates follow the default branch.
+
+For a global installation, use `npx skills@latest update --global`; its tracking file is
+`~/.agents/.skill-lock.json` (or `$XDG_STATE_HOME/skills/.skill-lock.json` when configured).
+A missing `skillPath` or an installation made by the retired WTK
+package installer also requires reinstalling through the current skill installer; use the
+[cleanup guide](CLEANUP.md) for the retired installer. Updating skills does not rewrite project
+instructions, native agent files or old feature workflow snapshots; follow the release's breaking
+change notes separately.
+
+See the [Skills CLI documentation](https://github.com/vercel-labs/skills#readme) for installation
+sources and update scope. WTK's individual skill frontmatter versions are not the toolkit release
+number; use source/ref and installed content to identify what was installed.
 
 ## Optional project instructions
 
