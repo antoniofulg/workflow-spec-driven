@@ -17,11 +17,11 @@ For features, Specify + Design + Tasks here. After approval, dispatch **implemen
 
 For bounded maintenance under `.agents/skills/wtk/references/validation.md`, the active agent edits and validates directly; delegation
 is optional when it adds useful independent work, not a required handoff.
-Spawn the named agent without model overrides; use `explorer` for feature exploration and traces.
-Project-native agent files own provider, model, and effort settings; `wtk-lean/scripts/workflow_route.py`
-records frozen feature routes without generating packets. WTK defaults to a sequential Lean builder,
+Before delegated work, use [agent selection](.agents/skills/wtk/references/agent-selection.md) to
+recommend and confirm task-specific provider/model/effort choices. Skills supply responsibilities;
+native role files are optional and remain untouched. `wtk-lean/scripts/workflow_route.py` freezes
+approved stage selections in the current checkout. WTK defaults to a sequential Lean builder,
 on-demand Deep Review, QA adapter `auto` without a task-scoped choice, and `stall_attempts = 3`.
-Provider definitions are real files, not symlinks.
 
 ## Critical rules
 
@@ -87,6 +87,7 @@ budget: 200k
 | QA pass at the end of a feature | `.agents/skills/wtk-qa-execute/references/qa-execution.md` |
 | Reviewing, or acting on findings | `.agents/skills/wtk/references/review-rounds.md` |
 | Resolving feature workflow | `.agents/skills/wtk-lean/scripts/workflow_route.py` |
+| Proposing, dispatching or resuming delegated work | `.agents/skills/wtk/references/agent-selection.md` |
 | About to claim done, or to commit | `.agents/skills/wtk/references/evidence.md` |
 | Choosing which gate to run | `.agents/skills/wtk/references/validation.md` |
 | Branch or worktree | `.agents/skills/wtk/references/git.md` |

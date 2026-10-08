@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import re
 from pathlib import Path
 
@@ -61,13 +62,30 @@ def test_artifact_contracts_remain_distinct() -> None:
     assert "A build agent never spawns another agent at all" in implement
 
 
-def test_native_route_owns_snapshots_without_config() -> None:
+def test_project_owned_route_is_frozen_and_native_files_are_preserved() -> None:
     route = SKILLS / "wtk-lean/scripts/workflow_route.py"
     assert route.is_file()
     text = route.read_text(encoding="utf-8")
-    assert "native_provider" in text and "workflow.json" in text
+    assert "workflow.json" in text
     assert ".wtk.toml" not in text
-    assert "model" not in text and "effort" not in text
+    guidance = SKILLS / "wtk/references/agent-selection.md"
+    assert guidance.is_file()
+    for relative in (
+        "wtk/SKILL.md", "wtk-lean/SKILL.md", "wtk-lean/references/build.md",
+        "wtk-lean/references/verify.md", "wtk-implement/SKILL.md",
+        "wtk-implement/references/verify.md", "wtk-deep-review/SKILL.md",
+        "wtk-deep-review/references/orchestration.md", "wtk-deep-review/references/subagent-runtimes.md",
+        "wtk/references/context-handoff.md", "wtk/references/git.md",
+        "wtk/references/review-rounds.md", "wtk-qa/SKILL.md", "wtk-qa-plan/SKILL.md",
+        "wtk-qa-execute/SKILL.md", "wtk-qa-execute/references/qa-execution.md", "wtk-ship/SKILL.md",
+    ):
+        path = SKILLS / relative
+        source = path.read_text(encoding="utf-8")
+        links = re.findall(r"\[[^\]]+\]\(([^)#]*agent-selection\.md)(?:#[^)]*)?\)", source)
+        assert links and all((path.parent / target).resolve() == guidance.resolve() for target in links), relative
+        assert "--native-provider" not in source and "agent_file" not in source, relative
+    qa = frontmatter(SKILLS / "wtk-qa/SKILL.md")
+    assert "agent" not in qa and qa.get("context") != "fork"
 
 
 def test_router_references_resolve() -> None:
@@ -100,7 +118,15 @@ def test_ui_and_delivery_boundaries_stay_local() -> None:
 
 
 if __name__ == "__main__":
-    tests = [function for name, function in sorted(globals().items()) if name.startswith("test_")]
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("-k", dest="pattern")
+    pattern = parser.parse_args().pattern
+    tests = [
+        function for name, function in sorted(globals().items())
+        if name.startswith("test_") and (pattern is None or pattern in name)
+    ]
+    if not tests:
+        raise SystemExit(f"no tests matched: {pattern}")
     for function in tests:
         function()
     print(f"{len(tests)} passed, 0 failed")

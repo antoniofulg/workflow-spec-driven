@@ -21,6 +21,7 @@ Load shared references only for the current operation:
 
 | Operation | Reference |
 | --- | --- |
+| Propose, dispatch or resume delegated work | [Agent selection](references/agent-selection.md) |
 | Plan, implement, refactor, or review code | [Code reuse and ownership](references/code-reuse.md) |
 | Security surface or abuse case | [Security boundary](references/security.md) |
 | Screen, interaction, or visual reference | [UI/UX surface map](references/ui-ux.md) and [front-end organization](references/frontend.md) |

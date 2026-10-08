@@ -23,13 +23,14 @@ test('full WTK set has twelve skills and no WTK config payload', () => {
   try {
     for (const skill of wtkSkills) fs.cpSync(path.join(root, '.agents/skills', skill), path.join(sourceRoot, '.agents/skills', skill), { recursive: true });
     assert.equal(fs.existsSync(path.join(sourceRoot, 'docs')), false);
+    assert.equal(fs.existsSync(path.join(sourceRoot, '.specs')), false);
     for (const skill of wtkSkills) assertSkillReferences(sourceRoot, skill);
   } finally {
     fs.rmSync(sourceRoot, { recursive: true, force: true });
   }
 });
 
-test('native agent ownership and current WTK catalog are consistent', () => {
+test('approved execution selection and current WTK catalog are consistent', () => {
   const packageJson = JSON.parse(read('package.json'));
   const packagedSkills = packageJson.files
     .filter((entry) => entry.startsWith('.agents/skills/wtk'))
@@ -59,22 +60,22 @@ test('native agent ownership and current WTK catalog are consistent', () => {
   const qaExecute = read('.agents/skills/wtk-qa-execute/SKILL.md');
 
   assert.match(readme, /full 12-skill WTK set/);
-  assert.match(readme, /native model and effort metadata/);
+  assert.match(readme, /Agent selection.*agent-selection\.md/);
   assert.match(readme, /Deep Review is on demand/);
   assert.match(readme, /QA uses the `auto` adapter/);
   assert.match(readme, /fixed default `stall_attempts = 3`/);
-  assert.match(agents, /Project-native agent files own provider, model, and effort settings/);
+  assert.match(agents, /agent selection.*agent-selection\.md/);
   assert.match(agents, /sequential Lean builder/);
   assert.match(agents, /stall_attempts = 3/);
   assert.match(lean, /workflow_route\.py/);
-  assert.match(lean, /native agent-file identity/);
+  assert.match(lean, /--selection-file/);
   assert.match(reviewRounds, /Deep Review is on demand by default/);
   assert.match(reviewRounds, /fixed default threshold of three attempts/);
   assert.match(qaExecute, /Without one, use\s+`auto`/);
   assert.equal(fs.existsSync(path.join(root, 'docs')), false);
   assert.match(read('.agents/skills/wtk-qa/references/qa-scenarios.md'), /consuming project/);
 
-  assert.equal(fs.existsSync(path.join(root, '.specs')), false);
+  assert.equal(packageJson.files.some((entry) => entry.startsWith('.specs')), false);
   assert.match(read('.agents/skills/wtk-lean/scripts/ad-index.py'), /\.specs\/STATE\.md/);
   assert.equal(fs.existsSync(path.join(root, '.wtk.toml.example')), false);
   assert.equal(fs.existsSync(path.join(root, '.agents/skills/wtk-config')), false);
@@ -176,6 +177,7 @@ test('distribution has no npm install command or adoption manifest', () => {
 test('WTK routes resolve references without optional companions', () => {
   const optionalPaths = optionalSkills.map((skill) => path.join(root, '.agents/skills', skill));
   for (const optionalPath of optionalPaths) assert.equal(fs.existsSync(optionalPath), false, optionalPath);
+  for (const skill of wtkSkills) assertSkillReferences(root, skill);
   const routed = wtkSkills.flatMap((skill) => walk(path.join(root, '.agents/skills', skill)).map((relative) => path.join(skill, relative)));
   for (const relative of routed) {
     const source = read(path.join('.agents/skills', relative));

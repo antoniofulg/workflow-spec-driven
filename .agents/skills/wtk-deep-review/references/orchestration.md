@@ -58,20 +58,19 @@ Defect cohorts are the only default review lane. Sweeps remain **opt-in and rare
 
 The jobs contract makes engines interchangeable — pick one per run, record it in context-pack.md (`Mode: workflow | agent-fallback | subagent:<runtime>`), and always close the loop with `run_jobs.py --validate-only`. Validation rejects missing coverage rows, in-diff anchors outside job ownership, and unassigned rule ids.
 
-**Named native dispatch (default when host supports it).** Dispatch up to the manifest concurrency
-bound to the custom `deep-reviewer` agent, refill slots as jobs complete, and keep retries inside
-the owning worker slot. After a provider block, let active attempts finish and do not refill. Use
-the host's real selector:
-
-- Claude Code Task: `subagent_type: "deep-reviewer"`.
-- Cursor `cursor/task`: `subagentType: { custom: "deep-reviewer" }`.
-- Native Agent/spawn: custom agent name/type `deep-reviewer`, resolved from the host's local agent
-  configuration.
+**Skill-directed dispatch.** Follow [agent selection](../../wtk/references/agent-selection.md)
+before proposed reviewer work. Use the accepted `deep_review` row and materialized prompts with
+the host's supported model/effort controls in the current checkout. The skill supplies review
+responsibilities; a named native role is optional only when it honors those exact settings.
+Prefer a supported generic dispatch over a stale named-role preset. Missing controls or a provider
+block stop the affected dispatch; changing settings requires targeted acceptance.
+Keep manifest concurrency and worker-slot retries; after a provider block, active attempts finish
+and pending slots are not refilled.
 
 Metrics are optional provider-neutral hooks. An adapter may call `start_metrics`,
 `checkpoint_metrics`, and `finalize_metrics` around the bounded dispatch; the main thread records
 serialized cumulative snapshots only and never assigns overlapping deltas to jobs or changes exits.
-Record `Mode: native` in context-pack.md, then run the validate-only gate. Provider-specific
+Record the actual engine in context-pack.md, then run the validate-only gate. Provider-specific
 telemetry setup belongs in the runtime adapter guidance, not in this orchestration contract.
 
 Before prompts are materialized, `build_jobs.py` always prepares the pinned Graft context:
@@ -80,11 +79,15 @@ prompt's context artifact. Graft is a non-blocking inspection aid: a missing bin
 command falls back to plain repository inspection and does not block review. Graft does not index
 dot-directories, so selected `.agents` paths always carry an explicit plain-inspection fallback.
 
-**Workflow fallback (when named native dispatch is unavailable).** One generic script executes any
-stage's pending jobs — pass the pending list from the validate-only status file as `args.jobs` and
-launch at most the manifest concurrency. Refill completed slots, stop refilling after a provider
-block, and preserve jobs-file order when the stage returns. This path intentionally stays role-free;
-it does not assume a named-agent parameter.
+**Workflow engine.** Use the host's existing Workflow tool only when it can honor the accepted
+row. Pass each pending job its materialized prompt and single output path; repository files remain
+read-only. Apply the pinned concurrency and refill rules under Bounded dispatch below. If the tool
+inherits model/effort instead of exposing controls, obtain acceptance of those named inherited
+limitations before using it. An explicit accepted model is never silently replaced by that default.
+
+This inherited-control scheduler example accepts only a validated row matching the actual host
+provider. Supply that row after observing human acceptance of its model/effort limitations. When
+explicit controls are needed, use the host's supported invocation instead of this example.
 
 ```js
 export const meta = {
@@ -92,7 +95,13 @@ export const meta = {
   description: 'Execute pending wtk-deep-review jobs; each agent reads a prompt file and writes one output file',
   phases: [{ title: 'Execute' }],
 }
-// args: { jobs: [{label, prompt, output}], concurrency?: integer } — PENDING jobs only
+// args: { jobs: [{label, prompt, output}], concurrency?: integer, approvedStage, actualProvider }
+// PENDING jobs only; approvedStage comes from the coordinator's validated selection.
+const approved = args.approvedStage
+if (!approved || approved.provider !== args.actualProvider ||
+    approved.model !== 'inherited' || approved.effort !== 'inherited') {
+  throw new Error('This Workflow example requires the confirmed inherited settings of the actual host provider')
+}
 phase('Execute')
 let returned = 0
 const inputJobs = [...(args.jobs ?? [])]
@@ -141,16 +150,19 @@ return {
 }
 ```
 
-After the workflow returns, run the validate-only gate; re-invoke with the still-pending jobs (interrupted runs can also resume via `resumeFromRunId`). Two re-dispatches without progress → inspect a failing output by hand before continuing.
 
-**Agent fallback (`--no-workflow` or no Workflow tool).** Same contract through the Agent tool: use
-the named native selectors above when available. If the host has no named-agent path, use the
-generic prompt-only subagent dispatch ("Read `<prompt>` and follow it exactly…") with the manifest
-concurrency bound; do not add an unsupported role argument. Then run the validate-only gate.
+After the workflow returns, run the validate-only gate and re-invoke only still-pending jobs.
+Interrupted runs may use the host's existing resume mechanism with unchanged accepted choices.
+Two re-dispatches without progress require inspecting a failing output before continuing.
+
+**Agent engine (`--no-workflow` or no Workflow tool).** Use the same skill-directed job contract
+through the existing Agent tool. Generic prompt dispatch is sufficient when its advertised controls
+honor the row; pass no unsupported role argument. Apply the manifest concurrency bound, then run
+the validate-only gate. A different engine still needs the exact accepted provider/model/effort.
 
 **External runtimes (`--subagent` ≠ `native`).** `run_jobs.py --command` drives `compozy exec` per
-subagent-runtimes.md — the runner owns bounded execution, retries, output validation,
-provider-block detection, and the freeze check.
+[subagent runtimes](subagent-runtimes.md), using the accepted row. The runner owns bounded execution,
+retries, output validation, provider-block detection and the freeze check.
 
 The orchestrator never reviews inline, regardless of PR size: reviewers spend their own context on their cohort; the orchestrator plans, dispatches, gates, and reports.
 

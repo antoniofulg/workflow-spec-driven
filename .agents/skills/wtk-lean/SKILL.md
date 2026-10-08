@@ -135,20 +135,22 @@ The validators own structural detail: `validate_plan.py` closes the human-review
 non-author Verifier. Run `selftest.py` only after changing a validator or template. If execution is
 unavailable, perform the same checks by inspection and report the degraded path.
 
-## Project-owned route
+## Execution selection
 
-When a feature needs a persisted handoff route, resolve it from the consuming project's native
-agent files:
+Before delegated work, follow [agent selection](../wtk/references/agent-selection.md) for the
+task-specific proposal, human confirmation, overrides and host limits. Skills supply stage
+responsibilities; native role files are optional and remain untouched. When a feature needs a
+persisted route, freeze its confirmed selection:
 
 ```bash
 python3 .agents/skills/wtk-lean/scripts/workflow_route.py \
-  --root . --feature <feature-slug> --native-provider <claude|codex|cursor>
+  --root . --feature <feature-slug> --selection-file <confirmed-selection.json>
 ```
 
-The route records provider and native agent-file identity, derives the approved verification
-profile, keeps Deep Review on demand by default, and keeps the Lean builder sequential. It never
-reads or writes `.wtk.toml`, model or effort metadata, or generated provider packets. Projects own
-those native files and choose their model and effort settings there.
+The version 2 route records approved stage/model/effort choices and approval evidence scoped to the
+feature and current checkout. It derives the approved verification profile, keeps Deep Review on
+demand and the Lean builder sequential. It neither reads nor writes `.wtk.toml` or native role files.
+Unchanged retries and resume reuse the accepted selection through the same helper.
 
 ## Sub-agents and handoff
 
@@ -158,7 +160,8 @@ budget (default 150k tokens), one builder owns all whole slices sequentially; do
 transfer. When it exceeds the budget, stop before code and ask the user to choose the execution
 mechanism: sequential whole-slice handoff at the recorded surface boundary, or one builder with
 accepted compaction/context-loss risk. The coordinator chooses the cut, records the user's mechanism
-choice, and uses the host's supported handoff mechanism and configured role/provider.
+choice, and uses the host's supported handoff mechanism with the accepted stage selection in the
+current checkout.
 
 Handoffs occur only between slices and only after every proof in the batch is green. The outgoing
 builder records closed checks, user decisions, and abandoned approaches. The next builder reads the

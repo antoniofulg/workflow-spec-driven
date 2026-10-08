@@ -31,16 +31,17 @@ this file. It runs read-only over the real tree and fixes nothing. The plan is a
 half the enumerations it sweeps for - a route's statuses, an entity's constraints - are named
 there and only *owe* a row in the checks.
 
-**How to dispatch.** Launch the configured `verifier` through the frozen project-owned route from
-`../scripts/workflow_route.py`, with no inherited conversation. Hand it this file,
+**How to dispatch.** Use the accepted `verification` stage from the frozen project-owned route at
+`../scripts/workflow_route.py`, following [agent selection](../../wtk/references/agent-selection.md).
+Launch a fresh skill-directed checking session in the current checkout, with no inherited
+conversation. Hand it this file,
 `plan.md`, `checks.md`, every source the plan marks binding, and the diff range
 `<feature base>..HEAD`. It writes `verification.md` and fixes nothing. You run
 `validate_verification.py`. You do not write the report yourself.
 
-**No sub-agent mechanism available?** Then run this file as a fresh-eyes pass in a new session -
-re-read the plan, the checks and the diff from scratch - and write `Verifier: self-verified
-(degraded - no sub-agent)` in the report. The script flags it, which is the point: a degraded
-gate that is visible is worth more than one that pretends.
+**No supported independent dispatch?** Stop that dispatch and name the missing host capability.
+Obtain targeted acceptance of a supported checking choice or independent session through agent
+selection; the author never supplies the feature verdict.
 
 ## Read the profile first
 
