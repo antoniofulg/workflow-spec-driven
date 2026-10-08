@@ -4,6 +4,22 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [3.0.1] - 2026-10-08
+
+### Fixed
+
+- Installation guidance now explains why `skills update` retains a pinned tag or commit instead
+  of selecting the latest WTK release, and how to refresh the complete set from an unpinned source.
+- Update instructions explicitly select project or global scope and use the latest Skills CLI.
+  Legacy installer cleanup is distinguished from refreshing an existing Skills CLI installation.
+
+### Upgrade
+
+- If a 2.0.x installation has a tag or commit `ref` in its skill lockfile, rerun the complete
+  [README install command](README.md#install-the-skills) without a pinned source. Publishing this
+  patch cannot move an installation that intentionally tracks an older immutable revision.
+- WTK skill behavior is unchanged from 3.0.0; its breaking workflow snapshot changes still apply.
+
 ## [3.0.0] - 2026-10-08
 
 ### Changed
