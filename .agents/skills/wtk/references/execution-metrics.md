@@ -128,19 +128,36 @@ one `Token cost: unavailable — <missing inputs>` line is enough; omit empty co
 
 ## Final footer
 
-Append a compact table below the delivery result; workers return receipts, not a feature-wide total.
+Always report the overall result and a compact stage table below the delivery result, including
+partial or blocked work. Workers return scoped receipts; the coordinator consolidates them.
 Keep existing test results, limitations, artifact links and authorization/stopping status intact.
+
+- Overall: show task elapsed time, cumulative actor time and the measured token total or known
+  subtotal, each with complete/partial coverage. Name excluded actors/intervals and unallocated
+  session usage. If scopes cannot be combined, show their separate totals and the concrete overlap
+  uncertainty; missing complete coverage does not erase an available measured subtotal.
+- Stages: show observed elapsed time and token count for implementation, checking and each recheck,
+  remediation, QA and other stages actually performed. Identify each count as a comparable delta,
+  session cumulative or unavailable, with its measured interval and missing coverage. A combined
+  verification/QA receipt stays combined until separate timings/counters exist; never invent a split.
+- Totals: sum only proven disjoint scopes/intervals. A subtotal excludes missing or unverifiable
+  usage; session cumulative counts and subsequent deltas may be combined only when their coverage
+  is demonstrably non-overlapping. Neither their components nor parent-inclusive totals are added
+  again. Stage durations are not task lead time when actors overlap or waiting exists.
+
+Keep this summary in the final response; a receipt fragment or a report link alone does not replace
+it. Match token and timing coverage explicitly when their observed intervals differ.
 
 ```text
 Execution metrics — measured interval: <start -> stop; complete or partial>
-Stage                    Elapsed       Tokens (input / cached input / output)    Rounds
+Stage                    Elapsed       Tokens (total; input / cached input / output)    Rounds
 Implementation           ...           ...                                       ...
 Technical verification   ...           ...                                       ...
 QA                       ...           ...                                       ...
 Deep Review              ...           ...                                       initial / remediation
 Remediation              ...           ...                                       fix batches
 Delivery/readiness       ...           ...                                       ...
-Total elapsed: ... | Cumulative actor time: ... | Token total: ... [coverage/source]
+Total elapsed: ... | Cumulative actor time: ... | Token total or known subtotal: ... [coverage/source]
 Estimated token cost: ... [currency; priced scopes/coverage; rates/source/date, or unavailable]
 Actually billed: ... [task-scoped billing evidence, or unavailable — no billing evidence]
 Validation overhead (included above): full gates ... runs / ...; targeted ... runs / ...
@@ -151,8 +168,10 @@ Loop <n>: <stage; revision; builder -> checker; fixing model if changed; verdict
 Optimization: <observed avoidable cost and suggested adjustment, or insufficient evidence>
 ```
 
-Keep the footer format; put session ids, intervals, baseline/snapshot counters, total, event/last-read
-timestamps and partial coverage in its existing source/coverage and unmeasured-scope fields.
-Omit empty detail but keep coverage limitations visible. Optimization claims need an observed
+Keep the existing receipt fields; attach per-stage measurement/coverage notes and put session ids,
+intervals, baseline/snapshot counters and event/last-read timestamps in the source/coverage detail.
+Always retain the overall summary and performed-stage rows; omit only inapplicable stages or empty
+optional detail.
+Optimization claims need an observed
 cause (for example duplicate validation or repeated setup); elapsed time alone does not prove waste.
 Label potential savings as estimates. This is a task receipt, not a comparative benchmark.
