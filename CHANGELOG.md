@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [2.0.4] - 2026-10-07
+
 ### Fixed
 
 - Application/test environments reuse compatible same-worktree runtimes across agents, verification,
