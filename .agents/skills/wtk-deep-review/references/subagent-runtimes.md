@@ -2,6 +2,10 @@
 
 How Step 3 review agents (defect cohorts, sweeps) execute. `native` — the default — uses the Workflow/Agent engines in orchestration.md; every other value runs the same materialized prompts cross-LLM through `compozy exec`, driven by the bundled runner. Step 2 context assembly stays orchestrator-side in every mode.
 
+Before an adapter starts supporting application/test services, apply
+[runtime lifecycle](../../wtk/references/runtime-lifecycle.md). Reviewer job/session isolation does
+not require another compatible same-checkout service stack; carry owned-resource evidence across retries.
+
 ## Runtime map
 
 | Value | Invocation |

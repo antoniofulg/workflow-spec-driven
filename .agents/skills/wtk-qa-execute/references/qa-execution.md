@@ -36,8 +36,9 @@ observer reuse, and impact-selected retests; a defect does not end all independe
   authentication, fixtures, cleanup, and limitations.
 - `wtk-qa-execute` selects the declared browser, API, CLI, mobile, or manual adapter. It records the
   exact path, evidence, and limitation. It does not install tooling or invent commands.
-- Each checkout owns its runtime and raw evidence. Keep durable reports and statuses in `docs/qa/`
-  and keep generated evidence in the consuming project's disposable evidence path.
+- Before adapter setup or handoff, apply [runtime lifecycle](../../wtk/references/runtime-lifecycle.md).
+  Keep durable reports and statuses in `docs/qa/` and generated evidence in the consuming project's
+  disposable evidence path.
 - When a selected QA scope carries a visual AC, follow `../../wtk/references/ui-ux.md#verifying-the-built-screen`, point the
   report at its feature `uiux.md` row, and record the paired-capture output fields. A manual comparison
   is evidence, not an automated test; keep behavioral assertions intact.

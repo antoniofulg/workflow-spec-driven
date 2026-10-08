@@ -16,6 +16,9 @@ Before execution, read [execution metrics](../wtk/references/execution-metrics.m
 assigned stage receipt with session identity, interval and baseline/snapshot counters after its
 source checks, using the normal handoff format.
 
+Before environment setup or handoff, apply [runtime lifecycle](../wtk/references/runtime-lifecycle.md)
+to the checkout's application/test services.
+
 When the source requires reuse, construction order or approval, apply
 [construction constraints](../wtk/references/construction-constraints.md) during Extract, Build
 and verification handoff. At phase boundaries or context recovery, use

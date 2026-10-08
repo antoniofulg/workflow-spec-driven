@@ -64,12 +64,6 @@ an accumulated wall of `backup/` branches hides the one that still matters.
 
 ## Isolated checkouts
 
-If the consuming project isolates checkouts, each checkout owns its runtime. Never share a branch
-between two checkouts. Two checkouts of one branch is how a gate in one silently verifies the other's
-tree.
-
-Never set `reuseExistingServer: true` across siblings.
-
-A gate refusing because a runtime is already bound is isolation working. Identify the owner before
-touching anything (`lsof` / process list). Another checkout of this repository: stop it there.
-Another project entirely: leave it alone and move this checkout instead.
+Never share a branch between two checkouts. Before runtime setup or worktree removal, apply
+[runtime lifecycle](runtime-lifecycle.md): preserve checkout identity, resolve owned resources and
+carry their reuse/cleanup evidence through handoffs.
