@@ -1,19 +1,20 @@
 # Task-aware agent selection verification
 
-**Verdict**: FAIL
+**Verdict**: PASS
 **Profile**: standard
-**Diff range**: ee2358e4fa436698abd2ef10df5c21cd7c1b2f78..752e5a0a340ba12007404011a3bebe40f83f27f6
-**Round**: 1 - full
+**Diff range**: ee2358e4fa436698abd2ef10df5c21cd7c1b2f78..78a5f5e20cd1fff2481f15dd242cee2905355dfa
+**Round**: 2 - scoped F1 disposition, subsequent approval and completion report; full product proof retained from round 1 at 752e5a0a340ba12007404011a3bebe40f83f27f6
 **Verifier**: independent non-author worker `/root/selection_verifier`, session `01a119a0-1eb4-7513-8a02-d3b2907aba87`, effective `gpt-6-astra` / `high`
 
-The executable route and instruction fixture walks passed. One historical execution-process gap
-prevents full conformance: the exact replacement execution rows were selected by the coordinator
-after a generation-level human correction, without a subsequent reply accepting those exact rows.
-This is not a discovered route-code defect. Fixture approval strings do not establish actual consent.
+The product behavior passes with the user's explicit acceptance of the single historical process
+exception. Exact subsequent execution settings are now accepted and the real route validates them.
+The original missing acceptance before earlier dispatch remains historical fact; this report does
+not backdate approval or change the shipped consent rule. Round 1's FAIL is preserved at 3595de6b0864cf4ea38240ed31b0f523cb6621be.
+Fixture approval strings still do not establish actual consent.
 
 ## Ranked findings
 
-### F1 - Major: exact replacement-row acceptance is not evidenced before actual dispatch
+### F1 - Major historical process deviation: accepted exception, closed as a completion blocker
 
 Type: historical process / approval evidence. Governing locations:
 `.agents/skills/wtk/references/agent-selection.md:48`,
@@ -34,14 +35,46 @@ the generation constraint, but not the feature's stricter exact-row confirmation
 Reproduction: compare the execution-selection record at `checks.md:116` and the supplied dispatch
 receipt against `agent-selection.md:48` and `:54`. A prior go-ahead plus a subsequent coordinator
 mapping cannot be represented as a later human acceptance. The coordinator acknowledged this gap
-during verification and will obtain explicit exact-row acceptance before further delegation.
+during round 1 and stated it would obtain explicit exact-row acceptance before further delegation;
+that targeted acceptance is now recorded below.
 
-Disposition needed: retain the historical finding, obtain the missing targeted decision before any
-new dispatch, and have the coordinator resolve the historical process exception explicitly. Do not
-backdate approval, rewrite fixture replies as human evidence, or weaken the product requirement.
-No product/source/test fix is requested by this finding; passing tests cannot close it.
+Disposition in round 2: the user replied exactly `Prossiga` to the coordinator's checkpoint asking
+whether they confirmed the named pairs for subsequent steps and accepted closing the first execution
+with the recorded exception, explicitly without retrospective approval. The named pairs were
+`gpt-6.1-sol/max` for implementation/remediation and `gpt-6-astra/high` for checking. This is a new,
+targeted human decision, not another inference from the earlier generation-level correction.
 
-## Scope and evidence selection
+The decision is recorded at `checks.md:164` in 78a5f5e20cd1fff2481f15dd242cee2905355dfa.
+The same commit adds a version 2 `workflow.json` with confirmed remediation, verification and QA rows.
+I independently opened both artifacts, compared their scope with the supplied exact checkpoint/reply,
+and resumed the real route. Its verification row authorizes this scoped follow-up before it starts.
+The user accepted the historical exception only for this run; the earlier sequence is not asserted
+to have satisfied AC5/AC6. No shipped requirement was relaxed and no code fix was needed.
+F1 is retained as an accepted historical deviation, with zero unresolved completion blockers.
+
+## Round 2 scope and carried evidence
+
+Only the decision and report changed after product revision 752e5a0a. `git diff 752e5a0a..HEAD --stat`
+listed checks.md (13 appended lines), workflow.json and verification.md only.
+`git diff --exit-code 752e5a0a HEAD -- .agents tools tests AGENTS.md README.md package.json bun.lock
+bun.lockb skills-lock.json` exited 0. The checked criteria, profile, slice headings and proof commands
+are unchanged; the appended decision is outside the canonical tests' fixture inputs. Runtime versions
+remain Python 3.14.7, Node v22.23.1 and Bun 1.4.2 in the same checkout, with no install or service change.
+
+Therefore the 63 canonical results, 8 CLI fixture calls, 5 killed mutants, coverage recomputation,
+reuse/security source inspection and four manual QA walks retain their original evidence. None were
+rerun or counted again. Only the previously non-passing approval disposition and real route/report
+were checked fresh. The snapshot records git_head 3595de6, the checkout HEAD at creation; it does not
+claim that code was built there. Source equivalence to 752e5a0a is proven by the diff above.
+
+R2 producing command: `python3 .agents/skills/wtk-lean/scripts/workflow_route.py --root . --feature
+task-aware-agent-selection`, exit 0. A surrounding independent assertion script compared the snapshot
+bytes before/after, checked exact `approval.stages == stages`, confirmed status, all three model/effort
+rows, feature/current checkout, standard profile, sequential mode and on-demand review. All passed;
+workflow.json remained byte-identical. Latest own telemetry turn context still reports
+`gpt-6-astra/high`. `git worktree list --porcelain` lists only this checkout at 78a5f5e.
+
+## Round 1 scope and evidence selection
 
 Read the full changed production helper, changed skill/reference procedures and their immediate
 consumers, approved plan/checks/threat model, canonical assertions and fixtures. No author reasoning
@@ -60,10 +93,10 @@ invented. No browser, Docker, provider API, external model call or additional wo
 
 | Source | Opened | Contradiction | Uncovered |
 | --- | --- | --- | --- |
-| `plan.md` Criteria, Flow, Relations, Surface and Landing | yes, current frozen tree | F1: actual dispatch sequence lacks exact replacement-row acceptance | AC5/AC6 actual approval history |
-| `checks.md` C1-C10, Test policy, Swept | yes, current frozen tree | none in executable claims | F1 is outside what synthetic JSON approval can prove |
-| `threat-model.md` procedural approval limit | yes | none in source implementation | Actual consent remains a coordinator obligation, F1 |
-| Host tool capability declaration, 2026-10-08 | yes, supplied tool schema | none in effective checker settings | No claim about other providers' live model availability |
+| `plan.md` Criteria, Flow, Relations, Surface and Landing | yes; F1 historical exception explicitly accepted in round 2 | - | - |
+| `checks.md` C1-C10, Test policy, Swept and targeted decision | yes; actual targeted human decision reconciled separately from synthetic fixtures | - | - |
+| `threat-model.md` procedural approval limit | yes; subsequent consent established, historical deviation accepted | - | - |
+| Host tool capability declaration, 2026-10-08 | yes, supplied tool schema; current checker metadata unchanged | - | - |
 
 No binding visual design or screen exists in this feature. Standard profile applies; the UI fixture
 below tests stage selection for a hypothetical consuming feature, not a built UI.
@@ -77,7 +110,7 @@ and `workflow_route.py` means `.agents/skills/wtk-lean/scripts/workflow_route.py
 | Check | Claim | Proof run | Located evidence and decisive assertion | Result |
 | --- | --- | --- | --- | --- |
 | C1 | Task-sensitive stage proposals and current-session limits | Manual `qa-proposal-scope` | `agent-selection.md:7`, `:18`, `:41`; the actual fixture tables below select zero delegated maintenance stages versus four UI feature stages, each supported with a task rationale | PASS |
-| C2 | Pending/absent/mismatched approval cannot persist a route; real dispatch requires acceptance | B1, Q1; actual dispatch receipt | `tools/test_native_agent_routing.py:205` asserts no snapshot exists; `:210` asserts unchanged bytes after rejected replacement; `:100` requires RouteError. These settle CLI rejection, not human identity. F1 identifies the unproven actual consent sequence | FAIL - process evidence; CLI passes |
+| C2 | Pending/absent/mismatched approval cannot persist a route; real dispatch requires acceptance | B1, Q1 retained; R2 route/decision recheck | `tools/test_native_agent_routing.py:205` asserts no snapshot exists; `:210` unchanged bytes; `:100` requires RouteError. `checks.md:164` records actual subsequent acceptance and the limited historical exception. Earlier missing consent is not backdated | PASS - executable claim and accepted F1 disposition |
 | C3 | Exact overrides, rationale, limits and optional scope persist without native files | B1, Q1 | `tools/test_native_agent_routing.py:165` asserts `snapshot["stages"] == stages`; `:166` exact approval; `:170` persisted JSON equals returned value; `:172` no native directories | PASS |
 | C4 | Unchanged resume, fresh decision for changed rows, stale/foreign rejection | B1, Q1 | `tools/test_native_agent_routing.py:223` unchanged bytes; `:228` rejects same reference; `:232` exact changed stages; `:260` CLI exit 2; `:262` unchanged bytes; `:273` stale snapshot rejected | PASS |
 | C5 | Stage and row validation, including inherited limits | B1 | `tools/test_native_agent_routing.py:285` exact returned row for all nine stages; `:298` rejects each invalid row; `:299` unchanged snapshot; `:305` rejects float schema version. Matrix inspected, not inferred from names | PASS |
@@ -87,9 +120,9 @@ and `workflow_route.py` means `.agents/skills/wtk-lean/scripts/workflow_route.py
 | C9 | Unsupported model/control blocks dispatch pending targeted decision | Manual `qa-unsupported-selection` | `agent-selection.md:54`, `:123`; fixture host lacks the requested model and effort control; observed decision below is blocked with named alternatives, zero dispatch, no confirmed replacement | PASS |
 | C10 | Honest receipts, sequential builder, on-demand Deep Review | Manual `qa-receipt`, B1, B4, B5 | `tools/test_native_agent_routing.py:181` asserts on-demand review and `:182` sequential mode; `agent-selection.md:134` compared with own metadata and supplied builder counters; unknown tier/coverage recorded explicitly | PASS |
 
-Nine checks are fully proven. C2 is proven at its executable boundary but fails the associated
-historical human-acceptance sequence. This distinction is preserved rather than treating a string
-match or synthetic approval reference as consent.
+All ten product checks are accounted for under the now explicitly accepted completion scope.
+C2's executable proof is unchanged; its sole historical process blocker is disposed by the user's
+limited exception. The prior dispatch sequence remains a deviation, not newly proven compliance.
 
 ## Coverage
 
@@ -98,14 +131,14 @@ last four rows add sets discovered independently beyond the author's Coverage ta
 
 | Set (size) | Recomputed from | Member -> proof | Unproven |
 | --- | --- | --- | --- |
-| Proposal states (3) | Plan Surface | pending C2/Q1; confirmed C3/Q1; unsupported C9/manual | F1: actual replacement-row acceptance |
+| Proposal states (3) | Plan Surface | pending C2/Q1; confirmed C3/Q1; unsupported C9/manual | - |
 | Proposal scopes (2) | Plan S1 independent demonstration | bounded maintenance C1; UI/QA feature C1 | - |
 | Selected stages (9) | Plan Landing and `workflow_route.py:16` | planning, exploration, design, implementation, verification, qa, deep_review, remediation, delivery each individually round-tripped by C5 at `test_native_agent_routing.py:283` | - |
 | Host control cases (3) | Plan Landing/AC4/AC11 | supported C1; inherited with named limits C3/C5; unsupported C9 | - |
 | Route CLI exits (2) | Plan Surface, `workflow_route.py:266` | 0 C3/Q1; 2 C4/Q1 | - |
-| Selection lifecycle (5) | Plan Relations/AC5-8 | unconfirmed C2; accepted override C3; unchanged resume C4; changed selection C4; stale/foreign selection C4 | F1 affects actual consent, not the fixture state machine |
+| Selection lifecycle (5) | Plan Relations/AC5-8 | unconfirmed C2; accepted override C3; unchanged resume C4; changed selection C4; stale/foreign selection C4 | - |
 | Rejection families (3) | Plan checks C6; helper destination/slice/profile guards | unsafe slug C6; symlink escape C6; slice/profile mismatch C6 | - |
-| Contract doors (4) | Plan Landing | native binding replacement C3/C7; stage selection C5; explicit approval C2; host limitation C9 | F1: exact-row acceptance before actual dispatch |
+| Contract doors (4) | Plan Landing | native binding replacement C3/C7; stage selection C5; explicit approval C2; host limitation C9 | - |
 | Dispatch boundaries (3) | Plan AC9-10 | sequential implementation C10; independent full-range checking C8; same current checkout C8 | - |
 | Providers (3) | `workflow_route.py:15`, canonical guidance provider contract | codex C3; claude and cursor Q1 schema-only round trips | - |
 | Verification profiles (3) | Helper PROFILE_RE and profile selector | standard C3; ui and light C6 | - |
@@ -126,7 +159,7 @@ The approved Test policy is prose. Its individual obligations receive these verd
 | --- | --- | --- | --- |
 | Canonical route/state owner | `workflow_route.py`, `tools/test_native_agent_routing.py` | State/validation cases at owner; public CLI persistence and exit proof | yes - B1 and independently supplied Q1 fixture |
 | Preserve unrelated/native non-mutation assertions | Canonical route suite and distribution suite | Native bytes/hashes and installation sentinels | yes - route `:121`, `:135`; distribution `:155`; B1/B3 |
-| Instruction semantics require independent manual QA | Changed skill/reference procedures | Walk scope, unsupported controls, actual dispatch and receipts | gap - all four walks completed, F1 actual approval sequence unresolved |
+| Instruction semantics require independent manual QA | Changed skill/reference procedures | Walk scope, unsupported controls, actual dispatch and receipts | yes - all four walks retained; round 2 establishes subsequent acceptance and explicitly disposes the historical exception |
 | Behavior faults in disposable copies | New route approval/validation boundaries | Distinct discriminating failures without live mutation | yes - M1-M5 killed; copied trees deleted and real state unchanged |
 
 Test-audit review: no added production seam or parallel permanent suite. Existing canonical helpers
@@ -191,6 +224,9 @@ Result: PASS for C1, AC1-4. This is an independent fixture walk, not actual appr
 
 ## qa-independent-same-checkout
 
+Round 2 update: same independent observer and checkout, now explicitly authorized by the confirmed
+verification row. Full-range source proof below carries forward; current evidence HEAD is 78a5f5e.
+
 The coordinator supplied the builder's actual launch: generic worker `/root/selection_builder`,
 session `01a11982-2324-7780-9c0e-9a752a037314`, `gpt-6.1-sol/max`, `fork_turns=none`, one sequential
 builder in `/Users/antoniofulg/Projects/my-workflow`. Its final revision was frozen at
@@ -208,8 +244,8 @@ checkout on `feat/task-aware-agent-selection`, frozen HEAD above. `rtk proxy git
 slices and C1-C10, not only the last commit. Q1 fixture projects and M1-M5 disposable file copies
 were deleted; no child checkout or service was created. Source hashes stayed fixed through proofs.
 
-Result: PASS for C8, AC9-10's identity/scope/checkout obligations. F1 separately prevents calling
-the historical exact-row approval sequence proven. Actual dispatch evidence and approval evidence
+Result: PASS for C8, AC9-10's identity/scope/checkout obligations. F1 still prevents calling
+the historical exact-row approval sequence proven; round 2 accepts that deviation explicitly. Actual dispatch evidence and approval evidence
 are not interchangeable. The temporary execution record predates availability of the new helper;
 no real `workflow.json` was fabricated retrospectively.
 
@@ -235,6 +271,10 @@ Result: PASS for C9/AC11. This manual outcome is not a claim that the JSON helpe
 capabilities: it validates structure only, as the threat model explicitly states.
 
 ## qa-receipt
+
+Round 2 update: actual checking settings remain gpt-6-astra/high. The subsequent route/decision is
+confirmed and F1 is an explicitly accepted historical deviation; the original receipt below retains
+its original scope, timestamps and limitations.
 
 The coordinator supplied the builder's receipt; the two explicitly assigned structured files
 `/tmp/task-aware-builder-baseline.json` and `/tmp/task-aware-builder-snapshot.json` were opened
@@ -297,12 +337,11 @@ Total affected canonical tests: 63 passed, 0 failed. Fault tests are intentional
 separately. Zero-match controls are intentionally rejected and not counted as passing tests.
 No formatting tool is configured for this report; no formatter was installed.
 
-Completion validator: `python3 .agents/skills/wtk-lean/scripts/validate_verification.py task-aware-agent-selection`
-ran explicitly and exited 1: `1 error(s), 0 warning(s)` because the verdict is FAIL. This is the
-expected completion block for F1, not a zero-match or unresolved-feature result. The validator
-returns early for a FAIL verdict; it does not certify every report column in that mode.
-Final `git diff --check` exited 0. `git status --short` listed only this new verification report.
-The source remained frozen at the exact reviewed HEAD.
+Round 1 completion validator: `python3 .agents/skills/wtk-lean/scripts/validate_verification.py task-aware-agent-selection`
+exited 1: `1 error(s), 0 warning(s)` for the then-open F1. That original result remains evidence and
+is not rewritten as a first-pass success. Round 2 reruns this affected report gate after disposition;
+its exact result is recorded in the scoped receipt below. Source remains at the verified content;
+only decision/report artifacts changed.
 
 ## Reuse and construction review
 
@@ -320,7 +359,8 @@ was added. Intentional validation at both selection and snapshot boundaries prot
 
 No confirmed in-scope duplication/ownership violation or source-level approval shortcut was found.
 The instructions preserve real consent and unsupported-host stopping. Construction-history review
-does find F1; final code and fixture approval cannot prove the required earlier sequence. This is a
+does find F1; final code and fixture approval cannot prove the required earlier sequence. Round 2
+closes its completion block through the explicit human exception, while retaining this historical fact. This is a
 feature-scoped review, not a repository-wide audit or a live certification of external runtimes.
 
 ## Swept existing and limitations
@@ -346,12 +386,13 @@ Inspected S1 configuration/dispatch, S6 local JSON/filesystem and S10 approval b
 full feature diff. No credentials or new provider transport were introduced.
 
 SEC-001: executable validation PASS at `workflow_route.py:112`, `:143`, `:222`, `:231`, and safe
-destination/atomic replacement at `:41` and `:180`, backed by C2-C6 and M1-M5. Actual human approval
-history FAIL/unproven under F1 at `checks.md:116`; that cannot be repaired by a JSON status.
-Open Critical: 0. Open High: 0. Open Major process findings: 1. Security scope verdict: FAIL for
-the procedural acceptance obligation; no confirmed exploitable source defect in the inspected scope.
+destination/atomic replacement at `:41` and `:180`, backed by C2-C6 and M1-M5. Earlier human approval history remains absent under F1 at `checks.md:116`; that cannot be repaired
+by a JSON status. Round 2 independently reconciles the user's explicit historical exception and
+prospective acceptance at `checks.md:164`. Open Critical: 0. Open High: 0. Open Major: 0.
+Accepted historical Major process deviations: 1. Security scope verdict: PASS within that explicitly
+accepted scope; no confirmed exploitable source defect in the inspected source. The shipped rule is unchanged.
 
-## Execution metrics
+## Round 1 execution metrics (retained)
 
 Verifier receipt only; technical verification and manual QA share one measured actor interval and
 are not separately timed. Start: 2026-10-08 03:48:06.479 UTC from own session metadata. First clock
@@ -386,3 +427,42 @@ Reused test evidence: none. Waiting/blockers: F1 decision evidence. Unmeasured s
 after the telemetry snapshot; exact technical-versus-QA split; billing tier/rates. Verification cycles:
 1 pass, 0 implementation returns, 0 completed fix loops, 0 pending implementation returns;
 first-pass acceptance no, because historical approval evidence is unresolved.
+
+## Round 2 completion gate and execution receipt
+
+`python3 .agents/skills/wtk-lean/scripts/validate_verification.py task-aware-agent-selection`
+exited **0**, with **0 errors and 0 warnings**. `git diff --check` exited 0. This resolves the sole
+completion blocker through explicit human disposition; it does not erase the first-pass failure.
+No source/test edit, implementation return, fix batch, additional agent, worktree or remote action
+occurred. Only verification.md is modified for coordinator review and commit.
+
+Execution metrics — measured recheck actor interval: 2026-10-08T04:11:43Z -> 2026-10-08T04:14:36.687261+00:00.
+Same actor `01a119a0-1eb4-7513-8a02-d3b2907aba87`, OpenAI / gpt-6-astra / high,
+Codex CLI 0.160.1, self only, no children. Environment counters remain absent; exact assigned local
+telemetry and participating receipts (none) were checked. Source is the same allowlisted session
+reader used in round 1; no parent or builder counters are included.
+
+| Stage | Elapsed | Tokens (input / cached input / output) | Rounds |
+| --- | --- | --- | --- |
+| Scoped technical verification and approval/receipt QA | 173.687s combined | 475796 / 467584 / 5112 | 1 scoped recheck |
+
+Baseline read: 2026-10-08T04:11:43.384933Z; event 2026-10-08T03:57:46.521Z (the last cumulative event
+before this follow-up); input/cache/output/total 2252752 / 2096640 / 17264 / 2270016.
+Snapshot read: 2026-10-08T04:14:36.673032Z; event 2026-10-08T04:13:54.840Z.
+Snapshot input/cache/output/total: 2728548 / 2564224 / 22376 / 2750924.
+Measured delta total: 480908; reset count 0; measurement stage delta.
+The comparable endpoints share session/source/scope. Baseline telemetry predates wall-clock stage
+start because no newer usage event existed yet; closing/report generation after the snapshot is
+missing. Cached input is part of input, not an extra amount. Technical versus QA time is not split.
+
+Total elapsed and cumulative actor time for this recheck: 173.687s. Token coverage is partial
+at the closing boundary. Validation overhead is included: one real route resume/assertion walk and
+the affected completion/whitespace gates; no canonical suite was rerun. Reused evidence: all 63
+canonical tests, 8 fixture CLI calls, 5 killed faults and four original manual scenarios, with the
+scoped approval/receipt updates above. No full repository gate ran.
+
+Two verification passes total (one full, one scoped); zero implementation returns, zero completed
+fix loops, zero pending implementation returns. Overall first-pass acceptance remains no; final
+completion is accepted after the targeted human disposition. Estimated token cost and actually
+billed amount: unavailable, because rates/tier and task-scoped billing evidence were not verified.
+Optimization observed: unchanged executable proofs were carried forward instead of rerun.

@@ -4,6 +4,15 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+### Changed
+
+- WTK recommends task-specific provider/model/effort choices for needed stages and waits for explicit
+  human acceptance or overrides before delegation; unchanged retries reuse approved choices.
+- Feature routing now freezes confirmed stage selections in version 2 workflow snapshots without
+  requiring native role files. Obsolete native-provider flags and role-file bindings are removed.
+- Fresh checking sessions and handoffs use the current checkout; QA and Deep Review honor accepted
+  settings instead of automatic forks or fixed model presets. Unsupported controls remain explicit.
+
 ## [2.0.4] - 2026-10-07
 
 ### Fixed
