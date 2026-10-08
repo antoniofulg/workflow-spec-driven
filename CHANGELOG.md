@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-10-08
+
 ### Changed
 
 - WTK recommends task-specific provider/model/effort choices for needed stages and waits for explicit
@@ -12,6 +14,17 @@ All notable changes to this project are documented here.
   requiring native role files. Obsolete native-provider flags and role-file bindings are removed.
 - Fresh checking sessions and handoffs use the current checkout; QA and Deep Review honor accepted
   settings instead of automatic forks or fixed model presets. Unsupported controls remain explicit.
+
+### Fixed
+
+- Final execution reports include an overall measured total or known subtotal and a stage table
+  with durations, token counts and coverage. Combined scopes and missing baselines remain explicit.
+
+### Upgrade
+
+- Replace the removed `--native-provider` and role-provider overrides with a human-confirmed
+  `--selection-file`. Obsolete version 1 workflow snapshots are rejected; create a new confirmed
+  selection rather than expecting automatic migration. Existing native agent files stay untouched.
 
 ## [2.0.4] - 2026-10-07
 
